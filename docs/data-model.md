@@ -16,10 +16,14 @@ React components do not import JSON directly. They request a series by slug thro
 
 A future API or SQLite implementation can implement the same repository interface without changing the components that consume `EconomicSeries`. This is a narrow substitution point, not a dependency-injection framework.
 
+## Chart adapter boundary
+
+The domain model remains independent of Apache ECharts. A chart adapter creates chronologically sorted `[date, value]` tuples only at the chart boundary, preserving `null` values and leaving the source observations unchanged. Range selection and factual chart summaries operate on domain observations before adaptation.
+
 ## Current limitations
 
 - The application contains one locally bundled series.
 - Data does not refresh automatically and can become stale.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
-- There is no persistence, revision history, API, or charting.
-- No automated tests are configured yet.
+- There is no persistence, revision history, API, or automated refresh.
+- Charting currently supports one quarterly percentage series.

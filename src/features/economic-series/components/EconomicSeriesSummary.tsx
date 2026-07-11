@@ -1,4 +1,6 @@
+import { useMemo, useState } from 'react'
 import type { EconomicSeries } from '../models/economicSeries'
+import { EconomicTimeSeriesChart } from '../charts/EconomicTimeSeriesChart'
 import {
   findLatestNonNullObservation,
   formatDate,
@@ -6,15 +8,30 @@ import {
   formatQuarterlyObservationDate,
   selectMostRecentObservations,
 } from '../utils/economicSeries'
+import {
+  calculateChartSummary,
+  filterObservationsByTimeRange,
+  type TimeRange,
+} from '../utils/chartData'
 import { RecentObservationsTable } from './RecentObservationsTable'
+import { TimeRangeControl } from './TimeRangeControl'
 
 interface EconomicSeriesSummaryProps {
   series: EconomicSeries
 }
 
 export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
+  const [selectedRange, setSelectedRange] = useState<TimeRange>('20y')
   const latestObservation = findLatestNonNullObservation(series.observations)
   const recentObservations = selectMostRecentObservations(series.observations, 8)
+  const visibleObservations = useMemo(
+    () => filterObservationsByTimeRange(series.observations, selectedRange),
+    [selectedRange, series.observations],
+  )
+  const chartSummary = useMemo(
+    () => calculateChartSummary(visibleObservations),
+    [visibleObservations],
+  )
 
   return (
     <article className="series-card" aria-labelledby="series-question">
@@ -23,6 +40,42 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
         <h2 id="series-question">{series.question}</h2>
         <p className="series-card__title">{series.title}</p>
       </header>
+
+      <TimeRangeControl
+        selectedRange={selectedRange}
+        onRangeChange={setSelectedRange}
+      />
+
+      {chartSummary.observationCount > 0 ? (
+        <>
+          <EconomicTimeSeriesChart
+            observations={visibleObservations}
+            seriesName={series.shortTitle}
+          />
+          <p className="chart-summary" aria-live="polite">
+            For the selected period, real GDP growth ranged from{' '}
+            {formatPercentage(chartSummary.minimum?.value ?? null)} in{' '}
+            {chartSummary.minimum
+              ? formatQuarterlyObservationDate(chartSummary.minimum.date)
+              : 'an unavailable period'}{' '}
+            to {formatPercentage(chartSummary.maximum?.value ?? null)} in{' '}
+            {chartSummary.maximum
+              ? formatQuarterlyObservationDate(chartSummary.maximum.date)
+              : 'an unavailable period'}. The latest value is{' '}
+            {formatPercentage(chartSummary.latest?.value ?? null)} in{' '}
+            {chartSummary.latest
+              ? formatQuarterlyObservationDate(chartSummary.latest.date)
+              : 'an unavailable period'}.{' '}
+            {chartSummary.hasBelowZero
+              ? 'At least one observation was below zero.'
+              : 'No observations were below zero.'}
+          </p>
+        </>
+      ) : (
+        <p className="chart-state" role="status">
+          No GDP growth observations are available for the selected period.
+        </p>
+      )}
 
       <dl className="series-metadata">
         <div className="series-metadata__featured">

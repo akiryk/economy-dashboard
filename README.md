@@ -4,7 +4,7 @@ An information-first web application for understanding the U.S. economy through 
 
 ## Current scope
 
-Story 02 adds an explicit economic-series domain model, runtime validation, a local repository implementation, and a readable summary of U.S. real GDP year-over-year growth. Charting is not yet implemented.
+Story 03 adds an interactive real GDP year-over-year growth chart while preserving the explicit domain model, runtime validation, local repository, metadata, explanatory copy, and observations table.
 
 ## Technology stack
 
@@ -12,6 +12,7 @@ Story 02 adds an explicit economic-series domain model, runtime validation, a lo
 - TypeScript in strict mode
 - Vite
 - React Router
+- Apache ECharts
 - Plain CSS with custom properties
 - ESLint
 - npm
@@ -45,17 +46,27 @@ npm run dev
 npm run build
 npm run typecheck
 npm run lint
+npm test
 npm run preview
 ```
 
 - `build` type-checks the application and creates a production bundle.
 - `typecheck` runs TypeScript without emitting files.
 - `lint` checks the code with ESLint.
+- `test` runs the Vitest unit and component test suite once. Use `npm run test:watch` during development.
 - `preview` serves the production build locally after it has been created.
 
 ## Testing status
 
-No test framework is installed yet. The validation and utility code is structured for focused automated tests in a future story.
+Vitest, React Testing Library, jest-dom, and jsdom cover chart-data adaptation, time-range filtering, factual chart summaries, and user-visible range-control behavior. ECharts itself is mocked in component tests so the tests focus on application data flow rather than canvas internals.
+
+## Chart behavior
+
+The GDP card renders a nonsmoothed quarterly line chart with a visible zero reference line, percentage axis, precise quarterly tooltips, and 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years; because the current dataset is shorter, all available observations are initially shown. Range boundaries are calculated from the latest observation date rather than today's date.
+
+The chart includes an updating text summary of the latest, minimum, and maximum visible observations and whether any values fall below zero. The semantic recent-observations table remains available as a detailed nonvisual alternative.
+
+Apache ECharts is integrated directly through a small React lifecycle wrapper to limit wrapper dependencies and keep chart-library configuration separate from economic-domain data. See [`docs/charting.md`](docs/charting.md) for implementation details.
 
 ## Local economic data
 
@@ -70,7 +81,7 @@ To replace or update the snapshot:
 3. Update `retrievedAt` and verify all source metadata, including the provider series identifier and source URL.
 4. Run the type-check, lint, and production build commands below and manually verify the rendered latest value and recent-observations table.
 
-The data is currently bundled at build time. No live data fetching, persistence, or charting exists yet.
+The data is currently bundled at build time. No live data fetching, persistence, or automatic chart refresh exists yet.
 
 ## Project structure
 
@@ -86,6 +97,7 @@ src/
   features/
     economic-series/
       components/
+      charts/
       data/
       models/
       repositories/
@@ -98,6 +110,7 @@ src/
     tokens.css
   main.tsx
 docs/
+  charting.md
   data-model.md
 ```
 

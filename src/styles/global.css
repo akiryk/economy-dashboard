@@ -79,6 +79,8 @@ p {
 }
 
 .app-main {
+  width: 100%;
+  min-width: 0;
   max-width: var(--content-max-width);
   margin: 0 auto;
   padding: var(--space-12) var(--space-6);
@@ -86,6 +88,7 @@ p {
 
 .page {
   display: grid;
+  min-width: 0;
   gap: var(--space-8);
 }
 
@@ -113,6 +116,75 @@ p {
   border-radius: var(--radius-medium);
 }
 
+.time-range-control {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.time-range-control legend {
+  margin-bottom: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.time-range-control__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.time-range-control button {
+  padding: var(--space-2) var(--space-4);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  cursor: pointer;
+}
+
+.time-range-control button:hover {
+  border-color: var(--color-text-muted);
+}
+
+.time-range-control button[aria-pressed='true'] {
+  border: 2px solid var(--color-text);
+  padding: calc(var(--space-2) - 1px) calc(var(--space-4) - 1px);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.economic-chart,
+.chart-state {
+  width: 100%;
+  min-width: 0;
+  height: 24rem;
+}
+
+.chart-state {
+  display: grid;
+  place-items: center;
+  height: auto;
+  min-height: 18rem;
+  padding: var(--space-6);
+  color: var(--color-text-muted);
+  background: var(--color-page-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  text-align: center;
+}
+
+.chart-summary {
+  max-width: 54rem;
+  padding-left: var(--space-4);
+  color: var(--color-text-muted);
+  border-left: 0.2rem solid var(--color-border);
+}
+
 .status-message {
   color: var(--color-text-muted);
 }
@@ -124,7 +196,12 @@ p {
 
 .series-card {
   display: grid;
+  min-width: 0;
   gap: var(--space-8);
+}
+
+.series-card > * {
+  min-width: 0;
 }
 
 .series-card__header {
@@ -209,6 +286,9 @@ p {
 }
 
 .table-scroll {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   overflow-x: auto;
 }
 
