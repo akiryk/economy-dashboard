@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import realGdpGrowthData from '../data/real-gdp-growth.json'
@@ -9,7 +9,7 @@ import { EconomicSeriesSummary } from './EconomicSeriesSummary'
 const chartPropsSpy = vi.hoisted(() => vi.fn())
 
 vi.mock('../charts/EconomicTimeSeriesChart', () => ({
-  EconomicTimeSeriesChart: (props: {
+  default: (props: {
     observations: readonly EconomicObservation[]
     seriesName: string
   }) => {
@@ -26,6 +26,17 @@ afterEach(() => {
 })
 
 describe('EconomicSeriesSummary', () => {
+  it('renders non-chart content and a stable loading fallback immediately', async () => {
+    render(<EconomicSeriesSummary series={series} />)
+
+    expect(screen.getByText('Loading chart visualization…')).toBeVisible()
+    expect(screen.getByText('Latest value')).toBeVisible()
+    expect(
+      screen.getByRole('heading', { name: 'What this tells you' }),
+    ).toBeVisible()
+    expect(await screen.findByTestId('economic-chart')).toBeVisible()
+  })
+
   it('renders range controls with 20 years initially selected', () => {
     render(<EconomicSeriesSummary series={series} />)
 
@@ -50,6 +61,7 @@ describe('EconomicSeriesSummary', () => {
       'aria-pressed',
       'true',
     )
+    await waitFor(() => expect(chartPropsSpy).toHaveBeenCalled())
     const latestChartProps = chartPropsSpy.mock.calls.at(-1)?.[0] as {
       observations: EconomicObservation[]
     }

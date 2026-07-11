@@ -23,7 +23,7 @@ The domain model remains independent of Apache ECharts. A chart adapter creates 
 ## Current limitations
 
 - The application contains one locally bundled series.
-- Data does not refresh automatically and can become stale.
+- Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.
 - Charting currently supports one quarterly percentage series.

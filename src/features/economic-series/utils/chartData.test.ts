@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { EconomicObservation } from '../models/economicSeries'
+import realGdpGrowthData from '../data/real-gdp-growth.json'
+import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import {
   calculateChartSummary,
   filterObservationsByTimeRange,
@@ -26,6 +28,23 @@ describe('filterObservationsByTimeRange', () => {
 
     expect(filterObservationsByTimeRange(observations, 'max')).toHaveLength(4)
     expect(observations).toEqual(original)
+  })
+
+  it('produces distinct ranges for the expanded GDP history', () => {
+    const series = validateEconomicSeries(realGdpGrowthData)
+
+    expect(filterObservationsByTimeRange(series.observations, '5y')).toHaveLength(
+      21,
+    )
+    expect(
+      filterObservationsByTimeRange(series.observations, '10y'),
+    ).toHaveLength(41)
+    expect(
+      filterObservationsByTimeRange(series.observations, '20y'),
+    ).toHaveLength(81)
+    expect(
+      filterObservationsByTimeRange(series.observations, 'max'),
+    ).toHaveLength(105)
   })
 })
 

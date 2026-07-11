@@ -26,7 +26,7 @@ export interface EconomicTimeSeriesChartProps {
   seriesName: string
 }
 
-export function EconomicTimeSeriesChart({
+export default function EconomicTimeSeriesChart({
   observations,
   seriesName,
 }: EconomicTimeSeriesChartProps) {

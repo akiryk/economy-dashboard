@@ -1,6 +1,5 @@
-import { useMemo, useState } from 'react'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import type { EconomicSeries } from '../models/economicSeries'
-import { EconomicTimeSeriesChart } from '../charts/EconomicTimeSeriesChart'
 import {
   findLatestNonNullObservation,
   formatDate,
@@ -15,6 +14,10 @@ import {
 } from '../utils/chartData'
 import { RecentObservationsTable } from './RecentObservationsTable'
 import { TimeRangeControl } from './TimeRangeControl'
+
+const EconomicTimeSeriesChart = lazy(
+  () => import('../charts/EconomicTimeSeriesChart'),
+)
 
 interface EconomicSeriesSummaryProps {
   series: EconomicSeries
@@ -48,10 +51,18 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
 
       {chartSummary.observationCount > 0 ? (
         <>
-          <EconomicTimeSeriesChart
-            observations={visibleObservations}
-            seriesName={series.shortTitle}
-          />
+          <Suspense
+            fallback={
+              <p className="chart-state" role="status">
+                Loading chart visualization…
+              </p>
+            }
+          >
+            <EconomicTimeSeriesChart
+              observations={visibleObservations}
+              seriesName={series.shortTitle}
+            />
+          </Suspense>
           <p className="chart-summary" aria-live="polite">
             For the selected period, real GDP growth ranged from{' '}
             {formatPercentage(chartSummary.minimum?.value ?? null)} in{' '}
