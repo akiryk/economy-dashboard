@@ -12,6 +12,7 @@ vi.mock('../charts/EconomicTimeSeriesChart', () => ({
   default: (props: {
     observations: readonly EconomicObservation[]
     seriesName: string
+    frequency: string
   }) => {
     chartPropsSpy(props)
     return <div data-testid="economic-chart" />
@@ -79,7 +80,7 @@ describe('EconomicSeriesSummary', () => {
     ).toBeVisible()
     expect(
       screen.getByRole('table', {
-        name: 'Eight most recent GDP growth observations',
+        name: 'Eight most recent real GDP growth observations',
       }),
     ).toBeVisible()
   })
@@ -96,13 +97,13 @@ describe('EconomicSeriesSummary', () => {
 
     expect(
       screen.getByText(
-        'No GDP growth observations are available for the selected period.',
+        'No Real GDP growth observations are available for the selected period.',
       ),
     ).toBeVisible()
     expect(screen.queryByTestId('economic-chart')).not.toBeInTheDocument()
     expect(
       screen.getByRole('table', {
-        name: 'Eight most recent GDP growth observations',
+        name: 'Eight most recent real GDP growth observations',
       }),
     ).toBeVisible()
   })

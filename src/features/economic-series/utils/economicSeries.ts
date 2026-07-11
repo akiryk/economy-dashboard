@@ -1,4 +1,7 @@
-import type { EconomicObservation } from '../models/economicSeries'
+import type {
+  EconomicFrequency,
+  EconomicObservation,
+} from '../models/economicSeries'
 
 export function sortObservationsChronologically(
   observations: readonly EconomicObservation[],
@@ -34,11 +37,46 @@ export function selectMostRecentObservations(
     .slice(0, count)
 }
 
-export function formatQuarterlyObservationDate(date: string): string {
-  const [year, month] = date.split('-').map(Number)
-  const quarter = Math.floor((month - 1) / 3) + 1
+function parseIsoDate(date: string): Date {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date)
+  if (!match) throw new RangeError(`Invalid observation date: ${date}`)
 
-  return `Q${quarter} ${year}`
+  const parsed = new Date(
+    Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])),
+  )
+  if (parsed.toISOString().slice(0, 10) !== date) {
+    throw new RangeError(`Invalid observation date: ${date}`)
+  }
+  return parsed
+}
+
+export function formatObservationPeriod(
+  date: string,
+  frequency: EconomicFrequency,
+): string {
+  const parsed = parseIsoDate(date)
+  const year = parsed.getUTCFullYear()
+  const month = parsed.getUTCMonth() + 1
+
+  if (frequency === 'monthly') {
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC',
+    }).format(parsed)
+  }
+
+  if (frequency === 'quarterly') {
+    const quarter = Math.floor((month - 1) / 3) + 1
+    return `${year} Q${quarter}`
+  }
+
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(parsed)
 }
 
 export function formatPercentage(value: number | null): string {

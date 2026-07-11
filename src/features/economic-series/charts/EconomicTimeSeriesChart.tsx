@@ -8,7 +8,10 @@ import {
   TooltipComponent,
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
-import type { EconomicObservation } from '../models/economicSeries'
+import type {
+  EconomicFrequency,
+  EconomicObservation,
+} from '../models/economicSeries'
 import { adaptObservationsToChartData } from './chartAdapters'
 import { createEconomicTimeSeriesChartOptions } from './economicTimeSeriesChartOptions'
 
@@ -24,11 +27,13 @@ echarts.use([
 export interface EconomicTimeSeriesChartProps {
   observations: readonly EconomicObservation[]
   seriesName: string
+  frequency: EconomicFrequency
 }
 
 export default function EconomicTimeSeriesChart({
   observations,
   seriesName,
+  frequency,
 }: EconomicTimeSeriesChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<echarts.ECharts | null>(null)
@@ -73,14 +78,18 @@ export default function EconomicTimeSeriesChart({
 
     try {
       chart.setOption(
-        createEconomicTimeSeriesChartOptions({ data: chartData, seriesName }),
+        createEconomicTimeSeriesChartOptions({
+          data: chartData,
+          seriesName,
+          frequency,
+        }),
         { notMerge: true },
       )
     } catch (error: unknown) {
       console.error('Failed to update the economic time-series chart', error)
       queueMicrotask(() => setInitializationError(true))
     }
-  }, [chartData, seriesName])
+  }, [chartData, frequency, seriesName])
 
   if (initializationError) {
     return (

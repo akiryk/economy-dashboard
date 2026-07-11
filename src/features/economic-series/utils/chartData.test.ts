@@ -46,6 +46,24 @@ describe('filterObservationsByTimeRange', () => {
       filterObservationsByTimeRange(series.observations, 'max'),
     ).toHaveLength(105)
   })
+
+  it('filters monthly data from the latest date and includes the boundary', () => {
+    const monthlyObservations = Array.from({ length: 73 }, (_, index) => {
+      const date = new Date(Date.UTC(2020, 4 + index, 1))
+      return { date: date.toISOString().slice(0, 10), value: index }
+    }).reverse()
+    const original = structuredClone(monthlyObservations)
+
+    const fiveYears = filterObservationsByTimeRange(monthlyObservations, '5y')
+
+    expect(fiveYears).toHaveLength(61)
+    expect(fiveYears[0]?.date).toBe('2021-05-01')
+    expect(fiveYears.at(-1)?.date).toBe('2026-05-01')
+    expect(filterObservationsByTimeRange(monthlyObservations, 'max')).toHaveLength(
+      73,
+    )
+    expect(monthlyObservations).toEqual(original)
+  })
 })
 
 describe('calculateChartSummary', () => {

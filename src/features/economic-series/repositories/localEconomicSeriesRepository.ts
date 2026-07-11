@@ -1,17 +1,21 @@
-import realGdpGrowthData from '../data/real-gdp-growth.json'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import type { EconomicSeriesRepository } from './EconomicSeriesRepository'
 
-const localSeriesBySlug: Readonly<Record<string, unknown>> = {
-  'real-gdp-growth': realGdpGrowthData,
+const localSeriesLoaders: Readonly<
+  Record<string, () => Promise<{ default: unknown }>>
+> = {
+  'real-gdp-growth': () => import('../data/real-gdp-growth.json'),
+  'headline-cpi-inflation': () =>
+    import('../data/headline-cpi-inflation.json'),
 }
 
 export const localEconomicSeriesRepository: EconomicSeriesRepository = {
   async getBySlug(slug) {
-    const data = localSeriesBySlug[slug]
+    const loadSeries = localSeriesLoaders[slug]
 
-    if (data === undefined) return null
+    if (!loadSeries) return null
 
-    return validateEconomicSeries(data)
+    const module = await loadSeries()
+    return validateEconomicSeries(module.default)
   },
 }

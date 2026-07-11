@@ -3,8 +3,8 @@ import type { EconomicSeries } from '../models/economicSeries'
 import {
   findLatestNonNullObservation,
   formatDate,
+  formatObservationPeriod,
   formatPercentage,
-  formatQuarterlyObservationDate,
   selectMostRecentObservations,
 } from '../utils/economicSeries'
 import {
@@ -14,6 +14,7 @@ import {
 } from '../utils/chartData'
 import { RecentObservationsTable } from './RecentObservationsTable'
 import { TimeRangeControl } from './TimeRangeControl'
+import { getEconomicSeriesPresentation } from './seriesPresentation'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -25,8 +26,12 @@ interface EconomicSeriesSummaryProps {
 
 export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
   const [selectedRange, setSelectedRange] = useState<TimeRange>('20y')
+  const presentation = getEconomicSeriesPresentation(series.slug)
   const latestObservation = findLatestNonNullObservation(series.observations)
-  const recentObservations = selectMostRecentObservations(series.observations, 8)
+  const recentObservations = selectMostRecentObservations(
+    series.observations,
+    presentation.recentObservationCount,
+  )
   const visibleObservations = useMemo(
     () => filterObservationsByTimeRange(series.observations, selectedRange),
     [selectedRange, series.observations],
@@ -37,10 +42,13 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
   )
 
   return (
-    <article className="series-card" aria-labelledby="series-question">
+    <article
+      className="series-card"
+      aria-labelledby={`${series.slug}-question`}
+    >
       <header className="series-card__header">
-        <p className="series-card__eyebrow">Economic growth</p>
-        <h2 id="series-question">{series.question}</h2>
+        <p className="series-card__eyebrow">{presentation.topicLabel}</p>
+        <h2 id={`${series.slug}-question`}>{series.question}</h2>
         <p className="series-card__title">{series.title}</p>
       </header>
 
@@ -61,21 +69,31 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
             <EconomicTimeSeriesChart
               observations={visibleObservations}
               seriesName={series.shortTitle}
+              frequency={series.frequency}
             />
           </Suspense>
           <p className="chart-summary" aria-live="polite">
-            For the selected period, real GDP growth ranged from{' '}
+            For the selected period, {series.shortTitle} ranged from{' '}
             {formatPercentage(chartSummary.minimum?.value ?? null)} in{' '}
             {chartSummary.minimum
-              ? formatQuarterlyObservationDate(chartSummary.minimum.date)
+              ? formatObservationPeriod(
+                  chartSummary.minimum.date,
+                  series.frequency,
+                )
               : 'an unavailable period'}{' '}
             to {formatPercentage(chartSummary.maximum?.value ?? null)} in{' '}
             {chartSummary.maximum
-              ? formatQuarterlyObservationDate(chartSummary.maximum.date)
+              ? formatObservationPeriod(
+                  chartSummary.maximum.date,
+                  series.frequency,
+                )
               : 'an unavailable period'}. The latest value is{' '}
             {formatPercentage(chartSummary.latest?.value ?? null)} in{' '}
             {chartSummary.latest
-              ? formatQuarterlyObservationDate(chartSummary.latest.date)
+              ? formatObservationPeriod(
+                  chartSummary.latest.date,
+                  series.frequency,
+                )
               : 'an unavailable period'}.{' '}
             {chartSummary.hasBelowZero
               ? 'At least one observation was below zero.'
@@ -84,7 +102,8 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
         </>
       ) : (
         <p className="chart-state" role="status">
-          No GDP growth observations are available for the selected period.
+          No {series.shortTitle} observations are available for the selected
+          period.
         </p>
       )}
 
@@ -97,7 +116,10 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
           <dt>Latest observation period</dt>
           <dd>
             {latestObservation
-              ? formatQuarterlyObservationDate(latestObservation.date)
+              ? formatObservationPeriod(
+                  latestObservation.date,
+                  series.frequency,
+                )
               : 'Not available'}
           </dd>
         </div>
@@ -107,7 +129,9 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
         </div>
         <div>
           <dt>Frequency</dt>
-          <dd>Quarterly</dd>
+          <dd>
+            {series.frequency.charAt(0).toUpperCase() + series.frequency.slice(1)}
+          </dd>
         </div>
         <div>
           <dt>Seasonal adjustment</dt>
@@ -135,22 +159,23 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
         <section>
           <h3>What this tells you</h3>
           <p>
-            Real GDP measures the inflation-adjusted value of goods and services
-            produced in the United States. Year-over-year growth compares output
-            with the same period one year earlier.
+            {presentation.whatThisTellsYou}
           </p>
         </section>
         <section>
           <h3>What this does not tell you</h3>
           <p>
-            Total GDP growth does not show how gains are distributed, whether GDP
-            per person is rising, or whether typical households are financially
-            better off.
+            {presentation.whatThisDoesNotTellYou}
           </p>
         </section>
       </div>
 
-      <RecentObservationsTable observations={recentObservations} />
+      <RecentObservationsTable
+        observations={recentObservations}
+        frequency={series.frequency}
+        caption={presentation.recentObservationsCaption}
+        valueColumnLabel={presentation.valueColumnLabel}
+      />
     </article>
   )
 }

@@ -3,16 +3,17 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { fetchFredObservations } from './fred/fredClient'
 import { normalizeFredSeries } from './fred/normalizeFredSeries'
+import {
+  fredSeriesConfigurations,
+  type FredSeriesConfig,
+} from './fred/seriesConfigurations'
 import { writeEconomicSeriesAtomically } from './writeEconomicSeries'
-
-const outputPath = path.resolve(
-  'src/features/economic-series/data/real-gdp-growth.json',
-)
 
 export interface RefreshEconomicDataOptions {
   apiKey: string
   outputPath: string
   retrievedAt: string
+  config?: FredSeriesConfig
   fetchImplementation?: typeof fetch
 }
 
@@ -20,12 +21,58 @@ export async function refreshEconomicData({
   apiKey,
   outputPath: targetPath,
   retrievedAt,
+  config = fredSeriesConfigurations[0]!,
   fetchImplementation,
 }: RefreshEconomicDataOptions) {
-  const fredResponse = await fetchFredObservations(apiKey, fetchImplementation)
-  const series = normalizeFredSeries(fredResponse, retrievedAt)
+  const fredResponse = await fetchFredObservations(
+    apiKey,
+    config,
+    fetchImplementation,
+  )
+  const series = normalizeFredSeries(fredResponse, retrievedAt, config)
   await writeEconomicSeriesAtomically(targetPath, series)
   return series
+}
+
+export type RefreshOutcome =
+  | { status: 'updated'; config: FredSeriesConfig; series: Awaited<ReturnType<typeof refreshEconomicData>> }
+  | { status: 'failed'; config: FredSeriesConfig; message: string }
+
+interface RefreshAllEconomicDataOptions {
+  apiKey: string
+  retrievedAt: string
+  configurations?: readonly FredSeriesConfig[]
+  fetchImplementation?: typeof fetch
+}
+
+export async function refreshAllEconomicData({
+  apiKey,
+  retrievedAt,
+  configurations = fredSeriesConfigurations,
+  fetchImplementation,
+}: RefreshAllEconomicDataOptions): Promise<RefreshOutcome[]> {
+  const outcomes: RefreshOutcome[] = []
+
+  for (const config of configurations) {
+    try {
+      const series = await refreshEconomicData({
+        apiKey,
+        outputPath: path.resolve(config.outputFile),
+        retrievedAt,
+        config,
+        fetchImplementation,
+      })
+      outcomes.push({ status: 'updated', config, series })
+    } catch (error: unknown) {
+      outcomes.push({
+        status: 'failed',
+        config,
+        message: error instanceof Error ? error.message : 'Unknown failure',
+      })
+    }
+  }
+
+  return outcomes
 }
 
 function loadLocalEnvironment(): void {
@@ -53,23 +100,36 @@ async function main(): Promise<void> {
   }
 
   const retrievedAt = new Date().toISOString().slice(0, 10)
-  const series = await refreshEconomicData({
+  const outcomes = await refreshAllEconomicData({
     apiKey,
-    outputPath,
     retrievedAt,
   })
-  const latest = series.observations.at(-1)
 
-  console.log(`Refreshed ${series.providerSeriesId}`)
-  console.log(`Transformation: ${series.transformation}`)
-  console.log(`Observations: ${series.observations.length}`)
-  console.log(
-    `Range: ${series.observations[0]?.date} to ${latest?.date ?? 'unavailable'}`,
-  )
-  console.log(
-    `Latest: ${latest?.date ?? 'unavailable'} (${latest?.value ?? 'missing'})`,
-  )
-  console.log(`Output: ${outputPath}`)
+  for (const outcome of outcomes) {
+    if (outcome.status === 'failed') {
+      console.error(
+        `Failed ${outcome.config.providerSeriesId}: ${outcome.message}`,
+      )
+      continue
+    }
+
+    const { series } = outcome
+    const latest = series.observations.at(-1)
+    console.log(`Refreshed ${series.providerSeriesId}`)
+    console.log(`Transformation: ${series.transformation}`)
+    console.log(`Observations: ${series.observations.length}`)
+    console.log(
+      `Range: ${series.observations[0]?.date} to ${latest?.date ?? 'unavailable'}`,
+    )
+    console.log(
+      `Latest: ${latest?.date ?? 'unavailable'} (${latest?.value ?? 'missing'})`,
+    )
+    console.log(`Output: ${path.resolve(outcome.config.outputFile)}`)
+  }
+
+  if (outcomes.some((outcome) => outcome.status === 'failed')) {
+    process.exitCode = 1
+  }
 }
 
 const isDirectExecution =

@@ -4,7 +4,7 @@ An information-first web application for understanding the U.S. economy through 
 
 ## Current scope
 
-Story 04 adds a repeatable FRED refresh command and defers Apache ECharts into a separate production chunk. The dashboard remains a static application backed by a validated, committed GDP dataset.
+Story 05 adds headline CPI inflation as the dashboard’s second production-quality series. GDP and CPI share the validated repository, card, chart, range, accessibility, and refresh architecture while retaining frequency-specific presentation.
 
 ## Technology stack
 
@@ -64,7 +64,7 @@ Vitest, React Testing Library, jest-dom, and jsdom cover chart-data adaptation, 
 
 ## Chart behavior
 
-The GDP card renders a nonsmoothed quarterly line chart with a visible zero reference line, percentage axis, precise quarterly tooltips, and 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Range boundaries are calculated from the latest observation date rather than today's date.
+The GDP and CPI cards render nonsmoothed time-series charts with visible zero reference lines, percentage axes, frequency-aware tooltips, and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Range boundaries are calculated from each series’ latest observation date rather than today's date.
 
 The chart includes an updating text summary of the latest, minimum, and maximum visible observations and whether any values fall below zero. The semantic recent-observations table remains available as a detailed nonvisual alternative.
 
@@ -72,7 +72,12 @@ Apache ECharts is integrated directly through a small React lifecycle wrapper an
 
 ## Local economic data
 
-The dataset is bundled locally at `src/features/economic-series/data/real-gdp-growth.json`. It contains 105 quarterly observations from 2000 Q1 through 2026 Q1 for FRED provider series `GDPC1` (Real Gross Domestic Product), transformed by FRED to percent change from one year ago. The underlying series is produced by the U.S. Bureau of Economic Analysis. The current snapshot was retrieved from [FRED](https://fred.stlouisfed.org/series/GDPC1) on July 11, 2026.
+Two datasets are bundled locally:
+
+- `real-gdp-growth.json` contains 105 quarterly observations from 2000 Q1 through 2026 Q1 for FRED series `GDPC1`, transformed to percent change from one year ago. The underlying series is produced by the U.S. Bureau of Economic Analysis.
+- `headline-cpi-inflation.json` contains 317 monthly observations from January 2000 through May 2026 for FRED series `CPIAUCSL`, transformed to percent change from one year ago. The underlying seasonally adjusted CPI index is produced by the U.S. Bureau of Labor Statistics.
+
+Both current snapshots were retrieved from FRED on July 11, 2026.
 
 Components request data asynchronously through the `EconomicSeriesRepository` interface instead of importing JSON. The local repository validates committed data at runtime, while preserving a boundary that can later be implemented by an application API or another data store.
 
@@ -92,11 +97,11 @@ Then run:
 npm run data:refresh
 ```
 
-The command requests `GDPC1` observations beginning January 1, 2000, using FRED's `pc1` transformation, validates and normalizes the response, and atomically replaces `src/features/economic-series/data/real-gdp-growth.json`. Verify and commit the generated JSON after reviewing the reported date range and latest value.
+The command sequentially refreshes every explicitly configured series: quarterly `GDPC1` and monthly `CPIAUCSL`, both beginning January 1, 2000 and using FRED's `pc1` transformation. Each response is validated, normalized, and atomically written independently. A failure leaves that series’ previous file intact, does not undo successful updates for other series, and makes the command exit nonzero after reporting every outcome.
 
 See [`docs/data-refresh.md`](docs/data-refresh.md) for the data flow and failure behavior.
 
-Data refresh remains a manual developer command. There is no live browser fetching, persistence, automatic scheduling, or runtime backend.
+Data remains committed and browser-static. Refresh remains a manual developer command; there is no live browser fetching, persistence, automatic scheduling, or runtime backend.
 
 ## Project structure
 

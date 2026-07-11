@@ -12,6 +12,13 @@ export interface FredObservationsResponse {
 
 type FetchImplementation = typeof fetch
 
+export interface FredRequestConfig {
+  providerSeriesId: string
+  fredFrequency: 'm' | 'q'
+  observationStart: string
+  unitsParameter: 'pc1'
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
@@ -74,16 +81,17 @@ export function validateFredObservationsResponse(
 
 export async function fetchFredObservations(
   apiKey: string,
+  config: FredRequestConfig,
   fetchImplementation: FetchImplementation = fetch,
 ): Promise<FredObservationsResponse> {
   const url = new URL(FRED_OBSERVATIONS_ENDPOINT)
   url.search = new URLSearchParams({
-    series_id: 'GDPC1',
+    series_id: config.providerSeriesId,
     api_key: apiKey,
     file_type: 'json',
-    units: 'pc1',
-    frequency: 'q',
-    observation_start: '2000-01-01',
+    units: config.unitsParameter,
+    frequency: config.fredFrequency,
+    observation_start: config.observationStart,
     sort_order: 'asc',
   }).toString()
 

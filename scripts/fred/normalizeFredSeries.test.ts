@@ -5,6 +5,10 @@ import {
   type FredObservationsResponse,
 } from './fredClient'
 import { normalizeFredSeries } from './normalizeFredSeries'
+import { fredSeriesConfigurations } from './seriesConfigurations'
+
+const gdpConfig = fredSeriesConfigurations[0]!
+const cpiConfig = fredSeriesConfigurations[1]!
 
 function createQuarterlyResponse(count = 81): FredObservationsResponse {
   return {
@@ -48,7 +52,7 @@ describe('normalizeFredSeries', () => {
     const response = createQuarterlyResponse()
     response.observations.reverse()
 
-    const series = normalizeFredSeries(response, '2025-01-01')
+    const series = normalizeFredSeries(response, '2025-01-01', gdpConfig)
 
     expect(series.providerSeriesId).toBe('GDPC1')
     expect(series.observations[0]?.date).toBe('2000-01-01')
@@ -63,7 +67,7 @@ describe('normalizeFredSeries', () => {
       value: '.',
     }
 
-    const series = normalizeFredSeries(response, '2025-01-01')
+    const series = normalizeFredSeries(response, '2025-01-01', gdpConfig)
 
     expect(series.observations[10]?.value).toBeNull()
   })
@@ -72,8 +76,33 @@ describe('normalizeFredSeries', () => {
     const response = createQuarterlyResponse()
     const original = structuredClone(response)
 
-    normalizeFredSeries(response, '2025-01-01')
+    normalizeFredSeries(response, '2025-01-01', gdpConfig)
 
+    expect(response).toEqual(original)
+  })
+
+  it('normalizes CPI metadata and excludes future observations', () => {
+    const response: FredObservationsResponse = {
+      observations: Array.from({ length: 241 }, (_, index) => {
+        const date = new Date(Date.UTC(2000, index, 1))
+        return {
+          date: date.toISOString().slice(0, 10),
+          value: String(2 + index / 100),
+        }
+      }),
+    }
+    response.observations.push({ date: '2026-01-01', value: '3.5' })
+    const original = structuredClone(response)
+
+    const series = normalizeFredSeries(response, '2020-01-01', cpiConfig)
+
+    expect(cpiConfig.providerSeriesId).toBe('CPIAUCSL')
+    expect(cpiConfig.fredFrequency).toBe('m')
+    expect(cpiConfig.unitsParameter).toBe('pc1')
+    expect(series.providerSeriesId).toBe('CPIAUCSL')
+    expect(series.frequency).toBe('monthly')
+    expect(series.observations.at(-1)?.date).toBe('2020-01-01')
+    expect(validateEconomicSeries(series)).toEqual(series)
     expect(response).toEqual(original)
   })
 })

@@ -3,14 +3,16 @@ import type {
   TooltipComponentFormatterCallbackParams,
 } from 'echarts'
 import type { ChartDataPoint } from './chartAdapters'
+import type { EconomicFrequency } from '../models/economicSeries'
 import {
+  formatObservationPeriod,
   formatPercentage,
-  formatQuarterlyObservationDate,
 } from '../utils/economicSeries'
 
 interface EconomicTimeSeriesChartOptionsInput {
   data: ChartDataPoint[]
   seriesName: string
+  frequency: EconomicFrequency
 }
 
 function isChartDataPoint(value: unknown): value is ChartDataPoint {
@@ -24,25 +26,27 @@ function isChartDataPoint(value: unknown): value is ChartDataPoint {
 function formatTooltip(
   params: TooltipComponentFormatterCallbackParams,
   seriesName: string,
+  frequency: EconomicFrequency,
 ): string {
   const item = Array.isArray(params) ? params[0] : params
 
   if (!item || !isChartDataPoint(item.value)) return seriesName
 
   const [date, value] = item.value
-  return `${formatQuarterlyObservationDate(date)}\n${seriesName}: ${formatPercentage(value)}`
+  return `${formatObservationPeriod(date, frequency)}\n${seriesName}: ${formatPercentage(value)}`
 }
 
 export function createEconomicTimeSeriesChartOptions({
   data,
   seriesName,
+  frequency,
 }: EconomicTimeSeriesChartOptionsInput): EChartsCoreOption {
   return {
     animation: false,
     aria: {
       enabled: true,
       decal: { show: false },
-      description: `${seriesName}, quarterly percent change from one year ago. A detailed data table follows the chart.`,
+      description: `${seriesName}, ${frequency} percent change from one year ago. A detailed data table follows the chart.`,
     },
     grid: {
       top: 24,
@@ -56,7 +60,7 @@ export function createEconomicTimeSeriesChartOptions({
       renderMode: 'richText',
       confine: true,
       formatter: (params: TooltipComponentFormatterCallbackParams) =>
-        formatTooltip(params, seriesName),
+        formatTooltip(params, seriesName, frequency),
       axisPointer: {
         type: 'line',
         lineStyle: { color: '#56616d', width: 1 },

@@ -1,10 +1,12 @@
 import type { EconomicSeries } from '../../src/features/economic-series/models/economicSeries'
 import { validateEconomicSeries } from '../../src/features/economic-series/models/validateEconomicSeries'
 import type { FredObservationsResponse } from './fredClient'
+import type { FredSeriesConfig } from './seriesConfigurations'
 
 export function normalizeFredSeries(
   response: FredObservationsResponse,
   retrievedAt: string,
+  config: FredSeriesConfig,
 ): EconomicSeries {
   const observations = response.observations
     .filter((observation) => observation.date <= retrievedAt)
@@ -18,29 +20,27 @@ export function normalizeFredSeries(
     (observation) => observation.value !== null,
   ).length
 
-  if (usableObservationCount < 80) {
+  if (usableObservationCount < config.minimumUsableObservations) {
     throw new Error(
-      `Expected at least 80 usable quarterly observations, received ${usableObservationCount}`,
+      `Expected at least ${config.minimumUsableObservations} usable ${config.frequency} observations, received ${usableObservationCount}`,
     )
   }
 
   return validateEconomicSeries({
-    id: 'real-gdp-growth',
-    slug: 'real-gdp-growth',
+    id: config.id,
+    slug: config.slug,
     provider: 'Federal Reserve Bank of St. Louis',
-    providerSeriesId: 'GDPC1',
-    title: 'Real Gross Domestic Product: Percent Change from Year Ago',
-    shortTitle: 'Real GDP growth',
-    description:
-      'Inflation-adjusted U.S. gross domestic product, expressed as the percentage change from the same quarter one year earlier.',
-    question: 'Is the U.S. economy growing?',
-    units: 'Percent change from year ago',
-    frequency: 'quarterly',
-    seasonalAdjustment:
-      'Seasonally adjusted annual rate (underlying GDP level)',
-    transformation: 'Percent change from year ago',
-    sourceName: 'U.S. Bureau of Economic Analysis via FRED',
-    sourceUrl: 'https://fred.stlouisfed.org/series/GDPC1',
+    providerSeriesId: config.providerSeriesId,
+    title: config.title,
+    shortTitle: config.shortTitle,
+    description: config.description,
+    question: config.question,
+    units: config.units,
+    frequency: config.frequency,
+    seasonalAdjustment: config.seasonalAdjustment,
+    transformation: config.transformation,
+    sourceName: config.sourceName,
+    sourceUrl: config.sourceUrl,
     retrievedAt,
     observations,
   })
