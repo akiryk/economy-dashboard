@@ -1,0 +1,272 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  color: var(--color-text);
+  background: var(--color-page-background);
+  line-height: 1.6;
+}
+
+body {
+  margin: 0;
+  min-width: 20rem;
+}
+
+a {
+  color: var(--color-link);
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  text-decoration-thickness: 0.12em;
+}
+
+:focus-visible {
+  outline: 0.2rem solid var(--color-focus);
+  outline-offset: 0.2rem;
+  border-radius: var(--radius-small);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 3rem);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+p {
+  margin: 0;
+}
+
+.app-layout {
+  min-height: 100vh;
+}
+
+.app-header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-header__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-6);
+}
+
+.app-header__brand {
+  color: var(--color-text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.app-header__nav-link {
+  font-weight: 600;
+}
+
+.app-header__nav-link[aria-current='page'] {
+  color: var(--color-text);
+  text-decoration-thickness: 0.12em;
+}
+
+.app-main {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--space-12) var(--space-6);
+}
+
+.page {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.page--narrow,
+.page-intro {
+  max-width: 48rem;
+}
+
+.page-intro {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.page-intro p,
+.page--narrow p {
+  color: var(--color-text-muted);
+  font-size: 1.125rem;
+}
+
+.status-message,
+.series-card {
+  padding: var(--space-8);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+}
+
+.status-message {
+  color: var(--color-text-muted);
+}
+
+.status-message--error {
+  color: var(--color-text);
+  border-left: 0.25rem solid var(--color-focus);
+}
+
+.series-card {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.series-card__header {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.series-card__header h2,
+.series-explanations h3 {
+  margin: 0;
+  line-height: 1.25;
+}
+
+.series-card__header h2 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.series-card__eyebrow {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.series-card__title {
+  color: var(--color-text-muted);
+}
+
+.series-metadata {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1px;
+  margin: 0;
+  overflow: hidden;
+  background: var(--color-border);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+}
+
+.series-metadata > div {
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+}
+
+.series-metadata dt {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.series-metadata dd {
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.series-metadata .series-metadata__featured dd {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.series-explanations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-8);
+}
+
+.series-explanations section {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+}
+
+.series-explanations h3 {
+  font-size: 1.125rem;
+}
+
+.series-explanations p {
+  color: var(--color-text-muted);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.observations-table {
+  width: 100%;
+  min-width: 30rem;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.observations-table caption {
+  margin-bottom: var(--space-3);
+  color: var(--color-text);
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+.observations-table th,
+.observations-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.observations-table thead th {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.observations-table td:last-child,
+.observations-table th:last-child {
+  text-align: right;
+}
+
+@media (max-width: 36rem) {
+  .app-header__content {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .app-header__content,
+  .app-main {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
+  .app-main {
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-8);
+  }
+
+  .series-card {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .series-explanations {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+}

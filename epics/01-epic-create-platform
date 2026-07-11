@@ -1,0 +1,864 @@
+# Epic 1: Establish the U.S. Economy Dashboard Platform
+
+## Objective
+
+Create the foundational application, repository, deployment pipeline, data model, and charting architecture for a U.S. economy dashboard.
+
+The completed epic must include one production-quality economic chart powered by real data. This chart serves as a vertical slice proving the full system:
+
+1. Retrieve data from an authoritative external source.
+2. Normalize and persist or cache the data.
+3. Expose the normalized data through an application-owned API.
+4. Render the data in an interactive React chart.
+5. Display source, units, frequency, observation date, and update status.
+6. Run locally and in a deployed production environment.
+
+This epic is infrastructure-oriented. It is not intended to build the complete dashboard.
+
+---
+
+# Product Context
+
+The application will help users assess the state of the U.S. economy without relying on a single politically convenient or potentially misleading statistic.
+
+Future versions will include charts covering:
+
+- Economic growth
+- Employment
+- Inflation
+- Real wages
+- Consumer finances
+- Manufacturing
+- Trade and tariffs
+- Housing
+- Business investment
+- Government finances
+- Productivity
+- Financial conditions
+
+Different datasets update at different frequencies and are frequently revised. The platform must therefore treat economic data as structured observations with metadata, rather than as simple arrays of chart points.
+
+---
+
+# Technical Direction
+
+Use the following stack unless an existing repository or deployment constraint makes a substitution necessary:
+
+- React
+- TypeScript
+- Vite
+- React Router
+- Supabase Postgres
+- Netlify
+- Netlify Functions or an equivalent server-side API layer
+- A React-compatible charting library
+
+Preferred charting-library order:
+
+1. Apache ECharts
+2. Visx
+3. Recharts
+
+Use Apache ECharts unless there is a concrete technical reason not to. The application will eventually require annotations, synchronized tooltips, recession shading, multiple axes, zooming, and several chart types.
+
+Use strict TypeScript throughout.
+
+---
+
+# Repository and Git Requirements
+
+Create a new Git repository for the project.
+
+The repository must include:
+
+- A meaningful project name
+- A complete `.gitignore`
+- A documented branch strategy
+- An initial commit containing only the approved project foundation
+- Clear, focused commits for subsequent work
+- No secrets or API keys in Git history
+- An `.env.example` file
+- A root-level `README.md`
+
+Use `main` as the primary branch.
+
+Do not create unnecessary long-lived development branches. Feature branches may be used during implementation, but the finished epic must be merge-ready on `main`.
+
+Use conventional commit-style messages where practical, such as:
+
+- `chore: initialize React application`
+- `feat: add economic series API`
+- `feat: render GDP growth chart`
+- `test: add data normalization tests`
+
+---
+
+# Application Structure
+
+Create a maintainable feature-oriented structure. A suitable starting point is:
+
+```text
+src/
+  app/
+    App.tsx
+    router.tsx
+    providers/
+  components/
+    layout/
+    ui/
+  features/
+    economic-series/
+      api/
+      components/
+      hooks/
+      models/
+      utils/
+  pages/
+    DashboardPage.tsx
+  styles/
+  test/
+
+netlify/
+  functions/
+
+supabase/
+  migrations/
+  seed/
+
+scripts/
+
+docs/
+```
+
+The exact structure may vary, but economic-series logic must not be scattered through generic components.
+
+Separate the following concerns:
+
+- External data retrieval
+- Data normalization
+- Persistence
+- Application API responses
+- Client-side data fetching
+- Chart presentation
+- Chart configuration
+- Human-readable explanatory content
+
+Do not place external API calls directly inside React components.
+
+---
+
+# Initial Vertical Slice
+
+Implement one chart:
+
+## Real GDP Growth
+
+The chart must use an authoritative public economic-data source.
+
+For this epic, use FRED as the external provider unless access problems make that impractical.
+
+Use a real GDP series appropriate for showing U.S. economic growth. The implementation must document the selected series identifier and why it was selected.
+
+The default chart should show real GDP growth as a year-over-year percentage change.
+
+The chart must not calculate growth from nominal GDP.
+
+If the upstream source already provides the desired transformation reliably, the application may request that transformation. Otherwise, calculate it in the application’s normalization layer and test the calculation.
+
+---
+
+# Data Architecture
+
+## Core Principles
+
+The browser must not call FRED directly.
+
+External-provider details must remain behind the server-side data layer.
+
+The client should consume an application-owned response format so that FRED can later be supplemented or replaced by direct BLS, BEA, Census, Treasury, or other agency integrations.
+
+## Canonical Series Model
+
+Create a normalized series model resembling:
+
+```ts
+export interface EconomicSeries {
+  id: string;
+  provider: string;
+  providerSeriesId: string;
+  title: string;
+  shortTitle: string;
+  description: string;
+  question: string;
+  units: string;
+  frequency: "daily" | "weekly" | "monthly" | "quarterly" | "annual";
+  seasonalAdjustment: string | null;
+  transformation: string;
+  sourceName: string;
+  sourceUrl: string;
+  observationStart: string | null;
+  observationEnd: string | null;
+  lastFetchedAt: string;
+  observations: EconomicObservation[];
+}
+
+export interface EconomicObservation {
+  date: string;
+  value: number | null;
+  realtimeStart?: string | null;
+  realtimeEnd?: string | null;
+}
+```
+
+This is an example, not a mandatory exact shape. Improve it where appropriate.
+
+The model must clearly distinguish:
+
+- The economic period represented by an observation
+- When the data was fetched
+- The original data provider
+- The original series identifier
+- The displayed units
+- Any transformation applied
+- Seasonal-adjustment status
+
+Do not use a generic data shape such as:
+
+```ts
+{ x: string, y: number }
+```
+
+as the application’s canonical domain model. That shape may be created only at the chart-adapter boundary.
+
+---
+
+# Database
+
+Create Supabase migrations for the minimum viable schema.
+
+At minimum, support:
+
+## `economic_series`
+
+Stores series-level metadata.
+
+Suggested fields:
+
+- `id`
+- `slug`
+- `provider`
+- `provider_series_id`
+- `title`
+- `short_title`
+- `description`
+- `question`
+- `units`
+- `frequency`
+- `seasonal_adjustment`
+- `transformation`
+- `source_name`
+- `source_url`
+- `created_at`
+- `updated_at`
+- `last_fetched_at`
+
+## `economic_observations`
+
+Stores normalized observations.
+
+Suggested fields:
+
+- `id`
+- `series_id`
+- `observation_date`
+- `value`
+- `realtime_start`
+- `realtime_end`
+- `created_at`
+- `updated_at`
+
+Add appropriate uniqueness constraints and indexes.
+
+At minimum:
+
+- A series must be unique by provider and provider series ID.
+- An observation must not be duplicated for the same series, observation date, and applicable vintage.
+- Observation-date queries for a series must be indexed.
+
+Use an idempotent upsert strategy.
+
+Repeated ingestion of the same source response must not produce duplicate rows.
+
+---
+
+# Data Ingestion
+
+Create a server-side ingestion function that:
+
+1. Reads the FRED API key from environment variables.
+2. Requests the selected GDP series.
+3. Validates the external response.
+4. Converts missing or invalid values safely.
+5. Normalizes the result into the canonical application model.
+6. Upserts series metadata.
+7. Upserts observations.
+8. Records the fetch timestamp.
+9. Returns a structured success or failure response.
+
+Use runtime validation for untrusted external responses. Zod is acceptable.
+
+The ingestion code must handle:
+
+- Network failure
+- Non-200 provider responses
+- Provider error payloads
+- Malformed JSON
+- Missing observations
+- `"."` or other provider-specific missing-value markers
+- Invalid dates
+- Invalid numeric values
+- Missing environment variables
+
+Do not silently substitute zero for missing observations.
+
+Log errors with enough context to diagnose failures, but never log secrets.
+
+---
+
+# Refresh Strategy
+
+For the first epic, support both:
+
+- Manual local refresh through a documented script or function invocation
+- Scheduled production refresh
+
+A daily scheduled refresh is sufficient for the first version, even though GDP changes less frequently. The scheduling architecture should later support series-specific refresh frequencies.
+
+Do not fetch external economic data on every browser request.
+
+Do not require the user to wait for a FRED request before a chart can render when cached data already exists.
+
+If refresh fails but previously stored data exists, the application should continue serving the stored data while reporting that the latest refresh failed.
+
+---
+
+# Application API
+
+Create an application-owned endpoint such as:
+
+```text
+GET /.netlify/functions/economic-series?slug=real-gdp-growth
+```
+
+or:
+
+```text
+GET /api/economic-series/real-gdp-growth
+```
+
+The endpoint must return the normalized series and observations.
+
+The client response should include enough metadata to display:
+
+- Chart title
+- Question answered by the chart
+- Units
+- Frequency
+- Seasonal-adjustment status
+- Transformation
+- Latest observation date
+- Last successful fetch time
+- Source name
+- Source URL
+- Observations
+
+Return consistent error responses.
+
+Example:
+
+```ts
+interface ApiError {
+  error: {
+    code: string;
+    message: string;
+  };
+}
+```
+
+Do not expose API keys, raw database credentials, or unnecessary provider internals.
+
+---
+
+# React Application
+
+Create a responsive dashboard shell with:
+
+- Application header
+- Main content area
+- Dashboard page
+- Chart-card component
+- Loading state
+- Empty state
+- Error state
+- Stale-data warning state
+- Accessible source link
+
+The first page should contain:
+
+## Page heading
+
+**U.S. Economy Dashboard**
+
+## Introductory text
+
+Explain briefly that economic indicators update at different frequencies and should be interpreted together rather than as a single score.
+
+## GDP chart card
+
+The chart card should answer:
+
+**Is the U.S. economy growing?**
+
+Include:
+
+- Chart title
+- Short explanatory subtitle
+- Interactive time-series chart
+- Latest value
+- Latest observation period
+- Data frequency
+- Last successful update
+- Source attribution
+- “What this tells you” note
+- “What this does not tell you” note
+
+Suggested explanatory copy:
+
+### What this tells you
+
+Real GDP measures the inflation-adjusted value of goods and services produced in the United States. Year-over-year growth compares output with the same period one year earlier.
+
+### What this does not tell you
+
+Total GDP growth does not show how gains are distributed, whether GDP per person is rising, or whether typical households are financially better off.
+
+This copy may be edited for precision, but the two-part explanatory structure must remain.
+
+---
+
+# Chart Requirements
+
+The chart must:
+
+- Render real data
+- Use dates on the horizontal axis
+- Use percentage growth on the vertical axis
+- Include a zero reference line
+- Provide an accessible tooltip
+- Display exact observation period and value in the tooltip
+- Handle missing values without connecting misleading lines
+- Resize responsively
+- Avoid 3D effects
+- Avoid decorative gradients
+- Avoid truncated axes that exaggerate small changes
+- Avoid smoothing that implies nonexistent observations
+
+Provide time-range controls:
+
+- 5 years
+- 10 years
+- 20 years
+- Maximum available
+
+The default should be 20 years unless the available data makes another choice clearly better.
+
+Do not add recession shading in this epic unless it can be implemented cleanly without delaying the foundational work. The chart architecture should permit future annotation bands.
+
+The chart must have a textual accessible summary or equivalent screen-reader support. A canvas-only chart without accessible fallback is not acceptable.
+
+---
+
+# Data Freshness
+
+Create a reusable freshness utility.
+
+The UI must distinguish among:
+
+- Current
+- Possibly stale
+- Refresh failed, cached data shown
+- No data available
+
+Freshness must be evaluated relative to the series frequency, not by a single global threshold.
+
+For quarterly GDP data, the application must not label data stale merely because it is several weeks old.
+
+Document the initial freshness rules. They may be approximate in this epic, but they must be explicit and testable.
+
+---
+
+# Styling and Design
+
+Create a restrained, information-first visual system.
+
+Requirements:
+
+- Light theme initially
+- Readable typography
+- Strong contrast
+- Consistent spacing
+- Responsive layout
+- No political red-versus-blue visual framing
+- No “good” or “bad” color judgment based solely on whether a line rises or falls
+- No oversized decorative dashboard chrome
+- No stock-market-style flashing indicators
+
+Create reusable design tokens or CSS variables for:
+
+- Backgrounds
+- Surfaces
+- Text
+- Muted text
+- Borders
+- Focus states
+- Chart gridlines
+- Positive, negative, warning, and neutral semantic states
+
+Semantic colors must be used carefully. GDP growth above zero may be presented as positive in a narrowly defined context, but the overall platform should not automatically equate every upward movement with improvement.
+
+---
+
+# Testing
+
+Configure automated testing.
+
+At minimum, include:
+
+## Unit tests
+
+Test:
+
+- FRED-response validation
+- Missing-value handling
+- Numeric conversion
+- Date validation
+- GDP-growth transformation, if calculated internally
+- Freshness calculation
+- Chart time-range filtering
+- API error formatting
+
+## Component tests
+
+Test:
+
+- Loading state
+- Error state
+- Empty state
+- Successful chart-card rendering
+- Source metadata rendering
+- Stale-data warning rendering
+
+## End-to-end smoke test
+
+Use Playwright.
+
+Test that:
+
+1. The deployed or locally running dashboard loads.
+2. The GDP chart card appears.
+3. The latest value is visible.
+4. A time-range control can be changed.
+5. Source attribution is visible.
+6. No uncaught browser error occurs.
+
+Do not make the end-to-end test depend directly on the live FRED API. Seed or mock stable test data.
+
+---
+
+# Developer Experience
+
+Configure:
+
+- ESLint
+- Prettier
+- Strict TypeScript
+- Automated tests
+- Production build
+- Environment-variable validation
+- Local Supabase development instructions
+- Seed data
+- A single documented command for normal local development
+
+Preferred scripts:
+
+```json
+{
+  "dev": "...",
+  "build": "...",
+  "lint": "...",
+  "typecheck": "...",
+  "test": "...",
+  "test:e2e": "...",
+  "data:refresh": "..."
+}
+```
+
+Exact implementations may differ.
+
+The project must pass:
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run build
+```
+
+before the epic is considered complete.
+
+---
+
+# Documentation
+
+Create a useful root `README.md` containing:
+
+- Project purpose
+- Architecture summary
+- Technology stack
+- Prerequisites
+- Local setup
+- Environment variables
+- Supabase setup
+- Database migration instructions
+- Data-refresh instructions
+- Testing instructions
+- Production build instructions
+- Deployment instructions
+- Current supported series
+- Known limitations
+
+Create an architecture document:
+
+```text
+docs/architecture.md
+```
+
+It should explain:
+
+- Why external APIs are accessed server-side
+- Why data is normalized
+- Why observations and metadata are separate
+- How scheduled ingestion works
+- How stale cached data is handled
+- How additional providers and series will be added
+- Which decisions are intentionally deferred
+
+Also create:
+
+```text
+docs/adding-a-series.md
+```
+
+Explain the intended process for adding another economic indicator without copying unrelated code.
+
+---
+
+# Deployment
+
+Deploy the application to Netlify.
+
+The deployed system must include:
+
+- React production build
+- Application API
+- Supabase connection
+- Scheduled data ingestion or a documented production-compatible schedule
+- Correct environment variables
+- SPA routing support
+- No secrets in the client bundle
+
+Confirm that a fresh production deployment can render the GDP chart from stored data.
+
+A temporary failure of FRED must not make the deployed dashboard unusable if stored observations are available.
+
+---
+
+# Security Requirements
+
+- Keep FRED and Supabase privileged credentials server-side.
+- Never expose service-role credentials to the browser.
+- Validate all endpoint inputs.
+- Restrict allowed series identifiers or slugs.
+- Do not accept arbitrary provider URLs from client input.
+- Do not commit `.env` files.
+- Do not log secrets.
+- Use least-privilege database access where practical.
+- Document any security compromises made for the initial version.
+
+---
+
+# Performance Requirements
+
+For the initial GDP series:
+
+- Avoid sending unnecessary provider metadata to the browser.
+- Return observations in chronological order.
+- Cache API responses where appropriate.
+- Avoid refetch loops.
+- Do not rerender or recreate the full chart unnecessarily.
+- Keep the initial client bundle reasonable.
+- Lazy-load the charting library if doing so materially improves initial loading without excessive complexity.
+
+No premature generalized optimization framework is required.
+
+---
+
+# Scope Boundaries
+
+## Included
+
+- Repository initialization
+- Git configuration
+- React application
+- TypeScript configuration
+- Routing
+- Design foundation
+- Supabase schema
+- FRED ingestion
+- Application API
+- Scheduled refresh
+- One real GDP chart
+- Chart metadata and interpretation notes
+- Loading, error, empty, and stale states
+- Tests
+- Documentation
+- Netlify deployment
+
+## Not included
+
+- Full multi-chart dashboard
+- User accounts
+- User preferences
+- Saved chart configurations
+- Political commentary
+- AI-generated economic summaries
+- Composite economic-health score
+- Real-time market feeds
+- Tariff analysis
+- Manufacturing dashboard
+- Inflation dashboard
+- Labor dashboard
+- Historical data-vintage comparison UI
+- Administrative CMS
+- Mobile application
+- Dark mode
+- International economic data
+
+Do not build speculative abstractions for all of these future features. Build clear extension points only where the first vertical slice demonstrates an actual need.
+
+---
+
+# Implementation Constraints
+
+- Do not call FRED directly from React.
+- Do not hardcode chart observations.
+- Do not put secrets in the browser.
+- Do not silently treat missing data as zero.
+- Do not use `any` to bypass domain modeling.
+- Do not mix external-provider response types with client-facing API types.
+- Do not create a generic dashboard builder.
+- Do not create a plugin system.
+- Do not implement authentication.
+- Do not add Redux unless a demonstrated state-management requirement justifies it.
+- Do not add a large component framework unless it provides clear value.
+- Do not add multiple economic series to make the page appear fuller.
+- Do not represent the economy with a single health score.
+- Do not present a percentage without clearly identifying the transformation and period.
+
+---
+
+# Acceptance Criteria
+
+The epic is complete only when all of the following are true.
+
+## Repository
+
+- A Git repository exists.
+- `main` contains a clean, reviewable history.
+- No secrets are present in tracked files or Git history.
+- `.env.example` documents all required variables.
+
+## Local development
+
+- A new developer can follow the README and start the project.
+- The application starts with a documented command.
+- The local database can be created through committed migrations.
+- Seed data or refresh tooling makes local chart rendering reproducible.
+
+## Data
+
+- The application retrieves a real GDP series from FRED.
+- External responses are validated.
+- Missing observations are handled safely.
+- Series metadata is stored.
+- Observations are stored.
+- Refresh is idempotent.
+- Failed refreshes do not erase valid stored data.
+
+## API
+
+- A client-facing endpoint returns normalized GDP data.
+- The endpoint has stable success and error shapes.
+- The endpoint exposes no secrets.
+- The endpoint serves cached data when the external provider is unavailable.
+
+## User interface
+
+- The production dashboard displays the GDP chart.
+- The chart answers a clearly stated economic question.
+- The chart displays year-over-year real GDP growth.
+- Time-range controls work.
+- The latest observation and value are visible.
+- Units, frequency, transformation, source, observation date, and update time are visible.
+- “What this tells you” and “What this does not tell you” are present.
+- Loading, error, empty, and stale states exist.
+- The layout works on desktop and mobile widths.
+- Keyboard focus is visible.
+- The chart has an accessible nonvisual representation or summary.
+
+## Quality
+
+- TypeScript strict mode passes.
+- Linting passes.
+- Unit tests pass.
+- Component tests pass.
+- The Playwright smoke test passes.
+- Production build succeeds.
+- No uncaught console errors occur during the primary flow.
+
+## Deployment
+
+- A production Netlify URL exists.
+- The deployed application renders stored GDP data.
+- Server-side environment variables are configured.
+- The FRED API key is absent from the browser bundle.
+- The data-refresh mechanism is deployed or fully documented and production-ready.
+
+---
+
+# Completion Deliverables
+
+At completion, provide:
+
+1. The repository location.
+2. The deployed application URL.
+3. A concise architecture summary.
+4. The selected FRED series identifier.
+5. A list of environment variables.
+6. Instructions for manually refreshing data.
+7. Test results.
+8. Known limitations.
+9. A summary of important architectural decisions.
+10. Recommended scope for Epic 2.
+
+---
