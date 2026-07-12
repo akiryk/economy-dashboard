@@ -31,7 +31,7 @@ describe('EconomicSeriesSummary', () => {
     render(<EconomicSeriesSummary series={series} />)
 
     expect(screen.getByText('Loading chart visualization…')).toBeVisible()
-    expect(screen.getByText('Latest value')).toBeVisible()
+    expect(screen.getByText('Latest real GDP growth')).toBeVisible()
     expect(
       screen.getByRole('heading', { name: 'What this tells you' }),
     ).toBeVisible()
@@ -70,14 +70,20 @@ describe('EconomicSeriesSummary', () => {
     expect(latestChartProps.observations.at(-1)?.date).toBe('2026-01-01')
   })
 
-  it('preserves metadata, explanations, and the observations table', () => {
+  it('preserves source, explanations, metadata, and observations', async () => {
+    const user = userEvent.setup()
     render(<EconomicSeriesSummary series={series} />)
 
+    expect(
+      screen.getByText('U.S. Bureau of Economic Analysis via FRED'),
+    ).toBeVisible()
+    await user.click(screen.getByText('Series details'))
     expect(screen.getByText('Seasonal adjustment')).toBeVisible()
     expect(screen.getByRole('heading', { name: 'What this tells you' })).toBeVisible()
     expect(
-      screen.getByRole('heading', { name: 'What this does not tell you' }),
+      screen.getByRole('heading', { name: 'What this leaves out' }),
     ).toBeVisible()
+    await user.click(screen.getByText('Recent observations'))
     expect(
       screen.getByRole('table', {
         name: 'Eight most recent real GDP growth observations',
@@ -85,7 +91,8 @@ describe('EconomicSeriesSummary', () => {
     ).toBeVisible()
   })
 
-  it('shows an empty-range state instead of the chart for all-null data', () => {
+  it('shows an empty-range state instead of the chart for all-null data', async () => {
+    const user = userEvent.setup()
     render(
       <EconomicSeriesSummary
         series={{
@@ -101,6 +108,7 @@ describe('EconomicSeriesSummary', () => {
       ),
     ).toBeVisible()
     expect(screen.queryByTestId('economic-chart')).not.toBeInTheDocument()
+    await user.click(screen.getByText('Recent observations'))
     expect(
       screen.getByRole('table', {
         name: 'Eight most recent real GDP growth observations',

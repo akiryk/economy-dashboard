@@ -24,6 +24,14 @@ A future API or SQLite implementation can implement the same repository interfac
 
 The domain model remains independent of Apache ECharts. A chart adapter creates chronologically sorted `[date, value]` tuples only at the chart boundary, preserving `null` values and leaving the source observations unchanged. Range selection and factual chart summaries operate on domain observations before adaptation.
 
+## Dashboard composition and product copy
+
+`DashboardPage` explicitly composes semantic Growth and Prices sections through a small `EconomicSection` layout component. This keeps the heading hierarchy and section descriptions consistent without creating a schema-driven page engine. Future sections should be added only when real indicators exist.
+
+Provider identity, series identity, units, frequency, transformations, dates, and observations belong to the economic-series domain data. Human explanations, related concepts, latest-value labels, and table captions belong to the explicit series presentation registry. Product copy is therefore reusable by the shared card without becoming provider metadata or chart configuration.
+
+The card structure has an intentional extension point between the primary current-value callout and supporting details for future compact historical-context visuals. No empty placeholder, median comparison, percentile, or forecast view is currently rendered.
+
 ## Current limitations
 
 - The application contains two locally bundled series.

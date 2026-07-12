@@ -4,7 +4,7 @@ An information-first web application for understanding the U.S. economy through 
 
 ## Current scope
 
-Story 05 adds headline CPI inflation as the dashboard’s second production-quality series. GDP and CPI share the validated repository, card, chart, range, accessibility, and refresh architecture while retaining frequency-specific presentation.
+Story 06 organizes the dashboard as an economic briefing with explicit Growth and Prices sections, consistent indicator hierarchy, one primary current-value callout per card, related concepts, and lower-priority supporting disclosures. No composite economic score or automatic judgment is produced.
 
 ## Technology stack
 
@@ -70,6 +70,17 @@ The chart includes an updating text summary of the latest, minimum, and maximum 
 
 Apache ECharts is integrated directly through a small React lifecycle wrapper and dynamically imported when the chart is rendered. This keeps ECharts out of the initial application chunk while preserving the boundary between chart configuration and economic-domain data. See [`docs/charting.md`](docs/charting.md) for details.
 
+## Information architecture
+
+The page currently contains two semantic sections:
+
+- Growth, containing real GDP growth.
+- Prices, containing headline CPI inflation.
+
+Each indicator leads with a human question and one latest value, followed by the range control and chart. Factual context, concise limitations, related concepts, visible source attribution, technical metadata, and recent observations remain available without competing with the chart. Empty future sections are not rendered.
+
+The product principles and current-versus-future conceptual layers are documented in [`docs/product-principles.md`](docs/product-principles.md). In-page section navigation is deferred while only two sections exist.
+
 ## Local economic data
 
 Two datasets are bundled locally:
@@ -133,6 +144,7 @@ docs/
   charting.md
   data-refresh.md
   data-model.md
+  product-principles.md
 scripts/
   fred/
   refreshEconomicData.ts

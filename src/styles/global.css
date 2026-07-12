@@ -89,7 +89,7 @@ p {
 .page {
   display: grid;
   min-width: 0;
-  gap: var(--space-8);
+  gap: var(--space-12);
 }
 
 .page--narrow,
@@ -106,6 +106,40 @@ p {
 .page--narrow p {
   color: var(--color-text-muted);
   font-size: 1.125rem;
+}
+
+.page-intro .page-update {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.economic-section {
+  display: grid;
+  gap: var(--space-6);
+  scroll-margin-top: var(--space-6);
+}
+
+.economic-section__header {
+  display: grid;
+  max-width: 48rem;
+  gap: var(--space-2);
+}
+
+.economic-section__header h2 {
+  margin: 0;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  line-height: 1.2;
+}
+
+.economic-section__header p {
+  color: var(--color-text-muted);
+  font-size: 1.0625rem;
+}
+
+.economic-section__content {
+  display: grid;
+  gap: var(--space-6);
 }
 
 .status-message,
@@ -209,13 +243,14 @@ p {
   gap: var(--space-2);
 }
 
-.series-card__header h2,
-.series-explanations h3 {
+.series-card__header h3,
+.series-explanations h4,
+.related-indicators h4 {
   margin: 0;
   line-height: 1.25;
 }
 
-.series-card__header h2 {
+.series-card__header h3 {
   font-size: clamp(1.5rem, 4vw, 2rem);
 }
 
@@ -231,21 +266,39 @@ p {
   color: var(--color-text-muted);
 }
 
+.series-current {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-1);
+  padding-left: var(--space-4);
+  border-left: 0.2rem solid var(--color-text);
+}
+
+.series-current__value {
+  font-size: clamp(2.25rem, 7vw, 3.25rem);
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.series-current__label {
+  font-weight: 700;
+}
+
+.series-current__period {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
 .series-metadata {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-  gap: 1px;
-  margin: 0;
-  overflow: hidden;
-  background: var(--color-border);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-small);
+  gap: var(--space-6);
+  margin: var(--space-4) 0 0;
 }
 
 .series-metadata > div {
   min-width: 0;
-  padding: var(--space-4);
-  background: var(--color-surface);
 }
 
 .series-metadata dt {
@@ -257,12 +310,6 @@ p {
 .series-metadata dd {
   margin: var(--space-1) 0 0;
   overflow-wrap: anywhere;
-}
-
-.series-metadata .series-metadata__featured dd {
-  font-size: 1.75rem;
-  font-weight: 700;
-  line-height: 1.2;
 }
 
 .series-explanations {
@@ -277,12 +324,65 @@ p {
   gap: var(--space-2);
 }
 
-.series-explanations h3 {
+.series-explanations h4,
+.related-indicators h4 {
   font-size: 1.125rem;
 }
 
 .series-explanations p {
   color: var(--color-text-muted);
+}
+
+.related-indicators {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.related-indicators ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding: 0;
+  color: var(--color-text-muted);
+  list-style: none;
+}
+
+.related-indicators li {
+  padding-right: var(--space-4);
+  border-right: 1px solid var(--color-border);
+}
+
+.related-indicators li:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.series-supporting {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.series-source {
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+.supporting-disclosure {
+  border-top: 1px solid var(--color-border);
+}
+
+.supporting-disclosure summary {
+  width: fit-content;
+  padding: var(--space-3) 0;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.supporting-disclosure[open] {
+  padding-bottom: var(--space-4);
 }
 
 .table-scroll {

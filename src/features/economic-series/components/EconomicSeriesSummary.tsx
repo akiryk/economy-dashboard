@@ -6,6 +6,7 @@ import {
   formatObservationPeriod,
   formatPercentage,
   selectMostRecentObservations,
+  sortObservationsChronologically,
 } from '../utils/economicSeries'
 import {
   calculateChartSummary,
@@ -28,6 +29,11 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
   const [selectedRange, setSelectedRange] = useState<TimeRange>('20y')
   const presentation = getEconomicSeriesPresentation(series.slug)
   const latestObservation = findLatestNonNullObservation(series.observations)
+  const chronologicalObservations = sortObservationsChronologically(
+    series.observations,
+  )
+  const coverageStart = chronologicalObservations[0]
+  const coverageEnd = chronologicalObservations.at(-1)
   const recentObservations = selectMostRecentObservations(
     series.observations,
     presentation.recentObservationCount,
@@ -48,9 +54,26 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
     >
       <header className="series-card__header">
         <p className="series-card__eyebrow">{presentation.topicLabel}</p>
-        <h2 id={`${series.slug}-question`}>{series.question}</h2>
+        <h3 id={`${series.slug}-question`}>{series.question}</h3>
         <p className="series-card__title">{series.title}</p>
       </header>
+
+      <div className="series-current" aria-label={presentation.latestValueLabel}>
+        <p className="series-current__value">
+          {formatPercentage(latestObservation?.value ?? null)}
+        </p>
+        <p className="series-current__label">{presentation.latestValueLabel}</p>
+        <p className="series-current__period">
+          {latestObservation
+            ? formatObservationPeriod(
+                latestObservation.date,
+                series.frequency,
+              )
+            : 'Observation period unavailable'}
+          {' · '}
+          {series.units}
+        </p>
+      </div>
 
       <TimeRangeControl
         selectedRange={selectedRange}
@@ -107,75 +130,84 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
         </p>
       )}
 
-      <dl className="series-metadata">
-        <div className="series-metadata__featured">
-          <dt>Latest value</dt>
-          <dd>{formatPercentage(latestObservation?.value ?? null)}</dd>
-        </div>
-        <div>
-          <dt>Latest observation period</dt>
-          <dd>
-            {latestObservation
-              ? formatObservationPeriod(
-                  latestObservation.date,
-                  series.frequency,
-                )
-              : 'Not available'}
-          </dd>
-        </div>
-        <div>
-          <dt>Units</dt>
-          <dd>{series.units}</dd>
-        </div>
-        <div>
-          <dt>Frequency</dt>
-          <dd>
-            {series.frequency.charAt(0).toUpperCase() + series.frequency.slice(1)}
-          </dd>
-        </div>
-        <div>
-          <dt>Seasonal adjustment</dt>
-          <dd>{series.seasonalAdjustment ?? 'Not seasonally adjusted'}</dd>
-        </div>
-        <div>
-          <dt>Transformation</dt>
-          <dd>{series.transformation}</dd>
-        </div>
-        <div>
-          <dt>Retrieved</dt>
-          <dd>{formatDate(series.retrievedAt)}</dd>
-        </div>
-        <div>
-          <dt>Source</dt>
-          <dd>
-            <a href={series.sourceUrl} rel="noreferrer" target="_blank">
-              {series.sourceName}
-            </a>
-          </dd>
-        </div>
-      </dl>
-
       <div className="series-explanations">
         <section>
-          <h3>What this tells you</h3>
-          <p>
-            {presentation.whatThisTellsYou}
-          </p>
+          <h4>What this tells you</h4>
+          <p>{presentation.whatThisTellsYou}</p>
         </section>
         <section>
-          <h3>What this does not tell you</h3>
-          <p>
-            {presentation.whatThisDoesNotTellYou}
-          </p>
+          <h4>What this leaves out</h4>
+          <p>{presentation.whatThisLeavesOut}</p>
         </section>
       </div>
 
-      <RecentObservationsTable
-        observations={recentObservations}
-        frequency={series.frequency}
-        caption={presentation.recentObservationsCaption}
-        valueColumnLabel={presentation.valueColumnLabel}
-      />
+      <section
+        className="related-indicators"
+        aria-labelledby={`${series.slug}-related-heading`}
+      >
+        <h4 id={`${series.slug}-related-heading`}>Consider alongside</h4>
+        <ul>
+          {presentation.relatedIndicators.map((indicator) => (
+            <li key={indicator}>{indicator}</li>
+          ))}
+        </ul>
+      </section>
+
+      <footer className="series-supporting">
+        <p className="series-source">
+          Source:{' '}
+          <a href={series.sourceUrl} rel="noreferrer" target="_blank">
+            {series.sourceName}
+          </a>
+        </p>
+
+        <details className="supporting-disclosure">
+          <summary>Series details</summary>
+          <dl className="series-metadata">
+            <div>
+              <dt>Provider series identifier</dt>
+              <dd>{series.providerSeriesId}</dd>
+            </div>
+            <div>
+              <dt>Frequency</dt>
+              <dd>
+                {series.frequency.charAt(0).toUpperCase() +
+                  series.frequency.slice(1)}
+              </dd>
+            </div>
+            <div>
+              <dt>Seasonal adjustment</dt>
+              <dd>{series.seasonalAdjustment ?? 'Not seasonally adjusted'}</dd>
+            </div>
+            <div>
+              <dt>Transformation</dt>
+              <dd>{series.transformation}</dd>
+            </div>
+            <div>
+              <dt>Retrieved</dt>
+              <dd>{formatDate(series.retrievedAt)}</dd>
+            </div>
+            <div>
+              <dt>Observation coverage</dt>
+              <dd>
+                {coverageStart && coverageEnd
+                  ? `${formatObservationPeriod(coverageStart.date, series.frequency)} to ${formatObservationPeriod(coverageEnd.date, series.frequency)}`
+                  : 'Not available'}
+              </dd>
+            </div>
+          </dl>
+        </details>
+
+        <details className="supporting-disclosure">
+          <summary>Recent observations</summary>
+          <RecentObservationsTable
+            observations={recentObservations}
+            frequency={series.frequency}
+            caption={presentation.recentObservationsCaption}
+            valueColumnLabel={presentation.valueColumnLabel}
+          />
+        </details>
+      </footer>
     </article>
   )
 }

@@ -12,9 +12,14 @@ type SeriesState =
 interface EconomicSeriesCardProps {
   slug: string
   label: string
+  onSeriesLoaded?: (slug: string, series: EconomicSeries | null) => void
 }
 
-export function EconomicSeriesCard({ slug, label }: EconomicSeriesCardProps) {
+export function EconomicSeriesCard({
+  slug,
+  label,
+  onSeriesLoaded,
+}: EconomicSeriesCardProps) {
   const [seriesState, setSeriesState] = useState<SeriesState>({
     status: 'loading',
   })
@@ -30,9 +35,13 @@ export function EconomicSeriesCard({ slug, label }: EconomicSeriesCardProps) {
         setSeriesState(
           series ? { status: 'loaded', series } : { status: 'not-found' },
         )
+        onSeriesLoaded?.(slug, series)
       } catch (error: unknown) {
         console.error(`Failed to load economic series: ${slug}`, error)
-        if (isActive) setSeriesState({ status: 'error' })
+        if (isActive) {
+          setSeriesState({ status: 'error' })
+          onSeriesLoaded?.(slug, null)
+        }
       }
     }
 
@@ -40,7 +49,7 @@ export function EconomicSeriesCard({ slug, label }: EconomicSeriesCardProps) {
     return () => {
       isActive = false
     }
-  }, [slug])
+  }, [onSeriesLoaded, slug])
 
   if (seriesState.status === 'loading') {
     return (
