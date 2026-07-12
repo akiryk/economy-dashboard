@@ -80,6 +80,23 @@ export function DashboardPage() {
           onSeriesLoaded={handleSeriesLoaded}
         />
       </EconomicSection>
+
+      <EconomicSection
+        id="employment-and-income"
+        title="Employment and income"
+        description="Labor-market indicators show how readily people can find work and how broadly employment is distributed. No single measure fully captures labor-market strength."
+      >
+        <EconomicSeriesCard
+          slug="unemployment-rate"
+          label="unemployment rate"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+        <EconomicSeriesCard
+          slug="prime-age-employment-ratio"
+          label="prime-age employment-to-population ratio"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+      </EconomicSection>
     </div>
   )
 }

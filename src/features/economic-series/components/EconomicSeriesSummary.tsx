@@ -93,6 +93,9 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
               observations={visibleObservations}
               seriesName={series.shortTitle}
               frequency={series.frequency}
+              units={series.units}
+              transformation={series.transformation}
+              includeZero={presentation.includeZeroInChart}
             />
           </Suspense>
           <p className="chart-summary" aria-live="polite">
@@ -118,9 +121,10 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
                   series.frequency,
                 )
               : 'an unavailable period'}.{' '}
-            {chartSummary.hasBelowZero
-              ? 'At least one observation was below zero.'
-              : 'No observations were below zero.'}
+            {presentation.reportBelowZero &&
+              (chartSummary.hasBelowZero
+                ? 'At least one observation was below zero.'
+                : 'No observations were below zero.')}
           </p>
         </>
       ) : (

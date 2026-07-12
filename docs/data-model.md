@@ -4,7 +4,7 @@ The economic-series domain model keeps source metadata and observations together
 
 An `EconomicSeries` identifies the provider and provider series, explains the displayed units and transformation, records seasonal adjustment and frequency, and contains `EconomicObservation` entries. Each observation has an ISO date representing the economic period and a numeric or `null` value. A missing observation remains `null`; it is never treated as zero.
 
-The current domain supports quarterly GDP and monthly CPI inflation. Frequency-aware presentation formats quarterly dates as `2026 Q1` and monthly dates as `May 2026` using UTC, so local timezone offsets cannot shift an economic period. Invalid dates are rejected rather than displayed ambiguously.
+The current domain supports quarterly GDP and monthly CPI and labor-market series. Frequency-aware presentation formats quarterly dates as `2026 Q1` and monthly dates as `June 2026` using UTC, so local timezone offsets cannot shift an economic period. Invalid dates are rejected rather than displayed ambiguously.
 
 ## Observation date and retrieval date
 
@@ -26,15 +26,21 @@ The domain model remains independent of Apache ECharts. A chart adapter creates 
 
 ## Dashboard composition and product copy
 
-`DashboardPage` explicitly composes semantic Growth and Prices sections through a small `EconomicSection` layout component. This keeps the heading hierarchy and section descriptions consistent without creating a schema-driven page engine. Future sections should be added only when real indicators exist.
+`DashboardPage` explicitly composes semantic Growth, Prices, and Employment and income sections through a small `EconomicSection` layout component. This keeps the heading hierarchy and section descriptions consistent without creating a schema-driven page engine. Future sections should be added only when real indicators exist.
 
 Provider identity, series identity, units, frequency, transformations, dates, and observations belong to the economic-series domain data. Human explanations, related concepts, latest-value labels, and table captions belong to the explicit series presentation registry. Product copy is therefore reusable by the shared card without becoming provider metadata or chart configuration.
 
 The card structure has an intentional extension point between the primary current-value callout and supporting details for future compact historical-context visuals. No empty placeholder, median comparison, percentile, or forecast view is currently rendered.
 
+## Percent levels and growth rates
+
+`units` and `transformation` describe different properties. GDP and CPI use percent-valued year-over-year transformations, while unemployment and prime-age employment use provider-published percent levels. A percentage unit therefore never implies a growth calculation. Shared display and chart code reads both fields and does not automatically describe percentage data as a change from one year ago.
+
+Seasonal adjustment, frequency, observation period, and retrieval date remain independent metadata. The observation shape is unchanged for level series.
+
 ## Current limitations
 
-- The application contains two locally bundled series.
+- The application contains four locally bundled series.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.

@@ -36,6 +36,8 @@ Heading hierarchy, native controls, visible focus, nonvisual chart summaries, so
 
 ## Current organization decisions
 
-The implemented sections are Growth and Prices. Future sections may include employment and income, consumers, housing, business and manufacturing, government, financial conditions, and expectations versus outcomes, but they are not displayed until they contain real indicators.
+The implemented sections are Growth, Prices, and Employment and income. Future sections may include consumers, housing, business and manufacturing, government, financial conditions, and expectations versus outcomes, but they are not displayed until they contain real indicators.
 
-In-page navigation is deferred. With only two sections, anchor navigation would add more interface than utility; the semantic section identifiers provide a stable place to add restrained navigation when the briefing grows.
+Employment and income pairs unemployment with prime-age employment-to-population ratio as separate cards. Presenting complementary measures together adds context without combining them into a labor-market score.
+
+In-page navigation remains deferred at three sections. The semantic section identifiers provide a stable place to add restrained navigation when the briefing grows enough to justify it.

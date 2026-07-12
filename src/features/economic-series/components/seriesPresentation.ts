@@ -7,6 +7,8 @@ interface EconomicSeriesPresentation {
   recentObservationCount: number
   recentObservationsCaption: string
   valueColumnLabel: string
+  includeZeroInChart: boolean
+  reportBelowZero: boolean
 }
 
 const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
@@ -22,6 +24,8 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     recentObservationsCaption:
       'Eight most recent real GDP growth observations',
     valueColumnLabel: 'Year-over-year growth',
+    includeZeroInChart: true,
+    reportBelowZero: true,
   },
   'headline-cpi-inflation': {
     topicLabel: 'Inflation',
@@ -35,6 +39,38 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     recentObservationsCaption:
       'Twelve most recent headline CPI inflation observations',
     valueColumnLabel: 'Year-over-year inflation',
+    includeZeroInChart: true,
+    reportBelowZero: true,
+  },
+  'unemployment-rate': {
+    topicLabel: 'Labor market',
+    latestValueLabel: 'Latest unemployment rate',
+    whatThisTellsYou:
+      'The unemployment rate measures the share of the labor force that does not have a job and is actively looking for work.',
+    whatThisLeavesOut:
+      'People who are not working and are not actively searching are not counted as unemployed. The rate also does not show job quality, wage growth, hours worked, or how conditions differ across groups.',
+    relatedIndicators: ['Prime-age employment', 'Payroll growth', 'Wage growth'],
+    recentObservationCount: 12,
+    recentObservationsCaption:
+      'Twelve most recent unemployment rate observations',
+    valueColumnLabel: 'Unemployment rate',
+    includeZeroInChart: false,
+    reportBelowZero: false,
+  },
+  'prime-age-employment-ratio': {
+    topicLabel: 'Labor market',
+    latestValueLabel: 'Latest prime-age employment ratio',
+    whatThisTellsYou:
+      'The prime-age employment-to-population ratio measures the share of adults ages 25 through 54 who are employed. It is less affected by retirement and schooling than an all-ages employment measure.',
+    whatThisLeavesOut:
+      'The ratio does not show whether people want more hours, whether jobs are well paid, or why someone is not employed. It also does not describe conditions for younger or older workers.',
+    relatedIndicators: ['Unemployment', 'Labor-force participation', 'Payroll growth'],
+    recentObservationCount: 12,
+    recentObservationsCaption:
+      'Twelve most recent prime-age employment ratio observations',
+    valueColumnLabel: 'Prime-age employment ratio',
+    includeZeroInChart: false,
+    reportBelowZero: false,
   },
 }
 

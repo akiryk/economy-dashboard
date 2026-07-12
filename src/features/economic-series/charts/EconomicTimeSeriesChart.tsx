@@ -28,12 +28,18 @@ export interface EconomicTimeSeriesChartProps {
   observations: readonly EconomicObservation[]
   seriesName: string
   frequency: EconomicFrequency
+  units: string
+  transformation: string
+  includeZero: boolean
 }
 
 export default function EconomicTimeSeriesChart({
   observations,
   seriesName,
   frequency,
+  units,
+  transformation,
+  includeZero,
 }: EconomicTimeSeriesChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<echarts.ECharts | null>(null)
@@ -82,6 +88,9 @@ export default function EconomicTimeSeriesChart({
           data: chartData,
           seriesName,
           frequency,
+          units,
+          transformation,
+          includeZero,
         }),
         { notMerge: true },
       )
@@ -89,7 +98,7 @@ export default function EconomicTimeSeriesChart({
       console.error('Failed to update the economic time-series chart', error)
       queueMicrotask(() => setInitializationError(true))
     }
-  }, [chartData, frequency, seriesName])
+  }, [chartData, frequency, includeZero, seriesName, transformation, units])
 
   if (initializationError) {
     return (
@@ -104,7 +113,7 @@ export default function EconomicTimeSeriesChart({
     <div
       ref={containerRef}
       className="economic-chart"
-      aria-label={`${seriesName} quarterly time-series chart`}
+      aria-label={`${seriesName} ${frequency} time-series chart`}
     />
   )
 }

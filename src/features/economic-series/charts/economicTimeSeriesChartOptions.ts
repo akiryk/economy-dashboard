@@ -13,6 +13,26 @@ interface EconomicTimeSeriesChartOptionsInput {
   data: ChartDataPoint[]
   seriesName: string
   frequency: EconomicFrequency
+  units: string
+  transformation: string
+  includeZero: boolean
+}
+
+interface ValueRange {
+  min: number
+  max: number
+}
+
+function paddedMinimum(range: ValueRange, includeZero: boolean): number {
+  const padding = Math.max((range.max - range.min) * 0.1, 0.5)
+  const minimum = Math.floor(range.min - padding)
+  return includeZero ? Math.min(0, minimum) : minimum
+}
+
+function paddedMaximum(range: ValueRange, includeZero: boolean): number {
+  const padding = Math.max((range.max - range.min) * 0.1, 0.5)
+  const maximum = Math.ceil(range.max + padding)
+  return includeZero ? Math.max(0, maximum) : maximum
 }
 
 function isChartDataPoint(value: unknown): value is ChartDataPoint {
@@ -40,13 +60,16 @@ export function createEconomicTimeSeriesChartOptions({
   data,
   seriesName,
   frequency,
+  units,
+  transformation,
+  includeZero,
 }: EconomicTimeSeriesChartOptionsInput): EChartsCoreOption {
   return {
     animation: false,
     aria: {
       enabled: true,
       decal: { show: false },
-      description: `${seriesName}, ${frequency} percent change from one year ago. A detailed data table follows the chart.`,
+      description: `${seriesName}, ${frequency}. Transformation: ${transformation}. Units: ${units}. A detailed data table follows the chart.`,
     },
     grid: {
       top: 24,
@@ -83,8 +106,8 @@ export function createEconomicTimeSeriesChartOptions({
       name: 'Percent',
       nameLocation: 'end',
       nameTextStyle: { color: '#56616d', align: 'right' },
-      min: (range: { min: number }) => Math.min(0, Math.floor(range.min - 1)),
-      max: (range: { max: number }) => Math.max(0, Math.ceil(range.max + 1)),
+      min: (range: ValueRange) => paddedMinimum(range, includeZero),
+      max: (range: ValueRange) => paddedMaximum(range, includeZero),
       axisLabel: {
         color: '#56616d',
         formatter: '{value}%',
@@ -106,13 +129,17 @@ export function createEconomicTimeSeriesChartOptions({
         lineStyle: { color: '#245d72', width: 2.5 },
         itemStyle: { color: '#245d72' },
         emphasis: { focus: 'series' },
-        markLine: {
-          silent: true,
-          symbol: 'none',
-          label: { show: false },
-          lineStyle: { color: '#56616d', width: 1.5, type: 'solid' },
-          data: [{ yAxis: 0 }],
-        },
+        ...(includeZero
+          ? {
+              markLine: {
+                silent: true,
+                symbol: 'none',
+                label: { show: false },
+                lineStyle: { color: '#56616d', width: 1.5, type: 'solid' },
+                data: [{ yAxis: 0 }],
+              },
+            }
+          : {}),
       },
     ],
   }

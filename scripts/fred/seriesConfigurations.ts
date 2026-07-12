@@ -8,7 +8,7 @@ export interface FredSeriesConfig {
   frequency: Extract<EconomicFrequency, 'monthly' | 'quarterly'>
   fredFrequency: 'm' | 'q'
   observationStart: string
-  unitsParameter: 'pc1'
+  fredUnits?: 'pc1'
   minimumUsableObservations: number
   title: string
   shortTitle: string
@@ -31,7 +31,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     frequency: 'quarterly',
     fredFrequency: 'q',
     observationStart: '2000-01-01',
-    unitsParameter: 'pc1',
+    fredUnits: 'pc1',
     minimumUsableObservations: 80,
     title: 'Real Gross Domestic Product: Percent Change from Year Ago',
     shortTitle: 'Real GDP growth',
@@ -54,7 +54,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     frequency: 'monthly',
     fredFrequency: 'm',
     observationStart: '2000-01-01',
-    unitsParameter: 'pc1',
+    fredUnits: 'pc1',
     minimumUsableObservations: 240,
     title: 'Consumer Price Inflation',
     shortTitle: 'CPI inflation',
@@ -66,5 +66,46 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     transformation: 'Percent change from year ago',
     sourceName: 'U.S. Bureau of Labor Statistics via FRED',
     sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCSL',
+  },
+  {
+    id: 'unemployment-rate',
+    slug: 'unemployment-rate',
+    outputFile: 'src/features/economic-series/data/unemployment-rate.json',
+    providerSeriesId: 'UNRATE',
+    frequency: 'monthly',
+    fredFrequency: 'm',
+    observationStart: '2000-01-01',
+    minimumUsableObservations: 240,
+    title: 'Unemployment Rate',
+    shortTitle: 'Unemployment',
+    description:
+      'The share of the U.S. civilian labor force age 16 and older that does not have a job and is actively looking for work.',
+    question: 'How difficult is it for people who want work to find it?',
+    units: 'Percent',
+    seasonalAdjustment: 'Seasonally adjusted',
+    transformation: 'Level',
+    sourceName: 'U.S. Bureau of Labor Statistics via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/UNRATE',
+  },
+  {
+    id: 'prime-age-employment-ratio',
+    slug: 'prime-age-employment-ratio',
+    outputFile:
+      'src/features/economic-series/data/prime-age-employment-ratio.json',
+    providerSeriesId: 'LNS12300060',
+    frequency: 'monthly',
+    fredFrequency: 'm',
+    observationStart: '2000-01-01',
+    minimumUsableObservations: 240,
+    title: 'Prime-Age Employment-to-Population Ratio',
+    shortTitle: 'Prime-age employment',
+    description:
+      'The share of the U.S. civilian noninstitutional population ages 25 through 54 that is employed.',
+    question: 'What share of prime-age adults are employed?',
+    units: 'Percent',
+    seasonalAdjustment: 'Seasonally adjusted',
+    transformation: 'Level',
+    sourceName: 'U.S. Bureau of Labor Statistics via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/LNS12300060',
   },
 ]

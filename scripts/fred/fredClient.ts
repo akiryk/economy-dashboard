@@ -16,7 +16,7 @@ export interface FredRequestConfig {
   providerSeriesId: string
   fredFrequency: 'm' | 'q'
   observationStart: string
-  unitsParameter: 'pc1'
+  fredUnits?: 'pc1'
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -85,15 +85,16 @@ export async function fetchFredObservations(
   fetchImplementation: FetchImplementation = fetch,
 ): Promise<FredObservationsResponse> {
   const url = new URL(FRED_OBSERVATIONS_ENDPOINT)
-  url.search = new URLSearchParams({
+  const parameters: Record<string, string> = {
     series_id: config.providerSeriesId,
     api_key: apiKey,
     file_type: 'json',
-    units: config.unitsParameter,
     frequency: config.fredFrequency,
     observation_start: config.observationStart,
     sort_order: 'asc',
-  }).toString()
+  }
+  if (config.fredUnits) parameters.units = config.fredUnits
+  url.search = new URLSearchParams(parameters).toString()
 
   const response = await fetchImplementation(url)
   let body: unknown

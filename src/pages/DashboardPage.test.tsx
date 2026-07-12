@@ -15,6 +15,7 @@ vi.mock('../features/economic-series/charts/EconomicTimeSeriesChart', () => ({
     observations: readonly EconomicObservation[]
     seriesName: string
     frequency: EconomicFrequency
+    includeZero: boolean
   }) => {
     chartPropsSpy(props)
     return <div data-testid={`chart-${props.seriesName}`} />
@@ -62,11 +63,14 @@ describe('DashboardPage economic series', () => {
     ).toBeVisible()
   })
 
-  it('organizes indicators into visible semantic sections', async () => {
+  it('organizes all indicators into visible semantic sections', async () => {
     render(<DashboardPage />)
 
     const growth = screen.getByRole('region', { name: 'Growth' })
     const prices = screen.getByRole('region', { name: 'Prices' })
+    const employment = screen.getByRole('region', {
+      name: 'Employment and income',
+    })
     expect(
       within(growth).getByText(
         /Growth measures how much the economy is producing/,
@@ -89,11 +93,86 @@ describe('DashboardPage economic series', () => {
         name: 'How quickly are consumer prices rising?',
       }),
     ).toBeVisible()
-    expect(screen.queryByText('Employment and income')).not.toBeInTheDocument()
+    expect(
+      within(employment).getByText(
+        'Labor-market indicators show how readily people can find work and how broadly employment is distributed. No single measure fully captures labor-market strength.',
+      ),
+    ).toBeVisible()
+    const laborQuestions = await within(employment).findAllByRole('heading', {
+      level: 3,
+    })
+    expect(laborQuestions.map((heading) => heading.textContent)).toEqual([
+      'How difficult is it for people who want work to find it?',
+      'What share of prime-age adults are employed?',
+    ])
+    expect(
+      within(employment).queryByRole('article', { name: /payroll/i }),
+    ).not.toBeInTheDocument()
+    expect(
+      within(employment).queryByRole('article', { name: /wage/i }),
+    ).not.toBeInTheDocument()
     expect(
       await screen.findByText(
-        'Latest observations range from 2026 Q1 to May 2026',
+        'Latest observations range from 2026 Q1 to June 2026',
       ),
+    ).toBeVisible()
+  })
+
+  it('renders labor levels with monthly context and accessible tables', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+
+    const unemployment = await screen.findByRole('article', {
+      name: 'How difficult is it for people who want work to find it?',
+    })
+    const primeAge = await screen.findByRole('article', {
+      name: 'What share of prime-age adults are employed?',
+    })
+
+    expect(within(unemployment).getByLabelText('Latest unemployment rate'))
+      .toHaveTextContent('4.2%')
+    expect(within(primeAge).getByLabelText('Latest prime-age employment ratio'))
+      .toHaveTextContent('80.2%')
+    expect(within(unemployment).getAllByText('June 2026')).not.toHaveLength(0)
+    expect(within(primeAge).getAllByText('June 2026')).not.toHaveLength(0)
+    expect(within(unemployment).getByText(/ranged from/)).not.toHaveTextContent(
+      'below zero',
+    )
+    expect(within(primeAge).getByText(/ranged from/)).not.toHaveTextContent(
+      'below zero',
+    )
+    await waitFor(() => {
+      const zeroPolicies = Object.fromEntries(
+        chartPropsSpy.mock.calls.map((call) => {
+          const props = call[0] as { seriesName: string; includeZero: boolean }
+          return [props.seriesName, props.includeZero]
+        }),
+      )
+      expect(zeroPolicies).toMatchObject({
+        'Real GDP growth': true,
+        'CPI inflation': true,
+        Unemployment: false,
+        'Prime-age employment': false,
+      })
+    })
+
+    await user.click(within(unemployment).getByText('Recent observations'))
+    await user.click(within(primeAge).getByText('Recent observations'))
+    expect(
+      within(unemployment).getByRole('table', {
+        name: 'Twelve most recent unemployment rate observations',
+      }),
+    ).toBeVisible()
+    expect(
+      within(primeAge).getByRole('table', {
+        name: 'Twelve most recent prime-age employment ratio observations',
+      }),
+    ).toBeVisible()
+    expect(
+      within(unemployment).getByRole('button', { name: '5 years' }),
+    ).toBeVisible()
+    expect(
+      within(primeAge).getByRole('button', { name: '5 years' }),
     ).toBeVisible()
   })
 
@@ -205,4 +284,42 @@ describe('DashboardPage economic series', () => {
       within(screen.getByRole('region', { name: 'Growth' })).getByRole('alert'),
     ).toHaveTextContent('The real GDP data could not be loaded.')
   })
+
+  it.each([
+    [
+      'unemployment-rate',
+      'What share of prime-age adults are employed?',
+      'The unemployment rate data could not be loaded.',
+    ],
+    [
+      'prime-age-employment-ratio',
+      'How difficult is it for people who want work to find it?',
+      'The prime-age employment-to-population ratio data could not be loaded.',
+    ],
+  ])(
+    'keeps every other section and labor card visible when %s fails',
+    async (failedSlug, survivingQuestion, failureMessage) => {
+      const originalGetBySlug =
+        localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+      vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(
+        async (slug) => {
+          if (slug === failedSlug) throw new Error('Invalid labor fixture')
+          return originalGetBySlug(slug)
+        },
+      )
+      vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      render(<DashboardPage />)
+
+      expect(await screen.findByRole('article', { name: survivingQuestion }))
+        .toBeVisible()
+      expect(await screen.findByRole('article', {
+        name: 'Is the U.S. economy growing?',
+      })).toBeVisible()
+      expect(await screen.findByRole('article', {
+        name: 'How quickly are consumer prices rising?',
+      })).toBeVisible()
+      expect(screen.getByText(failureMessage)).toBeVisible()
+    },
+  )
 })

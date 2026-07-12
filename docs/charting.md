@@ -12,7 +12,7 @@ The implementation uses ECharts 6 modular core imports and registers only the li
 
 Economic observations remain `{ date, value }` domain objects. Pure range and summary utilities operate on those objects. Immediately before rendering, `chartAdapters.ts` sorts without mutation and converts each observation to ECharts-compatible `[date, value]` data. `null` remains `null`, so missing observations are neither converted to zero nor joined by the line.
 
-The shared chart receives the series frequency so quarterly GDP and monthly CPI use the same UTC-safe period formatter in tooltips and nonvisual summaries. Both cards dynamically import the same chart module; ECharts is not duplicated.
+The shared chart receives frequency, units, transformation, and zero-inclusion policy so quarterly growth and monthly level data use the same UTC-safe period formatter without assuming every percentage is a year-over-year change. All four cards dynamically import the same chart module; ECharts is not duplicated.
 
 Chart options are built separately from React lifecycle management. This keeps filtering, adaptation, visual configuration, and canvas ownership independently understandable and testable.
 
@@ -24,15 +24,15 @@ Initialization and update failures are logged for diagnosis and replaced with a 
 
 ## Visual decisions
 
-The GDP line uses actual quarterly observations without smoothing because a smoothed curve would imply values between measured quarters. Animation, gradients, area fills, and point symbols at every observation are omitted to keep the display restrained.
+Every line uses actual observations without smoothing because a smoothed curve would imply values between measured periods. Animation, gradients, area fills, and point symbols at every observation are omitted to keep the display restrained.
 
-The percentage axis always includes zero and adds padding beyond the observed minimum and maximum. A distinct zero reference line makes contractions visible without coloring positive and negative regions or attaching a value judgment to movement.
+Axis policy is series-specific. GDP growth and CPI inflation include zero and retain the zero reference line. Unemployment and prime-age employment are percentage levels whose meaningful variation is well above zero, so their axes use at least 0.5 percentage point or 10% of the visible span as padding without forcing zero. This preserves a readable range without adding targets or value judgments. A zero line is rendered only when zero inclusion is enabled.
 
 Tooltips use ECharts' rich-text renderer rather than HTML. They display a human-readable quarter, the short series title, and a one-decimal percentage.
 
 ## Accessibility
 
-The chart container has a descriptive accessible label, and ECharts accessibility support is enabled. Because canvas alone is not a sufficient nonvisual representation, the card also provides a live factual summary that updates with the selected range. It reports the latest, minimum, and maximum observations and whether any visible value is below zero. The existing semantic table remains the detailed data alternative.
+The chart container has a descriptive accessible label, and ECharts accessibility support is enabled. Because canvas alone is not a sufficient nonvisual representation, the card also provides a live factual summary that updates with the selected range. It reports the latest, minimum, and maximum observations. Below-zero reporting is enabled for GDP and CPI but omitted for the two labor-market levels, where repeatedly stating that no value is below zero is not analytically useful. The existing semantic table remains the detailed data alternative.
 
 Native buttons with `aria-pressed` expose the selected time range and retain the application's visible focus treatment. Selection also uses border weight and underlining, rather than color alone.
 
@@ -42,7 +42,7 @@ Future time-series charts can reuse the lifecycle component, adapter pattern, ra
 
 ## Current limitations
 
-- Only one locally bundled quarterly percentage series is charted.
+- Only percentage-valued quarterly and monthly line series are currently charted.
 - Data does not refresh automatically.
 - The selected range is local component state and is not reflected in the URL.
 - The recent-observations table contains eight values rather than every visible chart point.
@@ -55,3 +55,5 @@ With Story 03, the single primary JavaScript chunk was 814.67 kB minified (269.4
 Vite still reports its 500 kB warning for the deferred chart chunk. The warning threshold remains unchanged; the goal of removing ECharts from initial application loading is met even though total JavaScript remains similar.
 
 With both Story 05 series, the primary application chunk is 297.09 kB minified (94.46 kB gzip). GDP and CPI data are separate 4.61 kB and 11.76 kB chunks. The single shared chart/ECharts chunk is 517.65 kB minified (175.02 kB gzip); no second ECharts copy is emitted, and Vite continues to warn about that shared chunk.
+
+With Story 07, the initial application chunk is 301.98 kB minified (95.78 kB gzip). GDP, CPI, unemployment, and prime-age employment data are separate 4.61 kB, 11.76 kB, 10.42 kB, and 10.77 kB chunks. The build emits one shared chart/ECharts chunk at 517.94 kB minified (175.08 kB gzip). ECharts remains deduplicated, and Vite continues to report the existing 500 kB warning for that deferred chunk.

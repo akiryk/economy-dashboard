@@ -4,7 +4,7 @@ An information-first web application for understanding the U.S. economy through 
 
 ## Current scope
 
-Story 06 organizes the dashboard as an economic briefing with explicit Growth and Prices sections, consistent indicator hierarchy, one primary current-value callout per card, related concepts, and lower-priority supporting disclosures. No composite economic score or automatic judgment is produced.
+Story 07 adds unemployment and prime-age employment-to-population ratio as complementary labor-market measures. The dashboard presents four indicators across Growth, Prices, and Employment and income without combining them into a score or judgment.
 
 ## Technology stack
 
@@ -55,7 +55,7 @@ npm run preview
 - `typecheck` runs TypeScript without emitting files.
 - `lint` checks the code with ESLint.
 - `test` runs the Vitest unit and component test suite once. Use `npm run test:watch` during development.
-- `data:refresh` retrieves and safely replaces the local GDP snapshot using the official FRED API.
+- `data:refresh` retrieves and safely replaces all four local economic snapshots using the official FRED API.
 - `preview` serves the production build locally after it has been created.
 
 ## Testing status
@@ -64,31 +64,34 @@ Vitest, React Testing Library, jest-dom, and jsdom cover chart-data adaptation, 
 
 ## Chart behavior
 
-The GDP and CPI cards render nonsmoothed time-series charts with visible zero reference lines, percentage axes, frequency-aware tooltips, and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Range boundaries are calculated from each series’ latest observation date rather than today's date.
+All four cards render nonsmoothed time-series charts with percentage axes, frequency-aware tooltips, and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Range boundaries are calculated from each series’ latest observation date rather than today's date. GDP and CPI include zero; the two labor-market level series use padded ranges based on visible data and do not force zero.
 
-The chart includes an updating text summary of the latest, minimum, and maximum visible observations and whether any values fall below zero. The semantic recent-observations table remains available as a detailed nonvisual alternative.
+The chart includes an updating text summary of the latest, minimum, and maximum visible observations. GDP and CPI also report whether values fall below zero; that statement is omitted for the labor-market levels where it adds no useful context. The semantic recent-observations table remains available as a detailed nonvisual alternative.
 
 Apache ECharts is integrated directly through a small React lifecycle wrapper and dynamically imported when the chart is rendered. This keeps ECharts out of the initial application chunk while preserving the boundary between chart configuration and economic-domain data. See [`docs/charting.md`](docs/charting.md) for details.
 
 ## Information architecture
 
-The page currently contains two semantic sections:
+The page currently contains three semantic sections:
 
 - Growth, containing real GDP growth.
 - Prices, containing headline CPI inflation.
+- Employment and income, containing unemployment and prime-age employment-to-population ratio.
 
 Each indicator leads with a human question and one latest value, followed by the range control and chart. Factual context, concise limitations, related concepts, visible source attribution, technical metadata, and recent observations remain available without competing with the chart. Empty future sections are not rendered.
 
-The product principles and current-versus-future conceptual layers are documented in [`docs/product-principles.md`](docs/product-principles.md). In-page section navigation is deferred while only two sections exist.
+The product principles and current-versus-future conceptual layers are documented in [`docs/product-principles.md`](docs/product-principles.md). In-page section navigation remains deferred at the current scope.
 
 ## Local economic data
 
-Two datasets are bundled locally:
+Four datasets are bundled locally:
 
 - `real-gdp-growth.json` contains 105 quarterly observations from 2000 Q1 through 2026 Q1 for FRED series `GDPC1`, transformed to percent change from one year ago. The underlying series is produced by the U.S. Bureau of Economic Analysis.
 - `headline-cpi-inflation.json` contains 317 monthly observations from January 2000 through May 2026 for FRED series `CPIAUCSL`, transformed to percent change from one year ago. The underlying seasonally adjusted CPI index is produced by the U.S. Bureau of Labor Statistics.
+- `src/features/economic-series/data/unemployment-rate.json` contains 318 monthly observations from January 2000 through June 2026 for FRED series `UNRATE`, published as a seasonally adjusted percent level by the U.S. Bureau of Labor Statistics.
+- `src/features/economic-series/data/prime-age-employment-ratio.json` contains 318 monthly observations from January 2000 through June 2026 for FRED series `LNS12300060`, published as a seasonally adjusted percent level for adults ages 25 through 54 by the U.S. Bureau of Labor Statistics.
 
-Both current snapshots were retrieved from FRED on July 11, 2026.
+All four current snapshots were retrieved from FRED on July 12, 2026.
 
 Components request data asynchronously through the `EconomicSeriesRepository` interface instead of importing JSON. The local repository validates committed data at runtime, while preserving a boundary that can later be implemented by an application API or another data store.
 
@@ -108,7 +111,7 @@ Then run:
 npm run data:refresh
 ```
 
-The command sequentially refreshes every explicitly configured series: quarterly `GDPC1` and monthly `CPIAUCSL`, both beginning January 1, 2000 and using FRED's `pc1` transformation. Each response is validated, normalized, and atomically written independently. A failure leaves that series’ previous file intact, does not undo successful updates for other series, and makes the command exit nonzero after reporting every outcome.
+The command sequentially refreshes every explicitly configured series: quarterly `GDPC1` and monthly `CPIAUCSL` use FRED's `pc1` transformation, while monthly `UNRATE` and `LNS12300060` retain their published percent levels. All begin January 1, 2000. Each response is validated, normalized, and atomically written independently. A failure leaves that series’ previous file intact, does not undo successful updates for other series, and makes the command exit nonzero after reporting every outcome.
 
 See [`docs/data-refresh.md`](docs/data-refresh.md) for the data flow and failure behavior.
 

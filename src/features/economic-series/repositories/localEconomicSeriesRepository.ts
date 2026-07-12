@@ -7,6 +7,9 @@ const localSeriesLoaders: Readonly<
   'real-gdp-growth': () => import('../data/real-gdp-growth.json'),
   'headline-cpi-inflation': () =>
     import('../data/headline-cpi-inflation.json'),
+  'unemployment-rate': () => import('../data/unemployment-rate.json'),
+  'prime-age-employment-ratio': () =>
+    import('../data/prime-age-employment-ratio.json'),
 }
 
 export const localEconomicSeriesRepository: EconomicSeriesRepository = {

@@ -12,10 +12,12 @@ The generated JSON is committed with the application, so the dashboard remains u
 
 ## Supported-series configuration
 
-`scripts/fred/seriesConfigurations.ts` contains an explicit list of supported series. Each entry defines its slug, output file, provider identifier, FRED and domain frequencies, observation start, transformation, minimum history, and domain metadata. The list currently contains only:
+`scripts/fred/seriesConfigurations.ts` contains an explicit list of supported series. Each entry defines its slug, output file, provider identifier, FRED and domain frequencies, observation start, transformation, minimum history, and domain metadata. The list currently contains:
 
 - Real GDP growth (`GDPC1`, quarterly), written to `real-gdp-growth.json`.
 - Headline CPI inflation (`CPIAUCSL`, monthly), written to `headline-cpi-inflation.json`.
+- Unemployment rate (`UNRATE`, monthly), written to `unemployment-rate.json`.
+- Prime-age employment-to-population ratio (`LNS12300060`, monthly), written to `prime-age-employment-ratio.json`.
 
 This is a small configuration boundary, not dynamic discovery or a plugin system.
 
@@ -31,17 +33,23 @@ Shared parameters:
 
 - `api_key` from `FRED_API_KEY`
 - `file_type=json`
-- `units=pc1` for percent change from one year ago
 - `observation_start=2000-01-01`
 - `sort_order=asc`
 
-GDP adds `series_id=GDPC1` and `frequency=q`. CPI adds `series_id=CPIAUCSL` and `frequency=m`. The FRED transformation is used directly; the script does not recalculate or round growth rates.
+The series-specific requests are:
+
+- GDP: `series_id=GDPC1`, `frequency=q`, and `units=pc1`.
+- CPI: `series_id=CPIAUCSL`, `frequency=m`, and `units=pc1`.
+- Unemployment: `series_id=UNRATE` and `frequency=m`, with no `units` parameter.
+- Prime-age employment: `series_id=LNS12300060` and `frequency=m`, with no `units` parameter.
+
+The optional `fredUnits` configuration field emits `units=pc1` only for the two year-over-year growth series. Omitting it preserves the provider's published percent level. The domain `transformation` metadata separately records either `Percent change from year ago` or `Level`; the script does not recalculate or round either form.
 
 ## Validation and normalization
 
 The client checks the HTTP status and parses the response as untrusted JSON. It rejects provider error payloads, missing observation arrays, invalid dates, and values other than numeric strings or FRED's `.` missing marker.
 
-Normalization converts numeric strings to numbers and `.` to `null`, sorts observations chronologically without mutating the provider response, removes observations dated after retrieval, and requires enough usable history for the configured frequency: 80 quarterly GDP values or 240 monthly CPI values. It constructs complete `EconomicSeries` metadata and passes the result through the same domain validator used by the application.
+Normalization converts numeric strings to numbers and `.` to `null`, sorts observations chronologically without mutating the provider response, removes observations dated after retrieval, and requires enough usable history for the configured frequency: 80 quarterly GDP values or 240 monthly values for CPI and both labor series. It constructs complete `EconomicSeries` metadata and passes the result through the same domain validator used by the application.
 
 ## Safe replacement and failures
 
@@ -49,7 +57,7 @@ Only a fully retrieved, normalized, domain-validated, and serialized series reac
 
 A missing key, network failure, HTTP error, malformed response, insufficient history, validation failure, or write failure leaves that series’ previous dataset intact. Errors are concise and never include the API key or a full provider response.
 
-Series refresh sequentially in configuration order because there are only two requests and simple reporting is more valuable than negligible concurrency savings. Failure of one series does not stop the next or roll back a successful file. After all entries run, any failure produces a nonzero exit status and the command identifies which files updated and which failed.
+All four series refresh sequentially in configuration order. Failure of one series does not stop the next or roll back a successful file. After all entries run, any failure produces a nonzero exit status and the command identifies which files updated and which failed.
 
 ## Manual refresh
 

@@ -9,6 +9,8 @@ import { fredSeriesConfigurations } from './seriesConfigurations'
 
 const gdpConfig = fredSeriesConfigurations[0]!
 const cpiConfig = fredSeriesConfigurations[1]!
+const unemploymentConfig = fredSeriesConfigurations[2]!
+const primeAgeEmploymentConfig = fredSeriesConfigurations[3]!
 
 function createQuarterlyResponse(count = 81): FredObservationsResponse {
   return {
@@ -98,11 +100,33 @@ describe('normalizeFredSeries', () => {
 
     expect(cpiConfig.providerSeriesId).toBe('CPIAUCSL')
     expect(cpiConfig.fredFrequency).toBe('m')
-    expect(cpiConfig.unitsParameter).toBe('pc1')
+    expect(cpiConfig.fredUnits).toBe('pc1')
     expect(series.providerSeriesId).toBe('CPIAUCSL')
     expect(series.frequency).toBe('monthly')
     expect(series.observations.at(-1)?.date).toBe('2020-01-01')
     expect(validateEconomicSeries(series)).toEqual(series)
     expect(response).toEqual(original)
+  })
+
+  it.each([
+    [unemploymentConfig, 'UNRATE'],
+    [primeAgeEmploymentConfig, 'LNS12300060'],
+  ])('normalizes level metadata for %s', (config, providerSeriesId) => {
+    const response: FredObservationsResponse = {
+      observations: Array.from({ length: 241 }, (_, index) => ({
+        date: new Date(Date.UTC(2000, index, 1)).toISOString().slice(0, 10),
+        value: String(4 + index / 100),
+      })),
+    }
+
+    const series = normalizeFredSeries(response, '2020-01-01', config)
+
+    expect(config.fredFrequency).toBe('m')
+    expect(config.fredUnits).toBeUndefined()
+    expect(series.providerSeriesId).toBe(providerSeriesId)
+    expect(series.frequency).toBe('monthly')
+    expect(series.units).toBe('Percent')
+    expect(series.transformation).toBe('Level')
+    expect(validateEconomicSeries(series)).toEqual(series)
   })
 })
