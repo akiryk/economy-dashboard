@@ -50,6 +50,48 @@ describe('validateFredObservationsResponse', () => {
 })
 
 describe('normalizeFredSeries', () => {
+  it('removes only leading unavailable transformed observations', () => {
+    const response = createQuarterlyResponse()
+    response.observations[0] = { date: '1947-01-01', value: '.' }
+    response.observations[1] = { date: '1947-04-01', value: '.' }
+    response.observations[2] = { date: '1947-07-01', value: '1.5' }
+    response.observations[3] = { date: '1947-10-01', value: '.' }
+
+    const series = normalizeFredSeries(response, '2025-01-01', {
+      ...gdpConfig,
+      minimumUsableObservations: 1,
+    })
+
+    expect(series.observations[0]).toEqual({
+      date: '1947-07-01',
+      value: 1.5,
+    })
+    expect(series.observations[1]).toEqual({
+      date: '1947-10-01',
+      value: null,
+    })
+  })
+
+  it('does not emit CPI year-over-year values before provider history is usable', () => {
+    const response: FredObservationsResponse = {
+      observations: Array.from({ length: 14 }, (_, index) => ({
+        date: new Date(Date.UTC(1947, index, 1)).toISOString().slice(0, 10),
+        value: index < 12 ? '.' : String(index),
+      })),
+    }
+
+    const series = normalizeFredSeries(response, '1950-01-01', {
+      ...cpiConfig,
+      minimumUsableObservations: 1,
+    })
+
+    expect(series.observations).toEqual([
+      { date: '1948-01-01', value: 12 },
+      { date: '1948-02-01', value: 13 },
+    ])
+  })
+
+
   it('normalizes, sorts, and produces domain-valid GDPC1 metadata', () => {
     const response = createQuarterlyResponse()
     response.observations.reverse()

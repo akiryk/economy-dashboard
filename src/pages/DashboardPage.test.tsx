@@ -51,11 +51,11 @@ describe('DashboardPage economic series', () => {
     ).toBeVisible()
     await user.click(within(gdpCard).getByText('Recent observations'))
     await user.click(within(cpiCard).getByText('Recent observations'))
-    expect(
-      within(gdpCard).getByRole('table', {
+    const gdpTable = within(gdpCard).getByRole('table', {
         name: 'Eight most recent real GDP growth observations',
-      }),
-    ).toBeVisible()
+      })
+    expect(gdpTable).toBeVisible()
+    expect(within(gdpTable).getAllByRole('row')).toHaveLength(9)
     expect(
       within(cpiCard).getByRole('table', {
         name: 'Twelve most recent headline CPI inflation observations',
@@ -106,6 +106,7 @@ describe('DashboardPage economic series', () => {
       'What share of prime-age adults are employed?',
       'Are employers adding jobs?',
     ])
+    expect(screen.getAllByRole('article')).toHaveLength(5)
     expect(
       within(employment).queryByRole('article', {
         name: 'How much did total nonfarm payroll employment change?',
@@ -267,6 +268,34 @@ describe('DashboardPage economic series', () => {
         .at(-1)
       expect(cpiCall?.observations[0]?.date).toBe('2021-05-01')
     })
+  })
+
+  it('sends complete series history to the chart for Maximum only', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+    const gdpCard = await screen.findByRole('article', {
+      name: 'Is the U.S. economy growing?',
+    })
+    const payrollCard = await screen.findByRole('article', {
+      name: 'Are employers adding jobs?',
+    })
+
+    await user.click(within(gdpCard).getByRole('button', { name: 'Maximum' }))
+
+    await waitFor(() => {
+      const gdpCall = chartPropsSpy.mock.calls
+        .map((call) => call[0] as {
+          seriesName: string
+          observations: EconomicObservation[]
+        })
+        .filter((props) => props.seriesName === 'Real GDP growth')
+        .at(-1)
+      expect(gdpCall?.observations).toHaveLength(313)
+      expect(gdpCall?.observations[0]?.date).toBe('1948-01-01')
+    })
+    expect(
+      within(payrollCard).getByRole('button', { name: '20 years' }),
+    ).toHaveAttribute('aria-pressed', 'true')
   })
 
   it('keeps GDP visible when CPI loading fails', async () => {

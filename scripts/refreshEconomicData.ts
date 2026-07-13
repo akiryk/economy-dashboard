@@ -37,17 +37,23 @@ export async function refreshEconomicData({
   )
   const series = normalizeFredSeries(fredResponse, retrievedAt, config)
   await writeEconomicSeriesAtomically(targetPath, series)
-  return series
+  return { series, sourceObservationCount: fredResponse.observations.length }
 }
 
 export type RefreshOutcome =
-  | { status: 'updated'; config: FredSeriesConfig; series: Awaited<ReturnType<typeof refreshEconomicData>> }
+  | {
+      status: 'updated'
+      config: FredSeriesConfig
+      series: Awaited<ReturnType<typeof refreshEconomicData>>['series']
+      sourceObservationCount: number
+    }
   | { status: 'failed'; config: FredSeriesConfig; message: string }
   | {
       status: 'updated'
       config: PayrollSeriesConfig
       series: Awaited<ReturnType<typeof refreshPayrollData>>['payrollGrowth']
       supportingSeries: Awaited<ReturnType<typeof refreshPayrollData>>['monthlyChange']
+      sourceObservationCount: number
     }
   | { status: 'failed'; config: PayrollSeriesConfig; message: string }
 
@@ -86,7 +92,10 @@ export async function refreshPayrollData({
       series: series.payrollGrowth,
     },
   ])
-  return series
+  return {
+    ...series,
+    sourceObservationCount: response.observations.length,
+  }
 }
 
 export async function refreshAllEconomicData(
@@ -102,14 +111,14 @@ export async function refreshAllEconomicData(
 
   for (const config of configurations) {
     try {
-      const series = await refreshEconomicData({
+      const { series, sourceObservationCount } = await refreshEconomicData({
         apiKey,
         outputPath: path.resolve(config.outputFile),
         retrievedAt,
         config,
         fetchImplementation,
       })
-      outcomes.push({ status: 'updated', config, series })
+      outcomes.push({ status: 'updated', config, series, sourceObservationCount })
     } catch (error: unknown) {
       outcomes.push({
         status: 'failed',
@@ -128,17 +137,19 @@ export async function refreshAllEconomicData(
 
   if (payrollConfig) {
     try {
-      const { payrollGrowth, monthlyChange } = await refreshPayrollData({
+      const { payrollGrowth, monthlyChange, sourceObservationCount } =
+        await refreshPayrollData({
         apiKey,
         retrievedAt,
         config: payrollConfig,
         fetchImplementation,
-      })
+        })
       outcomes.push({
         status: 'updated',
         config: payrollConfig,
         series: payrollGrowth,
         supportingSeries: monthlyChange,
+        sourceObservationCount,
       })
     } catch (error: unknown) {
       outcomes.push({
@@ -194,7 +205,8 @@ async function main(): Promise<void> {
     const latest = series.observations.at(-1)
     console.log(`Refreshed ${series.providerSeriesId}`)
     console.log(`Transformation: ${series.transformation}`)
-    console.log(`Observations: ${series.observations.length}`)
+    console.log(`Source observations: ${outcome.sourceObservationCount}`)
+    console.log(`Generated observations: ${series.observations.length}`)
     console.log(
       `Range: ${series.observations[0]?.date} to ${latest?.date ?? 'unavailable'}`,
     )

@@ -15,7 +15,7 @@ type FetchImplementation = typeof fetch
 export interface FredRequestConfig {
   providerSeriesId: string
   fredFrequency: 'm' | 'q'
-  observationStart: string
+  historyPolicy: { type: 'full' } | { type: 'from'; date: string }
   fredUnits?: 'pc1'
 }
 
@@ -90,8 +90,10 @@ export async function fetchFredObservations(
     api_key: apiKey,
     file_type: 'json',
     frequency: config.fredFrequency,
-    observation_start: config.observationStart,
     sort_order: 'asc',
+  }
+  if (config.historyPolicy.type === 'from') {
+    parameters.observation_start = config.historyPolicy.date
   }
   if (config.fredUnits) parameters.units = config.fredUnits
   url.search = new URLSearchParams(parameters).toString()

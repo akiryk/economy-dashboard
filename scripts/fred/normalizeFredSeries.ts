@@ -8,13 +8,19 @@ export function normalizeFredSeries(
   retrievedAt: string,
   config: FredSeriesConfig,
 ): EconomicSeries {
-  const observations = response.observations
+  const observationsWithLeadingNulls = response.observations
     .filter((observation) => observation.date <= retrievedAt)
     .map((observation) => ({
       date: observation.date,
       value: observation.value === '.' ? null : Number(observation.value),
     }))
     .sort((a, b) => a.date.localeCompare(b.date))
+
+  const firstUsableIndex = observationsWithLeadingNulls.findIndex(
+    (observation) => observation.value !== null,
+  )
+  const observations =
+    firstUsableIndex < 0 ? [] : observationsWithLeadingNulls.slice(firstUsableIndex)
 
   const usableObservationCount = observations.filter(
     (observation) => observation.value !== null,

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { EconomicObservation } from '../models/economicSeries'
 import realGdpGrowthData from '../data/real-gdp-growth.json'
+import payrollGrowthData from '../data/payroll-growth.json'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import {
   calculateChartSummary,
@@ -30,7 +31,7 @@ describe('filterObservationsByTimeRange', () => {
     expect(observations).toEqual(original)
   })
 
-  it('produces distinct ranges for the expanded GDP history', () => {
+  it('preserves short GDP ranges while maximum includes full history', () => {
     const series = validateEconomicSeries(realGdpGrowthData)
 
     expect(filterObservationsByTimeRange(series.observations, '5y')).toHaveLength(
@@ -44,7 +45,17 @@ describe('filterObservationsByTimeRange', () => {
     ).toHaveLength(81)
     expect(
       filterObservationsByTimeRange(series.observations, 'max'),
-    ).toHaveLength(105)
+    ).toHaveLength(313)
+  })
+
+  it('allows series-specific maximum start dates', () => {
+    const gdp = validateEconomicSeries(realGdpGrowthData)
+    const payroll = validateEconomicSeries(payrollGrowthData)
+
+    expect(filterObservationsByTimeRange(gdp.observations, 'max')[0]?.date)
+      .toBe('1948-01-01')
+    expect(filterObservationsByTimeRange(payroll.observations, 'max')[0]?.date)
+      .toBe('1939-04-01')
   })
 
   it('filters monthly data from the latest date and includes the boundary', () => {
@@ -67,6 +78,23 @@ describe('filterObservationsByTimeRange', () => {
 })
 
 describe('calculateChartSummary', () => {
+  it('calculates extrema across a full maximum-range input', () => {
+    const fullHistory = [
+      { date: '1948-01-01', value: 8 },
+      { date: '1980-01-01', value: -3 },
+      { date: '2026-01-01', value: 2 },
+    ]
+
+    expect(calculateChartSummary(
+      filterObservationsByTimeRange(fullHistory, 'max'),
+    )).toMatchObject({
+      latest: { date: '2026-01-01', value: 2 },
+      minimum: { date: '1980-01-01', value: -3 },
+      maximum: { date: '1948-01-01', value: 8 },
+      observationCount: 3,
+    })
+  })
+
   it('finds latest, minimum, maximum, and below-zero observations', () => {
     expect(calculateChartSummary(observations)).toEqual({
       latest: { date: '2026-01-01', value: 2.7 },

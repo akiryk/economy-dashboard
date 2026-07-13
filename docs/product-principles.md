@@ -10,6 +10,8 @@ The product vision has three layers:
 2. **Historical context.** Help users compare the current observation with prior periods, ranges, and distributions through purposeful visualizations. The existing time-series charts provide basic history; compact median, marker, range, and percentile views remain future work.
 3. **Relationships and expectations.** Help users examine relationships among indicators and compare expectations with outcomes. This is a future product area; the dashboard does not currently calculate correlations, divergences, forecasts, or forecast errors.
 
+Historical context uses the fullest reliable comparable series available for each measure rather than imposing a common cutoff. Different measures may begin in different years, and long-run comparisons require care because economic structure and statistical measurement evolve.
+
 ## Human questions first
 
 Every indicator leads with the human question it helps answer. Technical provider titles and identifiers remain supporting metadata. This keeps the briefing understandable without obscuring provenance.

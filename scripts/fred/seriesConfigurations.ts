@@ -8,7 +8,7 @@ export interface FredSeriesConfig {
   providerSeriesId: string
   frequency: Extract<EconomicFrequency, 'monthly' | 'quarterly'>
   fredFrequency: 'm' | 'q'
-  observationStart: string
+  historyPolicy: HistoryPolicy
   fredUnits?: 'pc1'
   minimumUsableObservations: number
   title: string
@@ -22,6 +22,10 @@ export interface FredSeriesConfig {
   sourceUrl: string
 }
 
+export type HistoryPolicy =
+  | { type: 'full' }
+  | { type: 'from'; date: string }
+
 export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
   {
     dataHandling: 'provider-transformed',
@@ -32,7 +36,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     providerSeriesId: 'GDPC1',
     frequency: 'quarterly',
     fredFrequency: 'q',
-    observationStart: '2000-01-01',
+    historyPolicy: { type: 'full' },
     fredUnits: 'pc1',
     minimumUsableObservations: 80,
     title: 'Real Gross Domestic Product: Percent Change from Year Ago',
@@ -56,7 +60,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     providerSeriesId: 'CPIAUCSL',
     frequency: 'monthly',
     fredFrequency: 'm',
-    observationStart: '2000-01-01',
+    historyPolicy: { type: 'full' },
     fredUnits: 'pc1',
     minimumUsableObservations: 240,
     title: 'Consumer Price Inflation',
@@ -78,7 +82,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     providerSeriesId: 'UNRATE',
     frequency: 'monthly',
     fredFrequency: 'm',
-    observationStart: '2000-01-01',
+    historyPolicy: { type: 'full' },
     minimumUsableObservations: 240,
     title: 'Unemployment Rate',
     shortTitle: 'Unemployment',
@@ -100,7 +104,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     providerSeriesId: 'LNS12300060',
     frequency: 'monthly',
     fredFrequency: 'm',
-    observationStart: '2000-01-01',
+    historyPolicy: { type: 'full' },
     minimumUsableObservations: 240,
     title: 'Prime-Age Employment-to-Population Ratio',
     shortTitle: 'Prime-age employment',
@@ -119,7 +123,7 @@ export interface PayrollSeriesConfig {
   dataHandling: 'locally-derived'
   providerSeriesId: 'PAYEMS'
   fredFrequency: 'm'
-  observationStart: string
+  historyPolicy: HistoryPolicy
   minimumUsableObservations: number
   sourceUnits: string
   seasonalAdjustment: string
@@ -133,7 +137,7 @@ export const payrollSeriesConfiguration: PayrollSeriesConfig = {
   dataHandling: 'locally-derived',
   providerSeriesId: 'PAYEMS',
   fredFrequency: 'm',
-  observationStart: '1999-10-01',
+  historyPolicy: { type: 'full' },
   minimumUsableObservations: 3,
   sourceUnits: 'Thousands of persons',
   seasonalAdjustment: 'Seasonally adjusted',

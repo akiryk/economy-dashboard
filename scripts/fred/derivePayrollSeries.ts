@@ -6,10 +6,17 @@ import { validateEconomicSeries } from '../../src/features/economic-series/model
 import type { FredObservationsResponse } from './fredClient'
 import type { PayrollSeriesConfig } from './seriesConfigurations'
 
-const DISPLAY_START = '2000-01-01'
-
 interface ParsedObservation extends EconomicObservation {
   value: number | null
+}
+
+function trimLeadingNulls(
+  observations: readonly EconomicObservation[],
+): EconomicObservation[] {
+  const firstUsableIndex = observations.findIndex(
+    (observation) => observation.value !== null,
+  )
+  return firstUsableIndex < 0 ? [] : observations.slice(firstUsableIndex)
 }
 
 function previousMonth(date: string): string {
@@ -129,11 +136,9 @@ export function derivePayrollSeries(
   }
 
   const allMonthlyChanges = deriveMonthlyPayrollChanges(source)
-  const monthlyChanges = allMonthlyChanges.filter(
-    (observation) => observation.date >= DISPLAY_START,
-  )
-  const averages = deriveThreeMonthAverageChanges(allMonthlyChanges).filter(
-    (observation) => observation.date >= DISPLAY_START,
+  const monthlyChanges = trimLeadingNulls(allMonthlyChanges)
+  const averages = trimLeadingNulls(
+    deriveThreeMonthAverageChanges(allMonthlyChanges),
   )
 
   return {

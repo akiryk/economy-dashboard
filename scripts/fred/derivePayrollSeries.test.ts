@@ -99,6 +99,8 @@ describe('derivePayrollSeries', () => {
     )
 
     expect(result.monthlyChange.observations).toEqual([
+      { date: '1999-11-01', value: 10 },
+      { date: '1999-12-01', value: 20 },
       { date: '2000-01-01', value: 30 },
       { date: '2000-02-01', value: -10 },
     ])

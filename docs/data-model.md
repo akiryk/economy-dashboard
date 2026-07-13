@@ -12,6 +12,8 @@ An observation date identifies the economic period measured. For quarterly GDP, 
 
 The series-level `retrievedAt` date records when this particular local snapshot was downloaded. Economic estimates are revised, so two snapshots with the same observation dates can contain different values.
 
+Observation coverage is series-specific. Maximum history is not a shared common date range: the payroll derivatives begin in 1939, while the current direct series begin in 1948. Series details expose the actual earliest and latest included periods.
+
 ## Repository boundary
 
 React components do not import JSON directly. They request a series by slug through `EconomicSeriesRepository`, and the local implementation validates the unknown JSON data before returning it. This keeps parsing and data-source details out of presentation code and provides a clear asynchronous boundary.
@@ -40,9 +42,9 @@ Seasonal adjustment, frequency, observation period, and retrieval date remain in
 
 ## Locally derived payroll series
 
-PAYEMS is a provider level in thousands of persons. The dashboard does not present that raw level as its payroll measure. One refresh-time derivation creates monthly changes and a rolling three-month average, both stored in thousands of jobs. Their `providerSeriesId` and source attribution identify PAYEMS, while `transformation` states that the application calculated the displayed values. This separates provider source from local transformation without adding speculative metadata fields.
+PAYEMS is a provider level in thousands of persons. The dashboard does not present that raw level as its payroll measure. One refresh-time derivation creates monthly changes and a rolling three-month average, both stored in thousands of jobs. Their `providerSeriesId` and source attribution identify PAYEMS, while `transformation` states that the application calculated the displayed values. The derived monthly-change series begins one observation after the source; the three-month average begins two changes later. This separates provider source from local transformation without adding speculative metadata fields.
 
-The primary `payroll-growth` series and supporting `monthly-payroll-change` series share dates and the unchanged `{ date, value }` observation shape. The repository loads both for one card; React does not calculate either measure. The supporting series appears only in the payroll card's paired recent-observations table, not as a separate dashboard card.
+The primary `payroll-growth` and supporting `monthly-payroll-change` series use the unchanged `{ date, value }` observation shape. The supporting series begins two months earlier; every primary date aligns with a supporting monthly-change date. The repository loads both for one card, and React does not calculate either measure. The supporting series appears only in the payroll card's paired recent-observations table, not as a separate dashboard card.
 
 ## Current limitations
 

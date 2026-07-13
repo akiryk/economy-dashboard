@@ -4,7 +4,7 @@ An information-first web application for understanding the U.S. economy through 
 
 ## Current scope
 
-Story 08 adds payroll-growth momentum as a fifth dashboard indicator. It charts the locally calculated rolling three-month average of monthly changes in total nonfarm payroll employment while preserving the underlying monthly changes in the recent-observations table.
+Story 09 expands every supported dataset to its fullest useful authoritative FRED history. `Maximum` is series-specific, while the default 20-year view and the 5-year and 10-year controls are unchanged.
 
 ## Technology stack
 
@@ -64,7 +64,7 @@ Vitest, React Testing Library, jest-dom, and jsdom cover chart-data adaptation, 
 
 ## Chart behavior
 
-All five cards render nonsmoothed time-series charts with frequency-aware tooltips and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Range boundaries are calculated from each series’ latest observation date rather than today's date. GDP, CPI, and payroll growth include zero; the two labor-market level series use padded ranges based on visible data and do not force zero.
+All five cards render nonsmoothed time-series charts with frequency-aware tooltips and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Short-range boundaries are calculated from each series’ latest observation date rather than today's date. Maximum includes every generated observation and may start in a different year for each series. GDP, CPI, and payroll growth include zero; the two labor-market level series use padded ranges based on visible data and do not force zero.
 
 The chart includes an updating text summary of the latest, minimum, and maximum visible observations. GDP and CPI also report whether values fall below zero; that statement is omitted for the labor-market levels where it adds no useful context. The semantic recent-observations table remains available as a detailed nonvisual alternative.
 
@@ -84,16 +84,16 @@ The product principles and current-versus-future conceptual layers are documente
 
 ## Local economic data
 
-Six datasets support five visible indicators:
+Six full-history datasets support five visible indicators:
 
-- `real-gdp-growth.json` contains 105 quarterly observations from 2000 Q1 through 2026 Q1 for FRED series `GDPC1`, transformed to percent change from one year ago. The underlying series is produced by the U.S. Bureau of Economic Analysis.
-- `headline-cpi-inflation.json` contains 317 monthly observations from January 2000 through May 2026 for FRED series `CPIAUCSL`, transformed to percent change from one year ago. The underlying seasonally adjusted CPI index is produced by the U.S. Bureau of Labor Statistics.
-- `src/features/economic-series/data/unemployment-rate.json` contains 318 monthly observations from January 2000 through June 2026 for FRED series `UNRATE`, published as a seasonally adjusted percent level by the U.S. Bureau of Labor Statistics.
-- `src/features/economic-series/data/prime-age-employment-ratio.json` contains 318 monthly observations from January 2000 through June 2026 for FRED series `LNS12300060`, published as a seasonally adjusted percent level for adults ages 25 through 54 by the U.S. Bureau of Labor Statistics.
-- `src/features/economic-series/data/monthly-payroll-change.json` contains locally calculated monthly changes in FRED series `PAYEMS`, stored in thousands of jobs.
-- `src/features/economic-series/data/payroll-growth.json` contains the rolling three-month average of those monthly changes and supplies the visible payroll card and chart.
+- `real-gdp-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, FRED `GDPC1`, percent change from one year ago.
+- `headline-cpi-inflation.json`: 941 monthly observations, January 1948–May 2026, FRED `CPIAUCSL`, percent change from one year ago.
+- `unemployment-rate.json`: 942 monthly observations, January 1948–June 2026, FRED `UNRATE`, percent level.
+- `prime-age-employment-ratio.json`: 942 monthly observations, January 1948–June 2026, FRED `LNS12300060`, percent level for adults ages 25 through 54.
+- `monthly-payroll-change.json`: 1,049 locally derived monthly changes, February 1939–June 2026, from FRED `PAYEMS` levels.
+- `payroll-growth.json`: 1,047 rolling three-month averages, April 1939–June 2026, from the same single PAYEMS retrieval.
 
-All current snapshots were retrieved from FRED on July 13, 2026 UTC. PAYEMS is published monthly in thousands of persons, seasonally adjusted. The application retrieves its provider level once beginning October 1999, calculates consecutive monthly differences, and then calculates rolling three-month averages. Both generated payroll files begin January 2000.
+All current snapshots were retrieved from FRED on July 13, 2026 UTC. Each source uses the full-history request policy without `observation_start`. Leading unavailable transformed observations are omitted, while meaningful internal missing values remain `null`. PAYEMS is published monthly in thousands of persons, seasonally adjusted; the application calculates consecutive monthly differences and rolling three-month averages from its full source history.
 
 Components request data asynchronously through the `EconomicSeriesRepository` interface instead of importing JSON. The local repository validates committed data at runtime, while preserving a boundary that can later be implemented by an application API or another data store.
 
@@ -113,7 +113,7 @@ Then run:
 npm run data:refresh
 ```
 
-The command sequentially refreshes every explicitly configured source: quarterly `GDPC1` and monthly `CPIAUCSL` use FRED's `pc1` transformation; monthly `UNRATE`, `LNS12300060`, and `PAYEMS` retain provider levels. PAYEMS is fetched once and produces both payroll outputs as one grouped replacement. A payroll failure preserves both previous payroll files without undoing successful unrelated refreshes. Any failure produces a nonzero exit after every source is attempted.
+The command sequentially refreshes every explicitly configured source: quarterly `GDPC1` and monthly `CPIAUCSL` use FRED's `pc1` transformation; monthly `UNRATE`, `LNS12300060`, and `PAYEMS` retain provider levels. PAYEMS is fetched once and produces both payroll outputs as one grouped replacement. Successful reporting includes source and generated observation counts plus generated ranges. A payroll failure preserves both previous payroll files without undoing successful unrelated refreshes. Any failure produces a nonzero exit after every source is attempted.
 
 See [`docs/data-refresh.md`](docs/data-refresh.md) for the data flow and failure behavior.
 

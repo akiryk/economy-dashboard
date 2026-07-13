@@ -32,8 +32,13 @@ describe('refreshEconomicData', () => {
       dataHandling: 'locally-derived',
       providerSeriesId: 'PAYEMS',
       fredFrequency: 'm',
-      observationStart: '1999-10-01',
+      historyPolicy: { type: 'full' },
     })
+    expect(
+      fredSeriesConfigurations.every(
+        (config) => config.historyPolicy.type === 'full',
+      ),
+    ).toBe(true)
   })
 
   it('configures both labor series as monthly provider levels without pc1', () => {
@@ -48,7 +53,7 @@ describe('refreshEconomicData', () => {
       expect(config).toMatchObject({
         fredFrequency: 'm',
         frequency: 'monthly',
-        observationStart: '2000-01-01',
+        historyPolicy: { type: 'full' },
         transformation: 'Level',
       })
       expect(config?.fredUnits).toBeUndefined()
@@ -157,6 +162,11 @@ describe('refreshEconomicData', () => {
 
     expect(outcomes).toHaveLength(4)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
+    expect(
+      outcomes.map((outcome) =>
+        outcome.status === 'updated' ? outcome.sourceObservationCount : null,
+      ),
+    ).toEqual([3, 3, 3, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
@@ -167,6 +177,9 @@ describe('refreshEconomicData', () => {
       .toEqual(['pc1', 'pc1'])
     expect(requestedUrls.slice(2).map((url) => url.searchParams.has('units')))
       .toEqual([false, false])
+    expect(
+      requestedUrls.every((url) => !url.searchParams.has('observation_start')),
+    ).toBe(true)
 
     for (const config of configurations) {
       const series = validateEconomicSeries(
@@ -256,12 +269,15 @@ describe('refreshEconomicData', () => {
 
     expect(outcomes).toHaveLength(1)
     expect(outcomes[0]?.status).toBe('updated')
+    expect(
+      outcomes[0]?.status === 'updated'
+        ? outcomes[0].sourceObservationCount
+        : null,
+    ).toBe(6)
     expect(requestedUrls).toHaveLength(1)
     expect(requestedUrls[0]?.searchParams.get('series_id')).toBe('PAYEMS')
     expect(requestedUrls[0]?.searchParams.get('frequency')).toBe('m')
-    expect(requestedUrls[0]?.searchParams.get('observation_start')).toBe(
-      '1999-10-01',
-    )
+    expect(requestedUrls[0]?.searchParams.has('observation_start')).toBe(false)
     expect(requestedUrls[0]?.searchParams.has('units')).toBe(false)
     expect(
       validateEconomicSeries(
