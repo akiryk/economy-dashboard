@@ -6,6 +6,7 @@ import { validateEconomicSeries } from '../src/features/economic-series/models/v
 import {
   fredSeriesConfigurations,
   payrollSeriesConfiguration,
+  wageSeriesConfiguration,
 } from './fred/seriesConfigurations'
 import {
   refreshAllEconomicData,
@@ -31,6 +32,12 @@ describe('refreshEconomicData', () => {
     expect(payrollSeriesConfiguration).toMatchObject({
       dataHandling: 'locally-derived',
       providerSeriesId: 'PAYEMS',
+      fredFrequency: 'm',
+      historyPolicy: { type: 'full' },
+    })
+    expect(wageSeriesConfiguration).toMatchObject({
+      dataHandling: 'multi-source-derived',
+      providerSeriesId: 'AHETPI',
       fredFrequency: 'm',
       historyPolicy: { type: 'full' },
     })
@@ -334,5 +341,87 @@ describe('refreshEconomicData', () => {
       .toMatchObject({ providerSeriesId: 'GDPC1' })
     expect(await readFile(monthlyPath, 'utf8')).toBe(oldMonthly)
     expect(await readFile(averagePath, 'utf8')).toBe(oldAverage)
+  })
+
+  it('fetches CPI and AHETPI once each and writes both wage outputs', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
+    temporaryDirectories.push(directory)
+    const cpiConfiguration = {
+      ...fredSeriesConfigurations[1]!,
+      outputFile: path.join(directory, 'cpi.json'),
+      minimumUsableObservations: 2,
+    }
+    const wageConfiguration = {
+      ...wageSeriesConfiguration,
+      nominalOutputFile: path.join(directory, 'nominal.json'),
+      realOutputFile: path.join(directory, 'real.json'),
+    }
+    const requests: string[] = []
+    const fetchImplementation: typeof fetch = async (input) => {
+      const id = new URL(String(input)).searchParams.get('series_id')!
+      requests.push(id)
+      const observations =
+        id === 'CPIAUCSL'
+          ? [
+              { date: '1965-01-01', value: '2' },
+              { date: '1965-02-01', value: '2.1' },
+            ]
+          : Array.from({ length: 14 }, (_, index) => ({
+              date: new Date(Date.UTC(1964, index, 1)).toISOString().slice(0, 10),
+              value: String(2 + index / 100),
+            }))
+      return new Response(JSON.stringify({ observations }), { status: 200 })
+    }
+
+    const outcomes = await refreshAllEconomicData({
+      apiKey: 'test-key', retrievedAt: '2026-07-13',
+      configurations: [cpiConfiguration], payrollConfiguration: false,
+      wageConfiguration, fetchImplementation,
+    })
+
+    expect(requests).toEqual(['CPIAUCSL', 'AHETPI'])
+    expect(outcomes.map((outcome) => outcome.status)).toEqual(['updated', 'updated'])
+    expect(validateEconomicSeries(JSON.parse(await readFile(wageConfiguration.nominalOutputFile, 'utf8'))))
+      .toMatchObject({ providerSeriesId: 'AHETPI' })
+    const real = validateEconomicSeries(
+      JSON.parse(await readFile(wageConfiguration.realOutputFile, 'utf8')),
+    )
+    expect(real.sources?.map((source) => source.providerSeriesId)).toEqual([
+      'AHETPI', 'CPIAUCSL',
+    ])
+  })
+
+  it('preserves both wage files when AHETPI derivation fails', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
+    temporaryDirectories.push(directory)
+    const nominalPath = path.join(directory, 'nominal.json')
+    const realPath = path.join(directory, 'real.json')
+    await writeFile(nominalPath, 'old nominal\n', 'utf8')
+    await writeFile(realPath, 'old real\n', 'utf8')
+    const wageConfiguration = {
+      ...wageSeriesConfiguration,
+      nominalOutputFile: nominalPath,
+      realOutputFile: realPath,
+    }
+    const cpiConfiguration = {
+      ...fredSeriesConfigurations[1]!, outputFile: path.join(directory, 'cpi.json'),
+      minimumUsableObservations: 1,
+    }
+    const fetchImplementation: typeof fetch = async (input) => {
+      const id = new URL(String(input)).searchParams.get('series_id')
+      const observations = id === 'CPIAUCSL'
+        ? [{ date: '1965-01-01', value: '2' }]
+        : [{ date: '1964-01-01', value: 'invalid' }]
+      return new Response(JSON.stringify({ observations }), { status: 200 })
+    }
+
+    const outcomes = await refreshAllEconomicData({
+      apiKey: 'test-key', retrievedAt: '2026-07-13',
+      configurations: [cpiConfiguration], payrollConfiguration: false,
+      wageConfiguration, fetchImplementation,
+    })
+    expect(outcomes.map((outcome) => outcome.status)).toEqual(['updated', 'failed'])
+    expect(await readFile(nominalPath, 'utf8')).toBe('old nominal\n')
+    expect(await readFile(realPath, 'utf8')).toBe('old real\n')
   })
 })

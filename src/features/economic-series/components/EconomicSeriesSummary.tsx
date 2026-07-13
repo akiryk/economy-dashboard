@@ -107,6 +107,7 @@ export function EconomicSeriesSummary({
             }
           >
             <EconomicTimeSeriesChart
+              kind="single"
               observations={visibleObservations}
               seriesName={series.shortTitle}
               frequency={series.frequency}

@@ -19,6 +19,7 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Unemployment rate (`UNRATE`, monthly), written to `unemployment-rate.json`.
 - Prime-age employment-to-population ratio (`LNS12300060`, monthly), written to `prime-age-employment-ratio.json`.
 - Payroll growth (`PAYEMS`, monthly source level), derived into `monthly-payroll-change.json` and `payroll-growth.json`.
+- Wages versus inflation (`AHETPI` plus the existing `CPIAUCSL` result), derived into `nominal-wage-growth.json` and `real-wage-growth.json`.
 
 This is a small configuration boundary, not dynamic discovery or a plugin system.
 
@@ -43,6 +44,7 @@ The series-specific requests are:
 - Unemployment: `series_id=UNRATE` and `frequency=m`, with no `units` parameter.
 - Prime-age employment: `series_id=LNS12300060` and `frequency=m`, with no `units` parameter.
 - Payroll: `series_id=PAYEMS` and `frequency=m`, with no `units` parameter.
+- Wages: `series_id=AHETPI` and `frequency=m`, with no `units` parameter.
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
@@ -51,6 +53,10 @@ The optional `fredUnits` configuration field emits `units=pc1` only for the two 
 FRED publishes PAYEMS in thousands of persons, seasonally adjusted. Full source retrieval inherently supplies the warm-up observations needed for derivation. The application keeps derived values in thousands of jobs: monthly change is the current level minus the prior consecutive month's level, and the three-month average is the arithmetic mean of the current and two prior consecutive monthly changes. The supporting series begins with the first valid difference; the primary series begins with the first valid three-change window. Missing values or calendar gaps produce `null`; they are never treated as zero or bridged. Duplicate dates are rejected.
 
 PAYEMS is fetched and provider-validated once. One explicit derivation module creates the monthly-change supporting series and the three-month-average primary series. Both use the existing domain model and identify PAYEMS as the source while stating that their transformations are calculated by the application.
+
+AHETPI is fetched once using the full-history policy. CPIAUCSL is not fetched again: wage derivation reuses the full-precision CPI inflation series produced earlier in the same refresh. Wage levels require an observation at the exact calendar month one year earlier. Nominal growth is `(current wage / prior-year wage - 1) × 100`. Exact real growth divides that wage ratio by `1 + CPI inflation / 100` before subtracting one and multiplying by 100. Missing or mismatched months produce `null`; array positions are never substituted for calendar alignment.
+
+The nominal and real wage outputs are validated and staged together, then replaced through the existing rollback-protected grouped writer. Failure preserves both prior wage files without rolling back unrelated successful sources. Successful reporting includes the AHETPI source count and both generated ranges.
 
 ## Validation and normalization
 
@@ -66,6 +72,8 @@ Leading unavailable values from provider transformations are removed so generate
 - LNS12300060: 942 observations, January 1948–June 2026.
 - PAYEMS monthly change: 1,049 observations, February 1939–June 2026.
 - PAYEMS three-month average: 1,047 observations, April 1939–June 2026.
+- AHETPI nominal wage growth: 738 observations, January 1965–June 2026.
+- AHETPI/CPI exact real wage growth: 737 aligned observations, January 1965–May 2026.
 
 ## Safe replacement and failures
 

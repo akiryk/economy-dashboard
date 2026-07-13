@@ -3,10 +3,28 @@ import {
   type EconomicFrequency,
   type EconomicObservation,
   type EconomicSeries,
+  type EconomicSeriesSource,
 } from './economicSeries'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function validateSource(value: unknown, index: number): EconomicSeriesSource {
+  if (!isRecord(value)) {
+    throw new Error(`Economic series source ${index} must be an object`)
+  }
+  const role = value.role
+  if (role !== undefined && !isNonEmptyString(role)) {
+    throw new Error(`Economic series source ${index} has an invalid role`)
+  }
+  return {
+    provider: getRequiredString(value, 'provider'),
+    providerSeriesId: getRequiredString(value, 'providerSeriesId'),
+    sourceName: getRequiredString(value, 'sourceName'),
+    sourceUrl: getRequiredString(value, 'sourceUrl'),
+    ...(role === undefined ? {} : { role }),
+  }
 }
 
 function isNonEmptyString(value: unknown): value is string {
@@ -96,6 +114,11 @@ export function validateEconomicSeries(value: unknown): EconomicSeries {
     throw new Error('Economic series must include observations')
   }
 
+  const sources = value.sources
+  if (sources !== undefined && (!Array.isArray(sources) || sources.length === 0)) {
+    throw new Error('Economic series sources must be a non-empty array')
+  }
+
   return {
     id: getRequiredString(value, 'id'),
     slug: getRequiredString(value, 'slug'),
@@ -113,5 +136,8 @@ export function validateEconomicSeries(value: unknown): EconomicSeries {
     sourceUrl: getRequiredString(value, 'sourceUrl'),
     retrievedAt,
     observations: value.observations.map(validateObservation),
+    ...(sources === undefined
+      ? {}
+      : { sources: sources.map(validateSource) }),
   }
 }

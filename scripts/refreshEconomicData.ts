@@ -4,11 +4,14 @@ import { pathToFileURL } from 'node:url'
 import { fetchFredObservations } from './fred/fredClient'
 import { normalizeFredSeries } from './fred/normalizeFredSeries'
 import { derivePayrollSeries } from './fred/derivePayrollSeries'
+import { deriveWageSeries } from './fred/deriveWageSeries'
 import {
   fredSeriesConfigurations,
   payrollSeriesConfiguration,
+  wageSeriesConfiguration,
   type PayrollSeriesConfig,
   type FredSeriesConfig,
+  type WageSeriesConfig,
 } from './fred/seriesConfigurations'
 import {
   writeEconomicSeriesAtomically,
@@ -56,12 +59,21 @@ export type RefreshOutcome =
       sourceObservationCount: number
     }
   | { status: 'failed'; config: PayrollSeriesConfig; message: string }
+  | {
+      status: 'updated'
+      config: WageSeriesConfig
+      series: Awaited<ReturnType<typeof refreshWageData>>['realWageGrowth']
+      supportingSeries: Awaited<ReturnType<typeof refreshWageData>>['nominalWageGrowth']
+      sourceObservationCount: number
+    }
+  | { status: 'failed'; config: WageSeriesConfig; message: string }
 
 interface RefreshAllEconomicDataOptions {
   apiKey: string
   retrievedAt: string
   configurations?: readonly FredSeriesConfig[]
   payrollConfiguration?: PayrollSeriesConfig | false
+  wageConfiguration?: WageSeriesConfig | false
   fetchImplementation?: typeof fetch
 }
 
@@ -98,6 +110,38 @@ export async function refreshPayrollData({
   }
 }
 
+export async function refreshWageData({
+  apiKey,
+  retrievedAt,
+  cpiInflation,
+  config = wageSeriesConfiguration,
+  fetchImplementation,
+}: {
+  apiKey: string
+  retrievedAt: string
+  cpiInflation: Awaited<ReturnType<typeof refreshEconomicData>>['series']
+  config?: WageSeriesConfig
+  fetchImplementation?: typeof fetch
+}) {
+  const response = await fetchFredObservations(
+    apiKey,
+    config,
+    fetchImplementation,
+  )
+  const series = deriveWageSeries(response, cpiInflation, retrievedAt, config)
+  await writeEconomicSeriesGroupAtomically([
+    {
+      outputPath: path.resolve(config.nominalOutputFile),
+      series: series.nominalWageGrowth,
+    },
+    {
+      outputPath: path.resolve(config.realOutputFile),
+      series: series.realWageGrowth,
+    },
+  ])
+  return { ...series, sourceObservationCount: response.observations.length }
+}
+
 export async function refreshAllEconomicData(
   options: RefreshAllEconomicDataOptions,
 ): Promise<RefreshOutcome[]> {
@@ -108,6 +152,8 @@ export async function refreshAllEconomicData(
     fetchImplementation,
   } = options
   const outcomes: RefreshOutcome[] = []
+  let cpiInflation: Awaited<ReturnType<typeof refreshEconomicData>>['series'] | null =
+    null
 
   for (const config of configurations) {
     try {
@@ -119,6 +165,7 @@ export async function refreshAllEconomicData(
         fetchImplementation,
       })
       outcomes.push({ status: 'updated', config, series, sourceObservationCount })
+      if (config.providerSeriesId === 'CPIAUCSL') cpiInflation = series
     } catch (error: unknown) {
       outcomes.push({
         status: 'failed',
@@ -157,6 +204,50 @@ export async function refreshAllEconomicData(
         config: payrollConfig,
         message: error instanceof Error ? error.message : 'Unknown failure',
       })
+    }
+  }
+
+  const wageConfig =
+    options.wageConfiguration === undefined
+      ? options.configurations === undefined
+        ? wageSeriesConfiguration
+        : false
+      : options.wageConfiguration
+
+  if (wageConfig) {
+    if (!cpiInflation) {
+      outcomes.push({
+        status: 'failed',
+        config: wageConfig,
+        message: 'CPI inflation is required to derive real wage growth',
+      })
+    } else {
+      try {
+        const {
+          realWageGrowth,
+          nominalWageGrowth,
+          sourceObservationCount,
+        } = await refreshWageData({
+          apiKey,
+          retrievedAt,
+          cpiInflation,
+          config: wageConfig,
+          fetchImplementation,
+        })
+        outcomes.push({
+          status: 'updated',
+          config: wageConfig,
+          series: realWageGrowth,
+          supportingSeries: nominalWageGrowth,
+          sourceObservationCount,
+        })
+      } catch (error: unknown) {
+        outcomes.push({
+          status: 'failed',
+          config: wageConfig,
+          message: error instanceof Error ? error.message : 'Unknown failure',
+        })
+      }
     }
   }
 
@@ -218,9 +309,15 @@ async function main(): Promise<void> {
       console.log(
         `Supporting range: ${supporting.observations[0]?.date} to ${supporting.observations.at(-1)?.date ?? 'unavailable'}`,
       )
-      console.log(
-        `Outputs: ${path.resolve(outcome.config.payrollGrowthOutputFile)}, ${path.resolve(outcome.config.monthlyChangeOutputFile)}`,
-      )
+      if (outcome.config.dataHandling === 'locally-derived') {
+        console.log(
+          `Outputs: ${path.resolve(outcome.config.payrollGrowthOutputFile)}, ${path.resolve(outcome.config.monthlyChangeOutputFile)}`,
+        )
+      } else {
+        console.log(
+          `Outputs: ${path.resolve(outcome.config.realOutputFile)}, ${path.resolve(outcome.config.nominalOutputFile)}`,
+        )
+      }
     } else {
       console.log(`Output: ${path.resolve(outcome.config.outputFile)}`)
     }

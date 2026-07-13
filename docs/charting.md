@@ -12,7 +12,9 @@ The implementation uses ECharts 6 modular core imports and registers only the li
 
 Economic observations remain `{ date, value }` domain objects. Pure range and summary utilities operate on those objects. Immediately before rendering, `chartAdapters.ts` sorts without mutation and converts each observation to ECharts-compatible `[date, value]` data. `null` remains `null`, so missing observations are neither converted to zero nor joined by the line.
 
-The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage and signed-count data use the same UTC-safe period formatter without conflating their meanings. All five cards dynamically import the same chart module; ECharts is not duplicated.
+The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage and signed-count data use the same UTC-safe period formatter without conflating their meanings. All six cards dynamically import the same chart module; ECharts is not duplicated.
+
+The same deferred boundary accepts either one series or the wages-versus-inflation comparison. The comparison uses solid nominal wage growth and dashed headline CPI inflation on one shared percentage axis with a concise legend and zero reference line. Dual axes are intentionally avoided. Its tooltip includes the aligned month, both plotted rates, and exact-ratio real wage growth. Both lines use the same latest shared month and selected range.
 
 Chart options are built separately from React lifecycle management. This keeps filtering, adaptation, visual configuration, and canvas ownership independently understandable and testable.
 
@@ -65,3 +67,5 @@ With Story 07, the initial application chunk is 301.98 kB minified (95.78 kB gzi
 With Story 08, the initial application chunk is 306.01 kB minified (96.61 kB gzip). Monthly payroll change and payroll growth are separate 10.54 kB and 13.78 kB data chunks. The build still emits one shared chart/ECharts chunk at 518.06 kB minified (175.14 kB gzip); ECharts remains deduplicated, and Vite continues to report the existing deferred-chunk warning.
 
 With Story 09 full histories, the initial application chunk remains 306.01 kB minified (96.61 kB gzip), and the shared chart/ECharts chunk remains 518.06 kB minified (175.13 kB gzip). Expanded data chunks are 11.66 kB GDP, 32.89 kB CPI, 29.04 kB unemployment, 29.95 kB prime-age employment, 32.45 kB monthly payroll change, and 42.73 kB payroll growth. ECharts remains deduplicated and the existing deferred-chunk warning remains.
+
+With Story 10, the initial application chunk is 314.17 kB minified (98.04 kB gzip). Nominal and real wage data chunks are 33.67 kB and 34.55 kB. The one shared chart/ECharts chunk is 538.34 kB minified (181.25 kB gzip); the increase comes from registering the ECharts legend component, ECharts remains deduplicated, and the existing warning remains.

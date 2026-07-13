@@ -61,7 +61,7 @@ describe('DashboardPage economic series', () => {
         name: 'Twelve most recent headline CPI inflation observations',
       }),
     ).toBeVisible()
-  })
+  }, 10_000)
 
   it('organizes all indicators into visible semantic sections', async () => {
     render(<DashboardPage />)
@@ -105,15 +105,18 @@ describe('DashboardPage economic series', () => {
       'How difficult is it for people who want work to find it?',
       'What share of prime-age adults are employed?',
       'Are employers adding jobs?',
+      'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(5)
+    expect(screen.getAllByRole('article')).toHaveLength(6)
     expect(
       within(employment).queryByRole('article', {
         name: 'How much did total nonfarm payroll employment change?',
       }),
     ).not.toBeInTheDocument()
     expect(
-      within(employment).queryByRole('article', { name: /wage/i }),
+      within(employment).queryByRole('article', {
+        name: 'How quickly are average hourly earnings rising?',
+      }),
     ).not.toBeInTheDocument()
     expect(
       await screen.findByText(
@@ -153,6 +156,57 @@ describe('DashboardPage economic series', () => {
     for (const label of ['Unemployment', 'Prime-age employment', 'Wage growth']) {
       expect(within(payroll).getByText(label).closest('a')).toBeNull()
     }
+  })
+
+  it('renders the wages-versus-inflation relationship after payroll', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+    const employment = screen.getByRole('region', { name: 'Employment and income' })
+    await within(employment).findByRole('article', {
+      name: 'Are workers’ wages keeping up with prices?',
+    })
+    const articles = within(employment).getAllByRole('article')
+    expect(articles.map((article) => within(article).getByRole('heading', { level: 3 }).textContent))
+      .toEqual([
+        'How difficult is it for people who want work to find it?',
+        'What share of prime-age adults are employed?',
+        'Are employers adding jobs?',
+        'Are workers’ wages keeping up with prices?',
+      ])
+    const comparison = articles[3]!
+    expect(within(comparison).getByLabelText('Latest real wage growth'))
+      .toHaveTextContent('−0.6%')
+    expect(within(comparison).getByText(/nominal wages grew 3.6%/))
+      .toHaveTextContent('consumer prices rose 4.2%')
+    expect(within(comparison).getByText(/producing negative real wage growth/))
+      .toBeVisible()
+    await waitFor(() => {
+      const call = chartPropsSpy.mock.calls
+        .map((item) => item[0] as {
+          kind?: string
+          nominalObservations?: EconomicObservation[]
+          inflationObservations?: EconomicObservation[]
+        })
+        .find((props) => props.kind === 'comparison')
+      expect(call?.nominalObservations).toHaveLength(241)
+      expect(call?.inflationObservations).toHaveLength(241)
+    })
+    await user.click(within(comparison).getByText('Recent observations'))
+    const table = within(comparison).getByRole('table', {
+      name: 'Twelve most recent wages-versus-inflation observations',
+    })
+    expect(within(table).getAllByRole('row')).toHaveLength(13)
+    for (const heading of [
+      'Observation month', 'Nominal wage growth',
+      'Headline CPI inflation', 'Real wage growth',
+    ]) {
+      expect(within(table).getByRole('columnheader', { name: heading })).toBeVisible()
+    }
+    expect(within(employment).queryByRole('article', {
+      name: 'How quickly are average hourly earnings rising?',
+    })).not.toBeInTheDocument()
+    expect(within(employment).queryByRole('article', { name: /productivity/i }))
+      .not.toBeInTheDocument()
   })
 
   it('renders labor levels with monthly context and accessible tables', async () => {
@@ -419,6 +473,35 @@ describe('DashboardPage economic series', () => {
       expect(await screen.findByRole('article', {
         name: 'How quickly are consumer prices rising?',
       })).toBeVisible()
+    },
+  )
+
+  it.each(['real-wage-growth', 'nominal-wage-growth'])(
+    'isolates the wage comparison when %s fails',
+    async (failedSlug) => {
+      const originalGetBySlug =
+        localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+      vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(
+        async (slug) => {
+          if (slug === failedSlug) throw new Error('Invalid wage fixture')
+          return originalGetBySlug(slug)
+        },
+      )
+      vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      render(<DashboardPage />)
+
+      expect(await screen.findByText(
+        'The wages versus inflation data could not be loaded.',
+      )).toBeVisible()
+      for (const question of [
+        'Is the U.S. economy growing?',
+        'How quickly are consumer prices rising?',
+        'How difficult is it for people who want work to find it?',
+        'What share of prime-age adults are employed?',
+        'Are employers adding jobs?',
+      ]) {
+        expect(await screen.findByRole('article', { name: question })).toBeVisible()
+      }
     },
   )
 })

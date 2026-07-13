@@ -4,6 +4,7 @@ import { LineChart } from 'echarts/charts'
 import {
   AriaComponent,
   GridComponent,
+  LegendComponent,
   MarkLineComponent,
   TooltipComponent,
 } from 'echarts/components'
@@ -13,19 +14,24 @@ import type {
   EconomicObservation,
 } from '../models/economicSeries'
 import { adaptObservationsToChartData } from './chartAdapters'
-import { createEconomicTimeSeriesChartOptions } from './economicTimeSeriesChartOptions'
+import {
+  createEconomicComparisonChartOptions,
+  createEconomicTimeSeriesChartOptions,
+} from './economicTimeSeriesChartOptions'
 import type { EconomicValueFormat } from '../utils/economicSeries'
 
 echarts.use([
   AriaComponent,
   GridComponent,
+  LegendComponent,
   LineChart,
   MarkLineComponent,
   TooltipComponent,
   CanvasRenderer,
 ])
 
-export interface EconomicTimeSeriesChartProps {
+interface SingleSeriesChartProps {
+  kind: 'single'
   observations: readonly EconomicObservation[]
   seriesName: string
   frequency: EconomicFrequency
@@ -35,22 +41,38 @@ export interface EconomicTimeSeriesChartProps {
   valueFormat: EconomicValueFormat
 }
 
-export default function EconomicTimeSeriesChart({
-  observations,
-  seriesName,
-  frequency,
-  units,
-  transformation,
-  includeZero,
-  valueFormat,
-}: EconomicTimeSeriesChartProps) {
+interface ComparisonChartProps {
+  kind: 'comparison'
+  nominalObservations: readonly EconomicObservation[]
+  inflationObservations: readonly EconomicObservation[]
+  realObservations: readonly EconomicObservation[]
+  frequency: EconomicFrequency
+}
+
+export type EconomicTimeSeriesChartProps =
+  | SingleSeriesChartProps
+  | ComparisonChartProps
+
+export default function EconomicTimeSeriesChart(
+  props: EconomicTimeSeriesChartProps,
+) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<echarts.ECharts | null>(null)
   const [initializationError, setInitializationError] = useState(false)
-  const chartData = useMemo(
-    () => adaptObservationsToChartData(observations),
-    [observations],
-  )
+  const chartData = useMemo(() => {
+    if (props.kind === 'single') {
+      return {
+        kind: 'single' as const,
+        data: adaptObservationsToChartData(props.observations),
+      }
+    }
+    return {
+      kind: 'comparison' as const,
+      nominal: adaptObservationsToChartData(props.nominalObservations),
+      inflation: adaptObservationsToChartData(props.inflationObservations),
+      real: adaptObservationsToChartData(props.realObservations),
+    }
+  }, [props])
 
   useEffect(() => {
     const container = containerRef.current
@@ -86,31 +108,31 @@ export default function EconomicTimeSeriesChart({
     if (!chart) return
 
     try {
-      chart.setOption(
-        createEconomicTimeSeriesChartOptions({
-          data: chartData,
-          seriesName,
-          frequency,
-          units,
-          transformation,
-          includeZero,
-          valueFormat,
-        }),
-        { notMerge: true },
-      )
+      const options =
+        props.kind === 'single' && chartData.kind === 'single'
+          ? createEconomicTimeSeriesChartOptions({
+              data: chartData.data,
+              seriesName: props.seriesName,
+              frequency: props.frequency,
+              units: props.units,
+              transformation: props.transformation,
+              includeZero: props.includeZero,
+              valueFormat: props.valueFormat,
+            })
+          : props.kind === 'comparison' && chartData.kind === 'comparison'
+            ? createEconomicComparisonChartOptions({
+                nominalData: chartData.nominal,
+                inflationData: chartData.inflation,
+                realData: chartData.real,
+                frequency: props.frequency,
+              })
+            : null
+      if (options) chart.setOption(options, { notMerge: true })
     } catch (error: unknown) {
       console.error('Failed to update the economic time-series chart', error)
       queueMicrotask(() => setInitializationError(true))
     }
-  }, [
-    chartData,
-    frequency,
-    includeZero,
-    seriesName,
-    transformation,
-    units,
-    valueFormat,
-  ])
+  }, [chartData, props])
 
   if (initializationError) {
     return (
@@ -125,7 +147,11 @@ export default function EconomicTimeSeriesChart({
     <div
       ref={containerRef}
       className="economic-chart"
-      aria-label={`${seriesName} ${frequency} time-series chart`}
+      aria-label={
+        props.kind === 'single'
+          ? `${props.seriesName} ${props.frequency} time-series chart`
+          : 'Nominal wage growth and headline CPI inflation comparison chart'
+      }
     />
   )
 }

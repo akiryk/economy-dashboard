@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import type { YAXisComponentOption } from 'echarts'
-import { createEconomicTimeSeriesChartOptions } from './economicTimeSeriesChartOptions'
+import {
+  createEconomicComparisonChartOptions,
+  createEconomicTimeSeriesChartOptions,
+} from './economicTimeSeriesChartOptions'
 
 function getYAxis(includeZero: boolean): YAXisComponentOption {
   const options = createEconomicTimeSeriesChartOptions({
@@ -69,5 +72,49 @@ describe('createEconomicTimeSeriesChartOptions', () => {
     expect(
       tooltip.formatter({ value: ['2026-06-01', 145.333] }),
     ).toBe('June 2026\nPayroll growth: +145K')
+  })
+})
+
+describe('createEconomicComparisonChartOptions', () => {
+  it('uses two aligned lines, one percentage axis, a legend, and zero line', () => {
+    const options = createEconomicComparisonChartOptions({
+      nominalData: [['2026-05-01', 3.5]],
+      inflationData: [['2026-05-01', 4.2]],
+      realData: [['2026-05-01', -0.58456]],
+      frequency: 'monthly',
+    })
+    const chartSeries = options.series as unknown as Array<{
+      name: string
+      data: Array<[string, number | null]>
+      lineStyle: { type: string }
+      markLine?: unknown
+      yAxisIndex?: number
+    }>
+    const tooltip = options.tooltip as {
+      formatter: (params: Array<{
+        seriesName: string
+        value: [string, number]
+      }>) => string
+    }
+
+    expect(Array.isArray(options.yAxis)).toBe(false)
+    expect(chartSeries).toHaveLength(2)
+    expect(chartSeries.map((item) => item.name)).toEqual([
+      'Nominal wage growth',
+      'Headline CPI inflation',
+    ])
+    expect(chartSeries.map((item) => item.lineStyle.type)).toEqual([
+      'solid',
+      'dashed',
+    ])
+    expect(chartSeries[0]?.markLine).toBeDefined()
+    expect(chartSeries.every((item) => item.yAxisIndex === undefined)).toBe(true)
+    expect(options.legend).toMatchObject({
+      data: ['Nominal wage growth', 'Headline CPI inflation'],
+    })
+    expect(tooltip.formatter([
+      { seriesName: 'Nominal wage growth', value: ['2026-05-01', 3.5] },
+      { seriesName: 'Headline CPI inflation', value: ['2026-05-01', 4.2] },
+    ])).toContain('Real wage growth: −0.6%')
   })
 })

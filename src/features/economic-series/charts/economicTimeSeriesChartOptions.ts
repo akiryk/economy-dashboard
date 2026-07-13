@@ -7,6 +7,8 @@ import type { EconomicFrequency } from '../models/economicSeries'
 import {
   formatObservationPeriod,
   formatEconomicValue,
+  formatPercentage,
+  formatSignedPercentage,
   type EconomicValueFormat,
 } from '../utils/economicSeries'
 
@@ -18,6 +20,13 @@ interface EconomicTimeSeriesChartOptionsInput {
   transformation: string
   includeZero: boolean
   valueFormat: EconomicValueFormat
+}
+
+interface EconomicComparisonChartOptionsInput {
+  nominalData: ChartDataPoint[]
+  inflationData: ChartDataPoint[]
+  realData: ChartDataPoint[]
+  frequency: EconomicFrequency
 }
 
 interface ValueRange {
@@ -145,6 +154,111 @@ export function createEconomicTimeSeriesChartOptions({
               },
             }
           : {}),
+      },
+    ],
+  }
+}
+
+export function createEconomicComparisonChartOptions({
+  nominalData,
+  inflationData,
+  realData,
+  frequency,
+}: EconomicComparisonChartOptionsInput): EChartsCoreOption {
+  const realByDate = new Map(realData)
+  return {
+    animation: false,
+    aria: {
+      enabled: true,
+      decal: { show: true },
+      description:
+        'Nominal wage growth and headline CPI inflation on one shared percentage axis. A detailed factual summary and data table follow the chart.',
+    },
+    legend: {
+      data: ['Nominal wage growth', 'Headline CPI inflation'],
+      bottom: 0,
+      textStyle: { color: '#56616d' },
+    },
+    grid: {
+      top: 24,
+      right: 18,
+      bottom: 72,
+      left: 58,
+      containLabel: false,
+    },
+    tooltip: {
+      trigger: 'axis',
+      renderMode: 'richText',
+      confine: true,
+      formatter: (params: TooltipComponentFormatterCallbackParams) => {
+        const items = Array.isArray(params) ? params : [params]
+        const first = items.find((item) => isChartDataPoint(item.value))
+        if (!first || !isChartDataPoint(first.value)) return 'Wages versus inflation'
+        const date = first.value[0]
+        const values = new Map(
+          items
+            .filter((item) => isChartDataPoint(item.value))
+            .map((item) => [item.seriesName, (item.value as ChartDataPoint)[1]]),
+        )
+        return [
+          formatObservationPeriod(date, frequency),
+          `Nominal wage growth: ${formatPercentage(values.get('Nominal wage growth') ?? null)}`,
+          `Headline CPI inflation: ${formatPercentage(values.get('Headline CPI inflation') ?? null)}`,
+          `Real wage growth: ${formatSignedPercentage(realByDate.get(date) ?? null)}`,
+        ].join('\n')
+      },
+      axisPointer: {
+        type: 'line',
+        lineStyle: { color: '#56616d', width: 1 },
+      },
+    },
+    xAxis: {
+      type: 'time',
+      boundaryGap: false,
+      axisLine: { lineStyle: { color: '#aeb5bc' } },
+      axisTick: { show: false },
+      axisLabel: { color: '#56616d', hideOverlap: true, formatter: '{yyyy}' },
+      splitLine: { show: false },
+    },
+    yAxis: {
+      type: 'value',
+      name: 'Percent',
+      nameLocation: 'end',
+      nameTextStyle: { color: '#56616d', align: 'right' },
+      min: (range: ValueRange) => paddedMinimum(range, true),
+      max: (range: ValueRange) => paddedMaximum(range, true),
+      axisLabel: { color: '#56616d', formatter: '{value}%' },
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: '#e4e7ea', width: 1 } },
+    },
+    series: [
+      {
+        name: 'Nominal wage growth',
+        type: 'line',
+        data: nominalData,
+        connectNulls: false,
+        smooth: false,
+        showSymbol: false,
+        lineStyle: { color: '#245d72', width: 2.5, type: 'solid' },
+        itemStyle: { color: '#245d72' },
+        markLine: {
+          silent: true,
+          symbol: 'none',
+          label: { show: false },
+          lineStyle: { color: '#56616d', width: 1.5, type: 'solid' },
+          data: [{ yAxis: 0 }],
+        },
+      },
+      {
+        name: 'Headline CPI inflation',
+        type: 'line',
+        data: inflationData,
+        connectNulls: false,
+        smooth: false,
+        showSymbol: false,
+        lineStyle: { color: '#8a4f2d', width: 2.5, type: 'dashed' },
+        itemStyle: { color: '#8a4f2d' },
       },
     ],
   }

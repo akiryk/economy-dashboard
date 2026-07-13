@@ -149,3 +149,30 @@ export const payrollSeriesConfiguration: PayrollSeriesConfig = {
   payrollGrowthOutputFile:
     'src/features/economic-series/data/payroll-growth.json',
 }
+
+export interface WageSeriesConfig {
+  dataHandling: 'multi-source-derived'
+  providerSeriesId: 'AHETPI'
+  fredFrequency: 'm'
+  historyPolicy: HistoryPolicy
+  minimumUsableObservations: number
+  nominalOutputFile: string
+  realOutputFile: string
+  seasonalAdjustment: string
+  sourceName: string
+  sourceUrl: string
+}
+
+export const wageSeriesConfiguration: WageSeriesConfig = {
+  dataHandling: 'multi-source-derived',
+  providerSeriesId: 'AHETPI',
+  fredFrequency: 'm',
+  historyPolicy: { type: 'full' },
+  minimumUsableObservations: 13,
+  nominalOutputFile:
+    'src/features/economic-series/data/nominal-wage-growth.json',
+  realOutputFile: 'src/features/economic-series/data/real-wage-growth.json',
+  seasonalAdjustment: 'Seasonally adjusted',
+  sourceName: 'U.S. Bureau of Labor Statistics via FRED',
+  sourceUrl: 'https://fred.stlouisfed.org/series/AHETPI',
+}

@@ -7,6 +7,12 @@ import {
   formatObservationPeriod,
 } from '../features/economic-series/utils/economicSeries'
 
+const payrollSupportingSlugs = ['monthly-payroll-change'] as const
+const wageComparisonSupportingSlugs = [
+  'nominal-wage-growth',
+  'headline-cpi-inflation',
+] as const
+
 export function DashboardPage() {
   const [loadedSeries, setLoadedSeries] = useState<
     Readonly<Record<string, EconomicSeries>>
@@ -98,8 +104,15 @@ export function DashboardPage() {
         />
         <EconomicSeriesCard
           slug="payroll-growth"
-          supportingSlug="monthly-payroll-change"
+          supportingSlugs={payrollSupportingSlugs}
           label="payroll growth"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+        <EconomicSeriesCard
+          slug="real-wage-growth"
+          supportingSlugs={wageComparisonSupportingSlugs}
+          label="wages versus inflation"
+          variant="wages-comparison"
           onSeriesLoaded={handleSeriesLoaded}
         />
       </EconomicSection>

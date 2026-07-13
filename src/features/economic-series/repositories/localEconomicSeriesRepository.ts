@@ -12,6 +12,8 @@ const localSeriesLoaders: Readonly<
     import('../data/prime-age-employment-ratio.json'),
   'payroll-growth': () => import('../data/payroll-growth.json'),
   'monthly-payroll-change': () => import('../data/monthly-payroll-change.json'),
+  'nominal-wage-growth': () => import('../data/nominal-wage-growth.json'),
+  'real-wage-growth': () => import('../data/real-wage-growth.json'),
 }
 
 export const localEconomicSeriesRepository: EconomicSeriesRepository = {

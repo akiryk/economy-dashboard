@@ -37,4 +37,19 @@ describe('localEconomicSeriesRepository', () => {
     })
     expect(series?.transformation).toContain(transformation)
   })
+
+  it('loads both wage outputs and preserves multi-source provenance', async () => {
+    const nominal = await localEconomicSeriesRepository.getBySlug(
+      'nominal-wage-growth',
+    )
+    const real = await localEconomicSeriesRepository.getBySlug('real-wage-growth')
+
+    expect(nominal).toMatchObject({ providerSeriesId: 'AHETPI' })
+    expect(real?.sources).toEqual([
+      expect.objectContaining({ providerSeriesId: 'AHETPI', role: 'Wage measure' }),
+      expect.objectContaining({
+        providerSeriesId: 'CPIAUCSL', role: 'Inflation deflator',
+      }),
+    ])
+  })
 })

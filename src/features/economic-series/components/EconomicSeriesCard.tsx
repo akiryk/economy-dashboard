@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react'
 import type { EconomicSeries } from '../models/economicSeries'
 import { localEconomicSeriesRepository } from '../repositories/localEconomicSeriesRepository'
 import { EconomicSeriesSummary } from './EconomicSeriesSummary'
+import { WagesComparisonSummary } from './WagesComparisonSummary'
 
 type SeriesState =
   | { status: 'loading' }
   | {
       status: 'loaded'
       series: EconomicSeries
-      supportingSeries: EconomicSeries | null
+      supportingSeries: EconomicSeries[]
     }
   | { status: 'not-found' }
   | { status: 'error' }
@@ -17,14 +18,16 @@ interface EconomicSeriesCardProps {
   slug: string
   label: string
   onSeriesLoaded?: (slug: string, series: EconomicSeries | null) => void
-  supportingSlug?: string
+  supportingSlugs?: readonly string[]
+  variant?: 'single' | 'wages-comparison'
 }
 
 export function EconomicSeriesCard({
   slug,
   label,
   onSeriesLoaded,
-  supportingSlug,
+  supportingSlugs = [],
+  variant = 'single',
 }: EconomicSeriesCardProps) {
   const [seriesState, setSeriesState] = useState<SeriesState>({
     status: 'loading',
@@ -35,17 +38,23 @@ export function EconomicSeriesCard({
 
     async function loadSeries() {
       try {
-        const [series, supportingSeries] = await Promise.all([
-          localEconomicSeriesRepository.getBySlug(slug),
-          supportingSlug
-            ? localEconomicSeriesRepository.getBySlug(supportingSlug)
-            : Promise.resolve(null),
-        ])
+        const [series, ...supportingSeries] = await Promise.all(
+          [slug, ...supportingSlugs].map((seriesSlug) =>
+            localEconomicSeriesRepository.getBySlug(seriesSlug),
+          ),
+        )
         if (!isActive) return
 
         setSeriesState(
-          series && (!supportingSlug || supportingSeries)
-            ? { status: 'loaded', series, supportingSeries }
+          series && supportingSeries.every((supporting) => supporting !== null)
+            ? {
+                status: 'loaded',
+                series,
+                supportingSeries: supportingSeries.filter(
+                  (supporting): supporting is EconomicSeries =>
+                    supporting !== null,
+                ),
+              }
             : { status: 'not-found' },
         )
         onSeriesLoaded?.(slug, series)
@@ -62,7 +71,7 @@ export function EconomicSeriesCard({
     return () => {
       isActive = false
     }
-  }, [onSeriesLoaded, slug, supportingSlug])
+  }, [onSeriesLoaded, slug, supportingSlugs])
 
   if (seriesState.status === 'loading') {
     return (
@@ -88,10 +97,20 @@ export function EconomicSeriesCard({
     )
   }
 
+  if (variant === 'wages-comparison') {
+    return (
+      <WagesComparisonSummary
+        realWageGrowth={seriesState.series}
+        nominalWageGrowth={seriesState.supportingSeries[0]!}
+        cpiInflation={seriesState.supportingSeries[1]!}
+      />
+    )
+  }
+
   return (
     <EconomicSeriesSummary
       series={seriesState.series}
-      supportingSeries={seriesState.supportingSeries}
+      supportingSeries={seriesState.supportingSeries[0]}
     />
   )
 }

@@ -12,6 +12,8 @@ The product vision has three layers:
 
 Historical context uses the fullest reliable comparable series available for each measure rather than imposing a common cutoff. Different measures may begin in different years, and long-run comparisons require care because economic structure and statistical measurement evolve.
 
+Related indicators should be compared directly when their relationship answers a meaningful human question. Purchasing-power growth requires both nominal wages and prices. Average wage measures remain qualified because they do not describe every worker or household.
+
 ## Human questions first
 
 Every indicator leads with the human question it helps answer. Technical provider titles and identifiers remain supporting metadata. This keeps the briefing understandable without obscuring provenance.

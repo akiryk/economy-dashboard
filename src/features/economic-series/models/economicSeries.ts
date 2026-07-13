@@ -30,4 +30,13 @@ export interface EconomicSeries {
   sourceUrl: string
   retrievedAt: string
   observations: EconomicObservation[]
+  sources?: EconomicSeriesSource[]
+}
+
+export interface EconomicSeriesSource {
+  provider: string
+  providerSeriesId: string
+  sourceName: string
+  sourceUrl: string
+  role?: string
 }
