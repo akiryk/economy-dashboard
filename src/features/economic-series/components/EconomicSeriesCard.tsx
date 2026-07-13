@@ -5,7 +5,11 @@ import { EconomicSeriesSummary } from './EconomicSeriesSummary'
 
 type SeriesState =
   | { status: 'loading' }
-  | { status: 'loaded'; series: EconomicSeries }
+  | {
+      status: 'loaded'
+      series: EconomicSeries
+      supportingSeries: EconomicSeries | null
+    }
   | { status: 'not-found' }
   | { status: 'error' }
 
@@ -13,12 +17,14 @@ interface EconomicSeriesCardProps {
   slug: string
   label: string
   onSeriesLoaded?: (slug: string, series: EconomicSeries | null) => void
+  supportingSlug?: string
 }
 
 export function EconomicSeriesCard({
   slug,
   label,
   onSeriesLoaded,
+  supportingSlug,
 }: EconomicSeriesCardProps) {
   const [seriesState, setSeriesState] = useState<SeriesState>({
     status: 'loading',
@@ -29,11 +35,18 @@ export function EconomicSeriesCard({
 
     async function loadSeries() {
       try {
-        const series = await localEconomicSeriesRepository.getBySlug(slug)
+        const [series, supportingSeries] = await Promise.all([
+          localEconomicSeriesRepository.getBySlug(slug),
+          supportingSlug
+            ? localEconomicSeriesRepository.getBySlug(supportingSlug)
+            : Promise.resolve(null),
+        ])
         if (!isActive) return
 
         setSeriesState(
-          series ? { status: 'loaded', series } : { status: 'not-found' },
+          series && (!supportingSlug || supportingSeries)
+            ? { status: 'loaded', series, supportingSeries }
+            : { status: 'not-found' },
         )
         onSeriesLoaded?.(slug, series)
       } catch (error: unknown) {
@@ -49,7 +62,7 @@ export function EconomicSeriesCard({
     return () => {
       isActive = false
     }
-  }, [onSeriesLoaded, slug])
+  }, [onSeriesLoaded, slug, supportingSlug])
 
   if (seriesState.status === 'loading') {
     return (
@@ -75,5 +88,10 @@ export function EconomicSeriesCard({
     )
   }
 
-  return <EconomicSeriesSummary series={seriesState.series} />
+  return (
+    <EconomicSeriesSummary
+      series={seriesState.series}
+      supportingSeries={seriesState.supportingSeries}
+    />
+  )
 }

@@ -10,14 +10,19 @@ const rangeLabels: Record<TimeRange, string> = {
 interface TimeRangeControlProps {
   selectedRange: TimeRange
   onRangeChange: (range: TimeRange) => void
+  contextLabel: string
 }
 
 export function TimeRangeControl({
   selectedRange,
   onRangeChange,
+  contextLabel,
 }: TimeRangeControlProps) {
   return (
-    <fieldset className="time-range-control">
+    <fieldset
+      className="time-range-control"
+      aria-label={`${contextLabel} displayed time range`}
+    >
       <legend>Displayed time range</legend>
       <div className="time-range-control__buttons">
         {timeRanges.map((range) => (

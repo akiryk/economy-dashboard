@@ -104,9 +104,12 @@ describe('DashboardPage economic series', () => {
     expect(laborQuestions.map((heading) => heading.textContent)).toEqual([
       'How difficult is it for people who want work to find it?',
       'What share of prime-age adults are employed?',
+      'Are employers adding jobs?',
     ])
     expect(
-      within(employment).queryByRole('article', { name: /payroll/i }),
+      within(employment).queryByRole('article', {
+        name: 'How much did total nonfarm payroll employment change?',
+      }),
     ).not.toBeInTheDocument()
     expect(
       within(employment).queryByRole('article', { name: /wage/i }),
@@ -116,6 +119,39 @@ describe('DashboardPage economic series', () => {
         'Latest observations range from 2026 Q1 to June 2026',
       ),
     ).toBeVisible()
+  })
+
+  it('renders payroll momentum with signed values and a paired recent table', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+
+    const payroll = await screen.findByRole('article', {
+      name: 'Are employers adding jobs?',
+    })
+    const current = within(payroll).getByLabelText('Latest 3-month average')
+    expect(current).toHaveTextContent('+111K')
+    expect(within(current).getByLabelText('a gain of 111,333 jobs')).toBeVisible()
+    expect(within(payroll).getAllByText('June 2026')).not.toHaveLength(0)
+    expect(within(payroll).getByText(/three-month average monthly payroll change/))
+      .toHaveTextContent('a gain of 111,333 jobs')
+
+    await user.click(within(payroll).getByText('Recent observations'))
+    const table = within(payroll).getByRole('table', {
+      name: 'Twelve most recent monthly payroll changes and three-month averages',
+    })
+    expect(within(table).getByRole('columnheader', {
+      name: 'Monthly payroll change',
+    })).toBeVisible()
+    expect(within(table).getByRole('columnheader', {
+      name: 'Three-month average',
+    })).toBeVisible()
+    expect(within(table).getAllByRole('row')).toHaveLength(13)
+    expect(within(table).getAllByRole('row')[1]).toHaveTextContent(
+      'June 2026+57K+111K',
+    )
+    for (const label of ['Unemployment', 'Prime-age employment', 'Wage growth']) {
+      expect(within(payroll).getByText(label).closest('a')).toBeNull()
+    }
   })
 
   it('renders labor levels with monthly context and accessible tables', async () => {
@@ -153,6 +189,7 @@ describe('DashboardPage economic series', () => {
         'CPI inflation': true,
         Unemployment: false,
         'Prime-age employment': false,
+        'Payroll growth': true,
       })
     })
 
@@ -320,6 +357,39 @@ describe('DashboardPage economic series', () => {
         name: 'How quickly are consumer prices rising?',
       })).toBeVisible()
       expect(screen.getByText(failureMessage)).toBeVisible()
+    },
+  )
+
+  it.each(['payroll-growth', 'monthly-payroll-change'])(
+    'shows a payroll error without blocking other cards when %s fails',
+    async (failedSlug) => {
+      const originalGetBySlug =
+        localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+      vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(
+        async (slug) => {
+          if (slug === failedSlug) throw new Error('Invalid payroll fixture')
+          return originalGetBySlug(slug)
+        },
+      )
+      vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      render(<DashboardPage />)
+
+      expect(
+        await screen.findByText('The payroll growth data could not be loaded.'),
+      ).toBeVisible()
+      expect(await screen.findByRole('article', {
+        name: 'How difficult is it for people who want work to find it?',
+      })).toBeVisible()
+      expect(await screen.findByRole('article', {
+        name: 'What share of prime-age adults are employed?',
+      })).toBeVisible()
+      expect(await screen.findByRole('article', {
+        name: 'Is the U.S. economy growing?',
+      })).toBeVisible()
+      expect(await screen.findByRole('article', {
+        name: 'How quickly are consumer prices rising?',
+      })).toBeVisible()
     },
   )
 })

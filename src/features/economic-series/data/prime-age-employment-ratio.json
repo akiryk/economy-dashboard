@@ -13,7 +13,7 @@
   "transformation": "Level",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/LNS12300060",
-  "retrievedAt": "2026-07-12",
+  "retrievedAt": "2026-07-13",
   "observations": [
     {
       "date": "2000-01-01",

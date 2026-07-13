@@ -40,4 +40,6 @@ The implemented sections are Growth, Prices, and Employment and income. Future s
 
 Employment and income pairs unemployment with prime-age employment-to-population ratio as separate cards. Presenting complementary measures together adds context without combining them into a labor-market score.
 
+Payroll growth uses a clearly labeled rolling three-month average as its primary measure to reduce single-month volatility. The underlying monthly changes remain available in the same card so smoothing does not hide the source-derived observations.
+
 In-page navigation remains deferred at three sections. The semantic section identifiers provide a stable place to add restrained navigation when the briefing grows enough to justify it.

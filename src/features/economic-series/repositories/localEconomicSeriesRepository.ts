@@ -10,6 +10,8 @@ const localSeriesLoaders: Readonly<
   'unemployment-rate': () => import('../data/unemployment-rate.json'),
   'prime-age-employment-ratio': () =>
     import('../data/prime-age-employment-ratio.json'),
+  'payroll-growth': () => import('../data/payroll-growth.json'),
+  'monthly-payroll-change': () => import('../data/monthly-payroll-change.json'),
 }
 
 export const localEconomicSeriesRepository: EconomicSeriesRepository = {

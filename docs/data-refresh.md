@@ -18,6 +18,7 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Headline CPI inflation (`CPIAUCSL`, monthly), written to `headline-cpi-inflation.json`.
 - Unemployment rate (`UNRATE`, monthly), written to `unemployment-rate.json`.
 - Prime-age employment-to-population ratio (`LNS12300060`, monthly), written to `prime-age-employment-ratio.json`.
+- Payroll growth (`PAYEMS`, monthly source level), derived into `monthly-payroll-change.json` and `payroll-growth.json`.
 
 This is a small configuration boundary, not dynamic discovery or a plugin system.
 
@@ -42,8 +43,13 @@ The series-specific requests are:
 - CPI: `series_id=CPIAUCSL`, `frequency=m`, and `units=pc1`.
 - Unemployment: `series_id=UNRATE` and `frequency=m`, with no `units` parameter.
 - Prime-age employment: `series_id=LNS12300060` and `frequency=m`, with no `units` parameter.
+- Payroll: `series_id=PAYEMS`, `frequency=m`, `observation_start=1999-10-01`, with no `units` parameter.
 
 The optional `fredUnits` configuration field emits `units=pc1` only for the two year-over-year growth series. Omitting it preserves the provider's published percent level. The domain `transformation` metadata separately records either `Percent change from year ago` or `Level`; the script does not recalculate or round either form.
+
+PAYEMS begins three months before January 2000 so the first displayed month can have enough source history for a monthly difference and rolling average. FRED publishes PAYEMS in thousands of persons, seasonally adjusted. The application keeps derived values in thousands of jobs: monthly change is the current level minus the prior consecutive month's level, and the three-month average is the arithmetic mean of the current and two prior consecutive monthly changes. Missing values or calendar gaps produce `null`; they are never treated as zero or bridged. Duplicate dates are rejected.
+
+PAYEMS is fetched and provider-validated once. One explicit derivation module creates the monthly-change supporting series and the three-month-average primary series. Both use the existing domain model and identify PAYEMS as the source while stating that their transformations are calculated by the application.
 
 ## Validation and normalization
 
@@ -53,18 +59,18 @@ Normalization converts numeric strings to numbers and `.` to `null`, sorts obser
 
 ## Safe replacement and failures
 
-Only a fully retrieved, normalized, domain-validated, and serialized series reaches the writer. The writer creates a temporary file beside the target and renames it over the committed dataset only after the write succeeds. It removes temporary output after failures where practical.
+Only fully retrieved, normalized, domain-validated, and serialized series reach the writer. Direct series use one temporary file and atomic rename. The payroll outputs are validated and staged together; existing files are backed up during replacement and restored if grouped replacement fails. Both payroll files therefore update as one group, and temporary or backup files are removed where practical.
 
 A missing key, network failure, HTTP error, malformed response, insufficient history, validation failure, or write failure leaves that series’ previous dataset intact. Errors are concise and never include the API key or a full provider response.
 
-All four series refresh sequentially in configuration order. Failure of one series does not stop the next or roll back a successful file. After all entries run, any failure produces a nonzero exit status and the command identifies which files updated and which failed.
+The four direct series and one PAYEMS source refresh sequentially in configuration order. Failure of one source does not stop the next or roll back an unrelated successful file. A PAYEMS derivation or write failure preserves both payroll outputs. After all entries run, any failure produces a nonzero exit status and the command identifies which outputs updated and which were preserved.
 
 ## Manual refresh
 
 1. Obtain a key from the [FRED API documentation](https://fred.stlouisfed.org/docs/api/api_key.html).
 2. Add `FRED_API_KEY=...` to an untracked `.env` file or export it in the current shell.
 3. Run `npm run data:refresh`.
-4. Review the printed identifier, transformation, count, range, latest observation, and output path.
+4. Review the printed identifier, transformation, count, range, latest observation, and output path. PAYEMS also reports the supporting-series range and both grouped output paths.
 5. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build`.
 6. Inspect and commit the generated JSON with the refresh code or data-update commit.
 

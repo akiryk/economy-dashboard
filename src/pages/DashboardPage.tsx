@@ -96,6 +96,12 @@ export function DashboardPage() {
           label="prime-age employment-to-population ratio"
           onSeriesLoaded={handleSeriesLoaded}
         />
+        <EconomicSeriesCard
+          slug="payroll-growth"
+          supportingSlug="monthly-payroll-change"
+          label="payroll growth"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
       </EconomicSection>
     </div>
   )

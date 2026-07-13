@@ -3,7 +3,10 @@ import os from 'node:os'
 import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { validateEconomicSeries } from '../src/features/economic-series/models/validateEconomicSeries'
-import { fredSeriesConfigurations } from './fred/seriesConfigurations'
+import {
+  fredSeriesConfigurations,
+  payrollSeriesConfiguration,
+} from './fred/seriesConfigurations'
 import {
   refreshAllEconomicData,
   refreshEconomicData,
@@ -20,6 +23,19 @@ afterEach(async () => {
 })
 
 describe('refreshEconomicData', () => {
+  it('distinguishes provider-transformed, provider-level, and local data handling', () => {
+    expect(fredSeriesConfigurations.slice(0, 2).map((config) => config.dataHandling))
+      .toEqual(['provider-transformed', 'provider-transformed'])
+    expect(fredSeriesConfigurations.slice(2).map((config) => config.dataHandling))
+      .toEqual(['provider-level', 'provider-level'])
+    expect(payrollSeriesConfiguration).toMatchObject({
+      dataHandling: 'locally-derived',
+      providerSeriesId: 'PAYEMS',
+      fredFrequency: 'm',
+      observationStart: '1999-10-01',
+    })
+  })
+
   it('configures both labor series as monthly provider levels without pc1', () => {
     const unemployment = fredSeriesConfigurations.find(
       (config) => config.providerSeriesId === 'UNRATE',
@@ -202,5 +218,105 @@ describe('refreshEconomicData', () => {
         JSON.parse(await readFile(configurations[3]!.outputFile, 'utf8')),
       ).providerSeriesId,
     ).toBe('LNS12300060')
+  })
+
+  it('fetches PAYEMS once and atomically writes both derived outputs', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
+    temporaryDirectories.push(directory)
+    const payrollConfiguration = {
+      ...payrollSeriesConfiguration,
+      monthlyChangeOutputFile: path.join(directory, 'monthly.json'),
+      payrollGrowthOutputFile: path.join(directory, 'average.json'),
+    }
+    const requestedUrls: URL[] = []
+    const fetchImplementation: typeof fetch = async (input) => {
+      requestedUrls.push(new URL(String(input)))
+      return new Response(
+        JSON.stringify({
+          observations: [
+            { date: '1999-10-01', value: '1000' },
+            { date: '1999-11-01', value: '1010' },
+            { date: '1999-12-01', value: '1030' },
+            { date: '2000-01-01', value: '1060' },
+            { date: '2000-02-01', value: '1050' },
+            { date: '2027-01-01', value: '9999' },
+          ],
+        }),
+        { status: 200 },
+      )
+    }
+
+    const outcomes = await refreshAllEconomicData({
+      apiKey: 'test-key',
+      retrievedAt: '2026-07-12',
+      configurations: [],
+      payrollConfiguration,
+      fetchImplementation,
+    })
+
+    expect(outcomes).toHaveLength(1)
+    expect(outcomes[0]?.status).toBe('updated')
+    expect(requestedUrls).toHaveLength(1)
+    expect(requestedUrls[0]?.searchParams.get('series_id')).toBe('PAYEMS')
+    expect(requestedUrls[0]?.searchParams.get('frequency')).toBe('m')
+    expect(requestedUrls[0]?.searchParams.get('observation_start')).toBe(
+      '1999-10-01',
+    )
+    expect(requestedUrls[0]?.searchParams.has('units')).toBe(false)
+    expect(
+      validateEconomicSeries(
+        JSON.parse(await readFile(payrollConfiguration.payrollGrowthOutputFile, 'utf8')),
+      ).observations.at(-1)?.date,
+    ).toBe('2000-02-01')
+  })
+
+  it('preserves both payroll files after derivation failure while updating unrelated data', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
+    temporaryDirectories.push(directory)
+    const gdpPath = path.join(directory, 'gdp.json')
+    const monthlyPath = path.join(directory, 'monthly.json')
+    const averagePath = path.join(directory, 'average.json')
+    const oldMonthly = '{"old":"monthly"}\n'
+    const oldAverage = '{"old":"average"}\n'
+    await writeFile(monthlyPath, oldMonthly, 'utf8')
+    await writeFile(averagePath, oldAverage, 'utf8')
+    const payrollConfiguration = {
+      ...payrollSeriesConfiguration,
+      monthlyChangeOutputFile: monthlyPath,
+      payrollGrowthOutputFile: averagePath,
+    }
+    const gdpConfiguration = {
+      ...fredSeriesConfigurations[0]!,
+      outputFile: gdpPath,
+      minimumUsableObservations: 2,
+    }
+    const fetchImplementation: typeof fetch = async (input) => {
+      const seriesId = new URL(String(input)).searchParams.get('series_id')
+      const observations =
+        seriesId === 'PAYEMS'
+          ? [{ date: '2000-01-01', value: 'invalid' }]
+          : [
+              { date: '2000-01-01', value: '2.0' },
+              { date: '2000-04-01', value: '2.1' },
+            ]
+      return new Response(JSON.stringify({ observations }), { status: 200 })
+    }
+
+    const outcomes = await refreshAllEconomicData({
+      apiKey: 'test-key',
+      retrievedAt: '2026-07-12',
+      configurations: [gdpConfiguration],
+      payrollConfiguration,
+      fetchImplementation,
+    })
+
+    expect(outcomes.map((outcome) => outcome.status)).toEqual([
+      'updated',
+      'failed',
+    ])
+    expect(validateEconomicSeries(JSON.parse(await readFile(gdpPath, 'utf8'))))
+      .toMatchObject({ providerSeriesId: 'GDPC1' })
+    expect(await readFile(monthlyPath, 'utf8')).toBe(oldMonthly)
+    expect(await readFile(averagePath, 'utf8')).toBe(oldAverage)
   })
 })

@@ -1,3 +1,5 @@
+import type { EconomicValueFormat } from '../utils/economicSeries'
+
 interface EconomicSeriesPresentation {
   topicLabel: string
   latestValueLabel: string
@@ -9,6 +11,9 @@ interface EconomicSeriesPresentation {
   valueColumnLabel: string
   includeZeroInChart: boolean
   reportBelowZero: boolean
+  valueFormat: EconomicValueFormat
+  summaryFormat: 'numeric-range' | 'job-change'
+  recentTable: 'single-value' | 'payroll-changes'
 }
 
 const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
@@ -26,6 +31,9 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     valueColumnLabel: 'Year-over-year growth',
     includeZeroInChart: true,
     reportBelowZero: true,
+    valueFormat: 'percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
   },
   'headline-cpi-inflation': {
     topicLabel: 'Inflation',
@@ -41,6 +49,9 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     valueColumnLabel: 'Year-over-year inflation',
     includeZeroInChart: true,
     reportBelowZero: true,
+    valueFormat: 'percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
   },
   'unemployment-rate': {
     topicLabel: 'Labor market',
@@ -56,6 +67,9 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     valueColumnLabel: 'Unemployment rate',
     includeZeroInChart: false,
     reportBelowZero: false,
+    valueFormat: 'percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
   },
   'prime-age-employment-ratio': {
     topicLabel: 'Labor market',
@@ -71,6 +85,27 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     valueColumnLabel: 'Prime-age employment ratio',
     includeZeroInChart: false,
     reportBelowZero: false,
+    valueFormat: 'percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
+  },
+  'payroll-growth': {
+    topicLabel: 'Labor market',
+    latestValueLabel: 'Latest 3-month average',
+    whatThisTellsYou:
+      'Payroll growth measures the net change in jobs reported by U.S. employers. The three-month average reduces some of the volatility in any single monthly estimate while remaining responsive to changes in hiring.',
+    whatThisLeavesOut:
+      'Payroll growth does not show the unemployment rate, how many people are entering or leaving the labor force, whether workers are receiving more hours or higher pay, or how job gains are distributed across industries. Recent estimates are also subject to revision.',
+    relatedIndicators: ['Unemployment', 'Prime-age employment', 'Wage growth'],
+    recentObservationCount: 12,
+    recentObservationsCaption:
+      'Twelve most recent monthly payroll changes and three-month averages',
+    valueColumnLabel: 'Three-month average',
+    includeZeroInChart: true,
+    reportBelowZero: true,
+    valueFormat: 'signed-thousands',
+    summaryFormat: 'job-change',
+    recentTable: 'payroll-changes',
   },
 }
 

@@ -2,9 +2,10 @@ import { lazy, Suspense, useMemo, useState } from 'react'
 import type { EconomicSeries } from '../models/economicSeries'
 import {
   findLatestNonNullObservation,
+  formatEconomicValue,
+  formatJobChangeProse,
   formatDate,
   formatObservationPeriod,
-  formatPercentage,
   selectMostRecentObservations,
   sortObservationsChronologically,
 } from '../utils/economicSeries'
@@ -14,6 +15,7 @@ import {
   type TimeRange,
 } from '../utils/chartData'
 import { RecentObservationsTable } from './RecentObservationsTable'
+import { PayrollObservationsTable } from './PayrollObservationsTable'
 import { TimeRangeControl } from './TimeRangeControl'
 import { getEconomicSeriesPresentation } from './seriesPresentation'
 
@@ -23,9 +25,13 @@ const EconomicTimeSeriesChart = lazy(
 
 interface EconomicSeriesSummaryProps {
   series: EconomicSeries
+  supportingSeries?: EconomicSeries | null
 }
 
-export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
+export function EconomicSeriesSummary({
+  series,
+  supportingSeries,
+}: EconomicSeriesSummaryProps) {
   const [selectedRange, setSelectedRange] = useState<TimeRange>('20y')
   const presentation = getEconomicSeriesPresentation(series.slug)
   const latestObservation = findLatestNonNullObservation(series.observations)
@@ -46,6 +52,8 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
     () => calculateChartSummary(visibleObservations),
     [visibleObservations],
   )
+  const formatValue = (value: number | null) =>
+    formatEconomicValue(value, presentation.valueFormat)
 
   return (
     <article
@@ -60,7 +68,15 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
 
       <div className="series-current" aria-label={presentation.latestValueLabel}>
         <p className="series-current__value">
-          {formatPercentage(latestObservation?.value ?? null)}
+          <span
+            aria-label={
+              presentation.valueFormat === 'signed-thousands'
+                ? formatJobChangeProse(latestObservation?.value ?? null)
+                : undefined
+            }
+          >
+            {formatValue(latestObservation?.value ?? null)}
+          </span>
         </p>
         <p className="series-current__label">{presentation.latestValueLabel}</p>
         <p className="series-current__period">
@@ -78,6 +94,7 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
       <TimeRangeControl
         selectedRange={selectedRange}
         onRangeChange={setSelectedRange}
+        contextLabel={series.shortTitle}
       />
 
       {chartSummary.observationCount > 0 ? (
@@ -96,36 +113,65 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
               units={series.units}
               transformation={series.transformation}
               includeZero={presentation.includeZeroInChart}
+              valueFormat={presentation.valueFormat}
             />
           </Suspense>
-          <p className="chart-summary" aria-live="polite">
-            For the selected period, {series.shortTitle} ranged from{' '}
-            {formatPercentage(chartSummary.minimum?.value ?? null)} in{' '}
-            {chartSummary.minimum
-              ? formatObservationPeriod(
-                  chartSummary.minimum.date,
-                  series.frequency,
-                )
-              : 'an unavailable period'}{' '}
-            to {formatPercentage(chartSummary.maximum?.value ?? null)} in{' '}
-            {chartSummary.maximum
-              ? formatObservationPeriod(
-                  chartSummary.maximum.date,
-                  series.frequency,
-                )
-              : 'an unavailable period'}. The latest value is{' '}
-            {formatPercentage(chartSummary.latest?.value ?? null)} in{' '}
-            {chartSummary.latest
-              ? formatObservationPeriod(
-                  chartSummary.latest.date,
-                  series.frequency,
-                )
-              : 'an unavailable period'}.{' '}
-            {presentation.reportBelowZero &&
-              (chartSummary.hasBelowZero
-                ? 'At least one observation was below zero.'
-                : 'No observations were below zero.')}
-          </p>
+          {presentation.summaryFormat === 'job-change' ? (
+            <p className="chart-summary" aria-live="polite">
+              For the selected period, the three-month average monthly payroll
+              change ranged from{' '}
+              {formatJobChangeProse(chartSummary.minimum?.value ?? null)} in{' '}
+              {chartSummary.minimum
+                ? formatObservationPeriod(
+                    chartSummary.minimum.date,
+                    series.frequency,
+                  )
+                : 'an unavailable period'}{' '}
+              to {formatJobChangeProse(chartSummary.maximum?.value ?? null)} in{' '}
+              {chartSummary.maximum
+                ? formatObservationPeriod(
+                    chartSummary.maximum.date,
+                    series.frequency,
+                  )
+                : 'an unavailable period'}. The latest value is{' '}
+              {formatJobChangeProse(chartSummary.latest?.value ?? null)} in{' '}
+              {chartSummary.latest
+                ? formatObservationPeriod(
+                    chartSummary.latest.date,
+                    series.frequency,
+                  )
+                : 'an unavailable period'}.
+            </p>
+          ) : (
+            <p className="chart-summary" aria-live="polite">
+              For the selected period, {series.shortTitle} ranged from{' '}
+              {formatValue(chartSummary.minimum?.value ?? null)} in{' '}
+              {chartSummary.minimum
+                ? formatObservationPeriod(
+                    chartSummary.minimum.date,
+                    series.frequency,
+                  )
+                : 'an unavailable period'}{' '}
+              to {formatValue(chartSummary.maximum?.value ?? null)} in{' '}
+              {chartSummary.maximum
+                ? formatObservationPeriod(
+                    chartSummary.maximum.date,
+                    series.frequency,
+                  )
+                : 'an unavailable period'}. The latest value is{' '}
+              {formatValue(chartSummary.latest?.value ?? null)} in{' '}
+              {chartSummary.latest
+                ? formatObservationPeriod(
+                    chartSummary.latest.date,
+                    series.frequency,
+                  )
+                : 'an unavailable period'}.{' '}
+              {presentation.reportBelowZero &&
+                (chartSummary.hasBelowZero
+                  ? 'At least one observation was below zero.'
+                  : 'No observations were below zero.')}
+            </p>
+          )}
         </>
       ) : (
         <p className="chart-state" role="status">
@@ -204,12 +250,22 @@ export function EconomicSeriesSummary({ series }: EconomicSeriesSummaryProps) {
 
         <details className="supporting-disclosure">
           <summary>Recent observations</summary>
-          <RecentObservationsTable
-            observations={recentObservations}
-            frequency={series.frequency}
-            caption={presentation.recentObservationsCaption}
-            valueColumnLabel={presentation.valueColumnLabel}
-          />
+          {presentation.recentTable === 'payroll-changes' && supportingSeries ? (
+            <PayrollObservationsTable
+              averages={series.observations}
+              monthlyChanges={supportingSeries.observations}
+              caption={presentation.recentObservationsCaption}
+              count={presentation.recentObservationCount}
+            />
+          ) : (
+            <RecentObservationsTable
+              observations={recentObservations}
+              frequency={series.frequency}
+              caption={presentation.recentObservationsCaption}
+              valueColumnLabel={presentation.valueColumnLabel}
+              valueFormat={presentation.valueFormat}
+            />
+          )}
         </details>
       </footer>
     </article>

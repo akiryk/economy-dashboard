@@ -13,6 +13,7 @@ function getYAxis(includeZero: boolean): YAXisComponentOption {
     units: 'Percent',
     transformation: 'Level',
     includeZero,
+    valueFormat: 'percentage',
   })
 
   return options.yAxis as YAXisComponentOption
@@ -35,5 +36,38 @@ describe('createEconomicTimeSeriesChartOptions', () => {
 
     expect(minimum({ min: 2, max: 4 })).toBe(0)
     expect(maximum({ min: -4, max: -2 })).toBe(0)
+  })
+
+  it('formats payroll counts and keeps the zero reference line', () => {
+    const options = createEconomicTimeSeriesChartOptions({
+      data: [
+        ['2026-05-01', -42],
+        ['2026-06-01', 145.333],
+      ],
+      seriesName: 'Payroll growth',
+      frequency: 'monthly',
+      units: 'Thousands of jobs',
+      transformation: 'Three-month average of monthly change',
+      includeZero: true,
+      valueFormat: 'signed-thousands',
+    })
+    const axis = options.yAxis as YAXisComponentOption
+    const series = (
+      options.series as unknown as Array<{
+        markLine?: unknown
+        data?: Array<[string, number | null]>
+      }>
+    )[0]
+    const tooltip = options.tooltip as {
+      formatter: (params: { value: [string, number] }) => string
+    }
+
+    expect(axis.name).toBe('Jobs (thousands)')
+    expect(axis.axisLabel).toMatchObject({ formatter: '{value}K' })
+    expect(series?.markLine).toBeDefined()
+    expect(series?.data?.[0]).toEqual(['2026-05-01', -42])
+    expect(
+      tooltip.formatter({ value: ['2026-06-01', 145.333] }),
+    ).toBe('June 2026\nPayroll growth: +145K')
   })
 })

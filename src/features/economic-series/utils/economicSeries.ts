@@ -88,6 +88,38 @@ export function formatPercentage(value: number | null): string {
   }).format(value) + '%'
 }
 
+export type EconomicValueFormat = 'percentage' | 'signed-thousands'
+
+export function formatSignedThousands(value: number | null): string {
+  if (value === null) return 'Not available'
+
+  const rounded = Math.round(Math.abs(value))
+  if (value > 0) return `+${rounded.toLocaleString('en-US')}K`
+  if (value < 0) return `−${rounded.toLocaleString('en-US')}K`
+  return '0'
+}
+
+export function formatJobChangeProse(value: number | null): string {
+  if (value === null) return 'an unavailable number of jobs'
+  if (value === 0) return 'no net change in jobs'
+
+  const jobs = Math.abs(value) * 1_000
+  const formatted =
+    jobs >= 1_000_000
+      ? `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 }).format(jobs / 1_000_000)} million jobs`
+      : `${Math.round(jobs).toLocaleString('en-US')} jobs`
+  return value > 0 ? `a gain of ${formatted}` : `a loss of ${formatted}`
+}
+
+export function formatEconomicValue(
+  value: number | null,
+  format: EconomicValueFormat,
+): string {
+  return format === 'signed-thousands'
+    ? formatSignedThousands(value)
+    : formatPercentage(value)
+}
+
 export function formatDate(date: string): string {
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',

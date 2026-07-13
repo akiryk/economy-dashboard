@@ -6,7 +6,8 @@ import type { ChartDataPoint } from './chartAdapters'
 import type { EconomicFrequency } from '../models/economicSeries'
 import {
   formatObservationPeriod,
-  formatPercentage,
+  formatEconomicValue,
+  type EconomicValueFormat,
 } from '../utils/economicSeries'
 
 interface EconomicTimeSeriesChartOptionsInput {
@@ -16,6 +17,7 @@ interface EconomicTimeSeriesChartOptionsInput {
   units: string
   transformation: string
   includeZero: boolean
+  valueFormat: EconomicValueFormat
 }
 
 interface ValueRange {
@@ -47,13 +49,14 @@ function formatTooltip(
   params: TooltipComponentFormatterCallbackParams,
   seriesName: string,
   frequency: EconomicFrequency,
+  valueFormat: EconomicValueFormat,
 ): string {
   const item = Array.isArray(params) ? params[0] : params
 
   if (!item || !isChartDataPoint(item.value)) return seriesName
 
   const [date, value] = item.value
-  return `${formatObservationPeriod(date, frequency)}\n${seriesName}: ${formatPercentage(value)}`
+  return `${formatObservationPeriod(date, frequency)}\n${seriesName}: ${formatEconomicValue(value, valueFormat)}`
 }
 
 export function createEconomicTimeSeriesChartOptions({
@@ -63,6 +66,7 @@ export function createEconomicTimeSeriesChartOptions({
   units,
   transformation,
   includeZero,
+  valueFormat,
 }: EconomicTimeSeriesChartOptionsInput): EChartsCoreOption {
   return {
     animation: false,
@@ -83,7 +87,7 @@ export function createEconomicTimeSeriesChartOptions({
       renderMode: 'richText',
       confine: true,
       formatter: (params: TooltipComponentFormatterCallbackParams) =>
-        formatTooltip(params, seriesName, frequency),
+        formatTooltip(params, seriesName, frequency, valueFormat),
       axisPointer: {
         type: 'line',
         lineStyle: { color: '#56616d', width: 1 },
@@ -103,14 +107,15 @@ export function createEconomicTimeSeriesChartOptions({
     },
     yAxis: {
       type: 'value',
-      name: 'Percent',
+      name: valueFormat === 'signed-thousands' ? 'Jobs (thousands)' : 'Percent',
       nameLocation: 'end',
       nameTextStyle: { color: '#56616d', align: 'right' },
       min: (range: ValueRange) => paddedMinimum(range, includeZero),
       max: (range: ValueRange) => paddedMaximum(range, includeZero),
       axisLabel: {
         color: '#56616d',
-        formatter: '{value}%',
+        formatter:
+          valueFormat === 'signed-thousands' ? '{value}K' : '{value}%',
       },
       axisLine: { show: false },
       axisTick: { show: false },

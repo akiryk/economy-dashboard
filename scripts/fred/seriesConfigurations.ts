@@ -1,6 +1,7 @@
 import type { EconomicFrequency } from '../../src/features/economic-series/models/economicSeries'
 
 export interface FredSeriesConfig {
+  dataHandling: 'provider-level' | 'provider-transformed'
   id: string
   slug: string
   outputFile: string
@@ -23,6 +24,7 @@ export interface FredSeriesConfig {
 
 export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
   {
+    dataHandling: 'provider-transformed',
     id: 'real-gdp-growth',
     slug: 'real-gdp-growth',
     outputFile:
@@ -46,6 +48,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     sourceUrl: 'https://fred.stlouisfed.org/series/GDPC1',
   },
   {
+    dataHandling: 'provider-transformed',
     id: 'headline-cpi-inflation',
     slug: 'headline-cpi-inflation',
     outputFile:
@@ -68,6 +71,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCSL',
   },
   {
+    dataHandling: 'provider-level',
     id: 'unemployment-rate',
     slug: 'unemployment-rate',
     outputFile: 'src/features/economic-series/data/unemployment-rate.json',
@@ -88,6 +92,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     sourceUrl: 'https://fred.stlouisfed.org/series/UNRATE',
   },
   {
+    dataHandling: 'provider-level',
     id: 'prime-age-employment-ratio',
     slug: 'prime-age-employment-ratio',
     outputFile:
@@ -109,3 +114,34 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     sourceUrl: 'https://fred.stlouisfed.org/series/LNS12300060',
   },
 ]
+
+export interface PayrollSeriesConfig {
+  dataHandling: 'locally-derived'
+  providerSeriesId: 'PAYEMS'
+  fredFrequency: 'm'
+  observationStart: string
+  minimumUsableObservations: number
+  sourceUnits: string
+  seasonalAdjustment: string
+  sourceName: string
+  sourceUrl: string
+  monthlyChangeOutputFile: string
+  payrollGrowthOutputFile: string
+}
+
+export const payrollSeriesConfiguration: PayrollSeriesConfig = {
+  dataHandling: 'locally-derived',
+  providerSeriesId: 'PAYEMS',
+  fredFrequency: 'm',
+  observationStart: '1999-10-01',
+  minimumUsableObservations: 3,
+  sourceUnits: 'Thousands of persons',
+  seasonalAdjustment: 'Seasonally adjusted',
+  sourceName:
+    'U.S. Bureau of Labor Statistics via FRED; changes calculated by the application',
+  sourceUrl: 'https://fred.stlouisfed.org/series/PAYEMS',
+  monthlyChangeOutputFile:
+    'src/features/economic-series/data/monthly-payroll-change.json',
+  payrollGrowthOutputFile:
+    'src/features/economic-series/data/payroll-growth.json',
+}

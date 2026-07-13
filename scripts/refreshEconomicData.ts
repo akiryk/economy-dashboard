@@ -3,11 +3,17 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { fetchFredObservations } from './fred/fredClient'
 import { normalizeFredSeries } from './fred/normalizeFredSeries'
+import { derivePayrollSeries } from './fred/derivePayrollSeries'
 import {
   fredSeriesConfigurations,
+  payrollSeriesConfiguration,
+  type PayrollSeriesConfig,
   type FredSeriesConfig,
 } from './fred/seriesConfigurations'
-import { writeEconomicSeriesAtomically } from './writeEconomicSeries'
+import {
+  writeEconomicSeriesAtomically,
+  writeEconomicSeriesGroupAtomically,
+} from './writeEconomicSeries'
 
 export interface RefreshEconomicDataOptions {
   apiKey: string
@@ -37,20 +43,61 @@ export async function refreshEconomicData({
 export type RefreshOutcome =
   | { status: 'updated'; config: FredSeriesConfig; series: Awaited<ReturnType<typeof refreshEconomicData>> }
   | { status: 'failed'; config: FredSeriesConfig; message: string }
+  | {
+      status: 'updated'
+      config: PayrollSeriesConfig
+      series: Awaited<ReturnType<typeof refreshPayrollData>>['payrollGrowth']
+      supportingSeries: Awaited<ReturnType<typeof refreshPayrollData>>['monthlyChange']
+    }
+  | { status: 'failed'; config: PayrollSeriesConfig; message: string }
 
 interface RefreshAllEconomicDataOptions {
   apiKey: string
   retrievedAt: string
   configurations?: readonly FredSeriesConfig[]
+  payrollConfiguration?: PayrollSeriesConfig | false
   fetchImplementation?: typeof fetch
 }
 
-export async function refreshAllEconomicData({
+export async function refreshPayrollData({
   apiKey,
   retrievedAt,
-  configurations = fredSeriesConfigurations,
+  config = payrollSeriesConfiguration,
   fetchImplementation,
-}: RefreshAllEconomicDataOptions): Promise<RefreshOutcome[]> {
+}: {
+  apiKey: string
+  retrievedAt: string
+  config?: PayrollSeriesConfig
+  fetchImplementation?: typeof fetch
+}) {
+  const response = await fetchFredObservations(
+    apiKey,
+    config,
+    fetchImplementation,
+  )
+  const series = derivePayrollSeries(response, retrievedAt, config)
+  await writeEconomicSeriesGroupAtomically([
+    {
+      outputPath: path.resolve(config.monthlyChangeOutputFile),
+      series: series.monthlyChange,
+    },
+    {
+      outputPath: path.resolve(config.payrollGrowthOutputFile),
+      series: series.payrollGrowth,
+    },
+  ])
+  return series
+}
+
+export async function refreshAllEconomicData(
+  options: RefreshAllEconomicDataOptions,
+): Promise<RefreshOutcome[]> {
+  const {
+    apiKey,
+    retrievedAt,
+    configurations = fredSeriesConfigurations,
+    fetchImplementation,
+  } = options
   const outcomes: RefreshOutcome[] = []
 
   for (const config of configurations) {
@@ -67,6 +114,36 @@ export async function refreshAllEconomicData({
       outcomes.push({
         status: 'failed',
         config,
+        message: error instanceof Error ? error.message : 'Unknown failure',
+      })
+    }
+  }
+
+  const payrollConfig =
+    options.payrollConfiguration === undefined
+      ? options.configurations === undefined
+        ? payrollSeriesConfiguration
+        : false
+      : options.payrollConfiguration
+
+  if (payrollConfig) {
+    try {
+      const { payrollGrowth, monthlyChange } = await refreshPayrollData({
+        apiKey,
+        retrievedAt,
+        config: payrollConfig,
+        fetchImplementation,
+      })
+      outcomes.push({
+        status: 'updated',
+        config: payrollConfig,
+        series: payrollGrowth,
+        supportingSeries: monthlyChange,
+      })
+    } catch (error: unknown) {
+      outcomes.push({
+        status: 'failed',
+        config: payrollConfig,
         message: error instanceof Error ? error.message : 'Unknown failure',
       })
     }
@@ -124,7 +201,17 @@ async function main(): Promise<void> {
     console.log(
       `Latest: ${latest?.date ?? 'unavailable'} (${latest?.value ?? 'missing'})`,
     )
-    console.log(`Output: ${path.resolve(outcome.config.outputFile)}`)
+    if ('supportingSeries' in outcome) {
+      const supporting = outcome.supportingSeries
+      console.log(
+        `Supporting range: ${supporting.observations[0]?.date} to ${supporting.observations.at(-1)?.date ?? 'unavailable'}`,
+      )
+      console.log(
+        `Outputs: ${path.resolve(outcome.config.payrollGrowthOutputFile)}, ${path.resolve(outcome.config.monthlyChangeOutputFile)}`,
+      )
+    } else {
+      console.log(`Output: ${path.resolve(outcome.config.outputFile)}`)
+    }
   }
 
   if (outcomes.some((outcome) => outcome.status === 'failed')) {

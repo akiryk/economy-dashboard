@@ -14,6 +14,7 @@ import type {
 } from '../models/economicSeries'
 import { adaptObservationsToChartData } from './chartAdapters'
 import { createEconomicTimeSeriesChartOptions } from './economicTimeSeriesChartOptions'
+import type { EconomicValueFormat } from '../utils/economicSeries'
 
 echarts.use([
   AriaComponent,
@@ -31,6 +32,7 @@ export interface EconomicTimeSeriesChartProps {
   units: string
   transformation: string
   includeZero: boolean
+  valueFormat: EconomicValueFormat
 }
 
 export default function EconomicTimeSeriesChart({
@@ -40,6 +42,7 @@ export default function EconomicTimeSeriesChart({
   units,
   transformation,
   includeZero,
+  valueFormat,
 }: EconomicTimeSeriesChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<echarts.ECharts | null>(null)
@@ -91,6 +94,7 @@ export default function EconomicTimeSeriesChart({
           units,
           transformation,
           includeZero,
+          valueFormat,
         }),
         { notMerge: true },
       )
@@ -98,7 +102,15 @@ export default function EconomicTimeSeriesChart({
       console.error('Failed to update the economic time-series chart', error)
       queueMicrotask(() => setInitializationError(true))
     }
-  }, [chartData, frequency, includeZero, seriesName, transformation, units])
+  }, [
+    chartData,
+    frequency,
+    includeZero,
+    seriesName,
+    transformation,
+    units,
+    valueFormat,
+  ])
 
   if (initializationError) {
     return (

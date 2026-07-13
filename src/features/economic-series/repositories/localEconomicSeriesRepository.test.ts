@@ -19,7 +19,22 @@ describe('localEconomicSeriesRepository', () => {
 
   it('returns null for an unknown slug', async () => {
     await expect(
-      localEconomicSeriesRepository.getBySlug('payroll-growth'),
+      localEconomicSeriesRepository.getBySlug('wage-growth'),
     ).resolves.toBeNull()
+  })
+
+  it.each([
+    ['payroll-growth', 'Three-month average of monthly change'],
+    ['monthly-payroll-change', 'Monthly change'],
+  ])('loads the PAYEMS-derived %s series', async (slug, transformation) => {
+    const series = await localEconomicSeriesRepository.getBySlug(slug)
+
+    expect(series).toMatchObject({
+      slug,
+      providerSeriesId: 'PAYEMS',
+      frequency: 'monthly',
+      units: 'Thousands of jobs',
+    })
+    expect(series?.transformation).toContain(transformation)
   })
 })

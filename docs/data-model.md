@@ -16,7 +16,7 @@ The series-level `retrievedAt` date records when this particular local snapshot 
 
 React components do not import JSON directly. They request a series by slug through `EconomicSeriesRepository`, and the local implementation validates the unknown JSON data before returning it. This keeps parsing and data-source details out of presentation code and provides a clear asynchronous boundary.
 
-The local implementation uses an explicit slug-to-loader registry for `real-gdp-growth` and `headline-cpi-inflation`. Dynamic JSON imports avoid placing every committed dataset in the initial application module while keeping unknown slugs and validation behavior explicit.
+The local implementation uses an explicit slug-to-loader registry for all visible and supporting series. Dynamic JSON imports avoid placing every committed dataset in the initial application module while keeping unknown slugs and validation behavior explicit.
 
 A future API or SQLite implementation can implement the same repository interface without changing the components that consume `EconomicSeries`. This is a narrow substitution point, not a dependency-injection framework.
 
@@ -38,10 +38,16 @@ The card structure has an intentional extension point between the primary curren
 
 Seasonal adjustment, frequency, observation period, and retrieval date remain independent metadata. The observation shape is unchanged for level series.
 
+## Locally derived payroll series
+
+PAYEMS is a provider level in thousands of persons. The dashboard does not present that raw level as its payroll measure. One refresh-time derivation creates monthly changes and a rolling three-month average, both stored in thousands of jobs. Their `providerSeriesId` and source attribution identify PAYEMS, while `transformation` states that the application calculated the displayed values. This separates provider source from local transformation without adding speculative metadata fields.
+
+The primary `payroll-growth` series and supporting `monthly-payroll-change` series share dates and the unchanged `{ date, value }` observation shape. The repository loads both for one card; React does not calculate either measure. The supporting series appears only in the payroll card's paired recent-observations table, not as a separate dashboard card.
+
 ## Current limitations
 
-- The application contains four locally bundled series.
+- The application contains five visible indicators and one supporting payroll series.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.
-- Charting currently supports monthly and quarterly percentage series.
+- Charting currently supports monthly and quarterly percentages plus signed monthly job counts.

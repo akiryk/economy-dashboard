@@ -1,7 +1,8 @@
 import type { EconomicObservation } from '../models/economicSeries'
 import {
+  formatEconomicValue,
   formatObservationPeriod,
-  formatPercentage,
+  type EconomicValueFormat,
 } from '../utils/economicSeries'
 import type { EconomicFrequency } from '../models/economicSeries'
 
@@ -10,6 +11,7 @@ interface RecentObservationsTableProps {
   frequency: EconomicFrequency
   caption: string
   valueColumnLabel: string
+  valueFormat?: EconomicValueFormat
 }
 
 export function RecentObservationsTable({
@@ -17,6 +19,7 @@ export function RecentObservationsTable({
   frequency,
   caption,
   valueColumnLabel,
+  valueFormat = 'percentage',
 }: RecentObservationsTableProps) {
   return (
     <div className="table-scroll">
@@ -34,7 +37,7 @@ export function RecentObservationsTable({
               <th scope="row">
                 {formatObservationPeriod(observation.date, frequency)}
               </th>
-              <td>{formatPercentage(observation.value)}</td>
+              <td>{formatEconomicValue(observation.value, valueFormat)}</td>
             </tr>
           ))}
         </tbody>
