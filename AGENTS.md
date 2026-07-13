@@ -262,3 +262,57 @@ Before considering work complete:
 - Naming is clear and consistent.
 
 The code should leave the repository slightly better than it was found.
+
+# Story Completion
+
+A story is not complete until the implementation has been verified, committed, and pushed to GitHub.
+
+Before completing a story:
+
+1. Review the story requirements and confirm that no requested work was omitted.
+2. Confirm that no out-of-scope work from future stories was added.
+3. Run all required quality checks, including:
+   - `npm run lint`
+   - `npm run typecheck`
+   - `npm test`
+   - `npm run build`
+   - `git diff --check`
+4. Run any story-specific data-refresh, browser, or manual verification steps.
+5. Fix all errors and warnings that indicate an implementation problem.
+6. Stop any development servers or temporary processes started during verification.
+7. Inspect `git status` and the staged diff.
+8. Confirm that no secrets, `.env` files, generated temporary files, debug output, or unrelated changes are included.
+9. Update relevant documentation so it reflects the completed implementation.
+10. Create one focused commit with a clear conventional-style commit message.
+11. Push the completed commit to the configured GitHub remote.
+12. Confirm that the local branch is synchronized with its upstream branch and that the working tree is clean.
+
+Do not:
+
+- Commit work that does not pass the required checks.
+- Push secrets or local environment files.
+- use `--force` or `--force-with-lease` unless explicitly instructed.
+- Rewrite or squash existing shared history unless explicitly instructed.
+- Commit unrelated changes merely because they are present in the working tree.
+- Leave verification-only files, screenshots, logs, temporary datasets, or running processes behind.
+- Begin the next story before the current story has been committed and pushed.
+
+If pushing fails because of authentication, permissions, branch protection, a non-fast-forward update, or another remote issue:
+
+- Do not use a destructive Git command to bypass the problem.
+- Report the exact failure clearly.
+- Leave the verified local commit intact.
+- Explain what user action is required.
+
+The completion response must report:
+
+- What was implemented
+- Important decisions or deviations
+- Quality checks and verification results
+- Commit hash and commit message
+- Branch name
+- GitHub remote used
+- Push result
+- Final working-tree status
+- Any known limitations or concerns for the next story
+- Finally, make it clear to the human reader that the story is done. Do this by print "ALL DONE WITH USER STORY [NUMBER]". Print in all caps so it stands out from all the other text.
