@@ -290,6 +290,12 @@ p {
   font-size: 0.875rem;
 }
 
+.series-current__comparison {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
 .series-metadata {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));

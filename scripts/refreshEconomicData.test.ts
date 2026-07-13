@@ -4,12 +4,14 @@ import path from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { validateEconomicSeries } from '../src/features/economic-series/models/validateEconomicSeries'
 import {
+  cpiSeriesConfiguration,
   fredSeriesConfigurations,
   payrollSeriesConfiguration,
   wageSeriesConfiguration,
 } from './fred/seriesConfigurations'
 import {
   refreshAllEconomicData,
+  refreshCpiData,
   refreshEconomicData,
 } from './refreshEconomicData'
 
@@ -26,7 +28,7 @@ afterEach(async () => {
 describe('refreshEconomicData', () => {
   it('distinguishes provider-transformed, provider-level, and local data handling', () => {
     expect(fredSeriesConfigurations.slice(0, 2).map((config) => config.dataHandling))
-      .toEqual(['provider-transformed', 'provider-transformed'])
+      .toEqual(['provider-transformed', 'locally-derived'])
     expect(fredSeriesConfigurations.slice(2).map((config) => config.dataHandling))
       .toEqual([
         'provider-level',
@@ -46,6 +48,15 @@ describe('refreshEconomicData', () => {
       fredFrequency: 'm',
       historyPolicy: { type: 'full' },
     })
+    expect(cpiSeriesConfiguration).toMatchObject({
+      dataHandling: 'cpi-derived',
+      coreSource: {
+        providerSeriesId: 'CPILFESL',
+        fredFrequency: 'm',
+        historyPolicy: { type: 'full' },
+      },
+    })
+    expect(cpiSeriesConfiguration.headlineSource.fredUnits).toBeUndefined()
     expect(
       fredSeriesConfigurations.every(
         (config) => config.historyPolicy.type === 'full',
@@ -173,12 +184,20 @@ describe('refreshEconomicData', () => {
     const fetchImplementation: typeof fetch = async (input) => {
       const url = new URL(String(input))
       requestedUrls.push(url)
-      const locallyDerived = ['A939RX0Q048SBEA', 'OPHNFB'].includes(
-        url.searchParams.get('series_id') ?? '',
-      )
+      const seriesId = url.searchParams.get('series_id')
+      const locallyDerived = ['A939RX0Q048SBEA', 'OPHNFB'].includes(seriesId ?? '')
+      const cpiLevels = seriesId === 'CPIAUCSL'
+        ? [
+            ...Array.from({ length: 14 }, (_, index) => ({
+              date: new Date(Date.UTC(2024, index, 1)).toISOString().slice(0, 10),
+              value: String(100 + index),
+            })),
+            { date: '2027-01-01', value: '999' },
+          ]
+        : null
       return new Response(
         JSON.stringify({
-          observations: locallyDerived
+          observations: cpiLevels ?? (locallyDerived
             ? [
                 { date: '2024-01-01', value: '100' },
                 { date: '2024-04-01', value: '101' },
@@ -191,7 +210,7 @@ describe('refreshEconomicData', () => {
                 { date: '2024-01-01', value: '4.0' },
                 { date: '2024-02-01', value: '4.1' },
                 { date: '2027-01-01', value: '9.9' },
-              ],
+              ]),
         }),
         { status: 200 },
       )
@@ -210,7 +229,7 @@ describe('refreshEconomicData', () => {
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 3, 3, 3, 6, 6])
+    ).toEqual([3, 15, 3, 3, 6, 6])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
@@ -219,10 +238,9 @@ describe('refreshEconomicData', () => {
       'A939RX0Q048SBEA',
       'OPHNFB',
     ])
-    expect(requestedUrls.slice(0, 2).map((url) => url.searchParams.get('units')))
-      .toEqual(['pc1', 'pc1'])
-    expect(requestedUrls.slice(2).map((url) => url.searchParams.has('units')))
-      .toEqual([false, false, false, false])
+    expect(requestedUrls[0]?.searchParams.get('units')).toBe('pc1')
+    expect(requestedUrls.slice(1).map((url) => url.searchParams.has('units')))
+      .toEqual([false, false, false, false, false])
     expect(
       requestedUrls.every((url) => !url.searchParams.has('observation_start')),
     ).toBe(true)
@@ -231,23 +249,28 @@ describe('refreshEconomicData', () => {
       const series = validateEconomicSeries(
         JSON.parse(await readFile(config.outputFile, 'utf8')),
       )
-      expect(series.observations.at(-1)?.date).toBe(
-        config.dataHandling === 'locally-derived'
+      const expectedDate = config.providerSeriesId === 'CPIAUCSL'
+        ? '2025-02-01'
+        : ['A939RX0Q048SBEA', 'OPHNFB'].includes(config.providerSeriesId)
           ? '2025-01-01'
-          : '2024-02-01',
-      )
+          : '2024-02-01'
+      expect(series.observations.at(-1)?.date).toBe(expectedDate)
     }
   })
 
   it('continues writing other series when one labor refresh fails', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
     temporaryDirectories.push(directory)
-    const configurations = fredSeriesConfigurations.slice(0, 4).map((config) => ({
+    const configurations = [
+      fredSeriesConfigurations[0]!,
+      fredSeriesConfigurations[2]!,
+      fredSeriesConfigurations[3]!,
+    ].map((config) => ({
       ...config,
       outputFile: path.join(directory, `${config.slug}.json`),
       minimumUsableObservations: 2,
     }))
-    const protectedPath = configurations[2]!.outputFile
+    const protectedPath = configurations[1]!.outputFile
     const existing = '{"existing":"valid labor fixture"}\n'
     await writeFile(protectedPath, existing, 'utf8')
     const fetchImplementation: typeof fetch = async (input) => {
@@ -271,14 +294,13 @@ describe('refreshEconomicData', () => {
 
     expect(outcomes.map((outcome) => outcome.status)).toEqual([
       'updated',
-      'updated',
       'failed',
       'updated',
     ])
     expect(await readFile(protectedPath, 'utf8')).toBe(existing)
     expect(
       validateEconomicSeries(
-        JSON.parse(await readFile(configurations[3]!.outputFile, 'utf8')),
+        JSON.parse(await readFile(configurations[2]!.outputFile, 'utf8')),
       ).providerSeriesId,
     ).toBe('LNS12300060')
   })
@@ -405,10 +427,10 @@ describe('refreshEconomicData', () => {
       requests.push(id)
       const observations =
         id === 'CPIAUCSL'
-          ? [
-              { date: '1965-01-01', value: '2' },
-              { date: '1965-02-01', value: '2.1' },
-            ]
+          ? Array.from({ length: 14 }, (_, index) => ({
+              date: new Date(Date.UTC(1964, index, 1)).toISOString().slice(0, 10),
+              value: String(100 + index),
+            }))
           : Array.from({ length: 14 }, (_, index) => ({
               date: new Date(Date.UTC(1964, index, 1)).toISOString().slice(0, 10),
               value: String(2 + index / 100),
@@ -453,7 +475,10 @@ describe('refreshEconomicData', () => {
     const fetchImplementation: typeof fetch = async (input) => {
       const id = new URL(String(input)).searchParams.get('series_id')
       const observations = id === 'CPIAUCSL'
-        ? [{ date: '1965-01-01', value: '2' }]
+        ? Array.from({ length: 13 }, (_, index) => ({
+            date: new Date(Date.UTC(1964, index, 1)).toISOString().slice(0, 10),
+            value: String(100 + index),
+          }))
         : [{ date: '1964-01-01', value: 'invalid' }]
       return new Response(JSON.stringify({ observations }), { status: 200 })
     }
@@ -466,5 +491,95 @@ describe('refreshEconomicData', () => {
     expect(outcomes.map((outcome) => outcome.status)).toEqual(['updated', 'failed'])
     expect(await readFile(nominalPath, 'utf8')).toBe('old nominal\n')
     expect(await readFile(realPath, 'utf8')).toBe('old real\n')
+  })
+
+  it('fetches each CPI source once and atomically writes all four derivations', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
+    temporaryDirectories.push(directory)
+    const config = {
+      ...cpiSeriesConfiguration,
+      minimumUsableObservations: 13,
+      headlineInflationOutputFile: path.join(directory, 'headline-yoy.json'),
+      coreInflationOutputFile: path.join(directory, 'core-yoy.json'),
+      headlineMomentumOutputFile: path.join(directory, 'headline-momentum.json'),
+      coreMomentumOutputFile: path.join(directory, 'core-momentum.json'),
+    }
+    const requestedUrls: URL[] = []
+    const fetchImplementation: typeof fetch = async (input) => {
+      const url = new URL(String(input))
+      requestedUrls.push(url)
+      const base = url.searchParams.get('series_id') === 'CPIAUCSL' ? 100 : 200
+      return new Response(JSON.stringify({
+        observations: Array.from({ length: 14 }, (_, index) => ({
+          date: new Date(Date.UTC(2024, index, 1)).toISOString().slice(0, 10),
+          value: String(base + index),
+        })),
+      }), { status: 200 })
+    }
+
+    const result = await refreshCpiData({
+      apiKey: 'test-key',
+      retrievedAt: '2026-07-13',
+      config,
+      fetchImplementation,
+    })
+
+    expect(requestedUrls.map((url) => url.searchParams.get('series_id')).sort())
+      .toEqual(['CPIAUCSL', 'CPILFESL'])
+    expect(requestedUrls.every((url) => !url.searchParams.has('units'))).toBe(true)
+    expect(requestedUrls.every((url) => !url.searchParams.has('observation_start')))
+      .toBe(true)
+    expect(result.sourceObservationCount).toBe(14)
+    expect(result.coreSourceObservationCount).toBe(14)
+    for (const outputFile of [
+      config.headlineInflationOutputFile,
+      config.coreInflationOutputFile,
+      config.headlineMomentumOutputFile,
+      config.coreMomentumOutputFile,
+    ]) {
+      expect(validateEconomicSeries(JSON.parse(await readFile(outputFile, 'utf8')))
+        .observations.at(-1)?.date).toBe('2025-02-01')
+    }
+  })
+
+  it('preserves all four CPI files when either source cannot be derived', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
+    temporaryDirectories.push(directory)
+    const outputFiles = [
+      path.join(directory, 'headline-yoy.json'),
+      path.join(directory, 'core-yoy.json'),
+      path.join(directory, 'headline-momentum.json'),
+      path.join(directory, 'core-momentum.json'),
+    ]
+    await Promise.all(outputFiles.map((file, index) => writeFile(file, `old ${index}\n`, 'utf8')))
+    const config = {
+      ...cpiSeriesConfiguration,
+      minimumUsableObservations: 13,
+      headlineInflationOutputFile: outputFiles[0]!,
+      coreInflationOutputFile: outputFiles[1]!,
+      headlineMomentumOutputFile: outputFiles[2]!,
+      coreMomentumOutputFile: outputFiles[3]!,
+    }
+    const fetchImplementation: typeof fetch = async (input) => {
+      const id = new URL(String(input)).searchParams.get('series_id')
+      const observations = id === 'CPILFESL'
+        ? [{ date: '2024-01-01', value: 'invalid' }]
+        : Array.from({ length: 14 }, (_, index) => ({
+            date: new Date(Date.UTC(2024, index, 1)).toISOString().slice(0, 10),
+            value: String(100 + index),
+          }))
+      return new Response(JSON.stringify({ observations }), { status: 200 })
+    }
+
+    await expect(refreshCpiData({
+      apiKey: 'test-key',
+      retrievedAt: '2026-07-13',
+      config,
+      fetchImplementation,
+    })).rejects.toThrow()
+
+    await Promise.all(outputFiles.map(async (file, index) => {
+      expect(await readFile(file, 'utf8')).toBe(`old ${index}\n`)
+    }))
   })
 })

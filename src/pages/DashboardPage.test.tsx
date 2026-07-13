@@ -12,13 +12,17 @@ const chartPropsSpy = vi.hoisted(() => vi.fn())
 
 vi.mock('../features/economic-series/charts/EconomicTimeSeriesChart', () => ({
   default: (props: {
-    observations: readonly EconomicObservation[]
-    seriesName: string
+    kind?: string
+    observations?: readonly EconomicObservation[]
+    seriesName?: string
     frequency: EconomicFrequency
-    includeZero: boolean
+    includeZero?: boolean
+    variant?: string
+    headlineObservations?: readonly EconomicObservation[]
+    coreObservations?: readonly EconomicObservation[]
   }) => {
     chartPropsSpy(props)
-    return <div data-testid={`chart-${props.seriesName}`} />
+    return <div data-testid={`chart-${props.seriesName ?? props.variant}`} />
   },
 }))
 
@@ -101,6 +105,14 @@ describe('DashboardPage economic series', () => {
         name: 'How quickly are consumer prices rising?',
       }),
     ).toBeVisible()
+    const priceQuestions = await within(prices).findAllByRole('heading', {
+      level: 3,
+    })
+    expect(priceQuestions.map((heading) => heading.textContent)).toEqual([
+      'How quickly are consumer prices rising?',
+      'Is inflation broad and persistent?',
+      'Is inflation currently accelerating or slowing?',
+    ])
     expect(
       within(employment).getByText(
         'Labor-market indicators show how readily people can find work and how broadly employment is distributed. No single measure fully captures labor-market strength.',
@@ -115,7 +127,7 @@ describe('DashboardPage economic series', () => {
       'Are employers adding jobs?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(8)
+    expect(screen.getAllByRole('article')).toHaveLength(10)
     expect(
       within(employment).queryByRole('article', {
         name: 'How much did total nonfarm payroll employment change?',
@@ -131,6 +143,67 @@ describe('DashboardPage economic series', () => {
         'Latest observations range from 2026 Q1 to June 2026',
       ),
     ).toBeVisible()
+  })
+
+  it('renders both aligned inflation comparisons with accessible values and tables', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+
+    const yearOverYear = await screen.findByRole('article', {
+      name: 'Is inflation broad and persistent?',
+    })
+    const momentum = await screen.findByRole('article', {
+      name: 'Is inflation currently accelerating or slowing?',
+    })
+
+    expect(within(yearOverYear).getByLabelText('Latest core CPI inflation'))
+      .toHaveTextContent('+2.8%')
+    expect(within(yearOverYear).getByText(/Corresponding headline rate/))
+      .toHaveTextContent('+4.2%')
+    expect(within(momentum).getByLabelText(
+      'Latest three-month annualized core inflation',
+    )).toHaveTextContent('+3.2%')
+    expect(within(momentum).getByText(/Corresponding headline rate/))
+      .toHaveTextContent('+8.2%')
+    expect(within(yearOverYear).getByRole('group', {
+      name: 'Headline Versus Core CPI displayed time range',
+    })).toBeVisible()
+    expect(within(momentum).getByRole('group', {
+      name: 'Recent Inflation Momentum displayed time range',
+    })).toBeVisible()
+
+    await user.click(within(yearOverYear).getByText('Recent observations'))
+    await user.click(within(momentum).getByText('Recent observations'))
+    const yearOverYearTable = within(yearOverYear).getByRole('table', {
+      name: 'Twelve most recent aligned headline and core CPI observations',
+    })
+    const momentumTable = within(momentum).getByRole('table', {
+      name: 'Twelve most recent aligned inflation momentum observations',
+    })
+    expect(within(yearOverYearTable).getAllByRole('row')).toHaveLength(13)
+    expect(within(momentumTable).getAllByRole('row')).toHaveLength(13)
+    expect(within(yearOverYearTable).getAllByRole('row')[1])
+      .toHaveTextContent('May 20264.2%2.8%−1.3% pp')
+    expect(within(yearOverYearTable).getByLabelText(
+      '−1.3% percentage points',
+    )).toBeVisible()
+
+    await waitFor(() => {
+      const comparisonCalls = chartPropsSpy.mock.calls
+        .map((call) => call[0] as {
+          kind?: string
+          variant?: string
+          headlineObservations?: EconomicObservation[]
+          coreObservations?: EconomicObservation[]
+        })
+        .filter((props) => props.kind === 'inflation-comparison')
+      expect([...new Set(comparisonCalls.map((props) => props.variant))].sort())
+        .toEqual(['momentum', 'year-over-year'])
+      expect(comparisonCalls.every((props) =>
+        props.headlineObservations?.length === props.coreObservations?.length,
+      )).toBe(true)
+    })
+    expect(screen.queryByRole('article', { name: /PCE/i })).not.toBeInTheDocument()
   })
 
   it('renders payroll momentum with signed values and a paired recent table', async () => {
@@ -460,8 +533,67 @@ describe('DashboardPage economic series', () => {
       ),
     ).toBeVisible()
     expect(
-      within(screen.getByRole('region', { name: 'Prices' })).getByRole('alert'),
-    ).toBeVisible()
+      within(screen.getByRole('region', { name: 'Prices' })).getAllByRole('alert'),
+    ).toHaveLength(2)
+    expect(await screen.findByRole('article', {
+      name: 'Is inflation currently accelerating or slowing?',
+    })).toBeVisible()
+  })
+
+  it('isolates a headline-versus-core failure from other cards and sections', async () => {
+    const originalGetBySlug =
+      localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(
+      async (slug) => {
+        if (slug === 'core-cpi-inflation') throw new Error('Invalid core CPI fixture')
+        return originalGetBySlug(slug)
+      },
+    )
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    render(<DashboardPage />)
+
+    expect(await screen.findByText(
+      'The headline versus core CPI data could not be loaded.',
+    )).toBeVisible()
+    expect(await screen.findByRole('article', {
+      name: 'How quickly are consumer prices rising?',
+    })).toBeVisible()
+    expect(await screen.findByRole('article', {
+      name: 'Is inflation currently accelerating or slowing?',
+    })).toBeVisible()
+    expect(await screen.findByRole('article', {
+      name: 'How difficult is it for people who want work to find it?',
+    })).toBeVisible()
+  })
+
+  it('isolates an inflation-momentum failure from the stable comparison', async () => {
+    const originalGetBySlug =
+      localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(
+      async (slug) => {
+        if (slug === 'core-cpi-three-month-annualized') {
+          throw new Error('Invalid momentum fixture')
+        }
+        return originalGetBySlug(slug)
+      },
+    )
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    render(<DashboardPage />)
+
+    expect(await screen.findByText(
+      'The recent inflation momentum data could not be loaded.',
+    )).toBeVisible()
+    expect(await screen.findByRole('article', {
+      name: 'How quickly are consumer prices rising?',
+    })).toBeVisible()
+    expect(await screen.findByRole('article', {
+      name: 'Is inflation broad and persistent?',
+    })).toBeVisible()
+    expect(await screen.findByRole('article', {
+      name: 'Is the U.S. economy growing?',
+    })).toBeVisible()
   })
 
   it('keeps CPI visible when GDP loading fails', async () => {

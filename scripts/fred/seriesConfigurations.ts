@@ -23,7 +23,9 @@ export interface FredSeriesConfig {
   sourceUrl: string
 }
 
-export type LocalDerivation = 'year-over-year-quarterly-growth'
+export type LocalDerivation =
+  | 'year-over-year-monthly-growth'
+  | 'year-over-year-quarterly-growth'
 
 export type HistoryPolicy =
   | { type: 'full' }
@@ -55,7 +57,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     sourceUrl: 'https://fred.stlouisfed.org/series/GDPC1',
   },
   {
-    dataHandling: 'provider-transformed',
+    dataHandling: 'locally-derived',
     id: 'headline-cpi-inflation',
     slug: 'headline-cpi-inflation',
     outputFile:
@@ -64,7 +66,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     frequency: 'monthly',
     fredFrequency: 'm',
     historyPolicy: { type: 'full' },
-    fredUnits: 'pc1',
+    localDerivation: 'year-over-year-monthly-growth',
     minimumUsableObservations: 240,
     title: 'Consumer Price Inflation',
     shortTitle: 'CPI inflation',
@@ -73,7 +75,8 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     question: 'How quickly are consumer prices rising?',
     units: 'Percent change from year ago',
     seasonalAdjustment: 'Seasonally adjusted (underlying CPI index)',
-    transformation: 'Percent change from year ago',
+    transformation:
+      'Percent change from year ago, calculated by the application',
     sourceName: 'U.S. Bureau of Labor Statistics via FRED',
     sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCSL',
   },
@@ -230,4 +233,40 @@ export const wageSeriesConfiguration: WageSeriesConfig = {
   seasonalAdjustment: 'Seasonally adjusted',
   sourceName: 'U.S. Bureau of Labor Statistics via FRED',
   sourceUrl: 'https://fred.stlouisfed.org/series/AHETPI',
+}
+
+export interface CpiSeriesConfig {
+  dataHandling: 'cpi-derived'
+  headlineSource: FredSeriesConfig
+  coreSource: {
+    providerSeriesId: 'CPILFESL'
+    fredFrequency: 'm'
+    historyPolicy: HistoryPolicy
+  }
+  minimumUsableObservations: number
+  headlineInflationOutputFile: string
+  coreInflationOutputFile: string
+  headlineMomentumOutputFile: string
+  coreMomentumOutputFile: string
+}
+
+export const cpiSeriesConfiguration: CpiSeriesConfig = {
+  dataHandling: 'cpi-derived',
+  headlineSource: fredSeriesConfigurations.find(
+    (config) => config.providerSeriesId === 'CPIAUCSL',
+  )!,
+  coreSource: {
+    providerSeriesId: 'CPILFESL',
+    fredFrequency: 'm',
+    historyPolicy: { type: 'full' },
+  },
+  minimumUsableObservations: 13,
+  headlineInflationOutputFile:
+    'src/features/economic-series/data/headline-cpi-inflation.json',
+  coreInflationOutputFile:
+    'src/features/economic-series/data/core-cpi-inflation.json',
+  headlineMomentumOutputFile:
+    'src/features/economic-series/data/headline-cpi-three-month-annualized.json',
+  coreMomentumOutputFile:
+    'src/features/economic-series/data/core-cpi-three-month-annualized.json',
 }

@@ -17,6 +17,10 @@ describe('localEconomicSeriesRepository', () => {
   })
 
   it.each([
+    ['headline-cpi-inflation', 'CPIAUCSL'],
+    ['core-cpi-inflation', 'CPILFESL'],
+    ['headline-cpi-three-month-annualized', 'CPIAUCSL'],
+    ['core-cpi-three-month-annualized', 'CPILFESL'],
     ['unemployment-rate', 'UNRATE'],
     ['prime-age-employment-ratio', 'LNS12300060'],
   ])('loads %s as a monthly series', async (slug, providerSeriesId) => {
@@ -26,9 +30,14 @@ describe('localEconomicSeriesRepository', () => {
       slug,
       providerSeriesId,
       frequency: 'monthly',
-      units: 'Percent',
-      transformation: 'Level',
     })
+    if (['UNRATE', 'LNS12300060'].includes(providerSeriesId)) {
+      expect(series?.units).toBe('Percent')
+      expect(series?.transformation).toBe('Level')
+    } else {
+      expect(series?.units).toContain('Percent')
+      expect(series?.transformation).toContain('calculated by the application')
+    }
   })
 
   it('returns null for an unknown slug', async () => {

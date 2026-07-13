@@ -17,7 +17,7 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Real GDP growth (`GDPC1`, quarterly), written to `real-gdp-growth.json`.
 - Real GDP per capita growth (`A939RX0Q048SBEA`, quarterly source level), derived into `real-gdp-per-capita-growth.json`.
 - Labor productivity growth (`OPHNFB`, quarterly source index), derived into `labor-productivity-growth.json`.
-- Headline CPI inflation (`CPIAUCSL`, monthly), written to `headline-cpi-inflation.json`.
+- Headline and core CPI (`CPIAUCSL` and `CPILFESL`, monthly index levels), derived into year-over-year and three-month annualized outputs.
 - Unemployment rate (`UNRATE`, monthly), written to `unemployment-rate.json`.
 - Prime-age employment-to-population ratio (`LNS12300060`, monthly), written to `prime-age-employment-ratio.json`.
 - Payroll growth (`PAYEMS`, monthly source level), derived into `monthly-payroll-change.json` and `payroll-growth.json`.
@@ -42,7 +42,8 @@ Shared parameters:
 The series-specific requests are:
 
 - GDP: `series_id=GDPC1`, `frequency=q`, and `units=pc1`.
-- CPI: `series_id=CPIAUCSL`, `frequency=m`, and `units=pc1`.
+- Headline CPI: `series_id=CPIAUCSL` and `frequency=m`, with no `units` or `observation_start` parameter.
+- Core CPI: `series_id=CPILFESL` and `frequency=m`, with no `units` or `observation_start` parameter.
 - Unemployment: `series_id=UNRATE` and `frequency=m`, with no `units` parameter.
 - Prime-age employment: `series_id=LNS12300060` and `frequency=m`, with no `units` parameter.
 - Payroll: `series_id=PAYEMS` and `frequency=m`, with no `units` parameter.
@@ -52,7 +53,13 @@ The series-specific requests are:
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
-The optional `fredUnits` configuration field emits `units=pc1` only for GDP and CPI, whose transformations are requested from FRED. Omitting it preserves provider-published levels for unemployment, prime-age employment, real GDP per capita, labor productivity, payroll, and wages. Domain transformation metadata separately records provider values and local calculations.
+The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, unemployment, prime-age employment, real GDP per capita, labor productivity, payroll, and wages. Domain transformation metadata separately records provider values and local calculations.
+
+## CPI derivations and reuse
+
+`CPIAUCSL` and `CPILFESL` are each fetched exactly once as seasonally adjusted monthly index levels. For each source, year-over-year inflation is `((P_t / P_t-12) - 1) × 100`, and three-month annualized inflation is `((P_t / P_t-3)^4 - 1) × 100`. The latter is an exact ratio calculation, not a three-month change multiplied by four. Both calculations look up exact calendar dates. A missing endpoint, null value, or internal month in the four-month momentum window produces `null`; gaps are not bridged and no result is rounded before serialization.
+
+One grouped derivation produces `headline-cpi-inflation.json`, `core-cpi-inflation.json`, `headline-cpi-three-month-annualized.json`, and `core-cpi-three-month-annualized.json`. All four validate before replacement and use rollback-protected grouped writes, so a failed source, derivation, validation, or replacement preserves every prior CPI file. After the group succeeds, the in-memory headline year-over-year result is reused for real-wage derivation without another `CPIAUCSL` request. Refresh reporting identifies both source counts, all four generated ranges, and all grouped output paths.
 
 The real-GDP-per-capita and productivity configurations use the explicit `year-over-year-quarterly-growth` local derivation. For each source level at quarter `t`, the application looks up the exact calendar date one year earlier and calculates `((level_t / level_t-4 quarters) - 1) × 100`. It never substitutes by array position. Missing current or prior levels and missing calendar quarters yield `null`; leading unavailable results are omitted and internal gaps are retained. Both sources use full history with no `observation_start`, are fetched once each, and are written independently through the existing validated atomic writer.
 
@@ -68,12 +75,13 @@ The nominal and real wage outputs are validated and staged together, then replac
 
 The client checks the HTTP status and parses the response as untrusted JSON. It rejects provider error payloads, missing observation arrays, invalid dates, and values other than numeric strings or FRED's `.` missing marker.
 
-Normalization converts numeric strings to numbers and `.` to `null`, sorts observations chronologically without mutating the provider response, removes observations dated after retrieval, and requires enough usable history for the configured frequency: 80 quarterly GDP values or 240 monthly values for CPI and both labor series. It constructs complete `EconomicSeries` metadata and passes the result through the same domain validator used by the application.
+Normalization converts numeric strings to numbers and `.` to `null`, sorts observations chronologically without mutating the provider response, removes observations dated after retrieval, and requires enough usable history for the configured frequency. It constructs complete `EconomicSeries` metadata and passes the result through the same domain validator used by the application.
 
-Leading unavailable values from provider transformations are removed so generated GDP and CPI files begin with valid year-over-year observations. Internal missing observations remain `null`. Current generated coverage is:
+Leading unavailable values are removed so generated growth files begin with a valid derived observation. Internal missing observations remain `null`. Current generated coverage is:
 
 - GDPC1: 313 observations, 1948 Q1–2026 Q1.
-- CPIAUCSL: 941 observations, January 1948–May 2026.
+- CPIAUCSL source: 953 index observations; generated year-over-year: 941 observations, January 1948–May 2026; generated momentum: 950 observations, April 1947–May 2026.
+- CPILFESL source: 833 index observations; generated year-over-year: 821 observations, January 1958–May 2026; generated momentum: 830 observations, April 1957–May 2026.
 - UNRATE: 942 observations, January 1948–June 2026.
 - LNS12300060: 942 observations, January 1948–June 2026.
 - PAYEMS monthly change: 1,049 observations, February 1939–June 2026.
@@ -85,18 +93,18 @@ Leading unavailable values from provider transformations are removed so generate
 
 ## Safe replacement and failures
 
-Only fully retrieved, normalized, domain-validated, and serialized series reach the writer. Direct series use one temporary file and atomic rename. The payroll outputs are validated and staged together; existing files are backed up during replacement and restored if grouped replacement fails. Both payroll files therefore update as one group, and temporary or backup files are removed where practical.
+Only fully retrieved, normalized, domain-validated, and serialized series reach the writer. Direct series use one temporary file and atomic rename. CPI, payroll, and wage outputs are each validated and staged as explicit groups; existing files are backed up during replacement and restored if grouped replacement fails. Temporary and backup files are removed where practical.
 
 A missing key, network failure, HTTP error, malformed response, insufficient history, validation failure, or write failure leaves that series’ previous dataset intact. Errors are concise and never include the API key or a full provider response.
 
-The six explicitly configured sources and PAYEMS refresh sequentially in configuration order. Failure of one source does not stop the next or roll back an unrelated successful file. Each single-source quarterly derivation replaces only its own validated output. A PAYEMS derivation or write failure preserves both payroll outputs. After all entries run, any failure produces a nonzero exit status and the command identifies which outputs updated and which were preserved.
+Failure of one source does not stop the next or roll back an unrelated successful file. Each single-source quarterly derivation replaces only its own validated output. CPI, PAYEMS, and wage failures preserve their complete output groups. After all entries run, any failure produces a nonzero exit status and the command identifies which outputs updated and which were preserved.
 
 ## Manual refresh
 
 1. Obtain a key from the [FRED API documentation](https://fred.stlouisfed.org/docs/api/api_key.html).
 2. Add `FRED_API_KEY=...` to an untracked `.env` file or export it in the current shell.
 3. Run `npm run data:refresh`.
-4. Review the printed provider identifier, source count, generated count, transformation, generated range, latest observation, and output path. The quarterly local derivatives report their source-level and generated-growth counts separately. PAYEMS also reports the supporting-series range and both grouped output paths.
+4. Review the printed provider identifier, source count, generated count, transformation, generated range, latest observation, and output path. CPI reports both source counts and all four grouped outputs; quarterly derivatives, PAYEMS, and wages report their supporting counts and grouped paths as applicable.
 5. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build`.
 6. Inspect and commit the generated JSON with the refresh code or data-update commit.
 

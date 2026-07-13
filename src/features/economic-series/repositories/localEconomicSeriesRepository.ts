@@ -11,6 +11,11 @@ const localSeriesLoaders: Readonly<
     import('../data/labor-productivity-growth.json'),
   'headline-cpi-inflation': () =>
     import('../data/headline-cpi-inflation.json'),
+  'core-cpi-inflation': () => import('../data/core-cpi-inflation.json'),
+  'headline-cpi-three-month-annualized': () =>
+    import('../data/headline-cpi-three-month-annualized.json'),
+  'core-cpi-three-month-annualized': () =>
+    import('../data/core-cpi-three-month-annualized.json'),
   'unemployment-rate': () => import('../data/unemployment-rate.json'),
   'prime-age-employment-ratio': () =>
     import('../data/prime-age-employment-ratio.json'),

@@ -3,6 +3,7 @@ import type { EconomicSeries } from '../models/economicSeries'
 import { localEconomicSeriesRepository } from '../repositories/localEconomicSeriesRepository'
 import { EconomicSeriesSummary } from './EconomicSeriesSummary'
 import { WagesComparisonSummary } from './WagesComparisonSummary'
+import { InflationComparisonSummary } from './InflationComparisonSummary'
 
 type SeriesState =
   | { status: 'loading' }
@@ -19,7 +20,11 @@ interface EconomicSeriesCardProps {
   label: string
   onSeriesLoaded?: (slug: string, series: EconomicSeries | null) => void
   supportingSlugs?: readonly string[]
-  variant?: 'single' | 'wages-comparison'
+  variant?:
+    | 'inflation-momentum'
+    | 'headline-core-comparison'
+    | 'single'
+    | 'wages-comparison'
 }
 
 export function EconomicSeriesCard({
@@ -103,6 +108,21 @@ export function EconomicSeriesCard({
         realWageGrowth={seriesState.series}
         nominalWageGrowth={seriesState.supportingSeries[0]!}
         cpiInflation={seriesState.supportingSeries[1]!}
+      />
+    )
+  }
+
+  if (
+    variant === 'headline-core-comparison' ||
+    variant === 'inflation-momentum'
+  ) {
+    return (
+      <InflationComparisonSummary
+        core={seriesState.series}
+        headline={seriesState.supportingSeries[0]!}
+        variant={
+          variant === 'inflation-momentum' ? 'momentum' : 'year-over-year'
+        }
       />
     )
   }

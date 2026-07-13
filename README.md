@@ -4,7 +4,7 @@ An information-first web application for understanding the U.S. economy through 
 
 ## Current scope
 
-Story 11 expands the Growth section with real GDP per capita growth and nonfarm business labor productivity growth. Both measures are calculated locally from official quarterly FRED level series.
+Story 12 expands Prices with headline-versus-core CPI and recent three-month annualized inflation momentum. All displayed CPI rates are calculated locally from official monthly headline and core index levels.
 
 ## Technology stack
 
@@ -55,7 +55,7 @@ npm run preview
 - `typecheck` runs TypeScript without emitting files.
 - `lint` checks the code with ESLint.
 - `test` runs the Vitest unit and component test suite once. Use `npm run test:watch` during development.
-- `data:refresh` retrieves and safely replaces all eight dashboard cards using official FRED data and local derivations.
+- `data:refresh` retrieves and safely replaces the datasets for all ten dashboard cards using official FRED data and local derivations.
 - `preview` serves the production build locally after it has been created.
 
 ## Testing status
@@ -64,7 +64,7 @@ Vitest, React Testing Library, jest-dom, and jsdom cover chart-data adaptation, 
 
 ## Chart behavior
 
-All eight cards render nonsmoothed time-series charts with frequency-aware tooltips and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Short-range boundaries are calculated from each series’ latest observation date rather than today's date. Maximum includes every generated observation and may start in a different year for each series. GDP growth, real GDP per capita growth, labor productivity growth, CPI, payroll growth, and the wage comparison include zero; the two labor-market level series use padded ranges based on visible data and do not force zero.
+All ten cards render nonsmoothed time-series charts with frequency-aware tooltips and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Short-range boundaries are calculated from each series’ latest shared observation date rather than today's date. Maximum includes every generated observation and may start in a different year for each card. Growth, inflation, payroll, and wage-comparison charts include zero; the two labor-market level series use padded ranges based on visible data and do not force zero.
 
 The chart includes an updating text summary of the latest, minimum, and maximum visible observations. GDP and CPI also report whether values fall below zero; that statement is omitted for the labor-market levels where it adds no useful context. The semantic recent-observations table remains available as a detailed nonvisual alternative.
 
@@ -75,7 +75,7 @@ Apache ECharts is integrated directly through a small React lifecycle wrapper an
 The page currently contains three semantic sections:
 
 - Growth, containing real GDP growth, real GDP per capita growth, and labor productivity growth.
-- Prices, containing headline CPI inflation.
+- Prices, containing headline CPI inflation, headline versus core CPI, and recent inflation momentum.
 - Employment and income, containing unemployment, prime-age employment-to-population ratio, payroll growth, and wages versus inflation.
 
 Each indicator leads with a human question and one latest value, followed by the range control and chart. Factual context, concise limitations, related concepts, visible source attribution, technical metadata, and recent observations remain available without competing with the chart. Empty future sections are not rendered.
@@ -84,12 +84,15 @@ The product principles and current-versus-future conceptual layers are documente
 
 ## Local economic data
 
-Ten full-history datasets support eight visible cards:
+Thirteen full-history datasets support ten visible cards:
 
 - `real-gdp-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, FRED `GDPC1`, percent change from one year ago.
 - `real-gdp-per-capita-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, calculated locally from FRED `A939RX0Q048SBEA` levels.
 - `labor-productivity-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, calculated locally from FRED `OPHNFB` index levels.
-- `headline-cpi-inflation.json`: 941 monthly observations, January 1948–May 2026, FRED `CPIAUCSL`, percent change from one year ago.
+- `headline-cpi-inflation.json`: 941 monthly observations, January 1948–May 2026, calculated from FRED `CPIAUCSL` levels.
+- `core-cpi-inflation.json`: 821 monthly observations, January 1958–May 2026, calculated from FRED `CPILFESL` levels.
+- `headline-cpi-three-month-annualized.json`: 950 monthly observations, April 1947–May 2026, calculated from `CPIAUCSL` levels.
+- `core-cpi-three-month-annualized.json`: 830 monthly observations, April 1957–May 2026, calculated from `CPILFESL` levels.
 - `unemployment-rate.json`: 942 monthly observations, January 1948–June 2026, FRED `UNRATE`, percent level.
 - `prime-age-employment-ratio.json`: 942 monthly observations, January 1948–June 2026, FRED `LNS12300060`, percent level for adults ages 25 through 54.
 - `monthly-payroll-change.json`: 1,049 locally derived monthly changes, February 1939–June 2026, from FRED `PAYEMS` levels.
@@ -98,6 +101,8 @@ Ten full-history datasets support eight visible cards:
 - `real-wage-growth.json`: exact AHETPI growth deflated by headline CPI, aligned January 1965–May 2026.
 
 AHETPI is average hourly earnings for private-sector production and nonsupervisory employees. It begins in January 1964, is not a median, excludes supervisory and government workers, and can change with the mix of jobs. Nominal growth is `(wage_t / wage_t-12 - 1) × 100`. Real growth is `((wage_t / wage_t-12) / (CPI_t / CPI_t-12) - 1) × 100`; it is not calculated by subtracting rounded rates.
+
+Headline and core year-over-year inflation use `((index_t / index_t-12) - 1) × 100`. Three-month annualized momentum uses the exact ratio `((index_t / index_t-3)^4 - 1) × 100`, not four times a rounded three-month change. Both formulas require exact calendar months and preserve internal gaps as unavailable. Core CPI excludes food and energy but does not make those household costs irrelevant or remove every volatile category. The annualized measure is responsive and substantially noisier than year-over-year inflation; it describes a recent pace and is not a forecast.
 
 Real GDP per capita uses BEA series `A939RX0Q048SBEA`, published quarterly in chained 2017 dollars at a seasonally adjusted annual rate. Labor productivity uses BLS series `OPHNFB`, a quarterly seasonally adjusted index of nonfarm business output per hour. For both, displayed growth is `((level_t / level_t-4 quarters) - 1) × 100`. The calculation requires the exact calendar quarter one year earlier and leaves gaps unavailable rather than substituting by array position.
 
@@ -121,7 +126,7 @@ Then run:
 npm run data:refresh
 ```
 
-The command sequentially refreshes every explicitly configured source. It fetches `A939RX0Q048SBEA` and `OPHNFB` once each and derives their quarterly year-over-year growth locally. `CPIAUCSL` is fetched once and its generated inflation result is reused with one `AHETPI` fetch to derive both wage outputs. PAYEMS and wage outputs use separate rollback-protected groups. Successful reporting includes source and generated observation counts plus generated ranges. A failure preserves its prior output without undoing successful unrelated refreshes. Any failure produces a nonzero exit after every source is attempted.
+The command refreshes every explicitly configured source. It fetches `CPIAUCSL` and `CPILFESL` once each and derives all four CPI outputs as one rollback-protected group. The generated headline year-over-year series is then reused with one `AHETPI` fetch for wage derivation, so headline CPI is not requested again. `A939RX0Q048SBEA`, `OPHNFB`, and `PAYEMS` are also each fetched once. Successful reporting includes source and generated counts and ranges. A failure preserves the affected prior output group without undoing successful unrelated refreshes. Any failure produces a nonzero exit after every source is attempted.
 
 See [`docs/data-refresh.md`](docs/data-refresh.md) for the data flow and failure behavior.
 

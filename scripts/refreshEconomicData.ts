@@ -7,12 +7,18 @@ import { derivePayrollSeries } from './fred/derivePayrollSeries'
 import { deriveWageSeries } from './fred/deriveWageSeries'
 import { deriveQuarterlyGrowthSeries } from './fred/deriveQuarterlyGrowthSeries'
 import {
+  deriveCpiSeries,
+  deriveSingleMonthlyGrowthSeries,
+} from './fred/deriveCpiSeries'
+import {
+  cpiSeriesConfiguration,
   fredSeriesConfigurations,
   payrollSeriesConfiguration,
   wageSeriesConfiguration,
   type PayrollSeriesConfig,
   type FredSeriesConfig,
   type WageSeriesConfig,
+  type CpiSeriesConfig,
 } from './fred/seriesConfigurations'
 import {
   writeEconomicSeriesAtomically,
@@ -40,7 +46,9 @@ export async function refreshEconomicData({
     fetchImplementation,
   )
   const series =
-    config.dataHandling === 'locally-derived'
+    config.localDerivation === 'year-over-year-monthly-growth'
+      ? deriveSingleMonthlyGrowthSeries(fredResponse, retrievedAt, config)
+      : config.dataHandling === 'locally-derived'
       ? deriveQuarterlyGrowthSeries(fredResponse, retrievedAt, config)
       : normalizeFredSeries(fredResponse, retrievedAt, config)
   await writeEconomicSeriesAtomically(targetPath, series)
@@ -71,6 +79,15 @@ export type RefreshOutcome =
       sourceObservationCount: number
     }
   | { status: 'failed'; config: WageSeriesConfig; message: string }
+  | {
+      status: 'updated'
+      config: CpiSeriesConfig
+      series: Awaited<ReturnType<typeof refreshCpiData>>['headlineInflation']
+      relatedSeries: EconomicSeries[]
+      sourceObservationCount: number
+      coreSourceObservationCount: number
+    }
+  | { status: 'failed'; config: CpiSeriesConfig; message: string }
 
 interface RefreshAllEconomicDataOptions {
   apiKey: string
@@ -78,7 +95,56 @@ interface RefreshAllEconomicDataOptions {
   configurations?: readonly FredSeriesConfig[]
   payrollConfiguration?: PayrollSeriesConfig | false
   wageConfiguration?: WageSeriesConfig | false
+  cpiConfiguration?: CpiSeriesConfig | false
   fetchImplementation?: typeof fetch
+}
+
+type EconomicSeries = Awaited<ReturnType<typeof refreshEconomicData>>['series']
+
+export async function refreshCpiData({
+  apiKey,
+  retrievedAt,
+  config = cpiSeriesConfiguration,
+  fetchImplementation,
+}: {
+  apiKey: string
+  retrievedAt: string
+  config?: CpiSeriesConfig
+  fetchImplementation?: typeof fetch
+}) {
+  const [headlineResponse, coreResponse] = await Promise.all([
+    fetchFredObservations(apiKey, config.headlineSource, fetchImplementation),
+    fetchFredObservations(apiKey, config.coreSource, fetchImplementation),
+  ])
+  const series = deriveCpiSeries(
+    headlineResponse,
+    coreResponse,
+    retrievedAt,
+    config,
+  )
+  await writeEconomicSeriesGroupAtomically([
+    {
+      outputPath: path.resolve(config.headlineInflationOutputFile),
+      series: series.headlineInflation,
+    },
+    {
+      outputPath: path.resolve(config.coreInflationOutputFile),
+      series: series.coreInflation,
+    },
+    {
+      outputPath: path.resolve(config.headlineMomentumOutputFile),
+      series: series.headlineMomentum,
+    },
+    {
+      outputPath: path.resolve(config.coreMomentumOutputFile),
+      series: series.coreMomentum,
+    },
+  ])
+  return {
+    ...series,
+    sourceObservationCount: headlineResponse.observations.length,
+    coreSourceObservationCount: coreResponse.observations.length,
+  }
 }
 
 export async function refreshPayrollData({
@@ -159,7 +225,15 @@ export async function refreshAllEconomicData(
   let cpiInflation: Awaited<ReturnType<typeof refreshEconomicData>>['series'] | null =
     null
 
+  const cpiConfig =
+    options.cpiConfiguration === undefined
+      ? options.configurations === undefined
+        ? cpiSeriesConfiguration
+        : false
+      : options.cpiConfiguration
+
   for (const config of configurations) {
+    if (cpiConfig && config.providerSeriesId === 'CPIAUCSL') continue
     try {
       const { series, sourceObservationCount } = await refreshEconomicData({
         apiKey,
@@ -174,6 +248,39 @@ export async function refreshAllEconomicData(
       outcomes.push({
         status: 'failed',
         config,
+        message: error instanceof Error ? error.message : 'Unknown failure',
+      })
+    }
+  }
+
+  if (cpiConfig) {
+    try {
+      const {
+        headlineInflation,
+        coreInflation,
+        headlineMomentum,
+        coreMomentum,
+        sourceObservationCount,
+        coreSourceObservationCount,
+      } = await refreshCpiData({
+        apiKey,
+        retrievedAt,
+        config: cpiConfig,
+        fetchImplementation,
+      })
+      cpiInflation = headlineInflation
+      outcomes.push({
+        status: 'updated',
+        config: cpiConfig,
+        series: headlineInflation,
+        relatedSeries: [coreInflation, headlineMomentum, coreMomentum],
+        sourceObservationCount,
+        coreSourceObservationCount,
+      })
+    } catch (error: unknown) {
+      outcomes.push({
+        status: 'failed',
+        config: cpiConfig,
         message: error instanceof Error ? error.message : 'Unknown failure',
       })
     }
@@ -291,7 +398,11 @@ async function main(): Promise<void> {
   for (const outcome of outcomes) {
     if (outcome.status === 'failed') {
       console.error(
-        `Failed ${outcome.config.providerSeriesId}: ${outcome.message}`,
+        `Failed ${
+          outcome.config.dataHandling === 'cpi-derived'
+            ? 'CPIAUCSL/CPILFESL'
+            : outcome.config.providerSeriesId
+        }: ${outcome.message}`,
       )
       continue
     }
@@ -308,7 +419,22 @@ async function main(): Promise<void> {
     console.log(
       `Latest: ${latest?.date ?? 'unavailable'} (${latest?.value ?? 'missing'})`,
     )
-    if ('supportingSeries' in outcome) {
+    if ('relatedSeries' in outcome) {
+      for (const related of outcome.relatedSeries) {
+        console.log(
+          `Related output: ${related.slug}, ${related.observations.length} observations, ${related.observations[0]?.date} to ${related.observations.at(-1)?.date}`,
+        )
+      }
+      console.log(`Core source observations: ${outcome.coreSourceObservationCount}`)
+      console.log(
+        `Outputs: ${[
+          outcome.config.headlineInflationOutputFile,
+          outcome.config.coreInflationOutputFile,
+          outcome.config.headlineMomentumOutputFile,
+          outcome.config.coreMomentumOutputFile,
+        ].map((file) => path.resolve(file)).join(', ')}`,
+      )
+    } else if ('supportingSeries' in outcome) {
       const supporting = outcome.supportingSeries
       console.log(
         `Supporting range: ${supporting.observations[0]?.date} to ${supporting.observations.at(-1)?.date ?? 'unavailable'}`,

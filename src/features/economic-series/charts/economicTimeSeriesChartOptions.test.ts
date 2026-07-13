@@ -3,6 +3,7 @@ import type { YAXisComponentOption } from 'echarts'
 import {
   createEconomicComparisonChartOptions,
   createEconomicTimeSeriesChartOptions,
+  createInflationComparisonChartOptions,
 } from './economicTimeSeriesChartOptions'
 
 function getYAxis(includeZero: boolean): YAXisComponentOption {
@@ -116,5 +117,93 @@ describe('createEconomicComparisonChartOptions', () => {
       { seriesName: 'Nominal wage growth', value: ['2026-05-01', 3.5] },
       { seriesName: 'Headline CPI inflation', value: ['2026-05-01', 4.2] },
     ])).toContain('Real wage growth: −0.6%')
+  })
+})
+
+describe('createInflationComparisonChartOptions', () => {
+  it.each([
+    ['year-over-year' as const, 'Headline CPI inflation', 'Core CPI inflation'],
+    [
+      'momentum' as const,
+      'Headline CPI, 3-month annualized',
+      'Core CPI, 3-month annualized',
+    ],
+  ])('uses aligned distinguishable lines and one zero-inclusive axis for %s', (
+    variant,
+    headlineName,
+    coreName,
+  ) => {
+    const options = createInflationComparisonChartOptions({
+      headlineData: [
+        ['2026-04-01', null],
+        ['2026-05-01', 4.2],
+      ],
+      coreData: [
+        ['2026-04-01', 2.7],
+        ['2026-05-01', 2.8],
+      ],
+      frequency: 'monthly',
+      variant,
+    })
+    const axis = options.yAxis as YAXisComponentOption
+    const minimum = axis.min as (range: { min: number; max: number }) => number
+    const series = options.series as unknown as Array<{
+      name: string
+      data: Array<[string, number | null]>
+      connectNulls: boolean
+      smooth: boolean
+      lineStyle: { type: string }
+      markLine?: unknown
+      yAxisIndex?: number
+    }>
+
+    expect(Array.isArray(options.yAxis)).toBe(false)
+    expect(minimum({ min: 2.7, max: 4.2 })).toBe(0)
+    expect(series.map((item) => item.name)).toEqual([headlineName, coreName])
+    expect(series.map((item) => item.lineStyle.type)).toEqual(['solid', 'dashed'])
+    expect(series.every((item) => item.connectNulls === false)).toBe(true)
+    expect(series.every((item) => item.smooth === false)).toBe(true)
+    expect(series.every((item) => item.yAxisIndex === undefined)).toBe(true)
+    expect(series[0]?.data[0]).toEqual(['2026-04-01', null])
+    expect(series[0]?.markLine).toBeDefined()
+    expect(options.legend).toMatchObject({ data: [headlineName, coreName] })
+  })
+
+  it('reports percentage-point differences only for year-over-year inflation', () => {
+    const tooltipParams = [
+      {
+        seriesName: 'Headline CPI inflation',
+        value: ['2026-05-01', 4.2],
+      },
+      { seriesName: 'Core CPI inflation', value: ['2026-05-01', 2.8] },
+    ]
+    const yearOverYear = createInflationComparisonChartOptions({
+      headlineData: [['2026-05-01', 4.2]],
+      coreData: [['2026-05-01', 2.8]],
+      frequency: 'monthly',
+      variant: 'year-over-year',
+    })
+    const tooltip = yearOverYear.tooltip as {
+      formatter: (params: typeof tooltipParams) => string
+      renderMode: string
+    }
+    expect(tooltip.renderMode).toBe('richText')
+    expect(tooltip.formatter(tooltipParams)).toBe(
+      'May 2026\nHeadline CPI inflation: 4.2%\nCore CPI inflation: 2.8%\nDifference: −1.4% percentage points',
+    )
+
+    const momentum = createInflationComparisonChartOptions({
+      headlineData: [['2026-05-01', 4.2]],
+      coreData: [['2026-05-01', 2.8]],
+      frequency: 'monthly',
+      variant: 'momentum',
+    })
+    const momentumTooltip = momentum.tooltip as {
+      formatter: (params: Array<{ seriesName: string; value: [string, number] }>) => string
+    }
+    expect(momentumTooltip.formatter([
+      { seriesName: 'Headline CPI, 3-month annualized', value: ['2026-05-01', 4.2] },
+      { seriesName: 'Core CPI, 3-month annualized', value: ['2026-05-01', 2.8] },
+    ])).not.toContain('Difference')
   })
 })

@@ -12,6 +12,10 @@ const wageComparisonSupportingSlugs = [
   'nominal-wage-growth',
   'headline-cpi-inflation',
 ] as const
+const headlineInflationSupportingSlugs = ['headline-cpi-inflation'] as const
+const headlineMomentumSupportingSlugs = [
+  'headline-cpi-three-month-annualized',
+] as const
 
 export function DashboardPage() {
   const [loadedSeries, setLoadedSeries] = useState<
@@ -93,6 +97,20 @@ export function DashboardPage() {
         <EconomicSeriesCard
           slug="headline-cpi-inflation"
           label="headline CPI inflation"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+        <EconomicSeriesCard
+          slug="core-cpi-inflation"
+          supportingSlugs={headlineInflationSupportingSlugs}
+          label="headline versus core CPI"
+          variant="headline-core-comparison"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+        <EconomicSeriesCard
+          slug="core-cpi-three-month-annualized"
+          supportingSlugs={headlineMomentumSupportingSlugs}
+          label="recent inflation momentum"
+          variant="inflation-momentum"
           onSeriesLoaded={handleSeriesLoaded}
         />
       </EconomicSection>

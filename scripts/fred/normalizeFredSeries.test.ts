@@ -72,7 +72,7 @@ describe('normalizeFredSeries', () => {
     })
   })
 
-  it('does not emit CPI year-over-year values before provider history is usable', () => {
+  it('removes leading unavailable monthly values', () => {
     const response: FredObservationsResponse = {
       observations: Array.from({ length: 14 }, (_, index) => ({
         date: new Date(Date.UTC(1947, index, 1)).toISOString().slice(0, 10),
@@ -90,7 +90,6 @@ describe('normalizeFredSeries', () => {
       { date: '1948-02-01', value: 13 },
     ])
   })
-
 
   it('normalizes, sorts, and produces domain-valid GDPC1 metadata', () => {
     const response = createQuarterlyResponse()
@@ -125,29 +124,13 @@ describe('normalizeFredSeries', () => {
     expect(response).toEqual(original)
   })
 
-  it('normalizes CPI metadata and excludes future observations', () => {
-    const response: FredObservationsResponse = {
-      observations: Array.from({ length: 241 }, (_, index) => {
-        const date = new Date(Date.UTC(2000, index, 1))
-        return {
-          date: date.toISOString().slice(0, 10),
-          value: String(2 + index / 100),
-        }
-      }),
-    }
-    response.observations.push({ date: '2026-01-01', value: '3.5' })
-    const original = structuredClone(response)
-
-    const series = normalizeFredSeries(response, '2020-01-01', cpiConfig)
-
+  it('configures CPI for local year-over-year derivation from full-history levels', () => {
     expect(cpiConfig.providerSeriesId).toBe('CPIAUCSL')
     expect(cpiConfig.fredFrequency).toBe('m')
-    expect(cpiConfig.fredUnits).toBe('pc1')
-    expect(series.providerSeriesId).toBe('CPIAUCSL')
-    expect(series.frequency).toBe('monthly')
-    expect(series.observations.at(-1)?.date).toBe('2020-01-01')
-    expect(validateEconomicSeries(series)).toEqual(series)
-    expect(response).toEqual(original)
+    expect(cpiConfig.fredUnits).toBeUndefined()
+    expect(cpiConfig.dataHandling).toBe('locally-derived')
+    expect(cpiConfig.localDerivation).toBe('year-over-year-monthly-growth')
+    expect(cpiConfig.historyPolicy).toEqual({ type: 'full' })
   })
 
   it.each([

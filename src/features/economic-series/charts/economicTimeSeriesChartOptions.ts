@@ -29,6 +29,13 @@ interface EconomicComparisonChartOptionsInput {
   frequency: EconomicFrequency
 }
 
+interface InflationComparisonChartOptionsInput {
+  headlineData: ChartDataPoint[]
+  coreData: ChartDataPoint[]
+  frequency: EconomicFrequency
+  variant: 'momentum' | 'year-over-year'
+}
+
 interface ValueRange {
   min: number
   max: number
@@ -254,6 +261,125 @@ export function createEconomicComparisonChartOptions({
         name: 'Headline CPI inflation',
         type: 'line',
         data: inflationData,
+        connectNulls: false,
+        smooth: false,
+        showSymbol: false,
+        lineStyle: { color: '#8a4f2d', width: 2.5, type: 'dashed' },
+        itemStyle: { color: '#8a4f2d' },
+      },
+    ],
+  }
+}
+
+export function createInflationComparisonChartOptions({
+  headlineData,
+  coreData,
+  frequency,
+  variant,
+}: InflationComparisonChartOptionsInput): EChartsCoreOption {
+  const momentum = variant === 'momentum'
+  const headlineName = momentum
+    ? 'Headline CPI, 3-month annualized'
+    : 'Headline CPI inflation'
+  const coreName = momentum
+    ? 'Core CPI, 3-month annualized'
+    : 'Core CPI inflation'
+  return {
+    animation: false,
+    aria: {
+      enabled: true,
+      decal: { show: true },
+      description: `${headlineName} and ${coreName} on one shared percentage axis. A factual summary and detailed data table follow the chart.`,
+    },
+    legend: {
+      data: [headlineName, coreName],
+      bottom: 0,
+      textStyle: { color: '#56616d' },
+    },
+    grid: {
+      top: 24,
+      right: 18,
+      bottom: 72,
+      left: 58,
+      containLabel: false,
+    },
+    tooltip: {
+      trigger: 'axis',
+      renderMode: 'richText',
+      confine: true,
+      formatter: (params: TooltipComponentFormatterCallbackParams) => {
+        const items = Array.isArray(params) ? params : [params]
+        const first = items.find((item) => isChartDataPoint(item.value))
+        if (!first || !isChartDataPoint(first.value)) return 'Inflation comparison'
+        const date = first.value[0]
+        const values = new Map(
+          items
+            .filter((item) => isChartDataPoint(item.value))
+            .map((item) => [item.seriesName, (item.value as ChartDataPoint)[1]]),
+        )
+        const headline = values.get(headlineName) ?? null
+        const core = values.get(coreName) ?? null
+        const lines = [
+          formatObservationPeriod(date, frequency),
+          `${headlineName}: ${formatPercentage(headline)}`,
+          `${coreName}: ${formatPercentage(core)}`,
+        ]
+        if (!momentum) {
+          const difference =
+            headline !== null && core !== null ? core - headline : null
+          lines.push(
+            `Difference: ${formatSignedPercentage(difference)} percentage points`,
+          )
+        }
+        return lines.join('\n')
+      },
+      axisPointer: {
+        type: 'line',
+        lineStyle: { color: '#56616d', width: 1 },
+      },
+    },
+    xAxis: {
+      type: 'time',
+      boundaryGap: false,
+      axisLine: { lineStyle: { color: '#aeb5bc' } },
+      axisTick: { show: false },
+      axisLabel: { color: '#56616d', hideOverlap: true, formatter: '{yyyy}' },
+      splitLine: { show: false },
+    },
+    yAxis: {
+      type: 'value',
+      name: 'Percent',
+      nameLocation: 'end',
+      nameTextStyle: { color: '#56616d', align: 'right' },
+      min: (range: ValueRange) => paddedMinimum(range, true),
+      max: (range: ValueRange) => paddedMaximum(range, true),
+      axisLabel: { color: '#56616d', formatter: '{value}%' },
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: '#e4e7ea', width: 1 } },
+    },
+    series: [
+      {
+        name: headlineName,
+        type: 'line',
+        data: headlineData,
+        connectNulls: false,
+        smooth: false,
+        showSymbol: false,
+        lineStyle: { color: '#245d72', width: 2.5, type: 'solid' },
+        itemStyle: { color: '#245d72' },
+        markLine: {
+          silent: true,
+          symbol: 'none',
+          label: { show: false },
+          lineStyle: { color: '#56616d', width: 1.5, type: 'solid' },
+          data: [{ yAxis: 0 }],
+        },
+      },
+      {
+        name: coreName,
+        type: 'line',
+        data: coreData,
         connectNulls: false,
         smooth: false,
         showSymbol: false,

@@ -12,9 +12,11 @@ The implementation uses ECharts 6 modular core imports and registers only the li
 
 Economic observations remain `{ date, value }` domain objects. Pure range and summary utilities operate on those objects. Immediately before rendering, `chartAdapters.ts` sorts without mutation and converts each observation to ECharts-compatible `[date, value]` data. `null` remains `null`, so missing observations are neither converted to zero nor joined by the line.
 
-The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage and signed-count data use the same UTC-safe period formatter without conflating their meanings. All eight cards dynamically import the same chart module; ECharts is not duplicated.
+The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage and signed-count data use the same UTC-safe period formatter without conflating their meanings. All ten cards dynamically import the same chart module; ECharts is not duplicated.
 
 The same deferred boundary accepts either one series or the wages-versus-inflation comparison. The comparison uses solid nominal wage growth and dashed headline CPI inflation on one shared percentage axis with a concise legend and zero reference line. Dual axes are intentionally avoided. Its tooltip includes the aligned month, both plotted rates, and exact-ratio real wage growth. Both lines use the same latest shared month and selected range.
+
+The boundary also accepts the two CPI comparison variants. Both use solid headline and dashed core lines on one shared zero-inclusive percentage axis, with `connectNulls` and smoothing disabled. Year-over-year tooltips report the pre-aligned month, both rates, and core-minus-headline in percentage points. Momentum tooltips label both lines as three-month annualized. Each card has a distinct accessible chart label, factual text summary, card-specific range control, and 12-month semantic table. Ranges anchor to the latest shared valid month and preserve internal null gaps.
 
 Chart options are built separately from React lifecycle management. This keeps filtering, adaptation, visual configuration, and canvas ownership independently understandable and testable.
 
@@ -71,3 +73,5 @@ With Story 09 full histories, the initial application chunk remains 306.01 kB mi
 With Story 10, the initial application chunk is 314.17 kB minified (98.04 kB gzip). Nominal and real wage data chunks are 33.67 kB and 34.55 kB. The one shared chart/ECharts chunk is 538.34 kB minified (181.25 kB gzip); the increase comes from registering the ECharts legend component, ECharts remains deduplicated, and the existing warning remains.
 
 With Story 11, the initial application chunk is 316.29 kB minified (98.44 kB gzip). The real-GDP-per-capita and labor-productivity data chunks are 15.12 kB (4.85 kB gzip) and 15.04 kB (4.77 kB gzip). The build still emits one shared chart/ECharts chunk at 538.34 kB minified (181.25 kB gzip); ECharts remains deduplicated, and the existing deferred-chunk warning remains.
+
+With Story 12, the initial application chunk is 324.91 kB minified (99.91 kB gzip). The new core year-over-year, core momentum, and headline momentum data chunks are 37.41 kB, 37.62 kB, and 43.02 kB minified. The build emits one shared chart/ECharts chunk at 540.66 kB minified (181.57 kB gzip); ECharts remains deduplicated, and the existing deferred-chunk warning remains.
