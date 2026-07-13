@@ -100,8 +100,9 @@ export function createEconomicTimeSeriesChartOptions({
     },
     tooltip: {
       trigger: 'axis',
-      renderMode: 'richText',
+      renderMode: 'html',
       confine: true,
+      extraCssText: 'white-space: pre-line;',
       formatter: (params: TooltipComponentFormatterCallbackParams) =>
         formatTooltip(params, seriesName, frequency, valueFormat),
       axisPointer: {
@@ -195,8 +196,9 @@ export function createEconomicComparisonChartOptions({
     },
     tooltip: {
       trigger: 'axis',
-      renderMode: 'richText',
+      renderMode: 'html',
       confine: true,
+      extraCssText: 'white-space: pre-line;',
       formatter: (params: TooltipComponentFormatterCallbackParams) => {
         const items = Array.isArray(params) ? params : [params]
         const first = items.find((item) => isChartDataPoint(item.value))
@@ -305,8 +307,9 @@ export function createInflationComparisonChartOptions({
     },
     tooltip: {
       trigger: 'axis',
-      renderMode: 'richText',
+      renderMode: 'html',
       confine: true,
+      extraCssText: 'white-space: pre-line;',
       formatter: (params: TooltipComponentFormatterCallbackParams) => {
         const items = Array.isArray(params) ? params : [params]
         const first = items.find((item) => isChartDataPoint(item.value))

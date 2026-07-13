@@ -36,7 +36,7 @@ ECharts' time axis continues to hide overlapping labels and choose readable time
 
 Axis policy is series-specific. GDP growth, real GDP per capita growth, labor productivity growth, CPI inflation, and payroll growth include zero and retain the zero reference line. Unemployment and prime-age employment are percentage levels whose meaningful variation is well above zero, so their axes use at least 0.5 percentage point or 10% of the visible span as padding without forcing zero. Payroll preserves positive and negative changes without forcing a symmetric axis. This preserves a readable range without adding thresholds or value judgments. A zero line is rendered only when zero inclusion is enabled.
 
-Tooltips use ECharts' rich-text renderer rather than HTML. Percentage series retain one-decimal percentage formatting. Payroll tooltips show the month and a signed rounded count in thousands, such as `+145K`; full derived precision remains in JSON.
+Tooltips use ECharts' browser-native HTML renderer with non-interactive content, so the tooltip cannot take hover away from the plotting area. Formatters return plain text only. Percentage series retain one-decimal percentage formatting. Payroll tooltips show the month and a signed rounded count in thousands, such as `+145K`; full derived precision remains in JSON.
 
 ## Accessibility
 

@@ -187,7 +187,7 @@ describe('createInflationComparisonChartOptions', () => {
       formatter: (params: typeof tooltipParams) => string
       renderMode: string
     }
-    expect(tooltip.renderMode).toBe('richText')
+    expect(tooltip.renderMode).toBe('html')
     expect(tooltip.formatter(tooltipParams)).toBe(
       'May 2026\nHeadline CPI inflation: 4.2%\nCore CPI inflation: 2.8%\nDifference: −1.4% percentage points',
     )
