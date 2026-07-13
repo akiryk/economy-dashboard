@@ -15,6 +15,8 @@ The generated JSON is committed with the application, so the dashboard remains u
 `scripts/fred/seriesConfigurations.ts` contains an explicit list of supported series. Each entry defines its slug, output file, provider identifier, FRED and domain frequencies, observation start, transformation, minimum history, and domain metadata. The list currently contains:
 
 - Real GDP growth (`GDPC1`, quarterly), written to `real-gdp-growth.json`.
+- Real GDP per capita growth (`A939RX0Q048SBEA`, quarterly source level), derived into `real-gdp-per-capita-growth.json`.
+- Labor productivity growth (`OPHNFB`, quarterly source index), derived into `labor-productivity-growth.json`.
 - Headline CPI inflation (`CPIAUCSL`, monthly), written to `headline-cpi-inflation.json`.
 - Unemployment rate (`UNRATE`, monthly), written to `unemployment-rate.json`.
 - Prime-age employment-to-population ratio (`LNS12300060`, monthly), written to `prime-age-employment-ratio.json`.
@@ -45,10 +47,14 @@ The series-specific requests are:
 - Prime-age employment: `series_id=LNS12300060` and `frequency=m`, with no `units` parameter.
 - Payroll: `series_id=PAYEMS` and `frequency=m`, with no `units` parameter.
 - Wages: `series_id=AHETPI` and `frequency=m`, with no `units` parameter.
+- Real GDP per capita: `series_id=A939RX0Q048SBEA` and `frequency=q`, with no `units` parameter.
+- Labor productivity: `series_id=OPHNFB` and `frequency=q`, with no `units` parameter.
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
-The optional `fredUnits` configuration field emits `units=pc1` only for the two year-over-year growth series. Omitting it preserves the provider's published percent level. The domain `transformation` metadata separately records either `Percent change from year ago` or `Level`; the script does not recalculate or round either form.
+The optional `fredUnits` configuration field emits `units=pc1` only for GDP and CPI, whose transformations are requested from FRED. Omitting it preserves provider-published levels for unemployment, prime-age employment, real GDP per capita, labor productivity, payroll, and wages. Domain transformation metadata separately records provider values and local calculations.
+
+The real-GDP-per-capita and productivity configurations use the explicit `year-over-year-quarterly-growth` local derivation. For each source level at quarter `t`, the application looks up the exact calendar date one year earlier and calculates `((level_t / level_t-4 quarters) - 1) × 100`. It never substitutes by array position. Missing current or prior levels and missing calendar quarters yield `null`; leading unavailable results are omitted and internal gaps are retained. Both sources use full history with no `observation_start`, are fetched once each, and are written independently through the existing validated atomic writer.
 
 FRED publishes PAYEMS in thousands of persons, seasonally adjusted. Full source retrieval inherently supplies the warm-up observations needed for derivation. The application keeps derived values in thousands of jobs: monthly change is the current level minus the prior consecutive month's level, and the three-month average is the arithmetic mean of the current and two prior consecutive monthly changes. The supporting series begins with the first valid difference; the primary series begins with the first valid three-change window. Missing values or calendar gaps produce `null`; they are never treated as zero or bridged. Duplicate dates are rejected.
 
@@ -74,6 +80,8 @@ Leading unavailable values from provider transformations are removed so generate
 - PAYEMS three-month average: 1,047 observations, April 1939–June 2026.
 - AHETPI nominal wage growth: 738 observations, January 1965–June 2026.
 - AHETPI/CPI exact real wage growth: 737 aligned observations, January 1965–May 2026.
+- A939RX0Q048SBEA source: 317 level observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
+- OPHNFB source: 317 index observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
 
 ## Safe replacement and failures
 
@@ -81,14 +89,14 @@ Only fully retrieved, normalized, domain-validated, and serialized series reach 
 
 A missing key, network failure, HTTP error, malformed response, insufficient history, validation failure, or write failure leaves that series’ previous dataset intact. Errors are concise and never include the API key or a full provider response.
 
-The four direct series and one PAYEMS source refresh sequentially in configuration order. Failure of one source does not stop the next or roll back an unrelated successful file. A PAYEMS derivation or write failure preserves both payroll outputs. After all entries run, any failure produces a nonzero exit status and the command identifies which outputs updated and which were preserved.
+The six explicitly configured sources and PAYEMS refresh sequentially in configuration order. Failure of one source does not stop the next or roll back an unrelated successful file. Each single-source quarterly derivation replaces only its own validated output. A PAYEMS derivation or write failure preserves both payroll outputs. After all entries run, any failure produces a nonzero exit status and the command identifies which outputs updated and which were preserved.
 
 ## Manual refresh
 
 1. Obtain a key from the [FRED API documentation](https://fred.stlouisfed.org/docs/api/api_key.html).
 2. Add `FRED_API_KEY=...` to an untracked `.env` file or export it in the current shell.
 3. Run `npm run data:refresh`.
-4. Review the printed provider identifier, source count, generated count, transformation, generated range, latest observation, and output path. PAYEMS also reports the supporting-series range and both grouped output paths.
+4. Review the printed provider identifier, source count, generated count, transformation, generated range, latest observation, and output path. The quarterly local derivatives report their source-level and generated-growth counts separately. PAYEMS also reports the supporting-series range and both grouped output paths.
 5. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build`.
 6. Inspect and commit the generated JSON with the refresh code or data-update commit.
 

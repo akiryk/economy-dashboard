@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import type { EconomicObservation } from '../models/economicSeries'
 import realGdpGrowthData from '../data/real-gdp-growth.json'
 import payrollGrowthData from '../data/payroll-growth.json'
+import realGdpPerCapitaGrowthData from '../data/real-gdp-per-capita-growth.json'
+import laborProductivityGrowthData from '../data/labor-productivity-growth.json'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import {
   calculateChartSummary,
@@ -58,6 +60,29 @@ describe('filterObservationsByTimeRange', () => {
       .toBe('1939-04-01')
   })
 
+  it.each([
+    ['real GDP per capita', realGdpPerCapitaGrowthData],
+    ['labor productivity', laborProductivityGrowthData],
+  ])('preserves all Story 11 quarterly ranges for %s', (_label, data) => {
+    const series = validateEconomicSeries(data)
+    const original = structuredClone(series.observations)
+
+    expect(
+      filterObservationsByTimeRange(series.observations, '5y'),
+    ).toHaveLength(21)
+    expect(
+      filterObservationsByTimeRange(series.observations, '10y'),
+    ).toHaveLength(41)
+    expect(
+      filterObservationsByTimeRange(series.observations, '20y'),
+    ).toHaveLength(81)
+    const maximum = filterObservationsByTimeRange(series.observations, 'max')
+    expect(maximum).toHaveLength(313)
+    expect(maximum[0]?.date).toBe('1948-01-01')
+    expect(maximum.at(-1)?.date).toBe('2026-01-01')
+    expect(series.observations).toEqual(original)
+  })
+
   it('filters monthly data from the latest date and includes the boundary', () => {
     const monthlyObservations = Array.from({ length: 73 }, (_, index) => {
       const date = new Date(Date.UTC(2020, 4 + index, 1))
@@ -78,6 +103,33 @@ describe('filterObservationsByTimeRange', () => {
 })
 
 describe('calculateChartSummary', () => {
+  it.each([
+    [
+      realGdpPerCapitaGrowthData,
+      -7.823996152921375,
+      12.233931552587652,
+      2.3253453949752867,
+    ],
+    [
+      laborProductivityGrowthData,
+      -2.1720641151455555,
+      7.169858347526281,
+      2.7972148347061188,
+    ],
+  ])(
+    'summarizes a Story 11 full-history series',
+    (data, minimum, maximum, latest) => {
+      const series = validateEconomicSeries(data)
+      expect(calculateChartSummary(series.observations)).toMatchObject({
+        minimum: { value: minimum },
+        maximum: { value: maximum },
+        latest: { date: '2026-01-01', value: latest },
+        hasBelowZero: true,
+        observationCount: 313,
+      })
+    },
+  )
+
   it('calculates extrema across a full maximum-range input', () => {
     const fullHistory = [
       { date: '1948-01-01', value: 8 },

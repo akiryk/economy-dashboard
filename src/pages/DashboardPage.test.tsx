@@ -87,6 +87,14 @@ describe('DashboardPage economic series', () => {
         name: 'Is the U.S. economy growing?',
       }),
     ).toBeVisible()
+    const growthQuestions = await within(growth).findAllByRole('heading', {
+      level: 3,
+    })
+    expect(growthQuestions.map((heading) => heading.textContent)).toEqual([
+      'Is the U.S. economy growing?',
+      'Is economic output growing faster than the population?',
+      'Is the economy producing more per hour worked?',
+    ])
     expect(
       await within(prices).findByRole('heading', {
         level: 3,
@@ -107,7 +115,7 @@ describe('DashboardPage economic series', () => {
       'Are employers adding jobs?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(6)
+    expect(screen.getAllByRole('article')).toHaveLength(8)
     expect(
       within(employment).queryByRole('article', {
         name: 'How much did total nonfarm payroll employment change?',
@@ -156,6 +164,80 @@ describe('DashboardPage economic series', () => {
     for (const label of ['Unemployment', 'Prime-age employment', 'Wage growth']) {
       expect(within(payroll).getByText(label).closest('a')).toBeNull()
     }
+  })
+
+  it('renders both quarterly Growth additions with independent controls and accessible detail', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+
+    const perCapita = await screen.findByRole('article', {
+      name: 'Is economic output growing faster than the population?',
+    })
+    const productivity = await screen.findByRole('article', {
+      name: 'Is the economy producing more per hour worked?',
+    })
+
+    expect(
+      within(perCapita).getByLabelText('Latest real GDP per capita growth'),
+    ).toHaveTextContent('2.3%')
+    expect(
+      within(productivity).getByLabelText('Latest labor productivity growth'),
+    ).toHaveTextContent('2.8%')
+    expect(within(perCapita).getAllByText('2026 Q1')).not.toHaveLength(0)
+    expect(within(productivity).getAllByText('2026 Q1')).not.toHaveLength(0)
+
+    for (const [card, label] of [
+      [perCapita, 'Real GDP per capita'],
+      [productivity, 'Labor productivity'],
+    ] as const) {
+      expect(
+        within(card).getByRole('group', {
+          name: `${label} displayed time range`,
+        }),
+      ).toBeVisible()
+      for (const range of ['5 years', '10 years', '20 years', 'Maximum']) {
+        expect(within(card).getByRole('button', { name: range })).toBeVisible()
+      }
+      expect(within(card).getByText(/At least one observation was below zero/))
+        .toBeVisible()
+      await user.click(within(card).getByText('Recent observations'))
+    }
+
+    const perCapitaTable = within(perCapita).getByRole('table', {
+      name: 'Eight most recent real GDP per capita growth observations',
+    })
+    const productivityTable = within(productivity).getByRole('table', {
+      name: 'Eight most recent labor productivity growth observations',
+    })
+    expect(within(perCapitaTable).getAllByRole('row')).toHaveLength(9)
+    expect(within(productivityTable).getAllByRole('row')).toHaveLength(9)
+    expect(within(perCapitaTable).getAllByRole('row')[1]).toHaveTextContent(
+      '2026 Q12.3%',
+    )
+    expect(within(productivityTable).getAllByRole('row')[1]).toHaveTextContent(
+      '2026 Q12.8%',
+    )
+
+    await waitFor(() => {
+      const chartProps = Object.fromEntries(
+        chartPropsSpy.mock.calls.map((call) => {
+          const props = call[0] as {
+            seriesName: string
+            frequency: EconomicFrequency
+            includeZero: boolean
+          }
+          return [props.seriesName, props]
+        }),
+      )
+      expect(chartProps['Real GDP per capita']).toMatchObject({
+        frequency: 'quarterly',
+        includeZero: true,
+      })
+      expect(chartProps['Labor productivity']).toMatchObject({
+        frequency: 'quarterly',
+        includeZero: true,
+      })
+    })
   })
 
   it('renders the wages-versus-inflation relationship after payroll', async () => {
@@ -420,7 +502,9 @@ describe('DashboardPage economic series', () => {
     'keeps every other section and labor card visible when %s fails',
     async (failedSlug, survivingQuestion, failureMessage) => {
       const originalGetBySlug =
-        localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+        localEconomicSeriesRepository.getBySlug.bind(
+          localEconomicSeriesRepository,
+        )
       vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(
         async (slug) => {
           if (slug === failedSlug) throw new Error('Invalid labor fixture')
@@ -499,6 +583,44 @@ describe('DashboardPage economic series', () => {
         'How difficult is it for people who want work to find it?',
         'What share of prime-age adults are employed?',
         'Are employers adding jobs?',
+      ]) {
+        expect(await screen.findByRole('article', { name: question })).toBeVisible()
+      }
+    },
+  )
+
+  it.each([
+    [
+      'real-gdp-per-capita-growth',
+      'Is the economy producing more per hour worked?',
+      'The real GDP per capita data could not be loaded.',
+    ],
+    [
+      'labor-productivity-growth',
+      'Is economic output growing faster than the population?',
+      'The labor productivity data could not be loaded.',
+    ],
+  ])(
+    'isolates the new Growth card when %s fails',
+    async (failedSlug, survivingQuestion, failureMessage) => {
+      const originalGetBySlug =
+        localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+      vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(
+        async (slug) => {
+          if (slug === failedSlug) throw new Error('Invalid Growth fixture')
+          return originalGetBySlug(slug)
+        },
+      )
+      vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      render(<DashboardPage />)
+
+      expect(await screen.findByText(failureMessage)).toBeVisible()
+      for (const question of [
+        'Is the U.S. economy growing?',
+        survivingQuestion,
+        'How quickly are consumer prices rising?',
+        'How difficult is it for people who want work to find it?',
       ]) {
         expect(await screen.findByRole('article', { name: question })).toBeVisible()
       }

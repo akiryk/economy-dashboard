@@ -35,6 +35,42 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     summaryFormat: 'numeric-range',
     recentTable: 'single-value',
   },
+  'real-gdp-per-capita-growth': {
+    topicLabel: 'Growth per person',
+    latestValueLabel: 'Latest real GDP per capita growth',
+    whatThisTellsYou:
+      'Real GDP per capita measures inflation-adjusted economic output per person. Its year-over-year growth rate shows whether output is increasing faster or slower than the population.',
+    whatThisLeavesOut:
+      'Per-capita GDP is an average and does not show how income or output is distributed. It also does not directly measure household well-being, unpaid work, environmental costs, or the quality of public services.',
+    relatedIndicators: ['Real GDP growth', 'Productivity', 'Real income'],
+    recentObservationCount: 8,
+    recentObservationsCaption:
+      'Eight most recent real GDP per capita growth observations',
+    valueColumnLabel: 'Year-over-year growth',
+    includeZeroInChart: true,
+    reportBelowZero: true,
+    valueFormat: 'percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
+  },
+  'labor-productivity-growth': {
+    topicLabel: 'Productive capacity',
+    latestValueLabel: 'Latest labor productivity growth',
+    whatThisTellsYou:
+      'Labor productivity measures output per hour worked in the nonfarm business sector. Rising productivity means the economy is producing more output for each hour of labor.',
+    whatThisLeavesOut:
+      'Productivity growth does not show how its gains are distributed between workers and business owners. It also excludes government, farms, households, and some other activity outside the nonfarm business sector.',
+    relatedIndicators: ['Real GDP', 'Real wages', 'Labor share'],
+    recentObservationCount: 8,
+    recentObservationsCaption:
+      'Eight most recent labor productivity growth observations',
+    valueColumnLabel: 'Year-over-year growth',
+    includeZeroInChart: true,
+    reportBelowZero: true,
+    valueFormat: 'percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
+  },
   'headline-cpi-inflation': {
     topicLabel: 'Inflation',
     latestValueLabel: 'Latest CPI inflation',

@@ -12,7 +12,7 @@ The implementation uses ECharts 6 modular core imports and registers only the li
 
 Economic observations remain `{ date, value }` domain objects. Pure range and summary utilities operate on those objects. Immediately before rendering, `chartAdapters.ts` sorts without mutation and converts each observation to ECharts-compatible `[date, value]` data. `null` remains `null`, so missing observations are neither converted to zero nor joined by the line.
 
-The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage and signed-count data use the same UTC-safe period formatter without conflating their meanings. All six cards dynamically import the same chart module; ECharts is not duplicated.
+The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage and signed-count data use the same UTC-safe period formatter without conflating their meanings. All eight cards dynamically import the same chart module; ECharts is not duplicated.
 
 The same deferred boundary accepts either one series or the wages-versus-inflation comparison. The comparison uses solid nominal wage growth and dashed headline CPI inflation on one shared percentage axis with a concise legend and zero reference line. Dual axes are intentionally avoided. Its tooltip includes the aligned month, both plotted rates, and exact-ratio real wage growth. Both lines use the same latest shared month and selected range.
 
@@ -32,7 +32,7 @@ Every line uses actual observations without smoothing because a smoothed curve w
 
 ECharts' time axis continues to hide overlapping labels and choose readable time ticks for long histories. No downsampling or aggregation is applied; tooltips retain access to every generated observation. Measurements did not show a need for additional rendering optimization.
 
-Axis policy is series-specific. GDP growth, CPI inflation, and payroll growth include zero and retain the zero reference line. Unemployment and prime-age employment are percentage levels whose meaningful variation is well above zero, so their axes use at least 0.5 percentage point or 10% of the visible span as padding without forcing zero. Payroll preserves positive and negative changes without forcing a symmetric axis. This preserves a readable range without adding thresholds or value judgments. A zero line is rendered only when zero inclusion is enabled.
+Axis policy is series-specific. GDP growth, real GDP per capita growth, labor productivity growth, CPI inflation, and payroll growth include zero and retain the zero reference line. Unemployment and prime-age employment are percentage levels whose meaningful variation is well above zero, so their axes use at least 0.5 percentage point or 10% of the visible span as padding without forcing zero. Payroll preserves positive and negative changes without forcing a symmetric axis. This preserves a readable range without adding thresholds or value judgments. A zero line is rendered only when zero inclusion is enabled.
 
 Tooltips use ECharts' rich-text renderer rather than HTML. Percentage series retain one-decimal percentage formatting. Payroll tooltips show the month and a signed rounded count in thousands, such as `+145K`; full derived precision remains in JSON.
 
@@ -69,3 +69,5 @@ With Story 08, the initial application chunk is 306.01 kB minified (96.61 kB gzi
 With Story 09 full histories, the initial application chunk remains 306.01 kB minified (96.61 kB gzip), and the shared chart/ECharts chunk remains 518.06 kB minified (175.13 kB gzip). Expanded data chunks are 11.66 kB GDP, 32.89 kB CPI, 29.04 kB unemployment, 29.95 kB prime-age employment, 32.45 kB monthly payroll change, and 42.73 kB payroll growth. ECharts remains deduplicated and the existing deferred-chunk warning remains.
 
 With Story 10, the initial application chunk is 314.17 kB minified (98.04 kB gzip). Nominal and real wage data chunks are 33.67 kB and 34.55 kB. The one shared chart/ECharts chunk is 538.34 kB minified (181.25 kB gzip); the increase comes from registering the ECharts legend component, ECharts remains deduplicated, and the existing warning remains.
+
+With Story 11, the initial application chunk is 316.29 kB minified (98.44 kB gzip). The real-GDP-per-capita and labor-productivity data chunks are 15.12 kB (4.85 kB gzip) and 15.04 kB (4.77 kB gzip). The build still emits one shared chart/ECharts chunk at 538.34 kB minified (181.25 kB gzip); ECharts remains deduplicated, and the existing deferred-chunk warning remains.

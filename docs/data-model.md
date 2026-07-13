@@ -4,7 +4,7 @@ The economic-series domain model keeps source metadata and observations together
 
 An `EconomicSeries` identifies the provider and provider series, explains the displayed units and transformation, records seasonal adjustment and frequency, and contains `EconomicObservation` entries. Each observation has an ISO date representing the economic period and a numeric or `null` value. A missing observation remains `null`; it is never treated as zero.
 
-The current domain supports quarterly GDP and monthly CPI and labor-market series. Frequency-aware presentation formats quarterly dates as `2026 Q1` and monthly dates as `June 2026` using UTC, so local timezone offsets cannot shift an economic period. Invalid dates are rejected rather than displayed ambiguously.
+The current domain supports quarterly GDP, GDP-per-capita, and productivity growth plus monthly CPI and labor-market series. Frequency-aware presentation formats quarterly dates as `2026 Q1` and monthly dates as `June 2026` using UTC, so local timezone offsets cannot shift an economic period. Invalid dates are rejected rather than displayed ambiguously.
 
 ## Observation date and retrieval date
 
@@ -46,13 +46,19 @@ PAYEMS is a provider level in thousands of persons. The dashboard does not prese
 
 The primary `payroll-growth` and supporting `monthly-payroll-change` series use the unchanged `{ date, value }` observation shape. The supporting series begins two months earlier; every primary date aligns with a supporting monthly-change date. The repository loads both for one card, and React does not calculate either measure. The supporting series appears only in the payroll card's paired recent-observations table, not as a separate dashboard card.
 
+## Single-source quarterly growth
+
+Real GDP per capita growth and labor productivity growth are locally derived from single official provider level series. Each generated series preserves the level series’ FRED identifier and source attribution, while its description and transformation state that the displayed year-over-year rate is calculated by the application. This avoids implying that FRED directly supplied the exact displayed values.
+
+The derivation compares a quarterly level only with the observation at the exact calendar quarter one year earlier. Missing levels or a missing prior-year quarter produce `null`; the calculation never substitutes the fourth previous array item or bridges a calendar gap. Leading unavailable values are omitted after derivation, while internal unavailable values remain in the unchanged `{ date, value }` observation shape.
+
 ## Multi-source wage provenance
 
 `EconomicSeries` optionally carries a validated `sources` list for multi-source derivations. Existing single-source metadata remains valid. Real wage growth identifies AHETPI as the wage measure and CPIAUCSL as the inflation deflator; it does not imply that FRED directly publishes the combined result. The relationship card loads real wage growth, nominal wage growth, and the existing CPI inflation series as one card-level unit and aligns them by exact calendar month.
 
 ## Current limitations
 
-- The application contains six visible cards, one supporting payroll series, and one supporting nominal-wage series.
+- The application contains eight visible cards, one supporting payroll series, and one supporting nominal-wage series.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.

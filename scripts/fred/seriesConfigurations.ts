@@ -1,7 +1,7 @@
 import type { EconomicFrequency } from '../../src/features/economic-series/models/economicSeries'
 
 export interface FredSeriesConfig {
-  dataHandling: 'provider-level' | 'provider-transformed'
+  dataHandling: 'locally-derived' | 'provider-level' | 'provider-transformed'
   id: string
   slug: string
   outputFile: string
@@ -10,6 +10,7 @@ export interface FredSeriesConfig {
   fredFrequency: 'm' | 'q'
   historyPolicy: HistoryPolicy
   fredUnits?: 'pc1'
+  localDerivation?: LocalDerivation
   minimumUsableObservations: number
   title: string
   shortTitle: string
@@ -21,6 +22,8 @@ export interface FredSeriesConfig {
   sourceName: string
   sourceUrl: string
 }
+
+export type LocalDerivation = 'year-over-year-quarterly-growth'
 
 export type HistoryPolicy =
   | { type: 'full' }
@@ -116,6 +119,58 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     transformation: 'Level',
     sourceName: 'U.S. Bureau of Labor Statistics via FRED',
     sourceUrl: 'https://fred.stlouisfed.org/series/LNS12300060',
+  },
+  {
+    dataHandling: 'locally-derived',
+    id: 'real-gdp-per-capita-growth',
+    slug: 'real-gdp-per-capita-growth',
+    outputFile:
+      'src/features/economic-series/data/real-gdp-per-capita-growth.json',
+    providerSeriesId: 'A939RX0Q048SBEA',
+    frequency: 'quarterly',
+    fredFrequency: 'q',
+    historyPolicy: { type: 'full' },
+    localDerivation: 'year-over-year-quarterly-growth',
+    minimumUsableObservations: 80,
+    title: 'Real GDP Per Capita Growth',
+    shortTitle: 'Real GDP per capita',
+    description:
+      'Year-over-year growth in inflation-adjusted U.S. gross domestic product per person, calculated from the published level series.',
+    question: 'Is economic output growing faster than the population?',
+    units: 'Percent',
+    seasonalAdjustment:
+      'Seasonally adjusted annual rate (underlying real GDP per capita level)',
+    transformation:
+      'Percent change from year ago, calculated by the application',
+    sourceName:
+      'U.S. Bureau of Economic Analysis via FRED; growth calculated by the application',
+    sourceUrl: 'https://fred.stlouisfed.org/series/A939RX0Q048SBEA',
+  },
+  {
+    dataHandling: 'locally-derived',
+    id: 'labor-productivity-growth',
+    slug: 'labor-productivity-growth',
+    outputFile:
+      'src/features/economic-series/data/labor-productivity-growth.json',
+    providerSeriesId: 'OPHNFB',
+    frequency: 'quarterly',
+    fredFrequency: 'q',
+    historyPolicy: { type: 'full' },
+    localDerivation: 'year-over-year-quarterly-growth',
+    minimumUsableObservations: 80,
+    title: 'Labor Productivity Growth',
+    shortTitle: 'Labor productivity',
+    description:
+      'Year-over-year growth in nonfarm business sector output per hour for all workers, calculated from the published productivity index.',
+    question: 'Is the economy producing more per hour worked?',
+    units: 'Percent',
+    seasonalAdjustment:
+      'Seasonally adjusted (underlying labor productivity index)',
+    transformation:
+      'Percent change from year ago, calculated by the application',
+    sourceName:
+      'U.S. Bureau of Labor Statistics via FRED; growth calculated by the application',
+    sourceUrl: 'https://fred.stlouisfed.org/series/OPHNFB',
   },
 ]
 

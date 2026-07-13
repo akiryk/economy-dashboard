@@ -5,6 +5,7 @@ import { fetchFredObservations } from './fred/fredClient'
 import { normalizeFredSeries } from './fred/normalizeFredSeries'
 import { derivePayrollSeries } from './fred/derivePayrollSeries'
 import { deriveWageSeries } from './fred/deriveWageSeries'
+import { deriveQuarterlyGrowthSeries } from './fred/deriveQuarterlyGrowthSeries'
 import {
   fredSeriesConfigurations,
   payrollSeriesConfiguration,
@@ -38,7 +39,10 @@ export async function refreshEconomicData({
     config,
     fetchImplementation,
   )
-  const series = normalizeFredSeries(fredResponse, retrievedAt, config)
+  const series =
+    config.dataHandling === 'locally-derived'
+      ? deriveQuarterlyGrowthSeries(fredResponse, retrievedAt, config)
+      : normalizeFredSeries(fredResponse, retrievedAt, config)
   await writeEconomicSeriesAtomically(targetPath, series)
   return { series, sourceObservationCount: fredResponse.observations.length }
 }

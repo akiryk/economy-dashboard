@@ -5,6 +5,10 @@ const localSeriesLoaders: Readonly<
   Record<string, () => Promise<{ default: unknown }>>
 > = {
   'real-gdp-growth': () => import('../data/real-gdp-growth.json'),
+  'real-gdp-per-capita-growth': () =>
+    import('../data/real-gdp-per-capita-growth.json'),
+  'labor-productivity-growth': () =>
+    import('../data/labor-productivity-growth.json'),
   'headline-cpi-inflation': () =>
     import('../data/headline-cpi-inflation.json'),
   'unemployment-rate': () => import('../data/unemployment-rate.json'),

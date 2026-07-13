@@ -73,6 +73,16 @@ export function DashboardPage() {
           label="real GDP"
           onSeriesLoaded={handleSeriesLoaded}
         />
+        <EconomicSeriesCard
+          slug="real-gdp-per-capita-growth"
+          label="real GDP per capita"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+        <EconomicSeriesCard
+          slug="labor-productivity-growth"
+          label="labor productivity"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
       </EconomicSection>
 
       <EconomicSection

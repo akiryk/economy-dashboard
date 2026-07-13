@@ -28,7 +28,12 @@ describe('refreshEconomicData', () => {
     expect(fredSeriesConfigurations.slice(0, 2).map((config) => config.dataHandling))
       .toEqual(['provider-transformed', 'provider-transformed'])
     expect(fredSeriesConfigurations.slice(2).map((config) => config.dataHandling))
-      .toEqual(['provider-level', 'provider-level'])
+      .toEqual([
+        'provider-level',
+        'provider-level',
+        'locally-derived',
+        'locally-derived',
+      ])
     expect(payrollSeriesConfiguration).toMatchObject({
       dataHandling: 'locally-derived',
       providerSeriesId: 'PAYEMS',
@@ -46,6 +51,25 @@ describe('refreshEconomicData', () => {
         (config) => config.historyPolicy.type === 'full',
       ),
     ).toBe(true)
+  })
+
+  it('configures both quarterly local derivations from full-history levels', () => {
+    const configurations = ['A939RX0Q048SBEA', 'OPHNFB'].map((providerSeriesId) =>
+      fredSeriesConfigurations.find(
+        (config) => config.providerSeriesId === providerSeriesId,
+      ),
+    )
+
+    for (const config of configurations) {
+      expect(config).toMatchObject({
+        dataHandling: 'locally-derived',
+        frequency: 'quarterly',
+        fredFrequency: 'q',
+        historyPolicy: { type: 'full' },
+        localDerivation: 'year-over-year-quarterly-growth',
+      })
+      expect(config?.fredUnits).toBeUndefined()
+    }
   })
 
   it('configures both labor series as monthly provider levels without pc1', () => {
@@ -137,7 +161,7 @@ describe('refreshEconomicData', () => {
     expect(await readFile(cpiPath, 'utf8')).toBe(existingCpi)
   })
 
-  it('refreshes all four series through one pipeline and omits units for levels', async () => {
+  it('refreshes all six direct sources once and omits provider transformations for local derivations', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
     temporaryDirectories.push(directory)
     const configurations = fredSeriesConfigurations.map((config) => ({
@@ -147,14 +171,27 @@ describe('refreshEconomicData', () => {
     }))
     const requestedUrls: URL[] = []
     const fetchImplementation: typeof fetch = async (input) => {
-      requestedUrls.push(new URL(String(input)))
+      const url = new URL(String(input))
+      requestedUrls.push(url)
+      const locallyDerived = ['A939RX0Q048SBEA', 'OPHNFB'].includes(
+        url.searchParams.get('series_id') ?? '',
+      )
       return new Response(
         JSON.stringify({
-          observations: [
-            { date: '2024-01-01', value: '4.0' },
-            { date: '2024-02-01', value: '4.1' },
-            { date: '2027-01-01', value: '9.9' },
-          ],
+          observations: locallyDerived
+            ? [
+                { date: '2024-01-01', value: '100' },
+                { date: '2024-04-01', value: '101' },
+                { date: '2024-07-01', value: '102' },
+                { date: '2024-10-01', value: '103' },
+                { date: '2025-01-01', value: '104' },
+                { date: '2027-01-01', value: '999' },
+              ]
+            : [
+                { date: '2024-01-01', value: '4.0' },
+                { date: '2024-02-01', value: '4.1' },
+                { date: '2027-01-01', value: '9.9' },
+              ],
         }),
         { status: 200 },
       )
@@ -167,23 +204,25 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(4)
+    expect(outcomes).toHaveLength(6)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 3, 3, 3])
+    ).toEqual([3, 3, 3, 3, 6, 6])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
       'UNRATE',
       'LNS12300060',
+      'A939RX0Q048SBEA',
+      'OPHNFB',
     ])
     expect(requestedUrls.slice(0, 2).map((url) => url.searchParams.get('units')))
       .toEqual(['pc1', 'pc1'])
     expect(requestedUrls.slice(2).map((url) => url.searchParams.has('units')))
-      .toEqual([false, false])
+      .toEqual([false, false, false, false])
     expect(
       requestedUrls.every((url) => !url.searchParams.has('observation_start')),
     ).toBe(true)
@@ -192,14 +231,18 @@ describe('refreshEconomicData', () => {
       const series = validateEconomicSeries(
         JSON.parse(await readFile(config.outputFile, 'utf8')),
       )
-      expect(series.observations.at(-1)?.date).toBe('2024-02-01')
+      expect(series.observations.at(-1)?.date).toBe(
+        config.dataHandling === 'locally-derived'
+          ? '2025-01-01'
+          : '2024-02-01',
+      )
     }
   })
 
   it('continues writing other series when one labor refresh fails', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
     temporaryDirectories.push(directory)
-    const configurations = fredSeriesConfigurations.map((config) => ({
+    const configurations = fredSeriesConfigurations.slice(0, 4).map((config) => ({
       ...config,
       outputFile: path.join(directory, `${config.slug}.json`),
       minimumUsableObservations: 2,
