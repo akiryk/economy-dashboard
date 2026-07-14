@@ -19,6 +19,9 @@ import {
   type FredSeriesConfig,
   type WageSeriesConfig,
   type CpiSeriesConfig,
+  householdComparisonConfiguration,
+  personalSavingRateConfiguration,
+  type HouseholdComparisonConfig,
 } from './fred/seriesConfigurations'
 import {
   writeEconomicSeriesAtomically,
@@ -96,6 +99,8 @@ interface RefreshAllEconomicDataOptions {
   payrollConfiguration?: PayrollSeriesConfig | false
   wageConfiguration?: WageSeriesConfig | false
   cpiConfiguration?: CpiSeriesConfig | false
+  householdConfiguration?: HouseholdComparisonConfig | false
+  savingRateConfiguration?: FredSeriesConfig | false
   fetchImplementation?: typeof fetch
 }
 
@@ -210,6 +215,43 @@ export async function refreshWageData({
     },
   ])
   return { ...series, sourceObservationCount: response.observations.length }
+}
+
+export async function refreshHouseholdComparisonData({
+  apiKey,
+  retrievedAt,
+  config = householdComparisonConfiguration,
+  fetchImplementation,
+}: {
+  apiKey: string
+  retrievedAt: string
+  config?: HouseholdComparisonConfig
+  fetchImplementation?: typeof fetch
+}) {
+  const [incomeResponse, spendingResponse] = await Promise.all([
+    fetchFredObservations(apiKey, config.incomeSource, fetchImplementation),
+    fetchFredObservations(apiKey, config.spendingSource, fetchImplementation),
+  ])
+  const incomeGrowth = deriveSingleMonthlyGrowthSeries(
+    incomeResponse,
+    retrievedAt,
+    config.incomeSource,
+  )
+  const spendingGrowth = deriveSingleMonthlyGrowthSeries(
+    spendingResponse,
+    retrievedAt,
+    config.spendingSource,
+  )
+  await writeEconomicSeriesGroupAtomically([
+    { outputPath: path.resolve(config.incomeOutputFile), series: incomeGrowth },
+    { outputPath: path.resolve(config.spendingOutputFile), series: spendingGrowth },
+  ])
+  return {
+    incomeGrowth,
+    spendingGrowth,
+    sourceObservationCount: incomeResponse.observations.length,
+    spendingSourceObservationCount: spendingResponse.observations.length,
+  }
 }
 
 export async function refreshAllEconomicData(
@@ -359,6 +401,71 @@ export async function refreshAllEconomicData(
           message: error instanceof Error ? error.message : 'Unknown failure',
         })
       }
+    }
+  }
+
+  const householdConfig =
+    options.householdConfiguration === undefined
+      ? options.configurations === undefined
+        ? householdComparisonConfiguration
+        : false
+      : options.householdConfiguration
+  if (householdConfig) {
+    try {
+      const result = await refreshHouseholdComparisonData({
+        apiKey,
+        retrievedAt,
+        config: householdConfig,
+        fetchImplementation,
+      })
+      outcomes.push({
+        status: 'updated',
+        config: householdConfig.incomeSource,
+        series: result.incomeGrowth,
+        sourceObservationCount: result.sourceObservationCount,
+      })
+      outcomes.push({
+        status: 'updated',
+        config: householdConfig.spendingSource,
+        series: result.spendingGrowth,
+        sourceObservationCount: result.spendingSourceObservationCount,
+      })
+    } catch (error: unknown) {
+      outcomes.push({
+        status: 'failed',
+        config: householdConfig.incomeSource,
+        message: error instanceof Error ? error.message : 'Unknown failure',
+      })
+    }
+  }
+
+  const savingConfig =
+    options.savingRateConfiguration === undefined
+      ? options.configurations === undefined
+        ? personalSavingRateConfiguration
+        : false
+      : options.savingRateConfiguration
+  if (savingConfig) {
+    try {
+      const result = await refreshEconomicData({
+        apiKey,
+        outputPath: path.resolve(savingConfig.outputFile),
+        retrievedAt,
+        config: savingConfig,
+        fetchImplementation,
+      })
+      outcomes.push({
+        status: 'updated',
+        config: savingConfig,
+        series: result.series,
+        sourceObservationCount: result.sourceObservationCount,
+      })
+    } catch (error: unknown) {
+      outcomes.push({
+        status: 'failed',
+        config: savingConfig,
+        message: error instanceof Error ? error.message : 'Unknown failure',
+      })
     }
   }
 

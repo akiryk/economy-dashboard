@@ -270,3 +270,91 @@ export const cpiSeriesConfiguration: CpiSeriesConfig = {
   coreMomentumOutputFile:
     'src/features/economic-series/data/core-cpi-three-month-annualized.json',
 }
+
+export interface HouseholdComparisonConfig {
+  dataHandling: 'household-comparison-derived'
+  incomeSource: FredSeriesConfig
+  spendingSource: FredSeriesConfig
+  incomeOutputFile: string
+  spendingOutputFile: string
+}
+
+export const householdIncomeSourceConfiguration: FredSeriesConfig = {
+  dataHandling: 'locally-derived',
+  id: 'real-disposable-income-per-capita-growth',
+  slug: 'real-disposable-income-per-capita-growth',
+  outputFile:
+    'src/features/economic-series/data/real-disposable-income-per-capita-growth.json',
+  providerSeriesId: 'A229RX0',
+  frequency: 'monthly',
+  fredFrequency: 'm',
+  historyPolicy: { type: 'full' },
+  localDerivation: 'year-over-year-monthly-growth',
+  minimumUsableObservations: 13,
+  title: 'Real Disposable Personal Income Per Capita Growth',
+  shortTitle: 'Real income per capita growth',
+  description:
+    'Year-over-year growth in inflation-adjusted after-tax personal income per person.',
+  question: 'Are household incomes and spending growing after inflation?',
+  units: 'Percent',
+  seasonalAdjustment: 'Seasonally adjusted annual rate (underlying level)',
+  transformation: 'Percent change from year ago, calculated by the application',
+  sourceName:
+    'U.S. Bureau of Economic Analysis via FRED; growth calculated by the application',
+  sourceUrl: 'https://fred.stlouisfed.org/series/A229RX0',
+}
+
+export const householdSpendingSourceConfiguration: FredSeriesConfig = {
+  dataHandling: 'locally-derived',
+  id: 'real-consumer-spending-growth',
+  slug: 'real-consumer-spending-growth',
+  outputFile:
+    'src/features/economic-series/data/real-consumer-spending-growth.json',
+  providerSeriesId: 'PCEC96',
+  frequency: 'monthly',
+  fredFrequency: 'm',
+  historyPolicy: { type: 'full' },
+  localDerivation: 'year-over-year-monthly-growth',
+  minimumUsableObservations: 13,
+  title: 'Real Personal Consumption Expenditures Growth',
+  shortTitle: 'Real consumer spending growth',
+  description:
+    'Year-over-year growth in inflation-adjusted personal consumption expenditures.',
+  question: 'Are household incomes and spending growing after inflation?',
+  units: 'Percent',
+  seasonalAdjustment: 'Seasonally adjusted annual rate (underlying level)',
+  transformation: 'Percent change from year ago, calculated by the application',
+  sourceName:
+    'U.S. Bureau of Economic Analysis via FRED; growth calculated by the application',
+  sourceUrl: 'https://fred.stlouisfed.org/series/PCEC96',
+}
+
+export const householdComparisonConfiguration: HouseholdComparisonConfig = {
+  dataHandling: 'household-comparison-derived',
+  incomeSource: householdIncomeSourceConfiguration,
+  spendingSource: householdSpendingSourceConfiguration,
+  incomeOutputFile: householdIncomeSourceConfiguration.outputFile,
+  spendingOutputFile: householdSpendingSourceConfiguration.outputFile,
+}
+
+export const personalSavingRateConfiguration: FredSeriesConfig = {
+  dataHandling: 'provider-level',
+  id: 'personal-saving-rate',
+  slug: 'personal-saving-rate',
+  outputFile: 'src/features/economic-series/data/personal-saving-rate.json',
+  providerSeriesId: 'PSAVERT',
+  frequency: 'monthly',
+  fredFrequency: 'm',
+  historyPolicy: { type: 'full' },
+  minimumUsableObservations: 13,
+  title: 'Personal Saving Rate',
+  shortTitle: 'Saving rate',
+  description:
+    'Personal saving as a percentage of disposable personal income.',
+  question: 'Are households saving or drawing down more of their income?',
+  units: 'Percent',
+  seasonalAdjustment: 'Seasonally adjusted annual rate',
+  transformation: 'Level',
+  sourceName: 'U.S. Bureau of Economic Analysis via FRED',
+  sourceUrl: 'https://fred.stlouisfed.org/series/PSAVERT',
+}

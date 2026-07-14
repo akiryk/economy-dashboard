@@ -58,9 +58,15 @@ The derivation compares a quarterly level only with the observation at the exact
 
 The two inflation relationship cards compose separate headline and core `EconomicSeries` values at the presentation boundary. Alignment precomputes exact-month pairs and core-minus-headline percentage-point differences before rendering; the table does not perform economic calculations. Annualized outputs remain ordinary percent-valued monthly series whose transformation metadata explicitly identifies the three-month annualized calculation.
 
+## Household relationship and percent levels
+
+The income-versus-spending card composes two locally derived `EconomicSeries` values and aligns them by exact month. Each retains its source-level FRED identifier while transformation metadata states that year-over-year growth is calculated locally. Spending minus income is a percentage-point relationship calculated from aligned full-precision rates and is not persisted as another series.
+
+PSAVERT is a provider-published percent level, not a growth rate. Its 12-month change is expressed in percentage points and calculated by exact month without changing the observation model.
+
 ## Current limitations
 
-- The application contains eight visible cards, one supporting payroll series, and one supporting nominal-wage series.
+- The application contains twelve visible cards and four supporting comparison series.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.

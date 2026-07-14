@@ -124,6 +124,11 @@ describe('createInflationComparisonChartOptions', () => {
   it.each([
     ['year-over-year' as const, 'Headline CPI inflation', 'Core CPI inflation'],
     [
+      'household' as const,
+      'Real disposable income per capita growth',
+      'Real consumer spending growth',
+    ],
+    [
       'momentum' as const,
       'Headline CPI, 3-month annualized',
       'Core CPI, 3-month annualized',
@@ -205,5 +210,25 @@ describe('createInflationComparisonChartOptions', () => {
       { seriesName: 'Headline CPI, 3-month annualized', value: ['2026-05-01', 4.2] },
       { seriesName: 'Core CPI, 3-month annualized', value: ['2026-05-01', 2.8] },
     ])).not.toContain('Difference')
+  })
+
+  it('reports spending minus income growth for household comparisons', () => {
+    const options = createInflationComparisonChartOptions({
+      headlineData: [['2026-05-01', -0.3]],
+      coreData: [['2026-05-01', 2.1]],
+      frequency: 'monthly',
+      variant: 'household',
+    })
+    const tooltip = options.tooltip as {
+      formatter: (params: Array<{ seriesName: string; value: [string, number] }>) => string
+    }
+    expect(tooltip.formatter([
+      { seriesName: 'Real disposable income per capita growth', value: ['2026-05-01', -0.3] },
+      { seriesName: 'Real consumer spending growth', value: ['2026-05-01', 2.1] },
+    ])).toContain('Spending minus income growth: +2.4% percentage points')
+    expect(tooltip.formatter([
+      { seriesName: 'Real disposable income per capita growth', value: ['2026-05-01', -0.3] },
+      { seriesName: 'Real consumer spending growth', value: ['2026-05-01', 2.1] },
+    ])).toContain('Real consumer spending growth: +2.1%')
   })
 })

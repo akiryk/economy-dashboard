@@ -33,7 +33,7 @@ interface InflationComparisonChartOptionsInput {
   headlineData: ChartDataPoint[]
   coreData: ChartDataPoint[]
   frequency: EconomicFrequency
-  variant: 'momentum' | 'year-over-year'
+  variant: 'household' | 'momentum' | 'year-over-year'
 }
 
 interface ValueRange {
@@ -280,10 +280,15 @@ export function createInflationComparisonChartOptions({
   variant,
 }: InflationComparisonChartOptionsInput): EChartsCoreOption {
   const momentum = variant === 'momentum'
-  const headlineName = momentum
+  const household = variant === 'household'
+  const headlineName = household
+    ? 'Real disposable income per capita growth'
+    : momentum
     ? 'Headline CPI, 3-month annualized'
     : 'Headline CPI inflation'
-  const coreName = momentum
+  const coreName = household
+    ? 'Real consumer spending growth'
+    : momentum
     ? 'Core CPI, 3-month annualized'
     : 'Core CPI inflation'
   return {
@@ -313,7 +318,7 @@ export function createInflationComparisonChartOptions({
       formatter: (params: TooltipComponentFormatterCallbackParams) => {
         const items = Array.isArray(params) ? params : [params]
         const first = items.find((item) => isChartDataPoint(item.value))
-        if (!first || !isChartDataPoint(first.value)) return 'Inflation comparison'
+        if (!first || !isChartDataPoint(first.value)) return household ? 'Income versus spending' : 'Inflation comparison'
         const date = first.value[0]
         const values = new Map(
           items
@@ -324,14 +329,14 @@ export function createInflationComparisonChartOptions({
         const core = values.get(coreName) ?? null
         const lines = [
           formatObservationPeriod(date, frequency),
-          `${headlineName}: ${formatPercentage(headline)}`,
-          `${coreName}: ${formatPercentage(core)}`,
+          `${headlineName}: ${household ? formatSignedPercentage(headline) : formatPercentage(headline)}`,
+          `${coreName}: ${household ? formatSignedPercentage(core) : formatPercentage(core)}`,
         ]
         if (!momentum) {
           const difference =
             headline !== null && core !== null ? core - headline : null
           lines.push(
-            `Difference: ${formatSignedPercentage(difference)} percentage points`,
+            `${household ? 'Spending minus income growth' : 'Difference'}: ${formatSignedPercentage(difference)} percentage points`,
           )
         }
         return lines.join('\n')

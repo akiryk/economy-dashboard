@@ -50,6 +50,9 @@ The series-specific requests are:
 - Wages: `series_id=AHETPI` and `frequency=m`, with no `units` parameter.
 - Real GDP per capita: `series_id=A939RX0Q048SBEA` and `frequency=q`, with no `units` parameter.
 - Labor productivity: `series_id=OPHNFB` and `frequency=q`, with no `units` parameter.
+- Real disposable income per capita: `series_id=A229RX0` and `frequency=m`, with no `units` parameter.
+- Real consumer spending: `series_id=PCEC96` and `frequency=m`, with no `units` parameter.
+- Personal saving rate: `series_id=PSAVERT` and `frequency=m`, with no `units` parameter.
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
@@ -70,6 +73,12 @@ PAYEMS is fetched and provider-validated once. One explicit derivation module cr
 AHETPI is fetched once using the full-history policy. CPIAUCSL is not fetched again: wage derivation reuses the full-precision CPI inflation series produced earlier in the same refresh. Wage levels require an observation at the exact calendar month one year earlier. Nominal growth is `(current wage / prior-year wage - 1) × 100`. Exact real growth divides that wage ratio by `1 + CPI inflation / 100` before subtracting one and multiplying by 100. Missing or mismatched months produce `null`; array positions are never substituted for calendar alignment.
 
 The nominal and real wage outputs are validated and staged together, then replaced through the existing rollback-protected grouped writer. Failure preserves both prior wage files without rolling back unrelated successful sources. Successful reporting includes the AHETPI source count and both generated ranges.
+
+## Household derivations and writes
+
+`A229RX0`, `PCEC96`, and `PSAVERT` each use full history without `observation_start` or a FRED `units` transformation. Income and spending growth are calculated as `((level_t / level_t-12) - 1) × 100` using the exact calendar month one year earlier. Missing endpoints produce `null`, leading warm-up values are omitted, and aligned presentation includes only shared calendar months.
+
+Income and spending validate and replace as one rollback-protected group, so either failure preserves both prior files. The published PSAVERT level validates and writes independently. Unrelated refresh successes remain intact, and the command reports each generated count, range, latest value, and output path.
 
 ## Validation and normalization
 

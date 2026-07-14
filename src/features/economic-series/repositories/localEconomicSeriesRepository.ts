@@ -23,6 +23,11 @@ const localSeriesLoaders: Readonly<
   'monthly-payroll-change': () => import('../data/monthly-payroll-change.json'),
   'nominal-wage-growth': () => import('../data/nominal-wage-growth.json'),
   'real-wage-growth': () => import('../data/real-wage-growth.json'),
+  'real-disposable-income-per-capita-growth': () =>
+    import('../data/real-disposable-income-per-capita-growth.json'),
+  'real-consumer-spending-growth': () =>
+    import('../data/real-consumer-spending-growth.json'),
+  'personal-saving-rate': () => import('../data/personal-saving-rate.json'),
 }
 
 export const localEconomicSeriesRepository: EconomicSeriesRepository = {

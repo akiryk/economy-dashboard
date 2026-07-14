@@ -13,7 +13,7 @@
   "transformation": "Year-over-year change calculated by the application",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/AHETPI",
-  "retrievedAt": "2026-07-13",
+  "retrievedAt": "2026-07-14",
   "observations": [
     {
       "date": "1965-01-01",

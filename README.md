@@ -4,7 +4,7 @@ An information-first web application for understanding the U.S. economy through 
 
 ## Current scope
 
-Story 12 expands Prices with headline-versus-core CPI and recent three-month annualized inflation momentum. All displayed CPI rates are calculated locally from official monthly headline and core index levels.
+Story 13 adds a Households section comparing real disposable income per capita with real consumer spending and showing the published personal saving rate.
 
 ## Technology stack
 
@@ -55,7 +55,7 @@ npm run preview
 - `typecheck` runs TypeScript without emitting files.
 - `lint` checks the code with ESLint.
 - `test` runs the Vitest unit and component test suite once. Use `npm run test:watch` during development.
-- `data:refresh` retrieves and safely replaces the datasets for all ten dashboard cards using official FRED data and local derivations.
+- `data:refresh` retrieves and safely replaces the datasets for all twelve dashboard cards using official FRED data and local derivations.
 - `preview` serves the production build locally after it has been created.
 
 ## Testing status
@@ -64,7 +64,7 @@ Vitest, React Testing Library, jest-dom, and jsdom cover chart-data adaptation, 
 
 ## Chart behavior
 
-All ten cards render nonsmoothed time-series charts with frequency-aware tooltips and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Short-range boundaries are calculated from each series’ latest shared observation date rather than today's date. Maximum includes every generated observation and may start in a different year for each card. Growth, inflation, payroll, and wage-comparison charts include zero; the two labor-market level series use padded ranges based on visible data and do not force zero.
+All twelve cards render nonsmoothed time-series charts with frequency-aware tooltips and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Short-range boundaries are calculated from each series’ latest shared observation date rather than today's date. Maximum includes every generated observation and may start in a different year for each card. Growth and comparison charts include zero; labor-market and saving-rate levels use padded ranges and do not force zero.
 
 The chart includes an updating text summary of the latest, minimum, and maximum visible observations. GDP and CPI also report whether values fall below zero; that statement is omitted for the labor-market levels where it adds no useful context. The semantic recent-observations table remains available as a detailed nonvisual alternative.
 
@@ -72,19 +72,20 @@ Apache ECharts is integrated directly through a small React lifecycle wrapper an
 
 ## Information architecture
 
-The page currently contains three semantic sections:
+The page currently contains four semantic sections:
 
 - Growth, containing real GDP growth, real GDP per capita growth, and labor productivity growth.
 - Prices, containing headline CPI inflation, headline versus core CPI, and recent inflation momentum.
 - Employment and income, containing unemployment, prime-age employment-to-population ratio, payroll growth, and wages versus inflation.
+- Households, containing real disposable income per capita versus real consumer spending and the personal saving rate.
 
 Each indicator leads with a human question and one latest value, followed by the range control and chart. Factual context, concise limitations, related concepts, visible source attribution, technical metadata, and recent observations remain available without competing with the chart. Empty future sections are not rendered.
 
-The product principles and current-versus-future conceptual layers are documented in [`docs/product-principles.md`](docs/product-principles.md). In-page section navigation remains deferred at the current scope.
+The product principles and current-versus-future conceptual layers are documented in [`docs/product-principles.md`](docs/product-principles.md). A collapsed in-page index lists every card by section.
 
 ## Local economic data
 
-Thirteen full-history datasets support ten visible cards:
+Sixteen full-history datasets support twelve visible cards:
 
 - `real-gdp-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, FRED `GDPC1`, percent change from one year ago.
 - `real-gdp-per-capita-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, calculated locally from FRED `A939RX0Q048SBEA` levels.
@@ -99,6 +100,11 @@ Thirteen full-history datasets support ten visible cards:
 - `payroll-growth.json`: 1,047 rolling three-month averages, April 1939–June 2026, from the same single PAYEMS retrieval.
 - `nominal-wage-growth.json`: year-over-year growth in `AHETPI`, covering January 1965–June 2026.
 - `real-wage-growth.json`: exact AHETPI growth deflated by headline CPI, aligned January 1965–May 2026.
+- `real-disposable-income-per-capita-growth.json`: 797 monthly observations, January 1960–May 2026, calculated locally from FRED `A229RX0` levels.
+- `real-consumer-spending-growth.json`: 221 monthly observations, January 2008–May 2026, calculated locally from FRED `PCEC96` levels.
+- `personal-saving-rate.json`: 809 monthly observations, January 1959–May 2026, published FRED `PSAVERT` percent levels.
+
+The household growth rates use `((level_t / level_t-12) - 1) × 100` with exact calendar-month lookups and align only on shared dates. These national aggregates do not describe every household. Spending growth does not establish financial sustainability, and a higher saving rate is not automatically favorable.
 
 AHETPI is average hourly earnings for private-sector production and nonsupervisory employees. It begins in January 1964, is not a median, excludes supervisory and government workers, and can change with the mix of jobs. Nominal growth is `(wage_t / wage_t-12 - 1) × 100`. Real growth is `((wage_t / wage_t-12) / (CPI_t / CPI_t-12) - 1) × 100`; it is not calculated by subtracting rounded rates.
 
@@ -106,7 +112,7 @@ Headline and core year-over-year inflation use `((index_t / index_t-12) - 1) × 
 
 Real GDP per capita uses BEA series `A939RX0Q048SBEA`, published quarterly in chained 2017 dollars at a seasonally adjusted annual rate. Labor productivity uses BLS series `OPHNFB`, a quarterly seasonally adjusted index of nonfarm business output per hour. For both, displayed growth is `((level_t / level_t-4 quarters) - 1) × 100`. The calculation requires the exact calendar quarter one year earlier and leaves gaps unavailable rather than substituting by array position.
 
-All current snapshots were retrieved from FRED on July 13, 2026 UTC. Each source uses the full-history request policy without `observation_start`. Leading unavailable transformed observations are omitted, while meaningful internal missing values remain `null`. PAYEMS is published monthly in thousands of persons, seasonally adjusted; the application calculates consecutive monthly differences and rolling three-month averages from its full source history.
+All current snapshots were retrieved from FRED on July 14, 2026 UTC. Each source uses the full-history request policy without `observation_start`. Leading unavailable transformed observations are omitted, while meaningful internal missing values remain `null`. PAYEMS is published monthly in thousands of persons, seasonally adjusted; the application calculates consecutive monthly differences and rolling three-month averages from its full source history.
 
 Components request data asynchronously through the `EconomicSeriesRepository` interface instead of importing JSON. The local repository validates committed data at runtime, while preserving a boundary that can later be implemented by an application API or another data store.
 

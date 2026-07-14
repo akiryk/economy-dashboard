@@ -14,6 +14,8 @@ Historical context uses the fullest reliable comparable series available for eac
 
 Related indicators should be compared directly when their relationship answers a meaningful human question. Purchasing-power growth requires both nominal wages and prices. Average wage measures remain qualified because they do not describe every worker or household.
 
+Aggregate household income, spending, and saving measures do not describe every household or the distribution of outcomes. Spending growth alone does not establish household financial strength or sustainability, and a higher personal saving rate is not automatically favorable.
+
 ## Human questions first
 
 Every indicator leads with the human question it helps answer. Technical provider titles and identifiers remain supporting metadata. This keeps the briefing understandable without obscuring provenance.
@@ -40,10 +42,10 @@ Heading hierarchy, native controls, visible focus, nonvisual chart summaries, so
 
 ## Current organization decisions
 
-The implemented sections are Growth, Prices, and Employment and income. Future sections may include consumers, housing, business and manufacturing, government, financial conditions, and expectations versus outcomes, but they are not displayed until they contain real indicators.
+The implemented sections are Growth, Prices, Employment and income, and Households. Future sections may include housing, business and manufacturing, government, financial conditions, and expectations versus outcomes, but they are not displayed until they contain real indicators.
 
 Employment and income pairs unemployment with prime-age employment-to-population ratio as separate cards. Presenting complementary measures together adds context without combining them into a labor-market score.
 
 Payroll growth uses a clearly labeled rolling three-month average as its primary measure to reduce single-month volatility. The underlying monthly changes remain available in the same card so smoothing does not hide the source-derived observations.
 
-In-page navigation remains deferred at three sections. The semantic section identifiers provide a stable place to add restrained navigation when the briefing grows enough to justify it.
+The collapsed in-page navigation surfaces every card by section without competing with the briefing itself.

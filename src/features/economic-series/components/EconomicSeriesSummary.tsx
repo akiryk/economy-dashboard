@@ -6,6 +6,7 @@ import {
   formatJobChangeProse,
   formatDate,
   formatObservationPeriod,
+  formatSignedPercentage,
   selectMostRecentObservations,
   sortObservationsChronologically,
 } from '../utils/economicSeries'
@@ -18,6 +19,8 @@ import { RecentObservationsTable } from './RecentObservationsTable'
 import { PayrollObservationsTable } from './PayrollObservationsTable'
 import { TimeRangeControl } from './TimeRangeControl'
 import { getEconomicSeriesPresentation } from './seriesPresentation'
+import { SavingRateTable } from './SavingRateTable'
+import { savingRateChanges } from '../utils/savingRateData'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -54,6 +57,12 @@ export function EconomicSeriesSummary({
   )
   const formatValue = (value: number | null) =>
     formatEconomicValue(value, presentation.valueFormat)
+  const savingRateChange =
+    series.slug === 'personal-saving-rate'
+      ? savingRateChanges(series.observations).find(
+          (item) => item.date === latestObservation?.date,
+        )?.change ?? null
+      : null
 
   return (
     <article
@@ -172,6 +181,9 @@ export function EconomicSeriesSummary({
                 (chartSummary.hasBelowZero
                   ? 'At least one observation was below zero.'
                   : 'No observations were below zero.')}
+              {series.slug === 'personal-saving-rate' && (
+                <> The change from 12 months earlier was {formatSignedPercentage(savingRateChange)} percentage points.</>
+              )}
             </p>
           )}
         </>
@@ -252,7 +264,9 @@ export function EconomicSeriesSummary({
 
         <details className="supporting-disclosure">
           <summary>Recent observations</summary>
-          {presentation.recentTable === 'payroll-changes' && supportingSeries ? (
+          {series.slug === 'personal-saving-rate' ? (
+            <SavingRateTable observations={series.observations} />
+          ) : presentation.recentTable === 'payroll-changes' && supportingSeries ? (
             <PayrollObservationsTable
               averages={series.observations}
               monthlyChanges={supportingSeries.observations}

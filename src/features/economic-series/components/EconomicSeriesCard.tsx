@@ -4,6 +4,9 @@ import { localEconomicSeriesRepository } from '../repositories/localEconomicSeri
 import { EconomicSeriesSummary } from './EconomicSeriesSummary'
 import { WagesComparisonSummary } from './WagesComparisonSummary'
 import { InflationComparisonSummary } from './InflationComparisonSummary'
+import { HouseholdComparisonSummary } from './HouseholdComparisonSummary'
+
+const noSupportingSlugs: readonly string[] = []
 
 type SeriesState =
   | { status: 'loading' }
@@ -22,6 +25,7 @@ interface EconomicSeriesCardProps {
   supportingSlugs?: readonly string[]
   variant?:
     | 'inflation-momentum'
+    | 'household-comparison'
     | 'headline-core-comparison'
     | 'single'
     | 'wages-comparison'
@@ -31,7 +35,7 @@ export function EconomicSeriesCard({
   slug,
   label,
   onSeriesLoaded,
-  supportingSlugs = [],
+  supportingSlugs = noSupportingSlugs,
   variant = 'single',
 }: EconomicSeriesCardProps) {
   const [seriesState, setSeriesState] = useState<SeriesState>({
@@ -108,6 +112,15 @@ export function EconomicSeriesCard({
         realWageGrowth={seriesState.series}
         nominalWageGrowth={seriesState.supportingSeries[0]!}
         cpiInflation={seriesState.supportingSeries[1]!}
+      />
+    )
+  }
+
+  if (variant === 'household-comparison') {
+    return (
+      <HouseholdComparisonSummary
+        income={seriesState.series}
+        spending={seriesState.supportingSeries[0]!}
       />
     )
   }

@@ -8,6 +8,8 @@ import {
   fredSeriesConfigurations,
   payrollSeriesConfiguration,
   wageSeriesConfiguration,
+  householdComparisonConfiguration,
+  personalSavingRateConfiguration,
 } from './fred/seriesConfigurations'
 import {
   refreshAllEconomicData,
@@ -100,6 +102,28 @@ describe('refreshEconomicData', () => {
       })
       expect(config?.fredUnits).toBeUndefined()
     }
+  })
+
+  it('configures household sources as full-history monthly levels', () => {
+    const sources = [
+      householdComparisonConfiguration.incomeSource,
+      householdComparisonConfiguration.spendingSource,
+      personalSavingRateConfiguration,
+    ]
+    expect(sources.map((source) => source.providerSeriesId)).toEqual([
+      'A229RX0',
+      'PCEC96',
+      'PSAVERT',
+    ])
+    for (const source of sources) {
+      expect(source).toMatchObject({
+        frequency: 'monthly',
+        fredFrequency: 'm',
+        historyPolicy: { type: 'full' },
+      })
+      expect(source.fredUnits).toBeUndefined()
+    }
+    expect(personalSavingRateConfiguration.transformation).toBe('Level')
   })
 
   it('does not overwrite an existing file when normalization fails', async () => {

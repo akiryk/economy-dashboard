@@ -48,6 +48,19 @@ const navigationGroups = [
       },
     ],
   },
+  {
+    title: 'Households',
+    cards: [
+      {
+        id: 'real-income-versus-spending-card',
+        title: 'Are household incomes and spending growing after inflation?',
+      },
+      {
+        id: 'personal-saving-rate-card',
+        title: 'Are households saving or drawing down more of their income?',
+      },
+    ],
+  },
 ] as const
 
 export function DashboardNavigation() {
@@ -60,7 +73,7 @@ export function DashboardNavigation() {
         <summary>
           <span id="dashboard-navigation-heading">Explore all indicators</span>
           <span className="dashboard-navigation__summary-detail">
-            10 cards in 3 categories
+            12 cards in 4 categories
           </span>
         </summary>
         <div className="dashboard-navigation__groups">

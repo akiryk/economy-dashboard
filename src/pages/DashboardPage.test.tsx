@@ -42,13 +42,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('10 cards in 3 categories')).toBeVisible()
+    expect(within(navigation).getByText('12 cards in 4 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(10)
+    expect(links).toHaveLength(12)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -60,6 +60,8 @@ describe('DashboardPage economic series', () => {
       'What share of prime-age adults are employed?',
       'Are employers adding jobs?',
       'Are workers’ wages keeping up with prices?',
+      'Are household incomes and spending growing after inflation?',
+      'Are households saving or drawing down more of their income?',
     ])
 
     const gdpCard = await screen.findByRole('article', {
@@ -115,6 +117,7 @@ describe('DashboardPage economic series', () => {
     const employment = screen.getByRole('region', {
       name: 'Employment and income',
     })
+    const households = screen.getByRole('region', { name: 'Households' })
     expect(
       within(growth).getByText(
         /Growth measures how much the economy is producing/,
@@ -167,7 +170,11 @@ describe('DashboardPage economic series', () => {
       'Are employers adding jobs?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(10)
+    expect(screen.getAllByRole('article')).toHaveLength(12)
+    expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
+      'real-income-versus-spending-question',
+      'personal-saving-rate-question',
+    ])
     expect(
       within(employment).queryByRole('article', {
         name: 'How much did total nonfarm payroll employment change?',

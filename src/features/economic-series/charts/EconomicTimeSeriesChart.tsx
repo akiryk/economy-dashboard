@@ -58,10 +58,18 @@ interface InflationComparisonChartProps {
   variant: 'momentum' | 'year-over-year'
 }
 
+interface HouseholdComparisonChartProps {
+  kind: 'household-comparison'
+  incomeObservations: readonly EconomicObservation[]
+  spendingObservations: readonly EconomicObservation[]
+  frequency: EconomicFrequency
+}
+
 export type EconomicTimeSeriesChartProps =
   | SingleSeriesChartProps
   | ComparisonChartProps
   | InflationComparisonChartProps
+  | HouseholdComparisonChartProps
 
 export default function EconomicTimeSeriesChart(
   props: EconomicTimeSeriesChartProps,
@@ -82,10 +90,15 @@ export default function EconomicTimeSeriesChart(
       inflation: adaptObservationsToChartData(props.inflationObservations),
       real: adaptObservationsToChartData(props.realObservations),
     }
-    return {
+    if (props.kind === 'inflation-comparison') return {
       kind: 'inflation-comparison' as const,
       headline: adaptObservationsToChartData(props.headlineObservations),
       core: adaptObservationsToChartData(props.coreObservations),
+    }
+    return {
+      kind: 'household-comparison' as const,
+      income: adaptObservationsToChartData(props.incomeObservations),
+      spending: adaptObservationsToChartData(props.spendingObservations),
     }
   }, [props])
 
@@ -149,6 +162,14 @@ export default function EconomicTimeSeriesChart(
                   frequency: props.frequency,
                   variant: props.variant,
                 })
+              : props.kind === 'household-comparison' &&
+                  chartData.kind === 'household-comparison'
+                ? createInflationComparisonChartOptions({
+                    headlineData: chartData.income,
+                    coreData: chartData.spending,
+                    frequency: props.frequency,
+                    variant: 'household',
+                  })
             : null
       if (options) chart.setOption(options, { notMerge: true })
     } catch (error: unknown) {
@@ -175,7 +196,9 @@ export default function EconomicTimeSeriesChart(
           ? `${props.seriesName} ${props.frequency} time-series chart`
           : props.kind === 'comparison'
             ? 'Nominal wage growth and headline CPI inflation comparison chart'
-            : props.variant === 'momentum'
+            : props.kind === 'household-comparison'
+              ? 'Real disposable income per capita growth and real consumer spending growth comparison chart'
+              : props.variant === 'momentum'
               ? 'Headline and core CPI three-month annualized inflation comparison chart'
               : 'Headline and core CPI year-over-year inflation comparison chart'
       }

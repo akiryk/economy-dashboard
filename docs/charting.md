@@ -24,6 +24,8 @@ Maximum passes every generated observation to the chart boundary. It is series-s
 
 ## Lifecycle and resizing
 
+The household growth comparison reuses the two-line shared percentage-axis configuration: income is solid, spending is dashed, zero is included, gaps remain disconnected, and no dual axis is available. Personal saving rate uses the existing single-series level policy, so its axis is padded without forcing zero or adding a target band.
+
 `EconomicTimeSeriesChart` initializes one ECharts instance for its container, updates options when filtered observations change, and disposes the instance on unmount. A `ResizeObserver` resizes the chart when its container changes; the global window resize event is a fallback for browsers without `ResizeObserver`.
 
 Initialization and update failures are logged for diagnosis and replaced with a visible message. Metadata, explanations, and the semantic table remain usable if canvas rendering fails.
@@ -75,3 +77,5 @@ With Story 10, the initial application chunk is 314.17 kB minified (98.04 kB gzi
 With Story 11, the initial application chunk is 316.29 kB minified (98.44 kB gzip). The real-GDP-per-capita and labor-productivity data chunks are 15.12 kB (4.85 kB gzip) and 15.04 kB (4.77 kB gzip). The build still emits one shared chart/ECharts chunk at 538.34 kB minified (181.25 kB gzip); ECharts remains deduplicated, and the existing deferred-chunk warning remains.
 
 With Story 12, the initial application chunk is 324.91 kB minified (99.91 kB gzip). The new core year-over-year, core momentum, and headline momentum data chunks are 37.41 kB, 37.62 kB, and 43.02 kB minified. The build emits one shared chart/ECharts chunk at 540.66 kB minified (181.57 kB gzip); ECharts remains deduplicated, and the existing deferred-chunk warning remains.
+
+With Story 13, the initial application chunk is 336.76 kB minified (101.87 kB gzip). The income-growth, spending-growth, and saving-rate data chunks are 36.64 kB, 10.97 kB, and 25.35 kB minified. The build emits one shared chart/ECharts chunk at 541.35 kB minified (181.74 kB gzip); ECharts remains deduplicated, and the existing deferred-chunk warning remains.

@@ -17,6 +17,9 @@ const headlineInflationSupportingSlugs = ['headline-cpi-inflation'] as const
 const headlineMomentumSupportingSlugs = [
   'headline-cpi-three-month-annualized',
 ] as const
+const householdSpendingSupportingSlugs = [
+  'real-consumer-spending-growth',
+] as const
 
 export function DashboardPage() {
   const [loadedSeries, setLoadedSeries] = useState<
@@ -144,6 +147,25 @@ export function DashboardPage() {
           supportingSlugs={wageComparisonSupportingSlugs}
           label="wages versus inflation"
           variant="wages-comparison"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+      </EconomicSection>
+
+      <EconomicSection
+        id="households"
+        title="Households"
+        description="Household indicators show how inflation-adjusted income, spending, and saving are changing in aggregate, but do not describe every household’s experience."
+      >
+        <EconomicSeriesCard
+          slug="real-disposable-income-per-capita-growth"
+          supportingSlugs={householdSpendingSupportingSlugs}
+          label="real income versus spending"
+          variant="household-comparison"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+        <EconomicSeriesCard
+          slug="personal-saving-rate"
+          label="personal saving rate"
           onSeriesLoaded={handleSeriesLoaded}
         />
       </EconomicSection>

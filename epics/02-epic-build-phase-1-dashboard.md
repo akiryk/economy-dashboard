@@ -111,7 +111,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 | 10 | Add wages-versus-inflation comparison | Planned or in progress |
 | 11 | Add productivity and real GDP per capita | Complete |
 | 12 | Add underlying inflation and inflation momentum | Planned |
-| 13 | Add household income, spending, and saving | Planned |
+| 13 | Add household income, spending, and saving | Complete |
 | 14 | Add household financial stress | Planned |
 | 15 | Add housing affordability and construction | Planned |
 | 16 | Add manufacturing output versus employment | Planned |

@@ -17,6 +17,23 @@ interface EconomicSeriesPresentation {
 }
 
 const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
+  'personal-saving-rate': {
+    topicLabel: 'Household saving',
+    latestValueLabel: 'Latest personal saving rate',
+    whatThisTellsYou:
+      'The personal saving rate is the share of aggregate disposable personal income that remains after personal consumption and related outlays. It helps show how much current income households are saving rather than spending.',
+    whatThisLeavesOut:
+      'The national rate is an aggregate and can differ sharply across households. It does not measure total household wealth, cash balances, or debt, and a higher rate can reflect either improved financial capacity or greater caution.',
+    relatedIndicators: ['Real income and spending', 'Household debt service', 'Consumer confidence'],
+    recentObservationCount: 12,
+    recentObservationsCaption: 'Twelve most recent personal saving rate observations',
+    valueColumnLabel: 'Personal saving rate',
+    includeZeroInChart: false,
+    reportBelowZero: false,
+    valueFormat: 'percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
+  },
   'real-gdp-growth': {
     topicLabel: 'Economic growth',
     latestValueLabel: 'Latest real GDP growth',
