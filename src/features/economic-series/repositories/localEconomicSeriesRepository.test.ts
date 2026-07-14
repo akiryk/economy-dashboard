@@ -6,6 +6,7 @@ describe('localEconomicSeriesRepository', () => {
     ['real-gdp-growth', 'GDPC1'],
     ['real-gdp-per-capita-growth', 'A939RX0Q048SBEA'],
     ['labor-productivity-growth', 'OPHNFB'],
+    ['labor-productivity-level', 'OPHNFB'],
   ])('loads %s as a quarterly series', async (slug, providerSeriesId) => {
     const series = await localEconomicSeriesRepository.getBySlug(slug)
 

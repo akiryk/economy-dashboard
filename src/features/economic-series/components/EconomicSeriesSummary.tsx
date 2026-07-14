@@ -6,6 +6,7 @@ import {
   formatJobChangeProse,
   formatDate,
   formatObservationPeriod,
+  formatPercentage,
   formatSignedPercentage,
   selectMostRecentObservations,
   sortObservationsChronologically,
@@ -21,6 +22,8 @@ import { TimeRangeControl } from './TimeRangeControl'
 import { getEconomicSeriesPresentation } from './seriesPresentation'
 import { SavingRateTable } from './SavingRateTable'
 import { savingRateChanges } from '../utils/savingRateData'
+import { calculateProductivityMomentum } from '../utils/productivityData'
+import { ProductivityMomentumTable } from './ProductivityMomentumTable'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -63,6 +66,12 @@ export function EconomicSeriesSummary({
           (item) => item.date === latestObservation?.date,
         )?.change ?? null
       : null
+  const productivityMomentum =
+    series.slug === 'labor-productivity-growth'
+      ? calculateProductivityMomentum(series.observations).find(
+          (item) => item.date === latestObservation?.date,
+        )?.momentumChange ?? null
+      : null
 
   return (
     <article
@@ -88,7 +97,17 @@ export function EconomicSeriesSummary({
             {formatValue(latestObservation?.value ?? null)}
           </span>
         </p>
-        <p className="series-current__label">{presentation.latestValueLabel}</p>
+        <p className="series-current__label">
+          {series.slug === 'labor-productivity-growth'
+            ? latestObservation?.value === null || latestObservation?.value === undefined
+              ? 'Productivity change from a year ago is unavailable'
+              : latestObservation.value < 0
+                ? 'Productivity is lower than a year ago'
+                : latestObservation.value === 0
+                  ? 'Productivity is unchanged from a year ago'
+                  : 'Productivity is higher than a year ago'
+            : presentation.latestValueLabel}
+        </p>
         <p className="series-current__period">
           {latestObservation
             ? formatObservationPeriod(
@@ -99,6 +118,20 @@ export function EconomicSeriesSummary({
           {' · '}
           {series.units}
         </p>
+        {series.slug === 'labor-productivity-growth' &&
+          productivityMomentum !== null && (
+            <p className="series-current__comparison">
+              The pace of productivity growth has{' '}
+              {productivityMomentum > 0
+                ? 'accelerated'
+                : productivityMomentum < 0
+                  ? 'slowed'
+                  : 'remained unchanged'}{' '}
+              {productivityMomentum === 0
+                ? 'from a year earlier.'
+                : `by ${formatPercentage(Math.abs(productivityMomentum))} percentage points from a year earlier.`}
+            </p>
+          )}
       </div>
 
       <TimeRangeControl
@@ -184,6 +217,10 @@ export function EconomicSeriesSummary({
               {series.slug === 'personal-saving-rate' && (
                 <> The change from 12 months earlier was {formatSignedPercentage(savingRateChange)} percentage points.</>
               )}
+              {series.slug === 'labor-productivity-growth' &&
+                productivityMomentum !== null && (
+                  <> The growth rate {productivityMomentum > 0 ? 'accelerated' : productivityMomentum < 0 ? 'slowed' : 'was unchanged'} by {formatPercentage(Math.abs(productivityMomentum))} percentage points compared with four quarters earlier.</>
+                )}
             </p>
           )}
         </>
@@ -264,7 +301,9 @@ export function EconomicSeriesSummary({
 
         <details className="supporting-disclosure">
           <summary>Recent observations</summary>
-          {series.slug === 'personal-saving-rate' ? (
+          {series.slug === 'labor-productivity-growth' ? (
+            <ProductivityMomentumTable observations={series.observations} />
+          ) : series.slug === 'personal-saving-rate' ? (
             <SavingRateTable observations={series.observations} />
           ) : presentation.recentTable === 'payroll-changes' && supportingSeries ? (
             <PayrollObservationsTable

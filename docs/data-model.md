@@ -4,7 +4,7 @@ The economic-series domain model keeps source metadata and observations together
 
 An `EconomicSeries` identifies the provider and provider series, explains the displayed units and transformation, records seasonal adjustment and frequency, and contains `EconomicObservation` entries. Each observation has an ISO date representing the economic period and a numeric or `null` value. A missing observation remains `null`; it is never treated as zero.
 
-The current domain supports quarterly GDP, GDP-per-capita, and productivity growth plus monthly CPI and labor-market series. One provider level series can generate multiple validated outputs with distinct transformations, as headline and core CPI each do for year-over-year and three-month annualized rates. Frequency-aware presentation formats quarterly dates as `2026 Q1` and monthly dates as `June 2026` using UTC, so local timezone offsets cannot shift an economic period. Invalid dates are rejected rather than displayed ambiguously.
+The current domain supports quarterly GDP, GDP-per-capita, productivity levels and productivity growth plus monthly CPI and labor-market series. One provider level series can generate multiple validated outputs with distinct transformations, as headline and core CPI each do for year-over-year and three-month annualized rates. Frequency-aware presentation formats quarterly dates as `2026 Q1` and monthly dates as `June 2026` using UTC, so local timezone offsets cannot shift an economic period. Invalid dates are rejected rather than displayed ambiguously.
 
 ## Observation date and retrieval date
 
@@ -52,6 +52,8 @@ Real GDP per capita growth and labor productivity growth are locally derived fro
 
 The derivation compares a quarterly level only with the observation at the exact calendar quarter one year earlier. Missing levels or a missing prior-year quarter produce `null`; the calculation never substitutes the fourth previous array item or bridges a calendar gap. Leading unavailable values are omitted after derivation, while internal unavailable values remain in the unchanged `{ date, value }` observation shape.
 
+The canonical OPHNFB level remains a provider-published `EconomicSeries`. Selected-range normalization to 100 and cumulative change are presentation values and are not persisted. Productivity momentum is the exact-quarter percentage-point difference between year-over-year growth rates four quarters apart.
+
 ## Multi-source wage provenance
 
 `EconomicSeries` optionally carries a validated `sources` list for multi-source derivations. Existing single-source metadata remains valid. Real wage growth identifies AHETPI as the wage measure and CPIAUCSL as the inflation deflator; it does not imply that FRED directly publishes the combined result. The relationship card loads real wage growth, nominal wage growth, and the existing CPI inflation series as one card-level unit and aligns them by exact calendar month.
@@ -66,7 +68,7 @@ PSAVERT is a provider-published percent level, not a growth rate. Its 12-month c
 
 ## Current limitations
 
-- The application contains twelve visible cards and four supporting comparison series.
+- The application contains thirteen visible cards and four supporting comparison series.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.

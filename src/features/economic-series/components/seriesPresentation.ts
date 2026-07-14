@@ -71,16 +71,16 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     recentTable: 'single-value',
   },
   'labor-productivity-growth': {
-    topicLabel: 'Productive capacity',
-    latestValueLabel: 'Latest labor productivity growth',
+    topicLabel: 'Productivity growth',
+    latestValueLabel: 'Productivity is higher than a year ago',
     whatThisTellsYou:
-      'Labor productivity measures output per hour worked in the nonfarm business sector. Rising productivity means the economy is producing more output for each hour of labor.',
+      'Labor productivity measures output per hour worked. This chart shows how quickly productivity is changing from a year earlier. A positive value means output per hour is still increasing. A rising line means those gains are accelerating, while a falling line means they are slowing. A downward-moving line above zero does not mean productivity is falling; it means productivity is still increasing, but at a slower rate.',
     whatThisLeavesOut:
-      'Productivity growth does not show how its gains are distributed between workers and business owners. It also excludes government, farms, households, and some other activity outside the nonfarm business sector.',
+      'Short-term productivity growth is volatile because output and hours can change at different speeds during recessions, recoveries, and major disruptions. Technological and organizational improvements matter, but their long-run effect is easier to see in the productivity-level card.',
     relatedIndicators: ['Real GDP', 'Real wages', 'Labor share'],
     recentObservationCount: 8,
     recentObservationsCaption:
-      'Eight most recent labor productivity growth observations',
+      'Eight most recent productivity growth momentum observations',
     valueColumnLabel: 'Year-over-year growth',
     includeZeroInChart: true,
     reportBelowZero: true,

@@ -8,8 +8,12 @@ const navigationGroups = [
         title: 'Is economic output growing faster than the population?',
       },
       {
+        id: 'labor-productivity-level-card',
+        title: 'How much more productive is the economy than in the past?',
+      },
+      {
         id: 'labor-productivity-growth-card',
-        title: 'Is the economy producing more per hour worked?',
+        title: 'Are productivity gains revving up or slowing down?',
       },
     ],
   },
@@ -73,7 +77,7 @@ export function DashboardNavigation() {
         <summary>
           <span id="dashboard-navigation-heading">Explore all indicators</span>
           <span className="dashboard-navigation__summary-detail">
-            12 cards in 4 categories
+            13 cards in 4 categories
           </span>
         </summary>
         <div className="dashboard-navigation__groups">

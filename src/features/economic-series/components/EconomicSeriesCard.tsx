@@ -5,6 +5,7 @@ import { EconomicSeriesSummary } from './EconomicSeriesSummary'
 import { WagesComparisonSummary } from './WagesComparisonSummary'
 import { InflationComparisonSummary } from './InflationComparisonSummary'
 import { HouseholdComparisonSummary } from './HouseholdComparisonSummary'
+import { ProductivityLevelSummary } from './ProductivityLevelSummary'
 
 const noSupportingSlugs: readonly string[] = []
 
@@ -26,6 +27,7 @@ interface EconomicSeriesCardProps {
   variant?:
     | 'inflation-momentum'
     | 'household-comparison'
+    | 'productivity-level'
     | 'headline-core-comparison'
     | 'single'
     | 'wages-comparison'
@@ -123,6 +125,10 @@ export function EconomicSeriesCard({
         spending={seriesState.supportingSeries[0]!}
       />
     )
+  }
+
+  if (variant === 'productivity-level') {
+    return <ProductivityLevelSummary series={seriesState.series} />
   }
 
   if (

@@ -9,6 +9,8 @@ const localSeriesLoaders: Readonly<
     import('../data/real-gdp-per-capita-growth.json'),
   'labor-productivity-growth': () =>
     import('../data/labor-productivity-growth.json'),
+  'labor-productivity-level': () =>
+    import('../data/labor-productivity-level.json'),
   'headline-cpi-inflation': () =>
     import('../data/headline-cpi-inflation.json'),
   'core-cpi-inflation': () => import('../data/core-cpi-inflation.json'),

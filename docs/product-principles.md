@@ -48,4 +48,6 @@ Employment and income pairs unemployment with prime-age employment-to-population
 
 Payroll growth uses a clearly labeled rolling three-month average as its primary measure to reduce single-month volatility. The underlying monthly changes remain available in the same card so smoothing does not hide the source-derived observations.
 
+Productivity level and productivity growth answer different questions. The level card shows cumulative change from a selected-range baseline, while the momentum card shows the year-over-year pace. A falling positive growth rate is described as slower gains, not falling productivity.
+
 The collapsed in-page navigation surfaces every card by section without competing with the briefing itself.

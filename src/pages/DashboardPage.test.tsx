@@ -42,17 +42,18 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('12 cards in 4 categories')).toBeVisible()
+    expect(within(navigation).getByText('13 cards in 4 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(12)
+    expect(links).toHaveLength(13)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
-      'Is the economy producing more per hour worked?',
+      'How much more productive is the economy than in the past?',
+      'Are productivity gains revving up or slowing down?',
       'How quickly are consumer prices rising?',
       'Is inflation broad and persistent?',
       'Is inflation currently accelerating or slowing?',
@@ -140,7 +141,8 @@ describe('DashboardPage economic series', () => {
     expect(growthQuestions.map((heading) => heading.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
-      'Is the economy producing more per hour worked?',
+      'How much more productive is the economy than in the past?',
+      'Are productivity gains revving up or slowing down?',
     ])
     expect(
       await within(prices).findByRole('heading', {
@@ -170,7 +172,7 @@ describe('DashboardPage economic series', () => {
       'Are employers adding jobs?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(12)
+    expect(screen.getAllByRole('article')).toHaveLength(13)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'real-income-versus-spending-question',
       'personal-saving-rate-question',
@@ -294,21 +296,21 @@ describe('DashboardPage economic series', () => {
       name: 'Is economic output growing faster than the population?',
     })
     const productivity = await screen.findByRole('article', {
-      name: 'Is the economy producing more per hour worked?',
+      name: 'Are productivity gains revving up or slowing down?',
     })
 
     expect(
       within(perCapita).getByLabelText('Latest real GDP per capita growth'),
     ).toHaveTextContent('2.3%')
     expect(
-      within(productivity).getByLabelText('Latest labor productivity growth'),
+      within(productivity).getByLabelText('Productivity is higher than a year ago'),
     ).toHaveTextContent('2.8%')
     expect(within(perCapita).getAllByText('2026 Q1')).not.toHaveLength(0)
     expect(within(productivity).getAllByText('2026 Q1')).not.toHaveLength(0)
 
     for (const [card, label] of [
       [perCapita, 'Real GDP per capita'],
-      [productivity, 'Labor productivity'],
+      [productivity, 'Productivity momentum'],
     ] as const) {
       expect(
         within(card).getByRole('group', {
@@ -327,7 +329,7 @@ describe('DashboardPage economic series', () => {
       name: 'Eight most recent real GDP per capita growth observations',
     })
     const productivityTable = within(productivity).getByRole('table', {
-      name: 'Eight most recent labor productivity growth observations',
+      name: 'Eight most recent productivity growth momentum observations',
     })
     expect(within(perCapitaTable).getAllByRole('row')).toHaveLength(9)
     expect(within(productivityTable).getAllByRole('row')).toHaveLength(9)
@@ -335,7 +337,7 @@ describe('DashboardPage economic series', () => {
       '2026 Q12.3%',
     )
     expect(within(productivityTable).getAllByRole('row')[1]).toHaveTextContent(
-      '2026 Q12.8%',
+      '2026 Q1+2.8%+0.8% pp',
     )
 
     await waitFor(() => {
@@ -353,11 +355,34 @@ describe('DashboardPage economic series', () => {
         frequency: 'quarterly',
         includeZero: true,
       })
-      expect(chartProps['Labor productivity']).toMatchObject({
+      expect(chartProps['Productivity momentum']).toMatchObject({
         frequency: 'quarterly',
         includeZero: true,
       })
+      expect(
+        chartProps['Productivity index, selected-range baseline = 100'],
+      ).toMatchObject({ frequency: 'quarterly', includeZero: false })
     })
+  })
+
+  it('normalizes productivity level independently for the selected range', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+    const card = await screen.findByRole('article', {
+      name: 'How much more productive is the economy than in the past?',
+    })
+    expect(within(card).getByLabelText('Cumulative productivity change')).toBeVisible()
+    expect(within(card).getByRole('group', {
+      name: 'Productivity over time displayed time range',
+    })).toBeVisible()
+    await user.click(within(card).getByRole('button', { name: '5 years' }))
+    expect(within(card).getByText(/start of the selected 5-year period/)).toBeVisible()
+    await user.click(within(card).getByText('Recent observations'))
+    const table = within(card).getByRole('table', {
+      name: 'Eight most recent normalized productivity-level observations',
+    })
+    expect(within(table).getAllByRole('row')).toHaveLength(9)
+    expect(within(table).getAllByRole('columnheader')).toHaveLength(3)
   })
 
   it('renders the wages-versus-inflation relationship after payroll', async () => {
@@ -771,7 +796,7 @@ describe('DashboardPage economic series', () => {
   it.each([
     [
       'real-gdp-per-capita-growth',
-      'Is the economy producing more per hour worked?',
+      'Are productivity gains revving up or slowing down?',
       'The real GDP per capita data could not be loaded.',
     ],
     [

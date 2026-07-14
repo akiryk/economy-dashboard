@@ -22,6 +22,8 @@ import {
   householdComparisonConfiguration,
   personalSavingRateConfiguration,
   type HouseholdComparisonConfig,
+  productivitySeriesConfiguration,
+  type ProductivitySeriesConfig,
 } from './fred/seriesConfigurations'
 import {
   writeEconomicSeriesAtomically,
@@ -101,6 +103,7 @@ interface RefreshAllEconomicDataOptions {
   cpiConfiguration?: CpiSeriesConfig | false
   householdConfiguration?: HouseholdComparisonConfig | false
   savingRateConfiguration?: FredSeriesConfig | false
+  productivityConfiguration?: ProductivitySeriesConfig | false
   fetchImplementation?: typeof fetch
 }
 
@@ -254,6 +257,39 @@ export async function refreshHouseholdComparisonData({
   }
 }
 
+export async function refreshProductivityData({
+  apiKey,
+  retrievedAt,
+  config = productivitySeriesConfiguration,
+  fetchImplementation,
+}: {
+  apiKey: string
+  retrievedAt: string
+  config?: ProductivitySeriesConfig
+  fetchImplementation?: typeof fetch
+}) {
+  const response = await fetchFredObservations(
+    apiKey,
+    config.levelSource,
+    fetchImplementation,
+  )
+  const level = normalizeFredSeries(response, retrievedAt, config.levelSource)
+  const growth = deriveQuarterlyGrowthSeries(
+    response,
+    retrievedAt,
+    config.growthSource,
+  )
+  await writeEconomicSeriesGroupAtomically([
+    { outputPath: path.resolve(config.levelOutputFile), series: level },
+    { outputPath: path.resolve(config.growthOutputFile), series: growth },
+  ])
+  return {
+    level,
+    growth,
+    sourceObservationCount: response.observations.length,
+  }
+}
+
 export async function refreshAllEconomicData(
   options: RefreshAllEconomicDataOptions,
 ): Promise<RefreshOutcome[]> {
@@ -276,6 +312,10 @@ export async function refreshAllEconomicData(
 
   for (const config of configurations) {
     if (cpiConfig && config.providerSeriesId === 'CPIAUCSL') continue
+    if (
+      options.configurations === undefined &&
+      config.providerSeriesId === 'OPHNFB'
+    ) continue
     try {
       const { series, sourceObservationCount } = await refreshEconomicData({
         apiKey,
@@ -464,6 +504,42 @@ export async function refreshAllEconomicData(
       outcomes.push({
         status: 'failed',
         config: savingConfig,
+        message: error instanceof Error ? error.message : 'Unknown failure',
+      })
+    }
+  }
+
+  const productivityConfig =
+    options.productivityConfiguration === undefined
+      ? options.configurations === undefined
+        ? productivitySeriesConfiguration
+        : false
+      : options.productivityConfiguration
+  if (productivityConfig) {
+    try {
+      const { level, growth, sourceObservationCount } =
+        await refreshProductivityData({
+          apiKey,
+          retrievedAt,
+          config: productivityConfig,
+          fetchImplementation,
+        })
+      outcomes.push({
+        status: 'updated',
+        config: productivityConfig.levelSource,
+        series: level,
+        sourceObservationCount,
+      })
+      outcomes.push({
+        status: 'updated',
+        config: productivityConfig.growthSource,
+        series: growth,
+        sourceObservationCount,
+      })
+    } catch (error: unknown) {
+      outcomes.push({
+        status: 'failed',
+        config: productivityConfig.growthSource,
         message: error instanceof Error ? error.message : 'Unknown failure',
       })
     }

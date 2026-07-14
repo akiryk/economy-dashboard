@@ -98,7 +98,7 @@ export function formatSignedPercentage(value: number | null): string {
   return value > 0 ? `+${formatted}%` : `−${formatted}%`
 }
 
-export type EconomicValueFormat = 'percentage' | 'signed-thousands'
+export type EconomicValueFormat = 'index' | 'percentage' | 'signed-thousands'
 
 export function formatSignedThousands(value: number | null): string {
   if (value === null) return 'Not available'
@@ -127,6 +127,10 @@ export function formatEconomicValue(
 ): string {
   return format === 'signed-thousands'
     ? formatSignedThousands(value)
+    : format === 'index'
+      ? value === null
+        ? 'Unavailable'
+        : value.toFixed(1)
     : formatPercentage(value)
 }
 

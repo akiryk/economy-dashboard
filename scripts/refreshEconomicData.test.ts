@@ -10,11 +10,13 @@ import {
   wageSeriesConfiguration,
   householdComparisonConfiguration,
   personalSavingRateConfiguration,
+  productivitySeriesConfiguration,
 } from './fred/seriesConfigurations'
 import {
   refreshAllEconomicData,
   refreshCpiData,
   refreshEconomicData,
+  refreshProductivityData,
 } from './refreshEconomicData'
 
 const temporaryDirectories: string[] = []
@@ -124,6 +126,65 @@ describe('refreshEconomicData', () => {
       expect(source.fredUnits).toBeUndefined()
     }
     expect(personalSavingRateConfiguration.transformation).toBe('Level')
+  })
+
+  it('configures one full-history OPHNFB source for level and growth outputs', () => {
+    expect(productivitySeriesConfiguration).toMatchObject({
+      dataHandling: 'productivity-derived',
+      levelSource: {
+        providerSeriesId: 'OPHNFB',
+        frequency: 'quarterly',
+        fredFrequency: 'q',
+        historyPolicy: { type: 'full' },
+        transformation:
+          'Published level, normalized to 100 at the selected-range start for display',
+      },
+      growthSource: {
+        providerSeriesId: 'OPHNFB',
+        localDerivation: 'year-over-year-quarterly-growth',
+        historyPolicy: { type: 'full' },
+      },
+    })
+    expect(productivitySeriesConfiguration.levelSource.fredUnits).toBeUndefined()
+    expect(productivitySeriesConfiguration.growthSource.fredUnits).toBeUndefined()
+  })
+
+  it('fetches OPHNFB once and writes validated level and growth outputs together', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'productivity-data-'))
+    temporaryDirectories.push(directory)
+    const levelOutputFile = path.join(directory, 'level.json')
+    const growthOutputFile = path.join(directory, 'growth.json')
+    let fetchCount = 0
+    const observations = Array.from({ length: 81 }, (_, index) => {
+      const date = new Date(Date.UTC(2000, index * 3, 1))
+      return { date: date.toISOString().slice(0, 10), value: String(50 + index) }
+    })
+    const result = await refreshProductivityData({
+      apiKey: 'test-key',
+      retrievedAt: '2020-01-01',
+      config: {
+        ...productivitySeriesConfiguration,
+        levelOutputFile,
+        growthOutputFile,
+        levelSource: {
+          ...productivitySeriesConfiguration.levelSource,
+          minimumUsableObservations: 80,
+        },
+        growthSource: {
+          ...productivitySeriesConfiguration.growthSource,
+          minimumUsableObservations: 80,
+        },
+      },
+      fetchImplementation: async () => {
+        fetchCount += 1
+        return new Response(JSON.stringify({ observations }), { status: 200 })
+      },
+    })
+    expect(fetchCount).toBe(1)
+    expect(result.level.observations).toHaveLength(81)
+    expect(result.growth.observations).toHaveLength(77)
+    expect(validateEconomicSeries(JSON.parse(await readFile(levelOutputFile, 'utf8'))).transformation).toContain('Published level')
+    expect(validateEconomicSeries(JSON.parse(await readFile(growthOutputFile, 'utf8'))).transformation).toContain('calculated by the application')
   })
 
   it('does not overwrite an existing file when normalization fails', async () => {

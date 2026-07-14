@@ -72,6 +72,13 @@ function formatTooltip(
   if (!item || !isChartDataPoint(item.value)) return seriesName
 
   const [date, value] = item.value
+  if (valueFormat === 'index') {
+    return `${formatObservationPeriod(date, frequency)}\nProductivity index, selected-range baseline = 100: ${formatEconomicValue(value, valueFormat)}\nChange since selected-range start: ${formatSignedPercentage(value === null ? null : value - 100)}`
+  }
+  if (seriesName === 'Productivity momentum') {
+    const direction = value !== null && value < 0 ? 'lower' : 'higher'
+    return `${formatObservationPeriod(date, frequency)}\nProductivity was ${formatPercentage(value === null ? null : Math.abs(value))} ${direction} than one year earlier`
+  }
   return `${formatObservationPeriod(date, frequency)}\n${seriesName}: ${formatEconomicValue(value, valueFormat)}`
 }
 
@@ -124,7 +131,12 @@ export function createEconomicTimeSeriesChartOptions({
     },
     yAxis: {
       type: 'value',
-      name: valueFormat === 'signed-thousands' ? 'Jobs (thousands)' : 'Percent',
+      name:
+        valueFormat === 'signed-thousands'
+          ? 'Jobs (thousands)'
+          : valueFormat === 'index'
+            ? 'Index'
+            : 'Percent',
       nameLocation: 'end',
       nameTextStyle: { color: '#56616d', align: 'right' },
       min: (range: ValueRange) => paddedMinimum(range, includeZero),
@@ -132,7 +144,11 @@ export function createEconomicTimeSeriesChartOptions({
       axisLabel: {
         color: '#56616d',
         formatter:
-          valueFormat === 'signed-thousands' ? '{value}K' : '{value}%',
+          valueFormat === 'signed-thousands'
+            ? '{value}K'
+            : valueFormat === 'index'
+              ? '{value}'
+              : '{value}%',
       },
       axisLine: { show: false },
       axisTick: { show: false },

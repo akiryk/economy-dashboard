@@ -161,11 +161,11 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     historyPolicy: { type: 'full' },
     localDerivation: 'year-over-year-quarterly-growth',
     minimumUsableObservations: 80,
-    title: 'Labor Productivity Growth',
-    shortTitle: 'Labor productivity',
+    title: 'Productivity Growth Momentum',
+    shortTitle: 'Productivity momentum',
     description:
       'Year-over-year growth in nonfarm business sector output per hour for all workers, calculated from the published productivity index.',
-    question: 'Is the economy producing more per hour worked?',
+    question: 'Are productivity gains revving up or slowing down?',
     units: 'Percent',
     seasonalAdjustment:
       'Seasonally adjusted (underlying labor productivity index)',
@@ -357,4 +357,48 @@ export const personalSavingRateConfiguration: FredSeriesConfig = {
   transformation: 'Level',
   sourceName: 'U.S. Bureau of Economic Analysis via FRED',
   sourceUrl: 'https://fred.stlouisfed.org/series/PSAVERT',
+}
+
+export interface ProductivitySeriesConfig {
+  dataHandling: 'productivity-derived'
+  levelSource: FredSeriesConfig
+  growthSource: FredSeriesConfig
+  levelOutputFile: string
+  growthOutputFile: string
+}
+
+const productivityGrowthSource = fredSeriesConfigurations.find(
+  (config) => config.providerSeriesId === 'OPHNFB',
+)!
+
+export const laborProductivityLevelConfiguration: FredSeriesConfig = {
+  dataHandling: 'provider-level',
+  id: 'labor-productivity-level',
+  slug: 'labor-productivity-level',
+  outputFile:
+    'src/features/economic-series/data/labor-productivity-level.json',
+  providerSeriesId: 'OPHNFB',
+  frequency: 'quarterly',
+  fredFrequency: 'q',
+  historyPolicy: { type: 'full' },
+  minimumUsableObservations: 80,
+  title: 'Productivity Over Time',
+  shortTitle: 'Productivity level',
+  description:
+    'Published nonfarm business-sector output per hour, normalized to 100 at the selected-range start for display.',
+  question: 'How much more productive is the economy than in the past?',
+  units: 'Index',
+  seasonalAdjustment: 'Seasonally adjusted',
+  transformation:
+    'Published level, normalized to 100 at the selected-range start for display',
+  sourceName: 'U.S. Bureau of Labor Statistics via FRED',
+  sourceUrl: 'https://fred.stlouisfed.org/series/OPHNFB',
+}
+
+export const productivitySeriesConfiguration: ProductivitySeriesConfig = {
+  dataHandling: 'productivity-derived',
+  levelSource: laborProductivityLevelConfiguration,
+  growthSource: productivityGrowthSource,
+  levelOutputFile: laborProductivityLevelConfiguration.outputFile,
+  growthOutputFile: productivityGrowthSource.outputFile,
 }

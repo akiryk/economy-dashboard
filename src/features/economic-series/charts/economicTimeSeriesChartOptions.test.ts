@@ -74,6 +74,28 @@ describe('createEconomicTimeSeriesChartOptions', () => {
       tooltip.formatter({ value: ['2026-06-01', 145.333] }),
     ).toBe('June 2026\nPayroll growth: +145K')
   })
+
+  it('renders normalized productivity as an index without a zero line', () => {
+    const options = createEconomicTimeSeriesChartOptions({
+      data: [['2026-01-01', 114.2]],
+      seriesName: 'Productivity index, selected-range baseline = 100',
+      frequency: 'quarterly',
+      units: 'Index',
+      transformation: 'Published level normalized for display',
+      includeZero: false,
+      valueFormat: 'index',
+    })
+    const axis = options.yAxis as YAXisComponentOption
+    const series = (options.series as unknown as Array<{ markLine?: unknown }>)[0]
+    const tooltip = options.tooltip as {
+      formatter: (params: { value: [string, number] }) => string
+    }
+    expect(axis.name).toBe('Index')
+    expect(series?.markLine).toBeUndefined()
+    expect(tooltip.formatter({ value: ['2026-01-01', 114.2] })).toBe(
+      '2026 Q1\nProductivity index, selected-range baseline = 100: 114.2\nChange since selected-range start: +14.2%',
+    )
+  })
 })
 
 describe('createEconomicComparisonChartOptions', () => {

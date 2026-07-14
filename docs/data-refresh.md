@@ -16,7 +16,7 @@ The generated JSON is committed with the application, so the dashboard remains u
 
 - Real GDP growth (`GDPC1`, quarterly), written to `real-gdp-growth.json`.
 - Real GDP per capita growth (`A939RX0Q048SBEA`, quarterly source level), derived into `real-gdp-per-capita-growth.json`.
-- Labor productivity growth (`OPHNFB`, quarterly source index), derived into `labor-productivity-growth.json`.
+- Labor productivity (`OPHNFB`, quarterly source index), fetched once and written as the published level plus locally derived year-over-year growth.
 - Headline and core CPI (`CPIAUCSL` and `CPILFESL`, monthly index levels), derived into year-over-year and three-month annualized outputs.
 - Unemployment rate (`UNRATE`, monthly), written to `unemployment-rate.json`.
 - Prime-age employment-to-population ratio (`LNS12300060`, monthly), written to `prime-age-employment-ratio.json`.
@@ -64,7 +64,7 @@ The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omi
 
 One grouped derivation produces `headline-cpi-inflation.json`, `core-cpi-inflation.json`, `headline-cpi-three-month-annualized.json`, and `core-cpi-three-month-annualized.json`. All four validate before replacement and use rollback-protected grouped writes, so a failed source, derivation, validation, or replacement preserves every prior CPI file. After the group succeeds, the in-memory headline year-over-year result is reused for real-wage derivation without another `CPIAUCSL` request. Refresh reporting identifies both source counts, all four generated ranges, and all grouped output paths.
 
-The real-GDP-per-capita and productivity configurations use the explicit `year-over-year-quarterly-growth` local derivation. For each source level at quarter `t`, the application looks up the exact calendar date one year earlier and calculates `((level_t / level_t-4 quarters) - 1) × 100`. It never substitutes by array position. Missing current or prior levels and missing calendar quarters yield `null`; leading unavailable results are omitted and internal gaps are retained. Both sources use full history with no `observation_start`, are fetched once each, and are written independently through the existing validated atomic writer.
+The real-GDP-per-capita and productivity configurations use the explicit `year-over-year-quarterly-growth` local derivation. For each source level at quarter `t`, the application looks up the exact calendar date one year earlier and calculates `((level_t / level_t-4 quarters) - 1) × 100`. It never substitutes by array position. Missing current or prior levels and missing calendar quarters yield `null`; leading unavailable results are omitted and internal gaps are retained. OPHNFB is fetched once; its published level and derived growth validate and replace as one rollback-protected group. Range normalization is presentation-only and is never persisted.
 
 FRED publishes PAYEMS in thousands of persons, seasonally adjusted. Full source retrieval inherently supplies the warm-up observations needed for derivation. The application keeps derived values in thousands of jobs: monthly change is the current level minus the prior consecutive month's level, and the three-month average is the arithmetic mean of the current and two prior consecutive monthly changes. The supporting series begins with the first valid difference; the primary series begins with the first valid three-change window. Missing values or calendar gaps produce `null`; they are never treated as zero or bridged. Duplicate dates are rejected.
 
@@ -98,7 +98,7 @@ Leading unavailable values are removed so generated growth files begin with a va
 - AHETPI nominal wage growth: 738 observations, January 1965–June 2026.
 - AHETPI/CPI exact real wage growth: 737 aligned observations, January 1965–May 2026.
 - A939RX0Q048SBEA source: 317 level observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
-- OPHNFB source: 317 index observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
+- OPHNFB source and level output: 317 index observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
 
 ## Safe replacement and failures
 

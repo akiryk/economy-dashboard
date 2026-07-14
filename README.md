@@ -4,7 +4,7 @@ An information-first web application for understanding the U.S. economy through 
 
 ## Current scope
 
-Story 13 adds a Households section comparing real disposable income per capita with real consumer spending and showing the published personal saving rate.
+Story 12A separates labor productivity into a selected-range normalized level card and a year-over-year growth-momentum card. The existing Households section remains unchanged.
 
 ## Technology stack
 
@@ -55,7 +55,7 @@ npm run preview
 - `typecheck` runs TypeScript without emitting files.
 - `lint` checks the code with ESLint.
 - `test` runs the Vitest unit and component test suite once. Use `npm run test:watch` during development.
-- `data:refresh` retrieves and safely replaces the datasets for all twelve dashboard cards using official FRED data and local derivations.
+- `data:refresh` retrieves and safely replaces the datasets for all thirteen dashboard cards using official FRED data and local derivations.
 - `preview` serves the production build locally after it has been created.
 
 ## Testing status
@@ -64,7 +64,7 @@ Vitest, React Testing Library, jest-dom, and jsdom cover chart-data adaptation, 
 
 ## Chart behavior
 
-All twelve cards render nonsmoothed time-series charts with frequency-aware tooltips and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Short-range boundaries are calculated from each series’ latest shared observation date rather than today's date. Maximum includes every generated observation and may start in a different year for each card. Growth and comparison charts include zero; labor-market and saving-rate levels use padded ranges and do not force zero.
+All thirteen cards render nonsmoothed time-series charts with frequency-aware tooltips and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Short-range boundaries are calculated from each series’ latest shared observation date rather than today's date. Maximum includes every generated observation and may start in a different year for each card. Growth and comparison charts include zero; productivity, labor-market, and saving-rate levels use padded ranges and do not force zero.
 
 The chart includes an updating text summary of the latest, minimum, and maximum visible observations. GDP and CPI also report whether values fall below zero; that statement is omitted for the labor-market levels where it adds no useful context. The semantic recent-observations table remains available as a detailed nonvisual alternative.
 
@@ -74,7 +74,7 @@ Apache ECharts is integrated directly through a small React lifecycle wrapper an
 
 The page currently contains four semantic sections:
 
-- Growth, containing real GDP growth, real GDP per capita growth, and labor productivity growth.
+- Growth, containing real GDP growth, real GDP per capita growth, productivity over time, and productivity growth momentum.
 - Prices, containing headline CPI inflation, headline versus core CPI, and recent inflation momentum.
 - Employment and income, containing unemployment, prime-age employment-to-population ratio, payroll growth, and wages versus inflation.
 - Households, containing real disposable income per capita versus real consumer spending and the personal saving rate.
@@ -85,11 +85,12 @@ The product principles and current-versus-future conceptual layers are documente
 
 ## Local economic data
 
-Sixteen full-history datasets support twelve visible cards:
+Seventeen full-history datasets support thirteen visible cards:
 
 - `real-gdp-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, FRED `GDPC1`, percent change from one year ago.
 - `real-gdp-per-capita-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, calculated locally from FRED `A939RX0Q048SBEA` levels.
 - `labor-productivity-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, calculated locally from FRED `OPHNFB` index levels.
+- `labor-productivity-level.json`: 317 published quarterly OPHNFB levels, 1947 Q1–2026 Q1; normalized only for the selected display range.
 - `headline-cpi-inflation.json`: 941 monthly observations, January 1948–May 2026, calculated from FRED `CPIAUCSL` levels.
 - `core-cpi-inflation.json`: 821 monthly observations, January 1958–May 2026, calculated from FRED `CPILFESL` levels.
 - `headline-cpi-three-month-annualized.json`: 950 monthly observations, April 1947–May 2026, calculated from `CPIAUCSL` levels.
@@ -110,7 +111,7 @@ AHETPI is average hourly earnings for private-sector production and nonsuperviso
 
 Headline and core year-over-year inflation use `((index_t / index_t-12) - 1) × 100`. Three-month annualized momentum uses the exact ratio `((index_t / index_t-3)^4 - 1) × 100`, not four times a rounded three-month change. Both formulas require exact calendar months and preserve internal gaps as unavailable. Core CPI excludes food and energy but does not make those household costs irrelevant or remove every volatile category. The annualized measure is responsive and substantially noisier than year-over-year inflation; it describes a recent pace and is not a forecast.
 
-Real GDP per capita uses BEA series `A939RX0Q048SBEA`, published quarterly in chained 2017 dollars at a seasonally adjusted annual rate. Labor productivity uses BLS series `OPHNFB`, a quarterly seasonally adjusted index of nonfarm business output per hour. For both, displayed growth is `((level_t / level_t-4 quarters) - 1) × 100`. The calculation requires the exact calendar quarter one year earlier and leaves gaps unavailable rather than substituting by array position.
+Real GDP per capita uses BEA series `A939RX0Q048SBEA`, published quarterly in chained 2017 dollars at a seasonally adjusted annual rate. Labor productivity uses BLS series `OPHNFB`, a quarterly seasonally adjusted index of nonfarm business output per hour. OPHNFB is fetched once and written as a canonical level plus locally calculated growth. The level card normalizes the first valid selected-range value to 100; cumulative change is `(latest / baseline - 1) × 100`. Growth is `((level_t / level_t-4 quarters) - 1) × 100`, and momentum compares that growth rate with the exact rate four quarters earlier. A falling positive growth line means gains are slowing, not that productivity is falling.
 
 All current snapshots were retrieved from FRED on July 14, 2026 UTC. Each source uses the full-history request policy without `observation_start`. Leading unavailable transformed observations are omitted, while meaningful internal missing values remain `null`. PAYEMS is published monthly in thousands of persons, seasonally adjusted; the application calculates consecutive monthly differences and rolling three-month averages from its full source history.
 
