@@ -57,6 +57,7 @@ export function EconomicSeriesSummary({
 
   return (
     <article
+      id={`${series.slug}-card`}
       className="series-card"
       aria-labelledby={`${series.slug}-question`}
     >

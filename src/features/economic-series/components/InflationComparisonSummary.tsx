@@ -62,7 +62,11 @@ export function InflationComparisonSummary({
   const coverageEnd = aligned.at(-1)
 
   return (
-    <article className="series-card" aria-labelledby={`${id}-question`}>
+    <article
+      id={`${id}-card`}
+      className="series-card"
+      aria-labelledby={`${id}-question`}
+    >
       <header className="series-card__header">
         <p className="series-card__eyebrow">Inflation comparison</p>
         <h3 id={`${id}-question`}>{question}</h3>

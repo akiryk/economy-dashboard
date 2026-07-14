@@ -33,6 +33,46 @@ afterEach(() => {
 })
 
 describe('DashboardPage economic series', () => {
+  it('provides a collapsed navigation whose links target each full card', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+
+    const navigation = screen.getByRole('region', {
+      name: 'Explore all indicators',
+    })
+    const disclosure = within(navigation).getByText('Explore all indicators')
+
+    expect(within(navigation).getByText('10 cards in 3 categories')).toBeVisible()
+    expect(disclosure.closest('details')).not.toHaveAttribute('open')
+
+    await user.click(disclosure)
+
+    const links = within(navigation).getAllByRole('link')
+    expect(links).toHaveLength(10)
+    expect(links.map((link) => link.textContent)).toEqual([
+      'Is the U.S. economy growing?',
+      'Is economic output growing faster than the population?',
+      'Is the economy producing more per hour worked?',
+      'How quickly are consumer prices rising?',
+      'Is inflation broad and persistent?',
+      'Is inflation currently accelerating or slowing?',
+      'How difficult is it for people who want work to find it?',
+      'What share of prime-age adults are employed?',
+      'Are employers adding jobs?',
+      'Are workers’ wages keeping up with prices?',
+    ])
+
+    const gdpCard = await screen.findByRole('article', {
+      name: 'Is the U.S. economy growing?',
+    })
+    expect(links[0]).toHaveAttribute('href', '#real-gdp-growth-card')
+    expect(gdpCard).toHaveAttribute('id', 'real-gdp-growth-card')
+    expect(gdpCard.querySelector('h3')).not.toHaveAttribute(
+      'id',
+      'real-gdp-growth-card',
+    )
+  })
+
   it('renders independent GDP and CPI cards with frequency-aware content', async () => {
     const user = userEvent.setup()
     render(<DashboardPage />)

@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { EconomicSection } from '../components/layout/EconomicSection'
+import { DashboardNavigation } from '../components/layout/DashboardNavigation'
 import { EconomicSeriesCard } from '../features/economic-series/components/EconomicSeriesCard'
 import type { EconomicSeries } from '../features/economic-series/models/economicSeries'
 import {
@@ -66,6 +67,8 @@ export function DashboardPage() {
         </p>
         {updateContext && <p className="page-update">{updateContext}</p>}
       </section>
+
+      <DashboardNavigation />
 
       <EconomicSection
         id="growth"

@@ -114,6 +114,58 @@ p {
   font-weight: 600;
 }
 
+.dashboard-navigation {
+  margin-block: calc(-1 * var(--space-4));
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+}
+
+.dashboard-navigation summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dashboard-navigation summary::marker {
+  color: var(--color-link);
+}
+
+.dashboard-navigation__summary-detail {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.dashboard-navigation__groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--space-6);
+  padding: var(--space-2) var(--space-6) var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.dashboard-navigation__groups h3 {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: 1rem;
+}
+
+.dashboard-navigation__groups ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: var(--space-6);
+}
+
+.dashboard-navigation__groups a {
+  font-size: 1rem;
+  font-weight: 400;
+}
+
 .economic-section {
   display: grid;
   gap: var(--space-6);
@@ -232,6 +284,7 @@ p {
   display: grid;
   min-width: 0;
   gap: var(--space-8);
+  scroll-margin-top: var(--space-6);
 }
 
 .series-card > * {

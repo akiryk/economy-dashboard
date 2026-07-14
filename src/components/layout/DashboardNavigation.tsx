@@ -1,0 +1,83 @@
+const navigationGroups = [
+  {
+    title: 'Growth',
+    cards: [
+      { id: 'real-gdp-growth-card', title: 'Is the U.S. economy growing?' },
+      {
+        id: 'real-gdp-per-capita-growth-card',
+        title: 'Is economic output growing faster than the population?',
+      },
+      {
+        id: 'labor-productivity-growth-card',
+        title: 'Is the economy producing more per hour worked?',
+      },
+    ],
+  },
+  {
+    title: 'Prices',
+    cards: [
+      {
+        id: 'headline-cpi-inflation-card',
+        title: 'How quickly are consumer prices rising?',
+      },
+      {
+        id: 'headline-versus-core-inflation-card',
+        title: 'Is inflation broad and persistent?',
+      },
+      {
+        id: 'recent-inflation-momentum-card',
+        title: 'Is inflation currently accelerating or slowing?',
+      },
+    ],
+  },
+  {
+    title: 'Employment and income',
+    cards: [
+      {
+        id: 'unemployment-rate-card',
+        title: 'How difficult is it for people who want work to find it?',
+      },
+      {
+        id: 'prime-age-employment-ratio-card',
+        title: 'What share of prime-age adults are employed?',
+      },
+      { id: 'payroll-growth-card', title: 'Are employers adding jobs?' },
+      {
+        id: 'wages-versus-inflation-card',
+        title: 'Are workers’ wages keeping up with prices?',
+      },
+    ],
+  },
+] as const
+
+export function DashboardNavigation() {
+  return (
+    <section
+      className="dashboard-navigation"
+      aria-labelledby="dashboard-navigation-heading"
+    >
+      <details>
+        <summary>
+          <span id="dashboard-navigation-heading">Explore all indicators</span>
+          <span className="dashboard-navigation__summary-detail">
+            10 cards in 3 categories
+          </span>
+        </summary>
+        <div className="dashboard-navigation__groups">
+          {navigationGroups.map((group) => (
+            <div key={group.title}>
+              <h3>{group.title}</h3>
+              <ul>
+                {group.cards.map((card) => (
+                  <li key={card.id}>
+                    <a href={`#${card.id}`}>{card.title}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </details>
+    </section>
+  )
+}

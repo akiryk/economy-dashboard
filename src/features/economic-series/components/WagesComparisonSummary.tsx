@@ -63,7 +63,11 @@ export function WagesComparisonSummary({
           : 'zero'
 
   return (
-    <article className="series-card" aria-labelledby="wages-versus-inflation-question">
+    <article
+      id="wages-versus-inflation-card"
+      className="series-card"
+      aria-labelledby="wages-versus-inflation-question"
+    >
       <header className="series-card__header">
         <p className="series-card__eyebrow">Labor market relationship</p>
         <h3 id="wages-versus-inflation-question">
