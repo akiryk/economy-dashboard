@@ -28,7 +28,7 @@ The domain model remains independent of Apache ECharts. A chart adapter creates 
 
 ## Dashboard composition and product copy
 
-`DashboardPage` explicitly composes semantic Growth, Prices, and Employment and income sections through a small `EconomicSection` layout component. This keeps the heading hierarchy and section descriptions consistent without creating a schema-driven page engine. Future sections should be added only when real indicators exist.
+`DashboardPage` explicitly composes semantic Growth, Prices, Employment and income, and Households sections through a small `EconomicSection` layout component. This keeps the heading hierarchy and section descriptions consistent without creating a schema-driven page engine. Future sections should be added only when real indicators exist.
 
 Provider identity, series identity, units, frequency, transformations, dates, and observations belong to the economic-series domain data. Human explanations, related concepts, latest-value labels, and table captions belong to the explicit series presentation registry. Product copy is therefore reusable by the shared card without becoming provider metadata or chart configuration.
 
@@ -68,7 +68,7 @@ PSAVERT is a provider-published percent level, not a growth rate. Its 12-month c
 
 ## Current limitations
 
-- The application contains thirteen visible cards and four supporting comparison series.
+- The application contains thirteen visible cards backed by seventeen datasets. Supporting datasets used within relationship cards are not separate cards.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.

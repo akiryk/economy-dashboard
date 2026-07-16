@@ -52,21 +52,21 @@ The browser must not depend on live provider requests. Data should refresh throu
 ### Prices and inflation
 
 - Headline CPI inflation — complete
-- Underlying inflation, using core CPI or core PCE — planned
-- Short-term inflation momentum — planned
+- Underlying inflation, using core CPI — complete
+- Short-term inflation momentum — complete
 
 ### Employment and income
 
 - Unemployment rate — complete
 - Prime-age employment-to-population ratio — complete
 - Payroll growth — complete
-- Wages versus inflation and exact real wage growth — Story 10
+- Wages versus inflation and exact real wage growth — complete
 - One additional leading or participation measure — planned
 
 ### Household condition
 
-- Real disposable income and consumer spending — planned
-- Personal saving rate — planned
+- Real disposable income and consumer spending — complete
+- Personal saving rate — complete
 - Broad household financial-stress measure — planned
 
 ### Housing
@@ -107,10 +107,10 @@ The browser must not depend on live provider requests. Data should refresh throu
 | 06 | Establish dashboard information architecture | Complete |
 | 07 | Add unemployment and prime-age employment | Complete |
 | 08 | Add payroll growth | Complete |
-| 09 | Expand current indicators to full useful history | Planned or complete; update status |
-| 10 | Add wages-versus-inflation comparison | Planned or in progress |
+| 09 | Expand current indicators to full useful history | Complete |
+| 10 | Add wages-versus-inflation comparison | Complete |
 | 11 | Add productivity and real GDP per capita | Complete |
-| 12 | Add underlying inflation and inflation momentum | Planned |
+| 12 | Add underlying inflation and inflation momentum | Complete |
 | 12A | Clarify productivity momentum and add productivity level | Complete |
 | 13 | Add household income, spending, and saving | Complete |
 | 14 | Add household financial stress | Planned |

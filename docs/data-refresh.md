@@ -22,6 +22,8 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Prime-age employment-to-population ratio (`LNS12300060`, monthly), written to `prime-age-employment-ratio.json`.
 - Payroll growth (`PAYEMS`, monthly source level), derived into `monthly-payroll-change.json` and `payroll-growth.json`.
 - Wages versus inflation (`AHETPI` plus the existing `CPIAUCSL` result), derived into `nominal-wage-growth.json` and `real-wage-growth.json`.
+- Real disposable income per capita and real consumer spending (`A229RX0` and `PCEC96`, monthly source levels), derived into `real-disposable-income-per-capita-growth.json` and `real-consumer-spending-growth.json`.
+- Personal saving rate (`PSAVERT`, monthly), written to `personal-saving-rate.json`.
 
 This is a small configuration boundary, not dynamic discovery or a plugin system.
 
@@ -56,7 +58,7 @@ The series-specific requests are:
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
-The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, unemployment, prime-age employment, real GDP per capita, labor productivity, payroll, and wages. Domain transformation metadata separately records provider values and local calculations.
+The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, unemployment, prime-age employment, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, and personal saving. Domain transformation metadata separately records provider values and local calculations.
 
 ## CPI derivations and reuse
 
@@ -99,21 +101,24 @@ Leading unavailable values are removed so generated growth files begin with a va
 - AHETPI/CPI exact real wage growth: 737 aligned observations, January 1965–May 2026.
 - A939RX0Q048SBEA source: 317 level observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
 - OPHNFB source and level output: 317 index observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
+- A229RX0 source: 809 level observations; generated growth: 797 observations, January 1960–May 2026.
+- PCEC96 source: 233 level observations; generated growth: 221 observations, January 2008–May 2026.
+- PSAVERT: 809 observations, January 1959–May 2026.
 
 ## Safe replacement and failures
 
-Only fully retrieved, normalized, domain-validated, and serialized series reach the writer. Direct series use one temporary file and atomic rename. CPI, payroll, and wage outputs are each validated and staged as explicit groups; existing files are backed up during replacement and restored if grouped replacement fails. Temporary and backup files are removed where practical.
+Only fully retrieved, normalized, domain-validated, and serialized series reach the writer. Direct series use one temporary file and atomic rename. CPI, payroll, wage, and household comparison outputs are validated and staged as explicit groups; existing files are backed up during replacement and restored if grouped replacement fails. Temporary and backup files are removed where practical.
 
 A missing key, network failure, HTTP error, malformed response, insufficient history, validation failure, or write failure leaves that series’ previous dataset intact. Errors are concise and never include the API key or a full provider response.
 
-Failure of one source does not stop the next or roll back an unrelated successful file. Each single-source quarterly derivation replaces only its own validated output. CPI, PAYEMS, and wage failures preserve their complete output groups. After all entries run, any failure produces a nonzero exit status and the command identifies which outputs updated and which were preserved.
+Failure of one source does not stop the next or roll back an unrelated successful file. Each single-source quarterly derivation replaces only its own validated output. CPI, PAYEMS, wage, and household comparison failures preserve their complete output groups. After all entries run, any failure produces a nonzero exit status and the command identifies which outputs updated and which were preserved.
 
 ## Manual refresh
 
 1. Obtain a key from the [FRED API documentation](https://fred.stlouisfed.org/docs/api/api_key.html).
 2. Add `FRED_API_KEY=...` to an untracked `.env` file or export it in the current shell.
 3. Run `npm run data:refresh`.
-4. Review the printed provider identifier, source count, generated count, transformation, generated range, latest observation, and output path. CPI reports both source counts and all four grouped outputs; quarterly derivatives, PAYEMS, and wages report their supporting counts and grouped paths as applicable.
+4. Review the printed provider identifier, source count, generated count, transformation, generated range, latest observation, and output path. CPI reports both source counts and all four grouped outputs; quarterly derivatives, PAYEMS, wages, and the household comparison report their supporting counts and grouped paths as applicable.
 5. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build`.
 6. Inspect and commit the generated JSON with the refresh code or data-update commit.
 
