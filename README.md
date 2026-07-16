@@ -4,7 +4,7 @@ An information-first web application for understanding the U.S. economy through 
 
 ## Current scope
 
-Story 15 adds a Housing section that separates modeled home-ownership affordability from the annualized pace of new housing starts.
+Story 16 adds a Business and manufacturing section comparing inflation-adjusted manufacturing output with manufacturing payroll employment.
 
 ## Technology stack
 
@@ -55,7 +55,7 @@ npm run preview
 - `typecheck` runs TypeScript without emitting files.
 - `lint` checks the code with ESLint.
 - `test` runs the Vitest unit and component test suite once. Use `npm run test:watch` during development.
-- `data:refresh` retrieves and safely replaces the datasets for all sixteen dashboard cards using official FRED and Atlanta Fed data and local derivations.
+- `data:refresh` retrieves and safely replaces the datasets for all seventeen dashboard cards using official FRED and Atlanta Fed data and local derivations.
 - `preview` serves the production build locally after it has been created.
 
 ## Testing status
@@ -64,7 +64,7 @@ Vitest, React Testing Library, jest-dom, and jsdom cover chart-data adaptation, 
 
 ## Chart behavior
 
-All sixteen cards render nonsmoothed time-series charts with frequency-aware tooltips and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Short-range boundaries are calculated from each series’ latest shared observation date rather than today's date. Maximum includes every generated observation and may start in a different year for each card. Growth and comparison charts include zero; productivity, labor-market, saving-rate, debt-service-ratio, affordability, and housing-starts levels use padded ranges and do not force zero.
+All seventeen cards render nonsmoothed time-series charts with frequency-aware tooltips and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Short-range boundaries are calculated from each series’ latest shared observation date rather than today's date. Maximum includes every generated observation and may start in a different year for each card. Growth and comparison charts include zero where substantively meaningful; productivity, labor-market, saving-rate, debt-service-ratio, affordability, housing-starts, and normalized manufacturing levels do not force zero.
 
 The chart includes an updating text summary of the latest, minimum, and maximum visible observations. GDP and CPI also report whether values fall below zero; that statement is omitted for the labor-market levels where it adds no useful context. The semantic recent-observations table remains available as a detailed nonvisual alternative.
 
@@ -72,13 +72,14 @@ Apache ECharts is integrated directly through a small React lifecycle wrapper an
 
 ## Information architecture
 
-The page currently contains five semantic sections:
+The page currently contains six semantic sections:
 
 - Growth, containing real GDP growth, real GDP per capita growth, productivity over time, and productivity growth momentum.
 - Prices, containing headline CPI inflation, headline versus core CPI, and recent inflation momentum.
 - Employment and income, containing unemployment, prime-age employment-to-population ratio, payroll growth, and wages versus inflation.
 - Households, containing real disposable income per capita versus real consumer spending, the personal saving rate, and the household debt-service ratio.
 - Housing, containing modeled home-ownership cost as a share of median household income and total housing starts.
+- Business and manufacturing, containing manufacturing output versus manufacturing payroll employment.
 
 Each indicator leads with a human question and one latest value, followed by the range control and chart. Factual context, concise limitations, related concepts, visible source attribution, technical metadata, and recent observations remain available without competing with the chart. Empty future sections are not rendered.
 
@@ -86,7 +87,7 @@ The product principles and current-versus-future conceptual layers are documente
 
 ## Local economic data
 
-Twenty full-history datasets support sixteen visible cards:
+Twenty-two full-history datasets support seventeen visible cards:
 
 - `real-gdp-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, FRED `GDPC1`, percent change from one year ago.
 - `real-gdp-per-capita-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, calculated locally from FRED `A939RX0Q048SBEA` levels.
@@ -108,6 +109,10 @@ Twenty full-history datasets support sixteen visible cards:
 - `household-debt-service-ratio.json`: 85 quarterly observations, 2005 Q1–2026 Q1, published FRED `TDSP` percent levels.
 - `home-ownership-cost-share.json`: 255 monthly observations, January 2005–March 2026, Atlanta Fed HOAM annual payment share of income converted from ratio to percent.
 - `housing-starts.json`: 809 monthly observations, January 1959–May 2026, published FRED `HOUST` levels in thousands of units at a seasonally adjusted annual rate.
+- `manufacturing-output.json`: 653 monthly observations, January 1972–May 2026, published FRED `IPMAN` seasonally adjusted real-output index levels.
+- `manufacturing-employment.json`: 1,050 monthly observations, January 1939–June 2026, published FRED `MANEMP` seasonally adjusted payroll-employment levels in thousands.
+
+The manufacturing relationship aligns exact shared months and normalizes each series independently to 100 at the first shared valid observation in the selected range. This makes relative paths comparable without mixing native units or using dual axes. The selected-range changes are presentation calculations, not a manufacturing-productivity measure or an explanation for divergence.
 
 HOAM models a median-income household purchasing a median-priced home and includes financing, taxes, insurance, and other documented ownership costs. It is a national model, not a count of households able to buy, and does not describe current owners with older mortgages or every buyer profile. HOUST reports the annualized pace implied by one month's starts; it is neither that month's literal unit count nor a forecast or measure of completed homes.
 

@@ -28,7 +28,7 @@ The domain model remains independent of Apache ECharts. A chart adapter creates 
 
 ## Dashboard composition and product copy
 
-`DashboardPage` explicitly composes semantic Growth, Prices, Employment and income, Households, and Housing sections through a small `EconomicSection` layout component. This keeps the heading hierarchy and section descriptions consistent without creating a schema-driven page engine. Future sections should be added only when real indicators exist.
+`DashboardPage` explicitly composes semantic Growth, Prices, Employment and income, Households, Housing, and Business and manufacturing sections through a small `EconomicSection` layout component. This keeps the heading hierarchy and section descriptions consistent without creating a schema-driven page engine. Future sections should be added only when real indicators exist.
 
 Provider identity, series identity, units, frequency, transformations, dates, and observations belong to the economic-series domain data. Human explanations, related concepts, latest-value labels, and table captions belong to the explicit series presentation registry. Product copy is therefore reusable by the shared card without becoming provider metadata or chart configuration.
 
@@ -70,9 +70,11 @@ TDSP is a provider-published quarterly percent level. It estimates required mort
 
 The Atlanta Fed HOAM output uses the same observation shape after its official annual payment share of income is converted from a ratio to a percentage. HOUST is a provider-published monthly level in thousands of housing units at a seasonally adjusted annual rate. Neither is modeled as a growth rate, and both use non-zero-forced level charts.
 
+IPMAN and MANEMP remain separate provider-level series in their native units. Their relationship view aligns exact months and independently normalizes each line to 100 at the first shared valid selected-range observation. Aligned observations, normalized values, cumulative changes, and comparison gaps are presentation models and are not persisted.
+
 ## Current limitations
 
-- The application contains sixteen visible cards backed by twenty datasets. Supporting datasets used within relationship cards are not separate cards.
+- The application contains seventeen visible cards backed by twenty-two datasets. Supporting datasets used within relationship cards are not separate cards.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.

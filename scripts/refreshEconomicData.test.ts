@@ -42,6 +42,8 @@ describe('refreshEconomicData', () => {
         'locally-derived',
         'provider-level',
         'provider-level',
+        'provider-level',
+        'provider-level',
       ])
     expect(payrollSeriesConfiguration).toMatchObject({
       dataHandling: 'locally-derived',
@@ -88,6 +90,24 @@ describe('refreshEconomicData', () => {
       })
       expect(config?.fredUnits).toBeUndefined()
     }
+  })
+
+  it.each([
+    ['IPMAN', 'Index', 'Provider-published real-output index'],
+    ['MANEMP', 'Thousands of persons', 'Provider-published payroll-employment level'],
+  ])('configures %s as a direct monthly full-history level', (providerSeriesId, units, transformation) => {
+    const config = fredSeriesConfigurations.find((item) => item.providerSeriesId === providerSeriesId)
+    expect(config).toMatchObject({
+      dataHandling: 'provider-level',
+      providerSeriesId,
+      frequency: 'monthly',
+      fredFrequency: 'm',
+      historyPolicy: { type: 'full' },
+      units,
+      seasonalAdjustment: 'Seasonally adjusted',
+      transformation,
+    })
+    expect(config?.fredUnits).toBeUndefined()
   })
 
   it('configures both labor series as monthly provider levels without pc1', () => {
@@ -364,7 +384,7 @@ describe('refreshEconomicData', () => {
     expect(await readFile(cpiPath, 'utf8')).toBe(existingCpi)
   })
 
-  it('refreshes all eight direct sources once and omits provider transformations for local derivations', async () => {
+  it('refreshes all ten direct sources once and omits provider transformations for local derivations', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
     temporaryDirectories.push(directory)
     const configurations = fredSeriesConfigurations.map((config) => ({
@@ -415,13 +435,13 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(8)
+    expect(outcomes).toHaveLength(10)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 15, 3, 3, 6, 6, 3, 3])
+    ).toEqual([3, 15, 3, 3, 6, 6, 3, 3, 3, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
@@ -431,10 +451,12 @@ describe('refreshEconomicData', () => {
       'OPHNFB',
       'TDSP',
       'HOUST',
+      'IPMAN',
+      'MANEMP',
     ])
     expect(requestedUrls[0]?.searchParams.get('units')).toBe('pc1')
     expect(requestedUrls.slice(1).map((url) => url.searchParams.has('units')))
-      .toEqual([false, false, false, false, false, false, false])
+      .toEqual([false, false, false, false, false, false, false, false, false])
     expect(
       requestedUrls.every((url) => !url.searchParams.has('observation_start')),
     ).toBe(true)

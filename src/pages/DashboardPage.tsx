@@ -20,6 +20,7 @@ const headlineMomentumSupportingSlugs = [
 const householdSpendingSupportingSlugs = [
   'real-consumer-spending-growth',
 ] as const
+const manufacturingEmploymentSupportingSlugs = ['manufacturing-employment'] as const
 
 export function DashboardPage() {
   const [loadedSeries, setLoadedSeries] = useState<
@@ -194,6 +195,20 @@ export function DashboardPage() {
         <EconomicSeriesCard
           slug="housing-starts"
           label="housing starts"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+      </EconomicSection>
+
+      <EconomicSection
+        id="business-and-manufacturing"
+        title="Business and manufacturing"
+        description="Manufacturing output and employment describe different dimensions of the sector. Comparing them shows whether production and payroll jobs have moved together, without assuming that either one alone captures manufacturing’s overall condition."
+      >
+        <EconomicSeriesCard
+          slug="manufacturing-output"
+          supportingSlugs={manufacturingEmploymentSupportingSlugs}
+          label="manufacturing output versus employment"
+          variant="manufacturing-comparison"
           onSeriesLoaded={handleSeriesLoaded}
         />
       </EconomicSection>

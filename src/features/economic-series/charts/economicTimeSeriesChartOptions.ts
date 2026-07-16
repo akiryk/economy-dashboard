@@ -36,6 +36,12 @@ interface InflationComparisonChartOptionsInput {
   variant: 'household' | 'momentum' | 'year-over-year'
 }
 
+interface ManufacturingComparisonChartOptionsInput {
+  outputData: ChartDataPoint[]
+  employmentData: ChartDataPoint[]
+  frequency: EconomicFrequency
+}
+
 interface ValueRange {
   min: number
   max: number
@@ -414,6 +420,43 @@ export function createInflationComparisonChartOptions({
         lineStyle: { color: '#8a4f2d', width: 2.5, type: 'dashed' },
         itemStyle: { color: '#8a4f2d' },
       },
+    ],
+  }
+}
+
+export function createManufacturingComparisonChartOptions({
+  outputData,
+  employmentData,
+  frequency,
+}: ManufacturingComparisonChartOptionsInput): EChartsCoreOption {
+  return {
+    animation: false,
+    aria: { enabled: true, decal: { show: true }, description: 'Manufacturing output and manufacturing employment, each normalized to 100 at the selected-range baseline, on one shared axis. A factual summary and detailed table follow.' },
+    legend: { data: ['Manufacturing output', 'Manufacturing employment'], bottom: 0, textStyle: { color: '#56616d' } },
+    grid: { top: 24, right: 18, bottom: 72, left: 58, containLabel: false },
+    tooltip: {
+      trigger: 'axis', renderMode: 'html', confine: true, extraCssText: 'white-space: pre-line;',
+      formatter: (params: TooltipComponentFormatterCallbackParams) => {
+        const items = Array.isArray(params) ? params : [params]
+        const first = items.find((item) => isChartDataPoint(item.value))
+        if (!first || !isChartDataPoint(first.value)) return 'Manufacturing comparison'
+        const date = first.value[0]
+        const values = new Map(items.filter((item) => isChartDataPoint(item.value)).map((item) => [item.seriesName, (item.value as ChartDataPoint)[1]]))
+        const output = values.get('Manufacturing output') ?? null
+        const employment = values.get('Manufacturing employment') ?? null
+        return [
+          formatObservationPeriod(date, frequency),
+          `Manufacturing output index: ${output?.toFixed(1) ?? 'Not available'} (${formatSignedPercentage(output === null ? null : output - 100)} since baseline)`,
+          `Manufacturing employment index: ${employment?.toFixed(1) ?? 'Not available'} (${formatSignedPercentage(employment === null ? null : employment - 100)} since baseline)`,
+        ].join('\n')
+      },
+      axisPointer: { type: 'line', lineStyle: { color: '#56616d', width: 1 } },
+    },
+    xAxis: { type: 'time', boundaryGap: false, axisLine: { lineStyle: { color: '#aeb5bc' } }, axisTick: { show: false }, axisLabel: { color: '#56616d', hideOverlap: true, formatter: '{yyyy}' }, splitLine: { show: false } },
+    yAxis: { type: 'value', name: 'Selected-range baseline = 100', nameLocation: 'end', nameTextStyle: { color: '#56616d', align: 'right' }, min: (range: ValueRange) => paddedMinimum(range, false), max: (range: ValueRange) => paddedMaximum(range, false), axisLabel: { color: '#56616d', formatter: '{value}' }, axisLine: { show: false }, axisTick: { show: false }, splitLine: { lineStyle: { color: '#e4e7ea', width: 1 } } },
+    series: [
+      { name: 'Manufacturing output', type: 'line', data: outputData, connectNulls: false, smooth: false, showSymbol: false, lineStyle: { color: '#245d72', width: 2.5, type: 'solid' }, itemStyle: { color: '#245d72' }, markLine: { silent: true, symbol: 'none', label: { show: false }, lineStyle: { color: '#56616d', width: 1.5, type: 'solid' }, data: [{ yAxis: 100 }] } },
+      { name: 'Manufacturing employment', type: 'line', data: employmentData, connectNulls: false, smooth: false, showSymbol: false, lineStyle: { color: '#8a4f2d', width: 2.5, type: 'dashed' }, itemStyle: { color: '#8a4f2d' } },
     ],
   }
 }

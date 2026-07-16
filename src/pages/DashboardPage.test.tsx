@@ -42,13 +42,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('16 cards in 5 categories')).toBeVisible()
+    expect(within(navigation).getByText('17 cards in 6 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(16)
+    expect(links).toHaveLength(17)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -66,6 +66,7 @@ describe('DashboardPage economic series', () => {
       'How much of household income is going toward required debt payments?',
       'Can a median-income household afford a typical home?',
       'How much new housing is being started?',
+      'Are manufacturing output and jobs moving together?',
     ])
 
     const gdpCard = await screen.findByRole('article', {
@@ -175,7 +176,7 @@ describe('DashboardPage economic series', () => {
       'Are employers adding jobs?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(16)
+    expect(screen.getAllByRole('article')).toHaveLength(17)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'real-income-versus-spending-question',
       'personal-saving-rate-question',
@@ -730,6 +731,52 @@ describe('DashboardPage economic series', () => {
     expect(await screen.findByText(message)).toBeVisible()
     expect(await screen.findByRole('article', { name: survivor })).toBeVisible()
     expect(await screen.findByRole('region', { name: 'Growth' })).toBeVisible()
+  })
+
+  it('renders one Business and manufacturing relationship card after Housing with range-dependent normalization', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+
+    const housing = screen.getByRole('region', { name: 'Housing' })
+    const manufacturing = screen.getByRole('region', { name: 'Business and manufacturing' })
+    expect(housing.compareDocumentPosition(manufacturing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    const card = await within(manufacturing).findByRole('article', { name: 'Are manufacturing output and jobs moving together?' })
+    expect(within(manufacturing).getAllByRole('article')).toHaveLength(1)
+    expect(within(card).getByText(/Both lines begin at 100/)).toBeVisible()
+    expect(within(card).getByText(/do not directly measure productivity/)).toBeVisible()
+    expect(within(card).getByText(/Since May 2006/)).toBeVisible()
+    expect(within(card).getByText(/Through May 2026/)).toBeVisible()
+
+    await user.click(within(card).getByRole('button', { name: 'Maximum' }))
+    expect(await within(card).findByText(/Since January 1972/)).toBeVisible()
+    await waitFor(() => {
+      const props = chartPropsSpy.mock.calls.map((call) => call[0] as {
+        kind: string
+        outputObservations?: EconomicObservation[]
+        employmentObservations?: EconomicObservation[]
+      }).filter((candidate) => candidate.kind === 'manufacturing-comparison').at(-1)
+      expect(props?.outputObservations).toHaveLength(653)
+      expect(props?.employmentObservations).toHaveLength(653)
+      expect(props?.outputObservations?.[0]).toEqual({ date: '1972-01-01', value: 100 })
+      expect(props?.employmentObservations?.[0]).toEqual({ date: '1972-01-01', value: 100 })
+    })
+
+    await user.click(within(card).getByText('Recent observations'))
+    expect(within(card).getByRole('table', { name: /Twelve most recent aligned manufacturing observations/ })).toBeVisible()
+  })
+
+  it.each(['manufacturing-output', 'manufacturing-employment'])('isolates a %s failure from every existing section', async (failedSlug) => {
+    const originalGetBySlug = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
+      if (slug === failedSlug) throw new Error('Invalid manufacturing fixture')
+      return originalGetBySlug(slug)
+    })
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    render(<DashboardPage />)
+
+    expect(await screen.findByText('The manufacturing output versus employment data could not be loaded.')).toBeVisible()
+    expect(await screen.findByRole('article', { name: 'How much new housing is being started?' })).toBeVisible()
+    expect(await screen.findByRole('article', { name: 'Is the U.S. economy growing?' })).toBeVisible()
   })
 
   it('keeps GDP visible when CPI loading fails', async () => {

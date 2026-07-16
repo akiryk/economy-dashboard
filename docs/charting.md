@@ -12,7 +12,7 @@ The implementation uses ECharts 6 modular core imports and registers only the li
 
 Economic observations remain `{ date, value }` domain objects. Pure range and summary utilities operate on those objects. Immediately before rendering, `chartAdapters.ts` sorts without mutation and converts each observation to ECharts-compatible `[date, value]` data. `null` remains `null`, so missing observations are neither converted to zero nor joined by the line.
 
-The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage and count data use the same UTC-safe period formatter without conflating their meanings. All sixteen current cards dynamically import the same chart module; ECharts is not duplicated.
+The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage and count data use the same UTC-safe period formatter without conflating their meanings. All seventeen current cards dynamically import the same chart module; ECharts is not duplicated.
 
 The same deferred boundary accepts either one series or the wages-versus-inflation comparison. The comparison uses solid nominal wage growth and dashed headline CPI inflation on one shared percentage axis with a concise legend and zero reference line. Dual axes are intentionally avoided. Its tooltip includes the aligned month, both plotted rates, and exact-ratio real wage growth. Both lines use the same latest shared month and selected range.
 
@@ -25,6 +25,8 @@ Maximum passes every generated observation to the chart boundary. It is series-s
 ## Lifecycle and resizing
 
 The housing affordability cost share and housing starts use the single-series level policy without forcing zero. Housing-starts axes and tooltips explicitly label thousands at an annual rate, while its latest callout expands the stored thousands value to a readable unit count. Its selected-range factual summary reports the first, lowest, highest, and latest observations without judging the pace.
+
+The manufacturing relationship chart aligns exact shared months, filters ranges against the latest shared valid month, and normalizes each series independently to 100 at the first shared valid observation in that range. It uses one padded non-zero-forced axis labeled `Selected-range baseline = 100`, a reference line at 100, solid output and dashed employment lines, and no dual axis. Tooltips and the accessible summary report cumulative change from the current baseline; changing the range intentionally changes that baseline. Native IPMAN and MANEMP values remain in the semantic table.
 
 The household growth comparison reuses the two-line shared percentage-axis configuration: income is solid, spending is dashed, zero is included, gaps remain disconnected, and no dual axis is available. Personal saving rate and the quarterly household debt-service ratio use the existing single-series level policy, so their axes are padded without forcing zero or adding a target band.
 
@@ -87,3 +89,5 @@ With Story 12A applied after Story 13, the initial application chunk is 345.65 k
 With Story 14, the initial application chunk is 347.08 kB minified (103.66 kB gzip), and the new household-debt-service-ratio data chunk is 4.07 kB (1.31 kB gzip). The build emits one shared chart/ECharts chunk at 541.71 kB minified (181.90 kB gzip); ECharts remains deduplicated, and the existing deferred-chunk warning remains.
 
 With Story 15, the initial application chunk is 350.98 kB minified (104.61 kB gzip). The home-ownership-cost-share and housing-starts data chunks are 12.46 kB (3.89 kB gzip) and 26.01 kB (4.81 kB gzip). The build emits one shared chart/ECharts chunk at 541.79 kB minified (181.93 kB gzip); ECharts remains deduplicated, and the existing deferred-chunk warning remains.
+
+With Story 16, the initial application chunk is 359.94 kB minified (106.23 kB gzip). The manufacturing-output and manufacturing-employment data chunks are 23.23 kB (5.25 kB gzip) and 34.61 kB (6.46 kB gzip). The build emits one shared chart/ECharts chunk at 544.26 kB minified (182.22 kB gzip); ECharts remains deduplicated, and the existing deferred-chunk warning remains.

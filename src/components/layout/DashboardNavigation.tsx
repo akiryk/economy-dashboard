@@ -82,6 +82,15 @@ const navigationGroups = [
       },
     ],
   },
+  {
+    title: 'Business and manufacturing',
+    cards: [
+      {
+        id: 'manufacturing-output-versus-employment-card',
+        title: 'Are manufacturing output and jobs moving together?',
+      },
+    ],
+  },
 ] as const
 
 export function DashboardNavigation() {
@@ -94,7 +103,7 @@ export function DashboardNavigation() {
         <summary>
           <span id="dashboard-navigation-heading">Explore all indicators</span>
           <span className="dashboard-navigation__summary-detail">
-            16 cards in 5 categories
+            17 cards in 6 categories
           </span>
         </summary>
         <div className="dashboard-navigation__groups">

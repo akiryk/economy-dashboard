@@ -6,6 +6,7 @@ import { WagesComparisonSummary } from './WagesComparisonSummary'
 import { InflationComparisonSummary } from './InflationComparisonSummary'
 import { HouseholdComparisonSummary } from './HouseholdComparisonSummary'
 import { ProductivityLevelSummary } from './ProductivityLevelSummary'
+import { ManufacturingComparisonSummary } from './ManufacturingComparisonSummary'
 
 const noSupportingSlugs: readonly string[] = []
 
@@ -26,6 +27,7 @@ interface EconomicSeriesCardProps {
   supportingSlugs?: readonly string[]
   variant?:
     | 'inflation-momentum'
+    | 'manufacturing-comparison'
     | 'household-comparison'
     | 'productivity-level'
     | 'headline-core-comparison'
@@ -129,6 +131,10 @@ export function EconomicSeriesCard({
 
   if (variant === 'productivity-level') {
     return <ProductivityLevelSummary series={seriesState.series} />
+  }
+
+  if (variant === 'manufacturing-comparison') {
+    return <ManufacturingComparisonSummary output={seriesState.series} employment={seriesState.supportingSeries[0]!} />
   }
 
   if (

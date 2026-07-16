@@ -18,6 +18,7 @@ import {
   createEconomicComparisonChartOptions,
   createEconomicTimeSeriesChartOptions,
   createInflationComparisonChartOptions,
+  createManufacturingComparisonChartOptions,
 } from './economicTimeSeriesChartOptions'
 import type { EconomicValueFormat } from '../utils/economicSeries'
 
@@ -65,11 +66,19 @@ interface HouseholdComparisonChartProps {
   frequency: EconomicFrequency
 }
 
+interface ManufacturingComparisonChartProps {
+  kind: 'manufacturing-comparison'
+  outputObservations: readonly EconomicObservation[]
+  employmentObservations: readonly EconomicObservation[]
+  frequency: EconomicFrequency
+}
+
 export type EconomicTimeSeriesChartProps =
   | SingleSeriesChartProps
   | ComparisonChartProps
   | InflationComparisonChartProps
   | HouseholdComparisonChartProps
+  | ManufacturingComparisonChartProps
 
 export default function EconomicTimeSeriesChart(
   props: EconomicTimeSeriesChartProps,
@@ -94,6 +103,11 @@ export default function EconomicTimeSeriesChart(
       kind: 'inflation-comparison' as const,
       headline: adaptObservationsToChartData(props.headlineObservations),
       core: adaptObservationsToChartData(props.coreObservations),
+    }
+    if (props.kind === 'manufacturing-comparison') return {
+      kind: 'manufacturing-comparison' as const,
+      output: adaptObservationsToChartData(props.outputObservations),
+      employment: adaptObservationsToChartData(props.employmentObservations),
     }
     return {
       kind: 'household-comparison' as const,
@@ -170,6 +184,13 @@ export default function EconomicTimeSeriesChart(
                     frequency: props.frequency,
                     variant: 'household',
                   })
+                : props.kind === 'manufacturing-comparison' &&
+                    chartData.kind === 'manufacturing-comparison'
+                  ? createManufacturingComparisonChartOptions({
+                      outputData: chartData.output,
+                      employmentData: chartData.employment,
+                      frequency: props.frequency,
+                    })
             : null
       if (options) chart.setOption(options, { notMerge: true })
     } catch (error: unknown) {
@@ -198,6 +219,8 @@ export default function EconomicTimeSeriesChart(
             ? 'Nominal wage growth and headline CPI inflation comparison chart'
             : props.kind === 'household-comparison'
               ? 'Real disposable income per capita growth and real consumer spending growth comparison chart'
+              : props.kind === 'manufacturing-comparison'
+                ? 'Manufacturing output and employment normalized comparison chart'
               : props.variant === 'momentum'
               ? 'Headline and core CPI three-month annualized inflation comparison chart'
               : 'Headline and core CPI year-over-year inflation comparison chart'

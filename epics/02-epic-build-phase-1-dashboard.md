@@ -76,7 +76,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 
 ### Business and manufacturing
 
-- Manufacturing output versus manufacturing employment — planned
+- Manufacturing output versus manufacturing employment — complete
 - Industrial production or capacity utilization — planned
 - Business investment — planned
 
@@ -115,7 +115,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 | 13 | Add household income, spending, and saving | Complete |
 | 14 | Add household financial stress | Complete |
 | 15 | Add housing affordability and construction | Complete |
-| 16 | Add manufacturing output versus employment | Planned |
+| 16 | Add manufacturing output versus employment | Complete |
 | 17 | Add business investment and industrial activity | Planned |
 | 18 | Add financial conditions and credit stress | Planned |
 | 19 | Add government deficit and debt | Planned |

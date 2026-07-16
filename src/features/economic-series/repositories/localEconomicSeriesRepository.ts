@@ -35,6 +35,9 @@ const localSeriesLoaders: Readonly<
   'home-ownership-cost-share': () =>
     import('../data/home-ownership-cost-share.json'),
   'housing-starts': () => import('../data/housing-starts.json'),
+  'manufacturing-output': () => import('../data/manufacturing-output.json'),
+  'manufacturing-employment': () =>
+    import('../data/manufacturing-employment.json'),
 }
 
 export const localEconomicSeriesRepository: EconomicSeriesRepository = {

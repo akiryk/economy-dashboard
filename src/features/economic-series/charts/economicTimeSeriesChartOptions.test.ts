@@ -4,6 +4,7 @@ import {
   createEconomicComparisonChartOptions,
   createEconomicTimeSeriesChartOptions,
   createInflationComparisonChartOptions,
+  createManufacturingComparisonChartOptions,
 } from './economicTimeSeriesChartOptions'
 
 function getYAxis(includeZero: boolean): YAXisComponentOption {
@@ -161,6 +162,30 @@ describe('createEconomicComparisonChartOptions', () => {
       { seriesName: 'Nominal wage growth', value: ['2026-05-01', 3.5] },
       { seriesName: 'Headline CPI inflation', value: ['2026-05-01', 4.2] },
     ])).toContain('Real wage growth: −0.6%')
+  })
+})
+
+describe('createManufacturingComparisonChartOptions', () => {
+  it('uses one normalized axis, a 100 reference line, solid output, dashed employment, and baseline-aware tooltip', () => {
+    const options = createManufacturingComparisonChartOptions({
+      outputData: [['2026-05-01', 110]],
+      employmentData: [['2026-05-01', 90]],
+      frequency: 'monthly',
+    })
+    const axis = options.yAxis as YAXisComponentOption
+    const series = options.series as unknown as Array<{ name: string; lineStyle: { type: string }; markLine?: { data: Array<{ yAxis: number }> } }>
+    const tooltip = options.tooltip as { formatter: (params: Array<{ seriesName: string; value: [string, number] }>) => string }
+
+    expect(Array.isArray(options.yAxis)).toBe(false)
+    expect(axis.name).toBe('Selected-range baseline = 100')
+    expect(series.map((item) => item.name)).toEqual(['Manufacturing output', 'Manufacturing employment'])
+    expect(series.map((item) => item.lineStyle.type)).toEqual(['solid', 'dashed'])
+    expect(series[0]?.markLine?.data).toEqual([{ yAxis: 100 }])
+    expect(series[1]?.markLine).toBeUndefined()
+    expect(tooltip.formatter([
+      { seriesName: 'Manufacturing output', value: ['2026-05-01', 110] },
+      { seriesName: 'Manufacturing employment', value: ['2026-05-01', 90] },
+    ])).toContain('Manufacturing employment index: 90.0 (−10.0% since baseline)')
   })
 })
 
