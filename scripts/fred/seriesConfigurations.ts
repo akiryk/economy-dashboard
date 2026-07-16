@@ -197,6 +197,26 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     sourceName: 'Board of Governors of the Federal Reserve System via FRED',
     sourceUrl: 'https://fred.stlouisfed.org/series/TDSP',
   },
+  {
+    dataHandling: 'provider-level',
+    id: 'housing-starts',
+    slug: 'housing-starts',
+    outputFile: 'src/features/economic-series/data/housing-starts.json',
+    providerSeriesId: 'HOUST',
+    frequency: 'monthly',
+    fredFrequency: 'm',
+    historyPolicy: { type: 'full' },
+    minimumUsableObservations: 240,
+    title: 'New Privately-Owned Housing Units Started: Total Units',
+    shortTitle: 'Housing starts',
+    description: 'The annualized pace of privately owned housing units beginning construction.',
+    question: 'How much new housing is being started?',
+    units: 'Thousands of units, seasonally adjusted annual rate',
+    seasonalAdjustment: 'Seasonally adjusted annual rate',
+    transformation: 'Level',
+    sourceName: 'U.S. Census Bureau and U.S. Department of Housing and Urban Development via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/HOUST',
+  },
 ]
 
 export interface PayrollSeriesConfig {

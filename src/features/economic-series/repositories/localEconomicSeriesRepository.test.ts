@@ -22,6 +22,17 @@ describe('localEconomicSeriesRepository', () => {
   })
 
   it.each([
+    ['home-ownership-cost-share', 'HOAM: Annual Payment Share of Income'],
+    ['housing-starts', 'HOUST'],
+  ])('loads the Story 15 %s series', async (slug, providerSeriesId) => {
+    await expect(localEconomicSeriesRepository.getBySlug(slug)).resolves.toMatchObject({
+      slug,
+      providerSeriesId,
+      frequency: 'monthly',
+    })
+  })
+
+  it.each([
     ['headline-cpi-inflation', 'CPIAUCSL'],
     ['core-cpi-inflation', 'CPILFESL'],
     ['headline-cpi-three-month-annualized', 'CPIAUCSL'],

@@ -5,7 +5,7 @@
 The refresh path is deliberately separate from the browser:
 
 ```text
-FRED API -> Node refresh command -> validated domain JSON -> local repository -> React dashboard
+FRED API or Atlanta Fed HOAM workbook -> Node refresh command -> validated domain JSON -> local repository -> React dashboard
 ```
 
 The generated JSON is committed with the application, so the dashboard remains usable if FRED is unavailable. The browser never receives the API key and never contacts FRED.
@@ -25,6 +25,9 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Real disposable income per capita and real consumer spending (`A229RX0` and `PCEC96`, monthly source levels), derived into `real-disposable-income-per-capita-growth.json` and `real-consumer-spending-growth.json`.
 - Personal saving rate (`PSAVERT`, monthly), written to `personal-saving-rate.json`.
 - Household debt-service ratio (`TDSP`, quarterly), written as the provider-published level to `household-debt-service-ratio.json`.
+- Housing starts (`HOUST`, monthly), written as the provider-published level to `housing-starts.json`.
+
+The narrow `scripts/atlantaFed/hoamWorkbook.ts` path downloads the official national HOAM workbook and writes `home-ownership-cost-share.json`; it is intentionally separate from the FRED configuration list.
 
 This is a small configuration boundary, not dynamic discovery or a plugin system.
 
@@ -57,10 +60,11 @@ The series-specific requests are:
 - Real consumer spending: `series_id=PCEC96` and `frequency=m`, with no `units` parameter.
 - Personal saving rate: `series_id=PSAVERT` and `frequency=m`, with no `units` parameter.
 - Household debt-service ratio: `series_id=TDSP` and `frequency=q`, with no `units` parameter.
+- Housing starts: `series_id=HOUST` and `frequency=m`, with no `units` parameter.
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
-The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, unemployment, prime-age employment, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, personal saving, and household debt service. Domain transformation metadata separately records provider values and local calculations.
+The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, unemployment, prime-age employment, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, personal saving, household debt service, and housing starts. Domain transformation metadata separately records provider values and local calculations.
 
 ## CPI derivations and reuse
 
@@ -86,6 +90,10 @@ Income and spending validate and replace as one rollback-protected group, so eit
 
 `TDSP` uses the direct provider-level path with full history, quarterly frequency, and no FRED units transformation. FRED currently returns leading unavailable observations before the published series begins; normalization omits those leading values and retains the 85 usable quarterly levels from 2005 Q1 through 2026 Q1. Internal missing values would remain `null`. The file is validated and atomically replaced independently, so a TDSP failure preserves its prior valid dataset without rolling back other sources.
 
+`HOUST` uses the same direct provider-level path with full monthly history and no FRED units transformation. Values remain thousands of housing units at a seasonally adjusted annual rate.
+
+HOAM is the first non-FRED refresh path. It downloads the official national XLSX, identifies the exact `Month` and `Annual Payment Share of Income` headers, converts the published ratio to percent, preserves internal missing observations, filters future rows, sorts, rejects duplicates or schema changes, validates minimum usable history, and atomically replaces only the affordability dataset. The committed output contains only national published observations and provenance—not workbook vendor inputs, metro data, or county data.
+
 ## Validation and normalization
 
 The client checks the HTTP status and parses the response as untrusted JSON. It rejects provider error payloads, missing observation arrays, invalid dates, and values other than numeric strings or FRED's `.` missing marker.
@@ -109,6 +117,8 @@ Leading unavailable values are removed so generated growth files begin with a va
 - PCEC96 source: 233 level observations; generated growth: 221 observations, January 2008–May 2026.
 - PSAVERT: 809 observations, January 1959–May 2026.
 - TDSP source: 185 observations including leading unavailable values; generated level: 85 observations, 2005 Q1–2026 Q1.
+- Atlanta Fed HOAM: 255 observations, January 2005–March 2026.
+- HOUST: 809 observations, January 1959–May 2026.
 
 ## Safe replacement and failures
 

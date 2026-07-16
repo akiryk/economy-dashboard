@@ -29,6 +29,12 @@ import {
   writeEconomicSeriesAtomically,
   writeEconomicSeriesGroupAtomically,
 } from './writeEconomicSeries'
+import {
+  fetchHoamWorkbook,
+  hoamConfiguration,
+  parseHoamWorkbook,
+  type HoamConfiguration,
+} from './atlantaFed/hoamWorkbook'
 
 export interface RefreshEconomicDataOptions {
   apiKey: string
@@ -93,6 +99,13 @@ export type RefreshOutcome =
       coreSourceObservationCount: number
     }
   | { status: 'failed'; config: CpiSeriesConfig; message: string }
+  | {
+      status: 'updated'
+      config: HoamConfiguration
+      series: EconomicSeries
+      sourceObservationCount: number
+    }
+  | { status: 'failed'; config: HoamConfiguration; message: string }
 
 interface RefreshAllEconomicDataOptions {
   apiKey: string
@@ -104,6 +117,7 @@ interface RefreshAllEconomicDataOptions {
   householdConfiguration?: HouseholdComparisonConfig | false
   savingRateConfiguration?: FredSeriesConfig | false
   productivityConfiguration?: ProductivitySeriesConfig | false
+  hoamConfiguration?: HoamConfiguration | false
   fetchImplementation?: typeof fetch
 }
 
@@ -288,6 +302,21 @@ export async function refreshProductivityData({
     growth,
     sourceObservationCount: response.observations.length,
   }
+}
+
+export async function refreshHoamData({
+  retrievedAt,
+  config = hoamConfiguration,
+  fetchImplementation,
+}: {
+  retrievedAt: string
+  config?: HoamConfiguration
+  fetchImplementation?: typeof fetch
+}) {
+  const workbook = await fetchHoamWorkbook(fetchImplementation)
+  const series = parseHoamWorkbook(workbook, retrievedAt, config)
+  await writeEconomicSeriesAtomically(path.resolve(config.outputFile), series)
+  return { series, sourceObservationCount: series.observations.length }
 }
 
 export async function refreshAllEconomicData(
@@ -545,6 +574,34 @@ export async function refreshAllEconomicData(
     }
   }
 
+  const hoamConfig =
+    options.hoamConfiguration === undefined
+      ? options.configurations === undefined
+        ? hoamConfiguration
+        : false
+      : options.hoamConfiguration
+  if (hoamConfig) {
+    try {
+      const result = await refreshHoamData({
+        retrievedAt,
+        config: hoamConfig,
+        fetchImplementation,
+      })
+      outcomes.push({
+        status: 'updated',
+        config: hoamConfig,
+        series: result.series,
+        sourceObservationCount: result.sourceObservationCount,
+      })
+    } catch (error: unknown) {
+      outcomes.push({
+        status: 'failed',
+        config: hoamConfig,
+        message: error instanceof Error ? error.message : 'Unknown failure',
+      })
+    }
+  }
+
   return outcomes
 }
 
@@ -584,7 +641,9 @@ async function main(): Promise<void> {
         `Failed ${
           outcome.config.dataHandling === 'cpi-derived'
             ? 'CPIAUCSL/CPILFESL'
-            : outcome.config.providerSeriesId
+            : outcome.config.dataHandling === 'hoam-provider'
+              ? 'Atlanta Fed HOAM'
+              : outcome.config.providerSeriesId
         }: ${outcome.message}`,
       )
       continue

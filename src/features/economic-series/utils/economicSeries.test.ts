@@ -1,11 +1,22 @@
 import { describe, expect, it } from 'vitest'
 import {
+  formatAnnualizedHousingUnits,
   formatJobChangeProse,
   formatObservationPeriod,
   formatPercentage,
   formatSignedThousands,
   formatSignedPercentage,
 } from './economicSeries'
+
+describe('housing-starts value formatting', () => {
+  it.each([
+    [1177, '1.18 million'],
+    [950, '950,000'],
+    [null, 'Not available'],
+  ] as const)('formats %s thousand annualized units as %s', (value, expected) => {
+    expect(formatAnnualizedHousingUnits(value)).toBe(expected)
+  })
+})
 
 describe('formatObservationPeriod', () => {
   it('formats monthly observations with a full UTC month', () => {

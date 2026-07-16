@@ -42,13 +42,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('14 cards in 4 categories')).toBeVisible()
+    expect(within(navigation).getByText('16 cards in 5 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(14)
+    expect(links).toHaveLength(16)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -64,6 +64,8 @@ describe('DashboardPage economic series', () => {
       'Are household incomes and spending growing after inflation?',
       'Are households saving or drawing down more of their income?',
       'How much of household income is going toward required debt payments?',
+      'Can a median-income household afford a typical home?',
+      'How much new housing is being started?',
     ])
 
     const gdpCard = await screen.findByRole('article', {
@@ -173,7 +175,7 @@ describe('DashboardPage economic series', () => {
       'Are employers adding jobs?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(14)
+    expect(screen.getAllByRole('article')).toHaveLength(16)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'real-income-versus-spending-question',
       'personal-saving-rate-question',
@@ -674,6 +676,60 @@ describe('DashboardPage economic series', () => {
     expect(await screen.findByRole('article', {
       name: 'Are households saving or drawing down more of their income?',
     })).toBeVisible()
+  })
+
+  it('renders the two Housing cards in order with full-history controls and explicit units', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+
+    const housing = screen.getByRole('region', { name: 'Housing' })
+    const cards = await within(housing).findAllByRole('article')
+    expect(cards.map((card) => card.getAttribute('aria-labelledby'))).toEqual([
+      'home-ownership-cost-share-question',
+      'housing-starts-question',
+    ])
+    expect(within(cards[0]!).getAllByText('42.0%')).not.toHaveLength(0)
+    expect(within(cards[0]!).getAllByText('March 2026')).not.toHaveLength(0)
+    expect(within(cards[0]!).getByText(/A higher percentage means/)).toBeVisible()
+    expect(within(cards[1]!).getAllByText('1.18 million')).not.toHaveLength(0)
+    expect(within(cards[1]!).getAllByText('May 2026')).not.toHaveLength(0)
+    expect(within(cards[1]!).getByText(/annualized pace implied by one month/)).toBeVisible()
+
+    await user.click(within(cards[0]!).getByRole('button', { name: 'Maximum' }))
+    await user.click(within(cards[1]!).getByRole('button', { name: 'Maximum' }))
+    await waitFor(() => {
+      const calls = chartPropsSpy.mock.calls.map((call) => call[0] as {
+        seriesName: string
+        observations: EconomicObservation[]
+        includeZero: boolean
+      })
+      expect([...calls].reverse().find((call) => call.seriesName === 'Home-ownership affordability'))
+        .toMatchObject({ includeZero: false, observations: expect.arrayContaining([
+          expect.objectContaining({ date: '2005-01-01' }),
+        ]) })
+      expect([...calls].reverse().find((call) => call.seriesName === 'Housing starts'))
+        .toMatchObject({ includeZero: false, observations: expect.arrayContaining([
+          expect.objectContaining({ date: '1959-01-01' }),
+        ]) })
+    })
+  })
+
+  it.each([
+    ['home-ownership-cost-share', 'The home-ownership affordability data could not be loaded.', 'How much new housing is being started?'],
+    ['housing-starts', 'The housing starts data could not be loaded.', 'Can a median-income household afford a typical home?'],
+  ])('isolates a %s failure from the other Housing card', async (failedSlug, message, survivor) => {
+    const originalGetBySlug = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
+      if (slug === failedSlug) throw new Error('Invalid Story 15 fixture')
+      return originalGetBySlug(slug)
+    })
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    render(<DashboardPage />)
+
+    expect(await screen.findByText(message)).toBeVisible()
+    expect(await screen.findByRole('article', { name: survivor })).toBeVisible()
+    expect(await screen.findByRole('region', { name: 'Growth' })).toBeVisible()
   })
 
   it('keeps GDP visible when CPI loading fails', async () => {

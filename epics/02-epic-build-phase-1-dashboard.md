@@ -71,8 +71,8 @@ The browser must not depend on live provider requests. Data should refresh throu
 
 ### Housing
 
-- Housing affordability and financing conditions — planned
-- Housing construction — planned
+- Housing affordability and financing conditions — complete
+- Housing construction — complete
 
 ### Business and manufacturing
 
@@ -114,7 +114,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 | 12A | Clarify productivity momentum and add productivity level | Complete |
 | 13 | Add household income, spending, and saving | Complete |
 | 14 | Add household financial stress | Complete |
-| 15 | Add housing affordability and construction | Planned |
+| 15 | Add housing affordability and construction | Complete |
 | 16 | Add manufacturing output versus employment | Planned |
 | 17 | Add business investment and industrial activity | Planned |
 | 18 | Add financial conditions and credit stress | Planned |

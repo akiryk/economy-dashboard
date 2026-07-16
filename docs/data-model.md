@@ -4,7 +4,7 @@ The economic-series domain model keeps source metadata and observations together
 
 An `EconomicSeries` identifies the provider and provider series, explains the displayed units and transformation, records seasonal adjustment and frequency, and contains `EconomicObservation` entries. Each observation has an ISO date representing the economic period and a numeric or `null` value. A missing observation remains `null`; it is never treated as zero.
 
-The current domain supports quarterly GDP, GDP-per-capita, productivity, and household debt-service series plus monthly CPI, labor-market, wage, income, spending, and saving series. One provider level series can generate multiple validated outputs with distinct transformations, as headline and core CPI each do for year-over-year and three-month annualized rates. Frequency-aware presentation formats quarterly dates as `2026 Q1` and monthly dates as `June 2026` using UTC, so local timezone offsets cannot shift an economic period. Invalid and duplicate dates are rejected rather than displayed ambiguously.
+The current domain supports quarterly GDP, GDP-per-capita, productivity, and household debt-service series plus monthly CPI, labor-market, wage, income, spending, saving, housing-affordability, and housing-construction series. One provider level series can generate multiple validated outputs with distinct transformations, as headline and core CPI each do for year-over-year and three-month annualized rates. Frequency-aware presentation formats quarterly dates as `2026 Q1` and monthly dates as `June 2026` using UTC, so local timezone offsets cannot shift an economic period. Invalid and duplicate dates are rejected rather than displayed ambiguously.
 
 ## Observation date and retrieval date
 
@@ -28,7 +28,7 @@ The domain model remains independent of Apache ECharts. A chart adapter creates 
 
 ## Dashboard composition and product copy
 
-`DashboardPage` explicitly composes semantic Growth, Prices, Employment and income, and Households sections through a small `EconomicSection` layout component. This keeps the heading hierarchy and section descriptions consistent without creating a schema-driven page engine. Future sections should be added only when real indicators exist.
+`DashboardPage` explicitly composes semantic Growth, Prices, Employment and income, Households, and Housing sections through a small `EconomicSection` layout component. This keeps the heading hierarchy and section descriptions consistent without creating a schema-driven page engine. Future sections should be added only when real indicators exist.
 
 Provider identity, series identity, units, frequency, transformations, dates, and observations belong to the economic-series domain data. Human explanations, related concepts, latest-value labels, and table captions belong to the explicit series presentation registry. Product copy is therefore reusable by the shared card without becoming provider metadata or chart configuration.
 
@@ -68,10 +68,12 @@ PSAVERT is a provider-published percent level, not a growth rate. Its 12-month c
 
 TDSP is a provider-published quarterly percent level. It estimates required mortgage and consumer-debt payments divided by aggregate disposable personal income. It uses the ordinary single-series observation shape and non-zero-forced level chart policy; no debt-payment components or household-level distribution are inferred from it.
 
+The Atlanta Fed HOAM output uses the same observation shape after its official annual payment share of income is converted from a ratio to a percentage. HOUST is a provider-published monthly level in thousands of housing units at a seasonally adjusted annual rate. Neither is modeled as a growth rate, and both use non-zero-forced level charts.
+
 ## Current limitations
 
-- The application contains fourteen visible cards backed by eighteen datasets. Supporting datasets used within relationship cards are not separate cards.
+- The application contains sixteen visible cards backed by twenty datasets. Supporting datasets used within relationship cards are not separate cards.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.
-- Charting currently supports monthly and quarterly percentages plus signed monthly job counts.
+- Charting currently supports monthly and quarterly percentages, signed monthly job counts, indexes, and annualized counts in thousands.

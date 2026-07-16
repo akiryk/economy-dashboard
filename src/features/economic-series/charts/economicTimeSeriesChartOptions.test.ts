@@ -96,6 +96,28 @@ describe('createEconomicTimeSeriesChartOptions', () => {
       '2026 Q1\nProductivity index, selected-range baseline = 100: 114.2\nChange since selected-range start: +14.2%',
     )
   })
+
+  it('identifies housing starts as an annualized thousands level', () => {
+    const options = createEconomicTimeSeriesChartOptions({
+      data: [['2026-05-01', 1177]],
+      seriesName: 'Housing starts',
+      frequency: 'monthly',
+      units: 'Thousands of units, seasonally adjusted annual rate',
+      transformation: 'Level',
+      includeZero: false,
+      valueFormat: 'thousands-units',
+    })
+    const axis = options.yAxis as YAXisComponentOption
+    const tooltip = options.tooltip as {
+      formatter: (params: { value: [string, number] }) => string
+    }
+
+    expect(axis.name).toBe('Units (thousands, annual rate)')
+    expect(axis.axisLabel).toMatchObject({ formatter: '{value}K' })
+    expect(tooltip.formatter({ value: ['2026-05-01', 1177] })).toBe(
+      'May 2026\nHousing starts: 1,177K',
+    )
+  })
 })
 
 describe('createEconomicComparisonChartOptions', () => {

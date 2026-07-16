@@ -17,6 +17,40 @@ interface EconomicSeriesPresentation {
 }
 
 const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
+  'home-ownership-cost-share': {
+    topicLabel: 'Housing affordability',
+    latestValueLabel: 'Latest modeled annual ownership cost share',
+    whatThisTellsYou:
+      'The Atlanta Fed models the annual cost for a median-income household to purchase a median-priced home, including principal and interest, property taxes, homeowners insurance, and private mortgage insurance. A higher percentage means modeled ownership costs consume more median household income.',
+    whatThisLeavesOut:
+      'This national model does not describe local markets, current homeowners with older mortgages, or every buyer’s down payment, credit profile, taxes, or insurance. It is not a count of households that can or cannot buy a home.',
+    relatedIndicators: ['Housing starts', 'Household debt service', 'Real income'],
+    recentObservationCount: 12,
+    recentObservationsCaption: 'Twelve most recent national home-ownership cost-share observations',
+    valueColumnLabel: 'Annual ownership cost share',
+    includeZeroInChart: false,
+    reportBelowZero: false,
+    valueFormat: 'percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
+  },
+  'housing-starts': {
+    topicLabel: 'Housing construction',
+    latestValueLabel: 'Latest seasonally adjusted annual rate',
+    whatThisTellsYou:
+      'Housing starts measure the annualized pace at which privately owned housing units begin construction. Excavation for a multifamily building counts every unit in that building as started.',
+    whatThisLeavesOut:
+      'The latest value is an annualized pace implied by one month, not the literal number started that month or a forecast of completed annual supply. Starts do not show affordability, construction completion, inventory, or whether demand is strong or weak.',
+    relatedIndicators: ['Home-ownership affordability', 'Residential investment', 'Construction employment'],
+    recentObservationCount: 12,
+    recentObservationsCaption: 'Twelve most recent housing-starts observations',
+    valueColumnLabel: 'Thousands of units, annual rate',
+    includeZeroInChart: false,
+    reportBelowZero: false,
+    valueFormat: 'thousands-units',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
+  },
   'household-debt-service-ratio': {
     topicLabel: 'Household debt burden',
     latestValueLabel: 'Latest household debt-service ratio',

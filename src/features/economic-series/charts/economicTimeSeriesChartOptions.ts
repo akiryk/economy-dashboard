@@ -134,6 +134,8 @@ export function createEconomicTimeSeriesChartOptions({
       name:
         valueFormat === 'signed-thousands'
           ? 'Jobs (thousands)'
+          : valueFormat === 'thousands-units'
+            ? 'Units (thousands, annual rate)'
           : valueFormat === 'index'
             ? 'Index'
             : 'Percent',
@@ -146,6 +148,8 @@ export function createEconomicTimeSeriesChartOptions({
         formatter:
           valueFormat === 'signed-thousands'
             ? '{value}K'
+            : valueFormat === 'thousands-units'
+              ? '{value}K'
             : valueFormat === 'index'
               ? '{value}'
               : '{value}%',

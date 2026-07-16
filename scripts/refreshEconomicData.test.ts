@@ -16,6 +16,7 @@ import {
   refreshAllEconomicData,
   refreshCpiData,
   refreshEconomicData,
+  refreshHoamData,
   refreshProductivityData,
 } from './refreshEconomicData'
 
@@ -39,6 +40,7 @@ describe('refreshEconomicData', () => {
         'provider-level',
         'locally-derived',
         'locally-derived',
+        'provider-level',
         'provider-level',
       ])
     expect(payrollSeriesConfiguration).toMatchObject({
@@ -362,7 +364,7 @@ describe('refreshEconomicData', () => {
     expect(await readFile(cpiPath, 'utf8')).toBe(existingCpi)
   })
 
-  it('refreshes all seven direct sources once and omits provider transformations for local derivations', async () => {
+  it('refreshes all eight direct sources once and omits provider transformations for local derivations', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
     temporaryDirectories.push(directory)
     const configurations = fredSeriesConfigurations.map((config) => ({
@@ -413,13 +415,13 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(7)
+    expect(outcomes).toHaveLength(8)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 15, 3, 3, 6, 6, 3])
+    ).toEqual([3, 15, 3, 3, 6, 6, 3, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
@@ -428,10 +430,11 @@ describe('refreshEconomicData', () => {
       'A939RX0Q048SBEA',
       'OPHNFB',
       'TDSP',
+      'HOUST',
     ])
     expect(requestedUrls[0]?.searchParams.get('units')).toBe('pc1')
     expect(requestedUrls.slice(1).map((url) => url.searchParams.has('units')))
-      .toEqual([false, false, false, false, false, false])
+      .toEqual([false, false, false, false, false, false, false])
     expect(
       requestedUrls.every((url) => !url.searchParams.has('observation_start')),
     ).toBe(true)
@@ -772,5 +775,25 @@ describe('refreshEconomicData', () => {
     await Promise.all(outputFiles.map(async (file, index) => {
       expect(await readFile(file, 'utf8')).toBe(`old ${index}\n`)
     }))
+  })
+
+  it('preserves the prior HOAM dataset when workbook parsing fails', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
+    temporaryDirectories.push(directory)
+    const outputFile = path.join(directory, 'home-ownership-cost-share.json')
+    const existing = '{"existing":"valid HOAM fixture"}\n'
+    await writeFile(outputFile, existing, 'utf8')
+
+    await expect(refreshHoamData({
+      retrievedAt: '2026-07-16',
+      config: {
+        dataHandling: 'hoam-provider',
+        outputFile,
+        minimumUsableObservations: 2,
+      },
+      fetchImplementation: async () => new Response('not an XLSX archive'),
+    })).rejects.toThrow('not a valid ZIP archive')
+
+    expect(await readFile(outputFile, 'utf8')).toBe(existing)
   })
 })

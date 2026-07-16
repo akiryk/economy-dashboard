@@ -69,6 +69,19 @@ const navigationGroups = [
       },
     ],
   },
+  {
+    title: 'Housing',
+    cards: [
+      {
+        id: 'home-ownership-cost-share-card',
+        title: 'Can a median-income household afford a typical home?',
+      },
+      {
+        id: 'housing-starts-card',
+        title: 'How much new housing is being started?',
+      },
+    ],
+  },
 ] as const
 
 export function DashboardNavigation() {
@@ -81,7 +94,7 @@ export function DashboardNavigation() {
         <summary>
           <span id="dashboard-navigation-heading">Explore all indicators</span>
           <span className="dashboard-navigation__summary-detail">
-            14 cards in 4 categories
+            16 cards in 5 categories
           </span>
         </summary>
         <div className="dashboard-navigation__groups">

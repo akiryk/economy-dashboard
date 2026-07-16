@@ -12,7 +12,7 @@ The implementation uses ECharts 6 modular core imports and registers only the li
 
 Economic observations remain `{ date, value }` domain objects. Pure range and summary utilities operate on those objects. Immediately before rendering, `chartAdapters.ts` sorts without mutation and converts each observation to ECharts-compatible `[date, value]` data. `null` remains `null`, so missing observations are neither converted to zero nor joined by the line.
 
-The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage and signed-count data use the same UTC-safe period formatter without conflating their meanings. All fourteen current cards dynamically import the same chart module; ECharts is not duplicated.
+The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage and count data use the same UTC-safe period formatter without conflating their meanings. All sixteen current cards dynamically import the same chart module; ECharts is not duplicated.
 
 The same deferred boundary accepts either one series or the wages-versus-inflation comparison. The comparison uses solid nominal wage growth and dashed headline CPI inflation on one shared percentage axis with a concise legend and zero reference line. Dual axes are intentionally avoided. Its tooltip includes the aligned month, both plotted rates, and exact-ratio real wage growth. Both lines use the same latest shared month and selected range.
 
@@ -23,6 +23,8 @@ Chart options are built separately from React lifecycle management. This keeps f
 Maximum passes every generated observation to the chart boundary. It is series-specific and does not imply a common starting year. The 5-year, 10-year, and 20-year filters remain anchored to each series' latest observation date, and the default remains 20 years.
 
 ## Lifecycle and resizing
+
+The housing affordability cost share and housing starts use the single-series level policy without forcing zero. Housing-starts axes and tooltips explicitly label thousands at an annual rate, while its latest callout expands the stored thousands value to a readable unit count. Its selected-range factual summary reports the first, lowest, highest, and latest observations without judging the pace.
 
 The household growth comparison reuses the two-line shared percentage-axis configuration: income is solid, spending is dashed, zero is included, gaps remain disconnected, and no dual axis is available. Personal saving rate and the quarterly household debt-service ratio use the existing single-series level policy, so their axes are padded without forcing zero or adding a target band.
 
@@ -52,7 +54,7 @@ Future time-series charts can reuse the lifecycle component, adapter pattern, ra
 
 ## Current limitations
 
-- Only percentage-valued and signed-count monthly or quarterly line series are currently charted.
+- Percentage, index, signed-count, and annualized-thousands monthly or quarterly line series are currently charted.
 - Data does not refresh automatically.
 - The selected range is local component state and is not reflected in the URL.
 - The recent-observations table contains eight values rather than every visible chart point.
@@ -83,3 +85,5 @@ With Story 13, the initial application chunk is 336.76 kB minified (101.87 kB gz
 With Story 12A applied after Story 13, the initial application chunk is 345.65 kB minified (103.37 kB gzip). The canonical productivity-level data chunk is 11.51 kB, and the reframed productivity-growth chunk remains 15.05 kB. The build emits one shared chart/ECharts chunk at 541.71 kB minified (181.90 kB gzip); ECharts remains deduplicated, and the existing deferred-chunk warning remains.
 
 With Story 14, the initial application chunk is 347.08 kB minified (103.66 kB gzip), and the new household-debt-service-ratio data chunk is 4.07 kB (1.31 kB gzip). The build emits one shared chart/ECharts chunk at 541.71 kB minified (181.90 kB gzip); ECharts remains deduplicated, and the existing deferred-chunk warning remains.
+
+With Story 15, the initial application chunk is 350.98 kB minified (104.61 kB gzip). The home-ownership-cost-share and housing-starts data chunks are 12.46 kB (3.89 kB gzip) and 26.01 kB (4.81 kB gzip). The build emits one shared chart/ECharts chunk at 541.79 kB minified (181.93 kB gzip); ECharts remains deduplicated, and the existing deferred-chunk warning remains.

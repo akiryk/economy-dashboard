@@ -98,7 +98,11 @@ export function formatSignedPercentage(value: number | null): string {
   return value > 0 ? `+${formatted}%` : `−${formatted}%`
 }
 
-export type EconomicValueFormat = 'index' | 'percentage' | 'signed-thousands'
+export type EconomicValueFormat =
+  | 'index'
+  | 'percentage'
+  | 'signed-thousands'
+  | 'thousands-units'
 
 export function formatSignedThousands(value: number | null): string {
   if (value === null) return 'Not available'
@@ -127,11 +131,23 @@ export function formatEconomicValue(
 ): string {
   return format === 'signed-thousands'
     ? formatSignedThousands(value)
+    : format === 'thousands-units'
+      ? value === null
+        ? 'Not available'
+        : `${Math.round(value).toLocaleString('en-US')}K`
     : format === 'index'
       ? value === null
         ? 'Unavailable'
         : value.toFixed(1)
     : formatPercentage(value)
+}
+
+export function formatAnnualizedHousingUnits(value: number | null): string {
+  if (value === null) return 'Not available'
+  const units = value * 1_000
+  return units >= 1_000_000
+    ? `${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(units / 1_000_000)} million`
+    : Math.round(units).toLocaleString('en-US')
 }
 
 export function formatDate(date: string): string {

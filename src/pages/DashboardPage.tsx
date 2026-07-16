@@ -180,6 +180,23 @@ export function DashboardPage() {
           onSeriesLoaded={handleSeriesLoaded}
         />
       </EconomicSection>
+
+      <EconomicSection
+        id="housing"
+        title="Housing"
+        description="Housing conditions reflect both what households can afford and how quickly new supply is entering construction. These measures can move differently because prices, financing costs, income, and building activity respond on different timelines."
+      >
+        <EconomicSeriesCard
+          slug="home-ownership-cost-share"
+          label="home-ownership affordability"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+        <EconomicSeriesCard
+          slug="housing-starts"
+          label="housing starts"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+      </EconomicSection>
     </div>
   )
 }

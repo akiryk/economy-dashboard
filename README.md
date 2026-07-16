@@ -4,7 +4,7 @@ An information-first web application for understanding the U.S. economy through 
 
 ## Current scope
 
-Story 14 adds the Federal Reserve Board household debt-service ratio to show estimated required mortgage and consumer-debt payments as a share of aggregate disposable personal income.
+Story 15 adds a Housing section that separates modeled home-ownership affordability from the annualized pace of new housing starts.
 
 ## Technology stack
 
@@ -55,7 +55,7 @@ npm run preview
 - `typecheck` runs TypeScript without emitting files.
 - `lint` checks the code with ESLint.
 - `test` runs the Vitest unit and component test suite once. Use `npm run test:watch` during development.
-- `data:refresh` retrieves and safely replaces the datasets for all fourteen dashboard cards using official FRED data and local derivations.
+- `data:refresh` retrieves and safely replaces the datasets for all sixteen dashboard cards using official FRED and Atlanta Fed data and local derivations.
 - `preview` serves the production build locally after it has been created.
 
 ## Testing status
@@ -64,7 +64,7 @@ Vitest, React Testing Library, jest-dom, and jsdom cover chart-data adaptation, 
 
 ## Chart behavior
 
-All fourteen cards render nonsmoothed time-series charts with frequency-aware tooltips and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Short-range boundaries are calculated from each series’ latest shared observation date rather than today's date. Maximum includes every generated observation and may start in a different year for each card. Growth and comparison charts include zero; productivity, labor-market, saving-rate, and debt-service-ratio levels use padded ranges and do not force zero.
+All sixteen cards render nonsmoothed time-series charts with frequency-aware tooltips and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Short-range boundaries are calculated from each series’ latest shared observation date rather than today's date. Maximum includes every generated observation and may start in a different year for each card. Growth and comparison charts include zero; productivity, labor-market, saving-rate, debt-service-ratio, affordability, and housing-starts levels use padded ranges and do not force zero.
 
 The chart includes an updating text summary of the latest, minimum, and maximum visible observations. GDP and CPI also report whether values fall below zero; that statement is omitted for the labor-market levels where it adds no useful context. The semantic recent-observations table remains available as a detailed nonvisual alternative.
 
@@ -72,12 +72,13 @@ Apache ECharts is integrated directly through a small React lifecycle wrapper an
 
 ## Information architecture
 
-The page currently contains four semantic sections:
+The page currently contains five semantic sections:
 
 - Growth, containing real GDP growth, real GDP per capita growth, productivity over time, and productivity growth momentum.
 - Prices, containing headline CPI inflation, headline versus core CPI, and recent inflation momentum.
 - Employment and income, containing unemployment, prime-age employment-to-population ratio, payroll growth, and wages versus inflation.
 - Households, containing real disposable income per capita versus real consumer spending, the personal saving rate, and the household debt-service ratio.
+- Housing, containing modeled home-ownership cost as a share of median household income and total housing starts.
 
 Each indicator leads with a human question and one latest value, followed by the range control and chart. Factual context, concise limitations, related concepts, visible source attribution, technical metadata, and recent observations remain available without competing with the chart. Empty future sections are not rendered.
 
@@ -85,7 +86,7 @@ The product principles and current-versus-future conceptual layers are documente
 
 ## Local economic data
 
-Eighteen full-history datasets support fourteen visible cards:
+Twenty full-history datasets support sixteen visible cards:
 
 - `real-gdp-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, FRED `GDPC1`, percent change from one year ago.
 - `real-gdp-per-capita-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, calculated locally from FRED `A939RX0Q048SBEA` levels.
@@ -105,6 +106,10 @@ Eighteen full-history datasets support fourteen visible cards:
 - `real-consumer-spending-growth.json`: 221 monthly observations, January 2008–May 2026, calculated locally from FRED `PCEC96` levels.
 - `personal-saving-rate.json`: 809 monthly observations, January 1959–May 2026, published FRED `PSAVERT` percent levels.
 - `household-debt-service-ratio.json`: 85 quarterly observations, 2005 Q1–2026 Q1, published FRED `TDSP` percent levels.
+- `home-ownership-cost-share.json`: 255 monthly observations, January 2005–March 2026, Atlanta Fed HOAM annual payment share of income converted from ratio to percent.
+- `housing-starts.json`: 809 monthly observations, January 1959–May 2026, published FRED `HOUST` levels in thousands of units at a seasonally adjusted annual rate.
+
+HOAM models a median-income household purchasing a median-priced home and includes financing, taxes, insurance, and other documented ownership costs. It is a national model, not a count of households able to buy, and does not describe current owners with older mortgages or every buyer profile. HOUST reports the annualized pace implied by one month's starts; it is neither that month's literal unit count nor a forecast or measure of completed homes.
 
 The household growth rates use `((level_t / level_t-12) - 1) × 100` with exact calendar-month lookups and align only on shared dates. TDSP is a provider-published quarterly level: estimated required mortgage and consumer-debt payments divided by aggregate disposable personal income. These national aggregates do not describe every household. Spending growth does not establish financial sustainability, a higher saving rate is not automatically favorable, and the aggregate debt-service ratio is not a typical household's burden or a complete measure of hardship.
 
@@ -114,11 +119,11 @@ Headline and core year-over-year inflation use `((index_t / index_t-12) - 1) × 
 
 Real GDP per capita uses BEA series `A939RX0Q048SBEA`, published quarterly in chained 2017 dollars at a seasonally adjusted annual rate. Labor productivity uses BLS series `OPHNFB`, a quarterly seasonally adjusted index of nonfarm business output per hour. OPHNFB is fetched once and written as a canonical level plus locally calculated growth. The level card normalizes the first valid selected-range value to 100; cumulative change is `(latest / baseline - 1) × 100`. Growth is `((level_t / level_t-4 quarters) - 1) × 100`, and momentum compares that growth rate with the exact rate four quarters earlier. A falling positive growth line means gains are slowing, not that productivity is falling.
 
-All current snapshots were retrieved from FRED on July 16, 2026 UTC. Each source uses the full-history request policy without `observation_start`. Leading unavailable observations are omitted, while meaningful internal missing values remain `null`. PAYEMS is published monthly in thousands of persons, seasonally adjusted; the application calculates consecutive monthly differences and rolling three-month averages from its full source history.
+Current snapshots were retrieved from FRED and the Atlanta Fed on July 16, 2026 UTC. FRED sources use the full-history request policy without `observation_start`. Leading unavailable observations are omitted, while meaningful internal missing values remain `null`. PAYEMS is published monthly in thousands of persons, seasonally adjusted; the application calculates consecutive monthly differences and rolling three-month averages from its full source history.
 
 Components request data asynchronously through the `EconomicSeriesRepository` interface instead of importing JSON. The local repository validates committed data at runtime, while preserving a boundary that can later be implemented by an application API or another data store.
 
-The browser never contacts FRED. The committed dataset supports local and deployed rendering when the API or network is unavailable.
+The browser never contacts FRED or the Atlanta Fed. The committed dataset supports local and deployed rendering when either provider or the network is unavailable.
 
 ## Refreshing economic data
 

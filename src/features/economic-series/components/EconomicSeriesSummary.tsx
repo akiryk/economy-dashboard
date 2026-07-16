@@ -8,6 +8,7 @@ import {
   formatObservationPeriod,
   formatPercentage,
   formatSignedPercentage,
+  formatAnnualizedHousingUnits,
   selectMostRecentObservations,
   sortObservationsChronologically,
 } from '../utils/economicSeries'
@@ -58,6 +59,9 @@ export function EconomicSeriesSummary({
     () => calculateChartSummary(visibleObservations),
     [visibleObservations],
   )
+  const firstVisibleObservation = visibleObservations.find(
+    (observation) => observation.value !== null,
+  )
   const formatValue = (value: number | null) =>
     formatEconomicValue(value, presentation.valueFormat)
   const savingRateChange =
@@ -94,7 +98,9 @@ export function EconomicSeriesSummary({
                 : undefined
             }
           >
-            {formatValue(latestObservation?.value ?? null)}
+            {series.slug === 'housing-starts'
+              ? formatAnnualizedHousingUnits(latestObservation?.value ?? null)
+              : formatValue(latestObservation?.value ?? null)}
           </span>
         </p>
         <p className="series-current__label">
@@ -160,7 +166,27 @@ export function EconomicSeriesSummary({
               valueFormat={presentation.valueFormat}
             />
           </Suspense>
-          {presentation.summaryFormat === 'job-change' ? (
+          {series.slug === 'housing-starts' ? (
+            <p className="chart-summary" aria-live="polite">
+              For the selected period, housing starts began at{' '}
+              {formatValue(firstVisibleObservation?.value ?? null)} in{' '}
+              {firstVisibleObservation
+                ? formatObservationPeriod(firstVisibleObservation.date, series.frequency)
+                : 'an unavailable period'}, reached a low of{' '}
+              {formatValue(chartSummary.minimum?.value ?? null)} in{' '}
+              {chartSummary.minimum
+                ? formatObservationPeriod(chartSummary.minimum.date, series.frequency)
+                : 'an unavailable period'}, and reached a high of{' '}
+              {formatValue(chartSummary.maximum?.value ?? null)} in{' '}
+              {chartSummary.maximum
+                ? formatObservationPeriod(chartSummary.maximum.date, series.frequency)
+                : 'an unavailable period'}. The latest annualized pace is{' '}
+              {formatValue(chartSummary.latest?.value ?? null)} in{' '}
+              {chartSummary.latest
+                ? formatObservationPeriod(chartSummary.latest.date, series.frequency)
+                : 'an unavailable period'}.
+            </p>
+          ) : presentation.summaryFormat === 'job-change' ? (
             <p className="chart-summary" aria-live="polite">
               For the selected period, the three-month average monthly payroll
               change ranged from{' '}
