@@ -21,6 +21,7 @@ interface EconomicTimeSeriesChartOptionsInput {
   transformation: string
   includeZero: boolean
   valueFormat: EconomicValueFormat
+  zoom?: HistoricalZoomChartConfig
 }
 
 interface EconomicComparisonChartOptionsInput {
@@ -28,6 +29,7 @@ interface EconomicComparisonChartOptionsInput {
   inflationData: ChartDataPoint[]
   realData: ChartDataPoint[]
   frequency: EconomicFrequency
+  zoom?: HistoricalZoomChartConfig
 }
 
 interface InflationComparisonChartOptionsInput {
@@ -35,12 +37,44 @@ interface InflationComparisonChartOptionsInput {
   coreData: ChartDataPoint[]
   frequency: EconomicFrequency
   variant: 'household' | 'momentum' | 'year-over-year'
+  zoom?: HistoricalZoomChartConfig
 }
 
 interface ManufacturingComparisonChartOptionsInput {
   outputData: ChartDataPoint[]
   employmentData: ChartDataPoint[]
   frequency: EconomicFrequency
+  zoom?: HistoricalZoomChartConfig
+}
+
+export interface HistoricalZoomChartConfig {
+  startValue: string
+  endValue: string
+}
+
+function sharedDataZoom({ startValue, endValue }: HistoricalZoomChartConfig) {
+  return [
+    {
+      type: 'slider' as const,
+      startValue,
+      endValue,
+      height: 20,
+      bottom: 26,
+      showDetail: false,
+      brushSelect: false,
+      borderColor: '#c7cdd2',
+      fillerColor: 'rgba(36, 93, 114, 0.14)',
+      handleStyle: { color: '#245d72', borderColor: '#245d72' },
+      moveHandleStyle: { color: '#56616d' },
+    },
+  ]
+}
+
+function zoomForData(
+  zoom: HistoricalZoomChartConfig | undefined,
+  data: ChartDataPoint[],
+): HistoricalZoomChartConfig {
+  return zoom ?? { startValue: data[0]?.[0] ?? '', endValue: data.at(-1)?.[0] ?? '' }
 }
 
 interface ValueRange {
@@ -97,6 +131,7 @@ export function createEconomicTimeSeriesChartOptions({
   transformation,
   includeZero,
   valueFormat,
+  zoom,
 }: EconomicTimeSeriesChartOptionsInput): EChartsCoreOption {
   return {
     animation: false,
@@ -105,10 +140,11 @@ export function createEconomicTimeSeriesChartOptions({
       decal: { show: false },
       description: `${seriesName}, ${frequency}. Transformation: ${transformation}. Units: ${units}. A detailed data table follows the chart.`,
     },
+    dataZoom: sharedDataZoom(zoomForData(zoom, data)),
     grid: {
       top: 24,
       right: 18,
-      bottom: 42,
+      bottom: 90,
       left: 58,
       containLabel: false,
     },
@@ -199,6 +235,7 @@ export function createEconomicComparisonChartOptions({
   inflationData,
   realData,
   frequency,
+  zoom,
 }: EconomicComparisonChartOptionsInput): EChartsCoreOption {
   const realByDate = new Map(realData)
   return {
@@ -209,6 +246,7 @@ export function createEconomicComparisonChartOptions({
       description:
         'Nominal wage growth and headline CPI inflation on one shared percentage axis. A detailed factual summary and data table follow the chart.',
     },
+    dataZoom: sharedDataZoom(zoomForData(zoom, nominalData)),
     legend: {
       data: ['Nominal wage growth', 'Headline CPI inflation'],
       bottom: 0,
@@ -217,7 +255,7 @@ export function createEconomicComparisonChartOptions({
     grid: {
       top: 24,
       right: 18,
-      bottom: 72,
+      bottom: 120,
       left: 58,
       containLabel: false,
     },
@@ -305,6 +343,7 @@ export function createInflationComparisonChartOptions({
   coreData,
   frequency,
   variant,
+  zoom,
 }: InflationComparisonChartOptionsInput): EChartsCoreOption {
   const momentum = variant === 'momentum'
   const household = variant === 'household'
@@ -325,6 +364,7 @@ export function createInflationComparisonChartOptions({
       decal: { show: true },
       description: `${headlineName} and ${coreName} on one shared percentage axis. A factual summary and detailed data table follow the chart.`,
     },
+    dataZoom: sharedDataZoom(zoomForData(zoom, headlineData)),
     legend: {
       data: [headlineName, coreName],
       bottom: 0,
@@ -333,7 +373,7 @@ export function createInflationComparisonChartOptions({
     grid: {
       top: 24,
       right: 18,
-      bottom: 72,
+      bottom: 120,
       left: 58,
       containLabel: false,
     },
@@ -429,12 +469,14 @@ export function createManufacturingComparisonChartOptions({
   outputData,
   employmentData,
   frequency,
+  zoom,
 }: ManufacturingComparisonChartOptionsInput): EChartsCoreOption {
   return {
     animation: false,
     aria: { enabled: true, decal: { show: true }, description: 'Manufacturing output and manufacturing employment, each normalized to 100 at the selected-range baseline, on one shared axis. A factual summary and detailed table follow.' },
+    dataZoom: sharedDataZoom(zoomForData(zoom, outputData)),
     legend: { data: ['Manufacturing output', 'Manufacturing employment'], bottom: 0, textStyle: { color: '#56616d' } },
-    grid: { top: 24, right: 18, bottom: 72, left: 58, containLabel: false },
+    grid: { top: 24, right: 18, bottom: 120, left: 58, containLabel: false },
     tooltip: {
       trigger: 'axis', renderMode: 'html', confine: true, extraCssText: 'white-space: pre-line;',
       formatter: (params: TooltipComponentFormatterCallbackParams) => {

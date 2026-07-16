@@ -25,6 +25,8 @@ import { SavingRateTable } from './SavingRateTable'
 import { savingRateChanges } from '../utils/savingRateData'
 import { calculateProductivityMomentum } from '../utils/productivityData'
 import { ProductivityMomentumTable } from './ProductivityMomentumTable'
+import { HistoricalZoomControls } from './HistoricalZoomControls'
+import { useHistoricalZoom } from './useHistoricalZoom'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -47,13 +49,15 @@ export function EconomicSeriesSummary({
   )
   const coverageStart = chronologicalObservations[0]
   const coverageEnd = chronologicalObservations.at(-1)
-  const recentObservations = selectMostRecentObservations(
-    series.observations,
-    presentation.recentObservationCount,
-  )
-  const visibleObservations = useMemo(
+  const presetObservations = useMemo(
     () => filterObservationsByTimeRange(series.observations, selectedRange),
     [selectedRange, series.observations],
+  )
+  const zoom = useHistoricalZoom(presetObservations, selectedRange, series.frequency, setSelectedRange)
+  const visibleObservations = zoom.visibleItems
+  const recentObservations = selectMostRecentObservations(
+    visibleObservations,
+    presentation.recentObservationCount,
   )
   const chartSummary = useMemo(
     () => calculateChartSummary(visibleObservations),
@@ -142,9 +146,11 @@ export function EconomicSeriesSummary({
 
       <TimeRangeControl
         selectedRange={selectedRange}
-        onRangeChange={setSelectedRange}
+        onRangeChange={zoom.selectPreset}
         contextLabel={series.shortTitle}
       />
+
+      <HistoricalZoomControls active={zoom.active} visiblePeriod={zoom.visiblePeriod} onMove={zoom.move} onResize={zoom.resize} onReset={zoom.reset} />
 
       {chartSummary.observationCount > 0 ? (
         <>
@@ -156,19 +162,23 @@ export function EconomicSeriesSummary({
             }
           >
             <EconomicTimeSeriesChart
+              key={selectedRange}
               kind="single"
-              observations={visibleObservations}
+              observations={presetObservations}
               seriesName={series.shortTitle}
               frequency={series.frequency}
               units={series.units}
               transformation={series.transformation}
               includeZero={presentation.includeZeroInChart}
               valueFormat={presentation.valueFormat}
+              zoomStartDate={visibleObservations[0]?.date ?? ''}
+              zoomEndDate={visibleObservations.at(-1)?.date ?? ''}
+              onZoomChange={zoom.onChartZoom}
             />
           </Suspense>
           {series.slug === 'housing-starts' ? (
             <p className="chart-summary" aria-live="polite">
-              For the selected period, housing starts began at{' '}
+              For the visible period, housing starts began at{' '}
               {formatValue(firstVisibleObservation?.value ?? null)} in{' '}
               {firstVisibleObservation
                 ? formatObservationPeriod(firstVisibleObservation.date, series.frequency)
@@ -188,7 +198,7 @@ export function EconomicSeriesSummary({
             </p>
           ) : presentation.summaryFormat === 'job-change' ? (
             <p className="chart-summary" aria-live="polite">
-              For the selected period, the three-month average monthly payroll
+              For the visible period, the three-month average monthly payroll
               change ranged from{' '}
               {formatJobChangeProse(chartSummary.minimum?.value ?? null)} in{' '}
               {chartSummary.minimum
@@ -214,7 +224,7 @@ export function EconomicSeriesSummary({
             </p>
           ) : (
             <p className="chart-summary" aria-live="polite">
-              For the selected period, {series.shortTitle} ranged from{' '}
+              For the visible period, {series.shortTitle} ranged from{' '}
               {formatValue(chartSummary.minimum?.value ?? null)} in{' '}
               {chartSummary.minimum
                 ? formatObservationPeriod(
@@ -332,13 +342,13 @@ export function EconomicSeriesSummary({
         <details className="supporting-disclosure">
           <summary>Recent observations</summary>
           {series.slug === 'labor-productivity-growth' ? (
-            <ProductivityMomentumTable observations={series.observations} />
+            <ProductivityMomentumTable observations={visibleObservations} />
           ) : series.slug === 'personal-saving-rate' ? (
-            <SavingRateTable observations={series.observations} />
+            <SavingRateTable observations={visibleObservations} />
           ) : presentation.recentTable === 'payroll-changes' && supportingSeries ? (
             <PayrollObservationsTable
-              averages={series.observations}
-              monthlyChanges={supportingSeries.observations}
+              averages={visibleObservations}
+              monthlyChanges={supportingSeries.observations.filter((item) => visibleObservations.some((visible) => visible.date === item.date))}
               caption={presentation.recentObservationsCaption}
               count={presentation.recentObservationCount}
             />

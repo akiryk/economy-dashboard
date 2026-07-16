@@ -70,6 +70,28 @@ describe('EconomicSeriesSummary', () => {
     expect(latestChartProps.observations.at(-1)?.date).toBe('2026-01-01')
   })
 
+  it('zooms summaries independently, resets, and clears zoom on preset changes', async () => {
+    const user = userEvent.setup()
+    render(<EconomicSeriesSummary series={series} />)
+
+    const initialPeriod = screen.getByText(/^Visible period:/).textContent
+    expect(screen.queryByRole('button', { name: 'Reset zoom' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Zoom in' }))
+    expect(screen.getByText(/^Visible period:/).textContent).not.toBe(initialPeriod)
+    expect(screen.getByRole('button', { name: 'Reset zoom' })).toBeVisible()
+
+    await user.click(screen.getByRole('button', { name: 'Reset zoom' }))
+    expect(screen.getByText(/^Visible period:/).textContent).toBe(initialPeriod)
+    expect(screen.queryByRole('button', { name: 'Reset zoom' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Zoom in' }))
+    await user.click(screen.getByRole('button', { name: '5 years' }))
+    expect(screen.queryByRole('button', { name: 'Reset zoom' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '20 years' }))
+    expect(screen.getByText(/^Visible period:/).textContent).toBe(initialPeriod)
+    expect(screen.queryByRole('button', { name: 'Reset zoom' })).not.toBeInTheDocument()
+  })
+
   it('preserves source, explanations, metadata, and observations', async () => {
     const user = userEvent.setup()
     render(<EconomicSeriesSummary series={series} />)

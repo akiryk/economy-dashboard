@@ -16,6 +16,8 @@ import {
 } from "../utils/economicSeries";
 import { InflationComparisonTable } from "./InflationComparisonTable";
 import { TimeRangeControl } from "./TimeRangeControl";
+import { HistoricalZoomControls } from "./HistoricalZoomControls";
+import { useHistoricalZoom } from "./useHistoricalZoom";
 
 const EconomicTimeSeriesChart = lazy(
   () => import("../charts/EconomicTimeSeriesChart"),
@@ -37,15 +39,18 @@ export function InflationComparisonSummary({
     () => alignInflationObservations(headline, core),
     [core, headline],
   );
-  const visible = useMemo(
+  const selected = useMemo(
     () => filterInflationComparisonByTimeRange(aligned, selectedRange),
     [aligned, selectedRange],
   );
+  const zoom = useHistoricalZoom(selected, selectedRange, "monthly", setSelectedRange);
+  const visible = zoom.visibleItems;
   const summary = useMemo(
     () => calculateInflationComparisonSummary(visible),
     [visible],
   );
   const latest = latestSharedInflationObservation(visible);
+  const latestAvailable = latestSharedInflationObservation(aligned);
   const priorCore = latest
     ? coreValueThreeMonthsEarlier(aligned, latest.date)
     : null;
@@ -79,26 +84,27 @@ export function InflationComparisonSummary({
 
       <div className="series-current" aria-label={latestLabel}>
         <p className="series-current__value">
-          {formatSignedPercentage(latest?.core ?? null)}
+          {formatSignedPercentage(latestAvailable?.core ?? null)}
         </p>
         <p className="series-current__label">{latestLabel}</p>
         <p className="series-current__period">
-          {latest
-            ? formatObservationPeriod(latest.date, "monthly")
+          {latestAvailable
+            ? formatObservationPeriod(latestAvailable.date, "monthly")
             : "Observation period unavailable"}{" "}
           · {momentum ? "Annualized percent" : "Percent change from year ago"}
         </p>
         <p className="series-current__comparison">
           Corresponding headline rate:{" "}
-          {formatSignedPercentage(latest?.headline ?? null)}
+          {formatSignedPercentage(latestAvailable?.headline ?? null)}
         </p>
       </div>
 
       <TimeRangeControl
         selectedRange={selectedRange}
-        onRangeChange={setSelectedRange}
+        onRangeChange={zoom.selectPreset}
         contextLabel={title}
       />
+      <HistoricalZoomControls active={zoom.active} visiblePeriod={zoom.visiblePeriod} onMove={zoom.move} onResize={zoom.resize} onReset={zoom.reset} />
 
       {summary.observationCount > 0 ? (
         <>
@@ -108,17 +114,21 @@ export function InflationComparisonSummary({
             }
           >
             <EconomicTimeSeriesChart
+              key={selectedRange}
               kind="inflation-comparison"
               variant={variant}
-              headlineObservations={visible.map((item) => ({
+              headlineObservations={selected.map((item) => ({
                 date: item.date,
                 value: item.headline,
               }))}
-              coreObservations={visible.map((item) => ({
+              coreObservations={selected.map((item) => ({
                 date: item.date,
                 value: item.core,
               }))}
               frequency="monthly"
+              zoomStartDate={visible[0]?.date ?? ""}
+              zoomEndDate={visible.at(-1)?.date ?? ""}
+              onZoomChange={zoom.onChartZoom}
             />
           </Suspense>
           <p className="chart-summary" aria-live="polite">
@@ -247,7 +257,7 @@ export function InflationComparisonSummary({
         </details>
         <details className="supporting-disclosure">
           <summary>Recent observations</summary>
-          <InflationComparisonTable observations={aligned} variant={variant} />
+          <InflationComparisonTable observations={visible} variant={variant} />
         </details>
       </footer>
     </article>

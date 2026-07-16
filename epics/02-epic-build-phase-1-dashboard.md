@@ -108,6 +108,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 | 07 | Add unemployment and prime-age employment | Complete |
 | 08 | Add payroll growth | Complete |
 | 09 | Expand current indicators to full useful history | Complete |
+| 09A | Add shared interactive historical zoom to all time-series charts | Complete |
 | 10 | Add wages-versus-inflation comparison | Complete |
 | 11 | Add productivity and real GDP per capita | Complete |
 | 12 | Add underlying inflation and inflation momentum | Complete |

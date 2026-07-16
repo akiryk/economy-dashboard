@@ -25,6 +25,20 @@ function getYAxis(includeZero: boolean): YAXisComponentOption {
 }
 
 describe('createEconomicTimeSeriesChartOptions', () => {
+  it('adds the same visible two-handle dataZoom slider to compatible charts', () => {
+    const chartOptions = createEconomicTimeSeriesChartOptions({
+      data: [['2024-01-01', 1], ['2024-03-01', 2]],
+      seriesName: 'Test series',
+      frequency: 'monthly',
+      units: 'Percent',
+      transformation: 'Level',
+      includeZero: false,
+      valueFormat: 'percentage',
+    })
+    expect(chartOptions.dataZoom).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: 'slider', startValue: '2024-01-01', endValue: '2024-03-01' }),
+    ]))
+  })
   it('does not force zero for level measures and applies readable padding', () => {
     const axis = getYAxis(false)
     const minimum = axis.min as (range: { min: number; max: number }) => number

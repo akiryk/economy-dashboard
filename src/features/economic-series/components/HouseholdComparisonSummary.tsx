@@ -14,6 +14,8 @@ import {
 } from '../utils/householdComparisonData'
 import { HouseholdComparisonTable } from './HouseholdComparisonTable'
 import { TimeRangeControl } from './TimeRangeControl'
+import { HistoricalZoomControls } from './HistoricalZoomControls'
+import { useHistoricalZoom } from './useHistoricalZoom'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -31,11 +33,16 @@ export function HouseholdComparisonSummary({
     () => alignHouseholdComparison(income, spending),
     [income, spending],
   )
-  const visible = useMemo(
+  const selected = useMemo(
     () => filterHouseholdComparison(aligned, selectedRange),
     [aligned, selectedRange],
   )
+  const zoom = useHistoricalZoom(selected, selectedRange, 'quarterly', setSelectedRange)
+  const visible = zoom.visibleItems
   const latest = [...visible]
+    .reverse()
+    .find((item) => item.incomeGrowth !== null && item.spendingGrowth !== null)
+  const latestAvailable = [...aligned]
     .reverse()
     .find((item) => item.incomeGrowth !== null && item.spendingGrowth !== null)
   const first = visible.find(
@@ -61,22 +68,27 @@ export function HouseholdComparisonSummary({
         <p className="series-card__title">Real Income and Spending Per Person</p>
       </header>
       <div className="series-current" aria-label="Latest shared quarterly real per-capita income and spending growth">
-        <p className="series-current__label">Latest shared quarter: {latest ? formatObservationPeriod(latest.date, 'quarterly') : 'unavailable'}</p>
-        <p className="series-current__comparison"><strong>Real disposable income per person: {formatSignedPercentage(latest?.incomeGrowth ?? null)}</strong><br /><strong>Real consumer spending per person: {formatSignedPercentage(latest?.spendingGrowth ?? null)}</strong></p>
+        <p className="series-current__label">Latest shared quarter: {latestAvailable ? formatObservationPeriod(latestAvailable.date, 'quarterly') : 'unavailable'}</p>
+        <p className="series-current__comparison"><strong>Real disposable income per person: {formatSignedPercentage(latestAvailable?.incomeGrowth ?? null)}</strong><br /><strong>Real consumer spending per person: {formatSignedPercentage(latestAvailable?.spendingGrowth ?? null)}</strong></p>
         <p className="series-current__period">
           Percent change from the same quarter one year earlier
         </p>
         <p className="series-current__comparison">
-          Spending minus income growth: {formatSignedPercentagePoints(latest?.gap ?? null)} percentage points
+          Spending minus income growth: {formatSignedPercentagePoints(latestAvailable?.gap ?? null)} percentage points
         </p>
       </div>
-      <TimeRangeControl selectedRange={selectedRange} onRangeChange={setSelectedRange} contextLabel="Income versus spending" />
+      <TimeRangeControl selectedRange={selectedRange} onRangeChange={zoom.selectPreset} contextLabel="Income versus spending" />
+      <HistoricalZoomControls active={zoom.active} visiblePeriod={zoom.visiblePeriod} onMove={zoom.move} onResize={zoom.resize} onReset={zoom.reset} />
       <Suspense fallback={<p className="chart-state">Loading chart visualization…</p>}>
         <EconomicTimeSeriesChart
+          key={selectedRange}
           kind="household-comparison"
-          incomeObservations={visible.map((item) => ({ date: item.date, value: item.incomeGrowth }))}
-          spendingObservations={visible.map((item) => ({ date: item.date, value: item.spendingGrowth }))}
+          incomeObservations={selected.map((item) => ({ date: item.date, value: item.incomeGrowth }))}
+          spendingObservations={selected.map((item) => ({ date: item.date, value: item.spendingGrowth }))}
           frequency="quarterly"
+          zoomStartDate={visible[0]?.date ?? ''}
+          zoomEndDate={visible.at(-1)?.date ?? ''}
+          onZoomChange={zoom.onChartZoom}
         />
       </Suspense>
       <p className="chart-summary" aria-live="polite">
@@ -90,7 +102,7 @@ export function HouseholdComparisonSummary({
       <footer className="series-supporting">
         <p className="series-source">Sources: <a href={income.sourceUrl}>BEA income data via FRED</a>; <a href={spending.sourceUrl}>BEA spending data via FRED</a></p>
         <details className="supporting-disclosure"><summary>Series details</summary><dl className="series-metadata"><div><dt>Income series</dt><dd>{income.providerSeriesId} · real per capita · chained 2017 dollars, seasonally adjusted annual rate</dd></div><div><dt>Spending series</dt><dd>{spending.providerSeriesId} · real per capita · chained 2017 dollars, seasonally adjusted annual rate</dd></div><div><dt>Frequency</dt><dd>Quarterly</dd></div><div><dt>Transformation</dt><dd>Exact-quarter year-over-year growth calculated locally; aligned by calendar quarter</dd></div><div><dt>Retrieved</dt><dd>{formatDate(income.retrievedAt)}</dd></div></dl></details>
-        <details className="supporting-disclosure"><summary>Recent observations</summary><HouseholdComparisonTable observations={aligned} /></details>
+        <details className="supporting-disclosure"><summary>Recent observations</summary><HouseholdComparisonTable observations={visible} /></details>
       </footer>
     </article>
   )

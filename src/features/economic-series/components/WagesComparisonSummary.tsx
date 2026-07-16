@@ -14,6 +14,8 @@ import {
 import type { TimeRange } from '../utils/chartData'
 import { TimeRangeControl } from './TimeRangeControl'
 import { WageComparisonTable } from './WageComparisonTable'
+import { HistoricalZoomControls } from './HistoricalZoomControls'
+import { useHistoricalZoom } from './useHistoricalZoom'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -40,15 +42,20 @@ export function WagesComparisonSummary({
       ),
     [cpiInflation, nominalWageGrowth, realWageGrowth],
   )
-  const visible = useMemo(
+  const selected = useMemo(
     () => filterWageComparisonByTimeRange(aligned, selectedRange),
     [aligned, selectedRange],
   )
+  const zoom = useHistoricalZoom(selected, selectedRange, 'monthly', setSelectedRange)
+  const visible = zoom.visibleItems
   const summary = useMemo(
     () => calculateWageComparisonSummary(visible),
     [visible],
   )
   const latest = [...visible]
+    .reverse()
+    .find((item) => item.realWageGrowth !== null)
+  const latestAvailable = [...aligned]
     .reverse()
     .find((item) => item.realWageGrowth !== null)
   const coverageStart = aligned[0]
@@ -80,16 +87,16 @@ export function WagesComparisonSummary({
         <p className="series-current__value">
           <span
             aria-label={`${direction} real wage growth, ${formatPercentage(
-              latest?.realWageGrowth ?? null,
+              latestAvailable?.realWageGrowth ?? null,
             )}`}
           >
-            {formatSignedPercentage(latest?.realWageGrowth ?? null)}
+            {formatSignedPercentage(latestAvailable?.realWageGrowth ?? null)}
           </span>
         </p>
         <p className="series-current__label">Latest real wage growth</p>
         <p className="series-current__period">
-          {latest
-            ? formatObservationPeriod(latest.date, 'monthly')
+          {latestAvailable
+            ? formatObservationPeriod(latestAvailable.date, 'monthly')
             : 'Observation period unavailable'}{' '}
           · Percent change from year ago
         </p>
@@ -97,28 +104,33 @@ export function WagesComparisonSummary({
 
       <TimeRangeControl
         selectedRange={selectedRange}
-        onRangeChange={setSelectedRange}
+        onRangeChange={zoom.selectPreset}
         contextLabel="Wages versus inflation"
       />
+      <HistoricalZoomControls active={zoom.active} visiblePeriod={zoom.visiblePeriod} onMove={zoom.move} onResize={zoom.resize} onReset={zoom.reset} />
 
       {summary.observationCount > 0 ? (
         <>
           <Suspense fallback={<p className="chart-state">Loading chart visualization…</p>}>
             <EconomicTimeSeriesChart
+              key={selectedRange}
               kind="comparison"
-              nominalObservations={visible.map((item) => ({
+              nominalObservations={selected.map((item) => ({
                 date: item.date,
                 value: item.nominalWageGrowth,
               }))}
-              inflationObservations={visible.map((item) => ({
+              inflationObservations={selected.map((item) => ({
                 date: item.date,
                 value: item.cpiInflation,
               }))}
-              realObservations={visible.map((item) => ({
+              realObservations={selected.map((item) => ({
                 date: item.date,
                 value: item.realWageGrowth,
               }))}
               frequency="monthly"
+              zoomStartDate={visible[0]?.date ?? ''}
+              zoomEndDate={visible.at(-1)?.date ?? ''}
+              onZoomChange={zoom.onChartZoom}
             />
           </Suspense>
           <p className="chart-summary" aria-live="polite">
@@ -128,7 +140,7 @@ export function WagesComparisonSummary({
             {formatPercentage(latest?.cpiInflation ?? null)}, producing{' '}
             {direction} real wage growth of{' '}
             {formatSignedPercentage(latest?.realWageGrowth ?? null)}. Over the
-            selected period, real wage growth ranged from{' '}
+            visible period, real wage growth ranged from{' '}
             {formatSignedPercentage(summary.minimum?.value ?? null)} in{' '}
             {summary.minimum
               ? formatObservationPeriod(summary.minimum.date, 'monthly')
@@ -201,7 +213,7 @@ export function WagesComparisonSummary({
         </details>
         <details className="supporting-disclosure">
           <summary>Recent observations</summary>
-          <WageComparisonTable observations={aligned} />
+          <WageComparisonTable observations={visible} />
         </details>
       </footer>
     </article>

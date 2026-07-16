@@ -3,6 +3,7 @@ import * as echarts from 'echarts/core'
 import { LineChart } from 'echarts/charts'
 import {
   AriaComponent,
+  DataZoomComponent,
   GridComponent,
   LegendComponent,
   MarkLineComponent,
@@ -24,6 +25,7 @@ import type { EconomicValueFormat } from '../utils/economicSeries'
 
 echarts.use([
   AriaComponent,
+  DataZoomComponent,
   GridComponent,
   LegendComponent,
   LineChart,
@@ -32,7 +34,13 @@ echarts.use([
   CanvasRenderer,
 ])
 
-interface SingleSeriesChartProps {
+interface SharedZoomProps {
+  zoomStartDate: string
+  zoomEndDate: string
+  onZoomChange: (start: number, end: number) => void
+}
+
+interface SingleSeriesChartProps extends SharedZoomProps {
   kind: 'single'
   observations: readonly EconomicObservation[]
   seriesName: string
@@ -43,7 +51,7 @@ interface SingleSeriesChartProps {
   valueFormat: EconomicValueFormat
 }
 
-interface ComparisonChartProps {
+interface ComparisonChartProps extends SharedZoomProps {
   kind: 'comparison'
   nominalObservations: readonly EconomicObservation[]
   inflationObservations: readonly EconomicObservation[]
@@ -51,7 +59,7 @@ interface ComparisonChartProps {
   frequency: EconomicFrequency
 }
 
-interface InflationComparisonChartProps {
+interface InflationComparisonChartProps extends SharedZoomProps {
   kind: 'inflation-comparison'
   headlineObservations: readonly EconomicObservation[]
   coreObservations: readonly EconomicObservation[]
@@ -59,14 +67,14 @@ interface InflationComparisonChartProps {
   variant: 'momentum' | 'year-over-year'
 }
 
-interface HouseholdComparisonChartProps {
+interface HouseholdComparisonChartProps extends SharedZoomProps {
   kind: 'household-comparison'
   incomeObservations: readonly EconomicObservation[]
   spendingObservations: readonly EconomicObservation[]
   frequency: EconomicFrequency
 }
 
-interface ManufacturingComparisonChartProps {
+interface ManufacturingComparisonChartProps extends SharedZoomProps {
   kind: 'manufacturing-comparison'
   outputObservations: readonly EconomicObservation[]
   employmentObservations: readonly EconomicObservation[]
@@ -83,6 +91,7 @@ export type EconomicTimeSeriesChartProps =
 export default function EconomicTimeSeriesChart(
   props: EconomicTimeSeriesChartProps,
 ) {
+  const { onZoomChange } = props
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<echarts.ECharts | null>(null)
   const [initializationError, setInitializationError] = useState(false)
@@ -123,6 +132,14 @@ export default function EconomicTimeSeriesChart(
     try {
       const chart = echarts.init(container)
       chartRef.current = chart
+      const handleZoom = (event: unknown) => {
+        const payload = event as { start?: number; end?: number; batch?: Array<{ start?: number; end?: number }> }
+        const zoom = payload.batch?.[0] ?? payload
+        if (typeof zoom.start === 'number' && typeof zoom.end === 'number') {
+          onZoomChange(zoom.start, zoom.end)
+        }
+      }
+      chart.on('datazoom', handleZoom)
 
       const resize = () => chart.resize()
       const resizeObserver =
@@ -136,6 +153,7 @@ export default function EconomicTimeSeriesChart(
       return () => {
         resizeObserver?.disconnect()
         if (!resizeObserver) window.removeEventListener('resize', resize)
+        chart.off('datazoom', handleZoom)
         chart.dispose()
         chartRef.current = null
       }
@@ -143,7 +161,7 @@ export default function EconomicTimeSeriesChart(
       console.error('Failed to initialize the economic time-series chart', error)
       queueMicrotask(() => setInitializationError(true))
     }
-  }, [])
+  }, [onZoomChange])
 
   useEffect(() => {
     const chart = chartRef.current
@@ -160,6 +178,7 @@ export default function EconomicTimeSeriesChart(
               transformation: props.transformation,
               includeZero: props.includeZero,
               valueFormat: props.valueFormat,
+              zoom: { startValue: props.zoomStartDate, endValue: props.zoomEndDate },
             })
           : props.kind === 'comparison' && chartData.kind === 'comparison'
             ? createEconomicComparisonChartOptions({
@@ -167,6 +186,7 @@ export default function EconomicTimeSeriesChart(
                 inflationData: chartData.inflation,
                 realData: chartData.real,
                 frequency: props.frequency,
+                zoom: { startValue: props.zoomStartDate, endValue: props.zoomEndDate },
               })
             : props.kind === 'inflation-comparison' &&
                 chartData.kind === 'inflation-comparison'
@@ -175,6 +195,7 @@ export default function EconomicTimeSeriesChart(
                   coreData: chartData.core,
                   frequency: props.frequency,
                   variant: props.variant,
+                  zoom: { startValue: props.zoomStartDate, endValue: props.zoomEndDate },
                 })
               : props.kind === 'household-comparison' &&
                   chartData.kind === 'household-comparison'
@@ -183,6 +204,7 @@ export default function EconomicTimeSeriesChart(
                     coreData: chartData.spending,
                     frequency: props.frequency,
                     variant: 'household',
+                    zoom: { startValue: props.zoomStartDate, endValue: props.zoomEndDate },
                   })
                 : props.kind === 'manufacturing-comparison' &&
                     chartData.kind === 'manufacturing-comparison'
@@ -190,6 +212,7 @@ export default function EconomicTimeSeriesChart(
                       outputData: chartData.output,
                       employmentData: chartData.employment,
                       frequency: props.frequency,
+                      zoom: { startValue: props.zoomStartDate, endValue: props.zoomEndDate },
                     })
             : null
       if (options) chart.setOption(options, { notMerge: true })

@@ -6,7 +6,7 @@ The dashboard uses Apache ECharts because the broader product will need capable 
 
 The chart component is dynamically imported with React `lazy` and rendered within a height-preserving `Suspense` fallback. Metadata, explanations, controls, the factual summary, and the table render independently while the chart chunk loads. ECharts is therefore absent from the initial application chunk.
 
-The implementation uses ECharts 6 modular core imports and registers only the line chart, grid, tooltip, mark-line, accessibility, and canvas renderer modules required by this chart.
+The implementation uses ECharts 6 modular core imports and registers only the line chart, grid, tooltip, mark-line, legend, data-zoom, accessibility, and canvas renderer modules required by current charts.
 
 ## Domain and chart boundaries
 
@@ -21,6 +21,16 @@ The boundary also accepts the two CPI comparison variants. Both use solid headli
 Chart options are built separately from React lifecycle management. This keeps filtering, adaptation, visual configuration, and canvas ownership independently understandable and testable.
 
 Maximum passes every generated observation to the chart boundary. It is series-specific and does not imply a common starting year. The 5-year, 10-year, and 20-year filters remain anchored to each series' latest observation date, and the default remains 20 years.
+
+## Presets and historical zoom
+
+The preset range and visible range are separate. The 5-year, 10-year, 20-year, or Maximum preset determines the complete observation set and, for normalized charts, the baseline. The shared historical-zoom controller then selects a visible subset without recalculating any economic values. Changing a preset clears zoom; Reset zoom restores the complete preset without changing it.
+
+`useHistoricalZoom` centrally owns each card's local visible-index state, date slicing, reset and preset semantics, and accessible period text. `HistoricalZoomControls` provides one native-button companion pattern for moving and resizing the window because canvas slider keyboard behavior is not sufficient on its own. `EconomicTimeSeriesChart` owns the sole ECharts `datazoom` subscription and cleanup path. The option builders all receive the same centrally constructed slider configuration after `DataZoomComponent` is registered once.
+
+Factual summaries and semantic tables consume the controller's visible observations. Their minima, maxima, endpoints, and relationship facts therefore follow zoom, while the prominent card callout remains the latest available economic observation. Tables retain their established row limits within the visible window. Missing observations remain gaps, and year-over-year, annualized, average, aligned, and normalized values are never recomputed from the zoom subset.
+
+Productivity and manufacturing series remain indexed to the beginning of the selected preset. Zoom only changes their visible window; it never rebases them. Current zoom state is local to each card and is not synchronized, URL-persisted, or saved. There is no arbitrary date-entry form and no cross-period comparison.
 
 ## Lifecycle and resizing
 
@@ -48,7 +58,7 @@ Tooltips use ECharts' browser-native HTML renderer with non-interactive content,
 
 The chart container has a descriptive accessible label, and ECharts accessibility support is enabled. Because canvas alone is not a sufficient nonvisual representation, each card also provides a live factual summary that updates with the selected range. Percentage summaries retain existing formatting. Payroll describes extrema as job gains or losses using full counts or readable millions and keeps zero meaningful. Its recent semantic table aligns the monthly change and three-month average by month without recalculating either value in React.
 
-Native buttons with `aria-pressed` expose the selected time range and retain the application's visible focus treatment. Selection also uses border weight and underlining, rather than color alone.
+Native buttons with `aria-pressed` expose the selected time range and retain the application's visible focus treatment. Selection also uses border weight and underlining, rather than color alone. Every chart also has visible-period text and shared native Move earlier, Move later, Zoom in, Zoom out, and conditional Reset zoom buttons; these controls provide a keyboard-accessible path outside the canvas with no keyboard trap.
 
 ## Extending charting
 
@@ -93,3 +103,5 @@ With Story 15, the initial application chunk is 350.98 kB minified (104.61 kB gz
 With Story 16, the initial application chunk is 359.94 kB minified (106.23 kB gzip). The manufacturing-output and manufacturing-employment data chunks are 23.23 kB (5.25 kB gzip) and 34.61 kB (6.46 kB gzip). The build emits one shared chart/ECharts chunk at 544.26 kB minified (182.22 kB gzip); ECharts remains deduplicated, and the existing deferred-chunk warning remains.
 
 With Story 13A applied after Story 16, the initial application chunk is 361.71 kB minified (106.69 kB gzip). The quarterly per-capita income and spending growth chunks are 15.14 kB (4.82 kB gzip) and 15.16 kB (4.83 kB gzip), replacing the 36.64 kB monthly income and 10.97 kB short-history aggregate-spending chunks. The shared chart/ECharts chunk is 544.37 kB minified (182.26 kB gzip); ECharts remains deduplicated, and the existing deferred-chunk warning remains.
+
+With Story 09A applied after Story 13A, the initial application chunk is 366.30 kB minified (107.96 kB gzip). Registering ECharts `DataZoomComponent` increases the one shared deferred chart/ECharts chunk to 581.31 kB minified (193.99 kB gzip). No second wrapper or ECharts bundle is emitted; Vite continues to report the established deferred-chunk warning.
