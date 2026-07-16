@@ -16,6 +16,17 @@ export function normalizeFredSeries(
     }))
     .sort((a, b) => a.date.localeCompare(b.date))
 
+  for (let index = 1; index < observationsWithLeadingNulls.length; index += 1) {
+    if (
+      observationsWithLeadingNulls[index - 1]!.date ===
+      observationsWithLeadingNulls[index]!.date
+    ) {
+      throw new Error(
+        `FRED response contains duplicate date: ${observationsWithLeadingNulls[index]!.date}`,
+      )
+    }
+  }
+
   const firstUsableIndex = observationsWithLeadingNulls.findIndex(
     (observation) => observation.value !== null,
   )

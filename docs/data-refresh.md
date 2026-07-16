@@ -24,6 +24,7 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Wages versus inflation (`AHETPI` plus the existing `CPIAUCSL` result), derived into `nominal-wage-growth.json` and `real-wage-growth.json`.
 - Real disposable income per capita and real consumer spending (`A229RX0` and `PCEC96`, monthly source levels), derived into `real-disposable-income-per-capita-growth.json` and `real-consumer-spending-growth.json`.
 - Personal saving rate (`PSAVERT`, monthly), written to `personal-saving-rate.json`.
+- Household debt-service ratio (`TDSP`, quarterly), written as the provider-published level to `household-debt-service-ratio.json`.
 
 This is a small configuration boundary, not dynamic discovery or a plugin system.
 
@@ -55,10 +56,11 @@ The series-specific requests are:
 - Real disposable income per capita: `series_id=A229RX0` and `frequency=m`, with no `units` parameter.
 - Real consumer spending: `series_id=PCEC96` and `frequency=m`, with no `units` parameter.
 - Personal saving rate: `series_id=PSAVERT` and `frequency=m`, with no `units` parameter.
+- Household debt-service ratio: `series_id=TDSP` and `frequency=q`, with no `units` parameter.
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
-The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, unemployment, prime-age employment, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, and personal saving. Domain transformation metadata separately records provider values and local calculations.
+The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, unemployment, prime-age employment, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, personal saving, and household debt service. Domain transformation metadata separately records provider values and local calculations.
 
 ## CPI derivations and reuse
 
@@ -82,6 +84,8 @@ The nominal and real wage outputs are validated and staged together, then replac
 
 Income and spending validate and replace as one rollback-protected group, so either failure preserves both prior files. The published PSAVERT level validates and writes independently. Unrelated refresh successes remain intact, and the command reports each generated count, range, latest value, and output path.
 
+`TDSP` uses the direct provider-level path with full history, quarterly frequency, and no FRED units transformation. FRED currently returns leading unavailable observations before the published series begins; normalization omits those leading values and retains the 85 usable quarterly levels from 2005 Q1 through 2026 Q1. Internal missing values would remain `null`. The file is validated and atomically replaced independently, so a TDSP failure preserves its prior valid dataset without rolling back other sources.
+
 ## Validation and normalization
 
 The client checks the HTTP status and parses the response as untrusted JSON. It rejects provider error payloads, missing observation arrays, invalid dates, and values other than numeric strings or FRED's `.` missing marker.
@@ -91,8 +95,8 @@ Normalization converts numeric strings to numbers and `.` to `null`, sorts obser
 Leading unavailable values are removed so generated growth files begin with a valid derived observation. Internal missing observations remain `null`. Current generated coverage is:
 
 - GDPC1: 313 observations, 1948 Q1–2026 Q1.
-- CPIAUCSL source: 953 index observations; generated year-over-year: 941 observations, January 1948–May 2026; generated momentum: 950 observations, April 1947–May 2026.
-- CPILFESL source: 833 index observations; generated year-over-year: 821 observations, January 1958–May 2026; generated momentum: 830 observations, April 1957–May 2026.
+- CPIAUCSL source: 954 index observations; generated year-over-year: 942 observations, January 1948–June 2026; generated momentum: 951 observations, April 1947–June 2026.
+- CPILFESL source: 834 index observations; generated year-over-year: 822 observations, January 1958–June 2026; generated momentum: 831 observations, April 1957–June 2026.
 - UNRATE: 942 observations, January 1948–June 2026.
 - LNS12300060: 942 observations, January 1948–June 2026.
 - PAYEMS monthly change: 1,049 observations, February 1939–June 2026.
@@ -104,6 +108,7 @@ Leading unavailable values are removed so generated growth files begin with a va
 - A229RX0 source: 809 level observations; generated growth: 797 observations, January 1960–May 2026.
 - PCEC96 source: 233 level observations; generated growth: 221 observations, January 2008–May 2026.
 - PSAVERT: 809 observations, January 1959–May 2026.
+- TDSP source: 185 observations including leading unavailable values; generated level: 85 observations, 2005 Q1–2026 Q1.
 
 ## Safe replacement and failures
 

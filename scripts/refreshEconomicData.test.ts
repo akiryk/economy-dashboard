@@ -39,6 +39,7 @@ describe('refreshEconomicData', () => {
         'provider-level',
         'locally-derived',
         'locally-derived',
+        'provider-level',
       ])
     expect(payrollSeriesConfiguration).toMatchObject({
       dataHandling: 'locally-derived',
@@ -104,6 +105,110 @@ describe('refreshEconomicData', () => {
       })
       expect(config?.fredUnits).toBeUndefined()
     }
+  })
+
+  it('configures TDSP as a full-history quarterly provider level', () => {
+    const config = fredSeriesConfigurations.find(
+      (candidate) => candidate.providerSeriesId === 'TDSP',
+    )
+
+    expect(config).toMatchObject({
+      dataHandling: 'provider-level',
+      slug: 'household-debt-service-ratio',
+      frequency: 'quarterly',
+      fredFrequency: 'q',
+      historyPolicy: { type: 'full' },
+      units: 'Percent',
+      transformation: 'Level',
+    })
+    expect(config?.fredUnits).toBeUndefined()
+    expect(config?.localDerivation).toBeUndefined()
+  })
+
+  it('normalizes TDSP as a validated level and preserves missing observations', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'tdsp-data-'))
+    temporaryDirectories.push(directory)
+    const outputPath = path.join(directory, 'tdsp.json')
+    const config = {
+      ...fredSeriesConfigurations.find(
+        (candidate) => candidate.providerSeriesId === 'TDSP',
+      )!,
+      minimumUsableObservations: 2,
+    }
+    const requestedUrls: URL[] = []
+
+    const result = await refreshEconomicData({
+      apiKey: 'test-key',
+      outputPath,
+      retrievedAt: '2026-07-16',
+      config,
+      fetchImplementation: async (input) => {
+        requestedUrls.push(new URL(String(input)))
+        return new Response(JSON.stringify({ observations: [
+          { date: '2025-01-01', value: '11.1' },
+          { date: '2025-04-01', value: '.' },
+          { date: '2025-07-01', value: '11.3' },
+          { date: '2027-01-01', value: '99.9' },
+        ] }), { status: 200 })
+      },
+    })
+
+    expect(requestedUrls[0]?.searchParams.get('series_id')).toBe('TDSP')
+    expect(requestedUrls[0]?.searchParams.get('frequency')).toBe('q')
+    expect(requestedUrls[0]?.searchParams.has('units')).toBe(false)
+    expect(requestedUrls[0]?.searchParams.has('observation_start')).toBe(false)
+    expect(result.series).toMatchObject({
+      providerSeriesId: 'TDSP',
+      frequency: 'quarterly',
+      units: 'Percent',
+      transformation: 'Level',
+      observations: [
+        { date: '2025-01-01', value: 11.1 },
+        { date: '2025-04-01', value: null },
+        { date: '2025-07-01', value: 11.3 },
+      ],
+    })
+    expect(validateEconomicSeries(
+      JSON.parse(await readFile(outputPath, 'utf8')),
+    ).slug).toBe('household-debt-service-ratio')
+  })
+
+  it.each([
+    [[{ date: 'not-a-date', value: '11.1' }], 1, 'invalid date'],
+    [[{ date: '2025-01-01', value: 'not-a-number' }], 1, 'invalid value'],
+    [[
+      { date: '2025-01-01', value: '11.1' },
+      { date: '2025-01-01', value: '11.2' },
+    ], 1, 'duplicate date'],
+    [[{ date: '2025-01-01', value: '11.1' }], 2, 'at least 2 usable'],
+  ])('preserves TDSP after invalid provider data', async (
+    observations,
+    minimumUsableObservations,
+    message,
+  ) => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'tdsp-data-'))
+    temporaryDirectories.push(directory)
+    const outputPath = path.join(directory, 'tdsp.json')
+    const original = '{"existing":"valid TDSP fixture"}\n'
+    await writeFile(outputPath, original, 'utf8')
+    const config = {
+      ...fredSeriesConfigurations.find(
+        (candidate) => candidate.providerSeriesId === 'TDSP',
+      )!,
+      minimumUsableObservations,
+    }
+
+    await expect(refreshEconomicData({
+      apiKey: 'test-key',
+      outputPath,
+      retrievedAt: '2026-07-16',
+      config,
+      fetchImplementation: async () => new Response(
+        JSON.stringify({ observations }),
+        { status: 200 },
+      ),
+    })).rejects.toThrow(message)
+    expect(await readFile(outputPath, 'utf8')).toBe(original)
   })
 
   it('configures household sources as full-history monthly levels', () => {
@@ -257,7 +362,7 @@ describe('refreshEconomicData', () => {
     expect(await readFile(cpiPath, 'utf8')).toBe(existingCpi)
   })
 
-  it('refreshes all six direct sources once and omits provider transformations for local derivations', async () => {
+  it('refreshes all seven direct sources once and omits provider transformations for local derivations', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
     temporaryDirectories.push(directory)
     const configurations = fredSeriesConfigurations.map((config) => ({
@@ -308,13 +413,13 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(6)
+    expect(outcomes).toHaveLength(7)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 15, 3, 3, 6, 6])
+    ).toEqual([3, 15, 3, 3, 6, 6, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
@@ -322,10 +427,11 @@ describe('refreshEconomicData', () => {
       'LNS12300060',
       'A939RX0Q048SBEA',
       'OPHNFB',
+      'TDSP',
     ])
     expect(requestedUrls[0]?.searchParams.get('units')).toBe('pc1')
     expect(requestedUrls.slice(1).map((url) => url.searchParams.has('units')))
-      .toEqual([false, false, false, false, false])
+      .toEqual([false, false, false, false, false, false])
     expect(
       requestedUrls.every((url) => !url.searchParams.has('observation_start')),
     ).toBe(true)

@@ -13,7 +13,7 @@
   "transformation": "Three-month average of monthly change calculated by the application",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED; changes calculated by the application",
   "sourceUrl": "https://fred.stlouisfed.org/series/PAYEMS",
-  "retrievedAt": "2026-07-14",
+  "retrievedAt": "2026-07-16",
   "observations": [
     {
       "date": "1939-04-01",

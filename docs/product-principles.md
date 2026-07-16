@@ -14,7 +14,7 @@ Historical context uses the fullest reliable comparable series available for eac
 
 Related indicators should be compared directly when their relationship answers a meaningful human question. Purchasing-power growth requires both nominal wages and prices. Average wage measures remain qualified because they do not describe every worker or household.
 
-Aggregate household income, spending, and saving measures do not describe every household or the distribution of outcomes. Spending growth alone does not establish household financial strength or sustainability, and a higher personal saving rate is not automatically favorable.
+Aggregate household income, spending, saving, and debt-service measures do not describe every household or the distribution of outcomes. Spending growth alone does not establish household financial strength or sustainability, a higher personal saving rate is not automatically favorable, and the aggregate debt-service ratio is neither a typical household's burden nor a complete measure of hardship.
 
 ## Human questions first
 

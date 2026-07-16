@@ -67,7 +67,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 
 - Real disposable income and consumer spending — complete
 - Personal saving rate — complete
-- Broad household financial-stress measure — planned
+- Broad household financial-stress measure — complete
 
 ### Housing
 
@@ -113,7 +113,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 | 12 | Add underlying inflation and inflation momentum | Complete |
 | 12A | Clarify productivity momentum and add productivity level | Complete |
 | 13 | Add household income, spending, and saving | Complete |
-| 14 | Add household financial stress | Planned |
+| 14 | Add household financial stress | Complete |
 | 15 | Add housing affordability and construction | Planned |
 | 16 | Add manufacturing output versus employment | Planned |
 | 17 | Add business investment and industrial activity | Planned |

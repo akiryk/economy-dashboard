@@ -174,6 +174,11 @@ export function DashboardPage() {
           label="personal saving rate"
           onSeriesLoaded={handleSeriesLoaded}
         />
+        <EconomicSeriesCard
+          slug="household-debt-service-ratio"
+          label="household debt-service ratio"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
       </EconomicSection>
     </div>
   )

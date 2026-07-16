@@ -17,6 +17,24 @@ interface EconomicSeriesPresentation {
 }
 
 const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
+  'household-debt-service-ratio': {
+    topicLabel: 'Household debt burden',
+    latestValueLabel: 'Latest household debt-service ratio',
+    whatThisTellsYou:
+      'The household debt-service ratio estimates required mortgage and consumer-debt payments as a share of aggregate disposable personal income. It shows how much of total after-tax household income is committed to required debt payments.',
+    whatThisLeavesOut:
+      'This is an aggregate ratio, not the share paid by a typical household and not a complete measure of financial hardship. Debt burdens can differ sharply across households, and the ratio does not show delinquency, debt balances, assets, or access to credit.',
+    relatedIndicators: ['Real income and spending', 'Personal saving rate', 'Housing costs'],
+    recentObservationCount: 8,
+    recentObservationsCaption:
+      'Eight most recent household debt-service ratio observations',
+    valueColumnLabel: 'Debt-service ratio',
+    includeZeroInChart: false,
+    reportBelowZero: false,
+    valueFormat: 'percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
+  },
   'personal-saving-rate': {
     topicLabel: 'Household saving',
     latestValueLabel: 'Latest personal saving rate',

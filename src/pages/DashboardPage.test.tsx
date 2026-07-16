@@ -42,13 +42,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('13 cards in 4 categories')).toBeVisible()
+    expect(within(navigation).getByText('14 cards in 4 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(13)
+    expect(links).toHaveLength(14)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -63,6 +63,7 @@ describe('DashboardPage economic series', () => {
       'Are workers’ wages keeping up with prices?',
       'Are household incomes and spending growing after inflation?',
       'Are households saving or drawing down more of their income?',
+      'How much of household income is going toward required debt payments?',
     ])
 
     const gdpCard = await screen.findByRole('article', {
@@ -172,10 +173,11 @@ describe('DashboardPage economic series', () => {
       'Are employers adding jobs?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(13)
+    expect(screen.getAllByRole('article')).toHaveLength(14)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'real-income-versus-spending-question',
       'personal-saving-rate-question',
+      'household-debt-service-ratio-question',
     ])
     expect(
       within(employment).queryByRole('article', {
@@ -206,14 +208,14 @@ describe('DashboardPage economic series', () => {
     })
 
     expect(within(yearOverYear).getByLabelText('Latest core CPI inflation'))
-      .toHaveTextContent('+2.8%')
+      .toHaveTextContent('+2.6%')
     expect(within(yearOverYear).getByText(/Corresponding headline rate/))
-      .toHaveTextContent('+4.2%')
+      .toHaveTextContent('+3.5%')
     expect(within(momentum).getByLabelText(
       'Latest three-month annualized core inflation',
-    )).toHaveTextContent('+3.2%')
+    )).toHaveTextContent('+2.3%')
     expect(within(momentum).getByText(/Corresponding headline rate/))
-      .toHaveTextContent('+8.2%')
+      .toHaveTextContent('+2.8%')
     expect(within(yearOverYear).getByRole('group', {
       name: 'Headline Versus Core CPI displayed time range',
     })).toBeVisible()
@@ -232,9 +234,9 @@ describe('DashboardPage economic series', () => {
     expect(within(yearOverYearTable).getAllByRole('row')).toHaveLength(13)
     expect(within(momentumTable).getAllByRole('row')).toHaveLength(13)
     expect(within(yearOverYearTable).getAllByRole('row')[1])
-      .toHaveTextContent('May 20264.2%2.8%−1.3% pp')
+      .toHaveTextContent('June 20263.5%2.6%−0.9% pp')
     expect(within(yearOverYearTable).getByLabelText(
-      '−1.3% percentage points',
+      '−0.9% percentage points',
     )).toBeVisible()
 
     await waitFor(() => {
@@ -402,9 +404,9 @@ describe('DashboardPage economic series', () => {
       ])
     const comparison = articles[3]!
     expect(within(comparison).getByLabelText('Latest real wage growth'))
-      .toHaveTextContent('−0.6%')
-    expect(within(comparison).getByText(/nominal wages grew 3.6%/))
-      .toHaveTextContent('consumer prices rose 4.2%')
+      .toHaveTextContent('−0.0%')
+    expect(within(comparison).getByText(/nominal wages grew 3.4%/))
+      .toHaveTextContent('consumer prices rose 3.5%')
     expect(within(comparison).getByText(/producing negative real wage growth/))
       .toBeVisible()
     await waitFor(() => {
@@ -547,7 +549,7 @@ describe('DashboardPage economic series', () => {
         )
         .filter((props) => props.seriesName === 'CPI inflation')
         .at(-1)
-      expect(cpiCall?.observations[0]?.date).toBe('2021-05-01')
+      expect(cpiCall?.observations[0]?.date).toBe('2021-06-01')
     })
   })
 
@@ -577,6 +579,101 @@ describe('DashboardPage economic series', () => {
     expect(
       within(payrollCard).getByRole('button', { name: '20 years' }),
     ).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('renders TDSP as an aggregate quarterly level with full-history ranges', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+    const card = await screen.findByRole('article', {
+      name: 'How much of household income is going toward required debt payments?',
+    })
+
+    expect(within(card).getByLabelText('Latest household debt-service ratio'))
+      .toHaveTextContent('11.2%')
+    expect(within(card).getByText('2026 Q1 · Percent')).toBeVisible()
+    expect(within(card).getByText(/required mortgage and consumer-debt payments/))
+      .toBeVisible()
+    expect(within(card).getByText(/not the share paid by a typical household/))
+      .toBeVisible()
+    expect(card).not.toHaveTextContent(/delinquency rate|healthy|unhealthy|safe|concerning/i)
+
+    await user.click(within(card).getByText('Series details'))
+    const metadata = within(card).getByText('Provider series identifier').closest('dl')!
+    expect(within(metadata).getByText('TDSP')).toBeVisible()
+    expect(within(metadata).getByText('Quarterly')).toBeVisible()
+    expect(within(metadata).getByText('Percent')).toBeVisible()
+    expect(within(metadata).getByText('Seasonally adjusted')).toBeVisible()
+    expect(within(metadata).getByText('Level')).toBeVisible()
+    expect(within(metadata).getByText('2005 Q1 to 2026 Q1')).toBeVisible()
+
+    await waitFor(() => {
+      const props = chartPropsSpy.mock.calls
+        .map((call) => call[0] as {
+          seriesName: string
+          includeZero: boolean
+          observations: EconomicObservation[]
+        })
+        .find((candidate) => candidate.seriesName === 'Household debt-service ratio')
+      expect(props?.includeZero).toBe(false)
+      expect(props?.observations[0]?.date).toBe('2006-01-01')
+    })
+
+    await user.click(within(card).getByRole('button', { name: '5 years' }))
+    await waitFor(() => {
+      const props = chartPropsSpy.mock.calls
+        .map((call) => call[0] as {
+          seriesName: string
+          observations: EconomicObservation[]
+        })
+        .filter((candidate) => candidate.seriesName === 'Household debt-service ratio')
+        .at(-1)
+      expect(props?.observations[0]?.date).toBe('2021-01-01')
+    })
+
+    await user.click(within(card).getByRole('button', { name: 'Maximum' }))
+    await waitFor(() => {
+      const props = chartPropsSpy.mock.calls
+        .map((call) => call[0] as {
+          seriesName: string
+          observations: EconomicObservation[]
+        })
+        .filter((candidate) => candidate.seriesName === 'Household debt-service ratio')
+        .at(-1)
+      expect(props?.observations).toHaveLength(85)
+      expect(props?.observations[0]?.date).toBe('2005-01-01')
+      expect(props?.observations.at(-1)?.date).toBe('2026-01-01')
+    })
+
+    await user.click(within(card).getByText('Recent observations'))
+    expect(within(card).getByRole('table', {
+      name: 'Eight most recent household debt-service ratio observations',
+    })).toBeVisible()
+  })
+
+  it('isolates a TDSP failure from the other household cards', async () => {
+    const originalGetBySlug =
+      localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(
+      async (slug) => {
+        if (slug === 'household-debt-service-ratio') {
+          throw new Error('Invalid TDSP fixture')
+        }
+        return originalGetBySlug(slug)
+      },
+    )
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    render(<DashboardPage />)
+
+    expect(await screen.findByText(
+      'The household debt-service ratio data could not be loaded.',
+    )).toBeVisible()
+    expect(await screen.findByRole('article', {
+      name: 'Are household incomes and spending growing after inflation?',
+    })).toBeVisible()
+    expect(await screen.findByRole('article', {
+      name: 'Are households saving or drawing down more of their income?',
+    })).toBeVisible()
   })
 
   it('keeps GDP visible when CPI loading fails', async () => {

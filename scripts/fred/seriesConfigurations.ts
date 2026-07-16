@@ -175,6 +175,28 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
       'U.S. Bureau of Labor Statistics via FRED; growth calculated by the application',
     sourceUrl: 'https://fred.stlouisfed.org/series/OPHNFB',
   },
+  {
+    dataHandling: 'provider-level',
+    id: 'household-debt-service-ratio',
+    slug: 'household-debt-service-ratio',
+    outputFile:
+      'src/features/economic-series/data/household-debt-service-ratio.json',
+    providerSeriesId: 'TDSP',
+    frequency: 'quarterly',
+    fredFrequency: 'q',
+    historyPolicy: { type: 'full' },
+    minimumUsableObservations: 20,
+    title: 'Household Debt-Service Ratio',
+    shortTitle: 'Household debt-service ratio',
+    description:
+      'Estimated required mortgage and consumer-debt payments as a percentage of aggregate disposable personal income.',
+    question: 'How much of household income is going toward required debt payments?',
+    units: 'Percent',
+    seasonalAdjustment: 'Seasonally adjusted',
+    transformation: 'Level',
+    sourceName: 'Board of Governors of the Federal Reserve System via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/TDSP',
+  },
 ]
 
 export interface PayrollSeriesConfig {

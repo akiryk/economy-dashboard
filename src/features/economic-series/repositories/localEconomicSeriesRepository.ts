@@ -30,6 +30,8 @@ const localSeriesLoaders: Readonly<
   'real-consumer-spending-growth': () =>
     import('../data/real-consumer-spending-growth.json'),
   'personal-saving-rate': () => import('../data/personal-saving-rate.json'),
+  'household-debt-service-ratio': () =>
+    import('../data/household-debt-service-ratio.json'),
 }
 
 export const localEconomicSeriesRepository: EconomicSeriesRepository = {

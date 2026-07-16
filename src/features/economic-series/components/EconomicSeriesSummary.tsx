@@ -277,6 +277,10 @@ export function EconomicSeriesSummary({
               </dd>
             </div>
             <div>
+              <dt>Units</dt>
+              <dd>{series.units}</dd>
+            </div>
+            <div>
               <dt>Seasonal adjustment</dt>
               <dd>{series.seasonalAdjustment ?? 'Not seasonally adjusted'}</dd>
             </div>
