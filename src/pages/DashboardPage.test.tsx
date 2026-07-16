@@ -61,7 +61,7 @@ describe('DashboardPage economic series', () => {
       'What share of prime-age adults are employed?',
       'Are employers adding jobs?',
       'Are workers’ wages keeping up with prices?',
-      'Are household incomes and spending growing after inflation?',
+      'Are real household incomes and spending growing per person?',
       'Are households saving or drawing down more of their income?',
       'How much of household income is going toward required debt payments?',
       'Can a median-income household afford a typical home?',
@@ -672,11 +672,63 @@ describe('DashboardPage economic series', () => {
       'The household debt-service ratio data could not be loaded.',
     )).toBeVisible()
     expect(await screen.findByRole('article', {
-      name: 'Are household incomes and spending growing after inflation?',
+      name: 'Are real household incomes and spending growing per person?',
     })).toBeVisible()
     expect(await screen.findByRole('article', {
       name: 'Are households saving or drawing down more of their income?',
     })).toBeVisible()
+  })
+
+  it('renders the corrected quarterly per-capita household comparison through 1948', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+    const card = await screen.findByRole('article', {
+      name: 'Are real household incomes and spending growing per person?',
+    })
+
+    expect(within(card).getByText('Latest shared quarter: 2026 Q1')).toBeVisible()
+    expect(within(card).getByText(/Real disposable income per person: \+0.4%/)).toBeVisible()
+    expect(within(card).getByText(/Real consumer spending per person: \+1.7%/)).toBeVisible()
+    expect(within(card).getByText(/falling line above zero means growth is slowing/)).toBeVisible()
+    expect(within(card).getByText(/not the experience of a median or average household/)).toBeVisible()
+    expect(within(card).queryByText(/frequency toggle|monthly detail/i)).not.toBeInTheDocument()
+
+    await user.click(within(card).getByRole('button', { name: 'Maximum' }))
+    await waitFor(() => {
+      const props = chartPropsSpy.mock.calls.map((call) => call[0] as {
+        kind: string
+        frequency: EconomicFrequency
+        incomeObservations?: EconomicObservation[]
+        spendingObservations?: EconomicObservation[]
+      }).filter((candidate) => candidate.kind === 'household-comparison').at(-1)
+      expect(props?.frequency).toBe('quarterly')
+      expect(props?.incomeObservations).toHaveLength(313)
+      expect(props?.spendingObservations).toHaveLength(313)
+      expect(props?.incomeObservations?.[0]?.date).toBe('1948-01-01')
+      expect(props?.incomeObservations?.some((item) => item.date.startsWith('1975-'))).toBe(true)
+    })
+
+    await user.click(within(card).getByText('Recent observations'))
+    const table = within(card).getByRole('table', { name: 'Eight most recent aligned quarterly real per-capita income and spending observations' })
+    expect(within(table).getAllByRole('row')).toHaveLength(9)
+    expect(within(table).getAllByText('2026 Q1')).not.toHaveLength(0)
+  })
+
+  it.each([
+    'quarterly-real-disposable-income-per-capita-growth',
+    'quarterly-real-consumer-spending-per-capita-growth',
+  ])('isolates a %s failure from other household cards', async (failedSlug) => {
+    const originalGetBySlug = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
+      if (slug === failedSlug) throw new Error('Invalid quarterly household fixture')
+      return originalGetBySlug(slug)
+    })
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    render(<DashboardPage />)
+
+    expect(await screen.findByText('The real income versus spending data could not be loaded.')).toBeVisible()
+    expect(await screen.findByRole('article', { name: 'Are households saving or drawing down more of their income?' })).toBeVisible()
+    expect(await screen.findByRole('article', { name: 'How much of household income is going toward required debt payments?' })).toBeVisible()
   })
 
   it('renders the two Housing cards in order with full-history controls and explicit units', async () => {

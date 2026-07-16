@@ -6,6 +6,7 @@ import {
   formatPercentage,
   formatSignedThousands,
   formatSignedPercentage,
+  formatSignedPercentagePoints,
 } from './economicSeries'
 
 describe('housing-starts value formatting', () => {
@@ -69,5 +70,14 @@ describe('payroll value formatting', () => {
     [null, 'Not available'],
   ] as const)('formats signed percentages', (value, expected) => {
     expect(formatSignedPercentage(value)).toBe(expected)
+  })
+
+  it.each([
+    [1.24, '+1.2'],
+    [-0.584, '−0.6'],
+    [0, '0.0'],
+    [null, 'Not available'],
+  ] as const)('formats signed percentage points', (value, expected) => {
+    expect(formatSignedPercentagePoints(value)).toBe(expected)
   })
 })

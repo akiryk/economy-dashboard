@@ -249,12 +249,12 @@ export async function refreshHouseholdComparisonData({
     fetchFredObservations(apiKey, config.incomeSource, fetchImplementation),
     fetchFredObservations(apiKey, config.spendingSource, fetchImplementation),
   ])
-  const incomeGrowth = deriveSingleMonthlyGrowthSeries(
+  const incomeGrowth = deriveQuarterlyGrowthSeries(
     incomeResponse,
     retrievedAt,
     config.incomeSource,
   )
-  const spendingGrowth = deriveSingleMonthlyGrowthSeries(
+  const spendingGrowth = deriveQuarterlyGrowthSeries(
     spendingResponse,
     retrievedAt,
     config.spendingSource,

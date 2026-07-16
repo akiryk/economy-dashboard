@@ -1,5 +1,5 @@
 import type { EconomicSeries } from '../models/economicSeries'
-import { filterObservationsByTimeRange, type TimeRange } from './chartData'
+import type { TimeRange } from './chartData'
 
 export interface HouseholdComparisonObservation {
   date: string
@@ -36,11 +36,15 @@ export function filterHouseholdComparison(
   observations: readonly HouseholdComparisonObservation[],
   range: TimeRange,
 ): HouseholdComparisonObservation[] {
-  const dates = new Set(
-    filterObservationsByTimeRange(
-      observations.map((item) => ({ date: item.date, value: item.incomeGrowth })),
-      range,
-    ).map((item) => item.date),
+  const sorted = [...observations].sort((a, b) => a.date.localeCompare(b.date))
+  const latest = [...sorted].reverse().find(
+    (item) => item.incomeGrowth !== null && item.spendingGrowth !== null,
   )
-  return observations.filter((item) => dates.has(item.date))
+  if (!latest) return []
+  if (range === 'max') return sorted.filter((item) => item.date <= latest.date)
+  const years = range === '5y' ? 5 : range === '10y' ? 10 : 20
+  const boundary = new Date(`${latest.date}T00:00:00Z`)
+  boundary.setUTCFullYear(boundary.getUTCFullYear() - years)
+  const boundaryDate = boundary.toISOString().slice(0, 10)
+  return sorted.filter((item) => item.date >= boundaryDate && item.date <= latest.date)
 }

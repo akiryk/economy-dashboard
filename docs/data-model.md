@@ -62,7 +62,7 @@ The two inflation relationship cards compose separate headline and core `Economi
 
 ## Household relationship and percent levels
 
-The income-versus-spending card composes two locally derived `EconomicSeries` values and aligns them by exact month. Each retains its source-level FRED identifier while transformation metadata states that year-over-year growth is calculated locally. Spending minus income is a percentage-point relationship calculated from aligned full-precision rates and is not persisted as another series.
+The income-versus-spending card composes quarterly real per-capita income and spending growth series and aligns them by exact quarter. Each retains its source-level FRED identifier while transformation metadata states that exact-quarter year-over-year growth is calculated locally. Spending minus income is a percentage-point relationship calculated from aligned full-precision rates and is not persisted. The previous monthly pair was removed because income was per capita while spending was an aggregate total.
 
 PSAVERT is a provider-published percent level, not a growth rate. Its 12-month change is expressed in percentage points and calculated by exact month without changing the observation model.
 

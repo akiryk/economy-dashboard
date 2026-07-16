@@ -194,8 +194,8 @@ describe('createInflationComparisonChartOptions', () => {
     ['year-over-year' as const, 'Headline CPI inflation', 'Core CPI inflation'],
     [
       'household' as const,
-      'Real disposable income per capita growth',
-      'Real consumer spending growth',
+      'Real disposable income per person growth',
+      'Real consumer spending per person growth',
     ],
     [
       'momentum' as const,
@@ -283,21 +283,21 @@ describe('createInflationComparisonChartOptions', () => {
 
   it('reports spending minus income growth for household comparisons', () => {
     const options = createInflationComparisonChartOptions({
-      headlineData: [['2026-05-01', -0.3]],
-      coreData: [['2026-05-01', 2.1]],
-      frequency: 'monthly',
+      headlineData: [['2026-01-01', -0.3]],
+      coreData: [['2026-01-01', 2.1]],
+      frequency: 'quarterly',
       variant: 'household',
     })
     const tooltip = options.tooltip as {
       formatter: (params: Array<{ seriesName: string; value: [string, number] }>) => string
     }
     expect(tooltip.formatter([
-      { seriesName: 'Real disposable income per capita growth', value: ['2026-05-01', -0.3] },
-      { seriesName: 'Real consumer spending growth', value: ['2026-05-01', 2.1] },
-    ])).toContain('Spending minus income growth: +2.4% percentage points')
+      { seriesName: 'Real disposable income per person growth', value: ['2026-01-01', -0.3] },
+      { seriesName: 'Real consumer spending per person growth', value: ['2026-01-01', 2.1] },
+    ])).toContain('Spending minus income growth: +2.4 percentage points')
     expect(tooltip.formatter([
-      { seriesName: 'Real disposable income per capita growth', value: ['2026-05-01', -0.3] },
-      { seriesName: 'Real consumer spending growth', value: ['2026-05-01', 2.1] },
-    ])).toContain('Real consumer spending growth: +2.1%')
+      { seriesName: 'Real disposable income per person growth', value: ['2026-01-01', -0.3] },
+      { seriesName: 'Real consumer spending per person growth', value: ['2026-01-01', 2.1] },
+    ])).toContain('Real consumer spending per person growth: +2.1% from a year earlier')
   })
 })

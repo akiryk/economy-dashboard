@@ -8,6 +8,8 @@ describe('localEconomicSeriesRepository', () => {
     ['labor-productivity-growth', 'OPHNFB'],
     ['labor-productivity-level', 'OPHNFB'],
     ['household-debt-service-ratio', 'TDSP'],
+    ['quarterly-real-disposable-income-per-capita-growth', 'A229RX0Q048SBEA'],
+    ['quarterly-real-consumer-spending-per-capita-growth', 'A794RX0Q048SBEA'],
   ])('loads %s as a quarterly series', async (slug, providerSeriesId) => {
     const series = await localEconomicSeriesRepository.getBySlug(slug)
 

@@ -18,7 +18,7 @@ const headlineMomentumSupportingSlugs = [
   'headline-cpi-three-month-annualized',
 ] as const
 const householdSpendingSupportingSlugs = [
-  'real-consumer-spending-growth',
+  'quarterly-real-consumer-spending-per-capita-growth',
 ] as const
 const manufacturingEmploymentSupportingSlugs = ['manufacturing-employment'] as const
 
@@ -164,7 +164,7 @@ export function DashboardPage() {
         description="Household indicators show how inflation-adjusted income, spending, and saving are changing in aggregate, but do not describe every household’s experience."
       >
         <EconomicSeriesCard
-          slug="real-disposable-income-per-capita-growth"
+          slug="quarterly-real-disposable-income-per-capita-growth"
           supportingSlugs={householdSpendingSupportingSlugs}
           label="real income versus spending"
           variant="household-comparison"

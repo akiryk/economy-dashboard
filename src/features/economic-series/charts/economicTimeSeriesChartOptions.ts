@@ -9,6 +9,7 @@ import {
   formatEconomicValue,
   formatPercentage,
   formatSignedPercentage,
+  formatSignedPercentagePoints,
   type EconomicValueFormat,
 } from '../utils/economicSeries'
 
@@ -308,12 +309,12 @@ export function createInflationComparisonChartOptions({
   const momentum = variant === 'momentum'
   const household = variant === 'household'
   const headlineName = household
-    ? 'Real disposable income per capita growth'
+    ? 'Real disposable income per person growth'
     : momentum
     ? 'Headline CPI, 3-month annualized'
     : 'Headline CPI inflation'
   const coreName = household
-    ? 'Real consumer spending growth'
+    ? 'Real consumer spending per person growth'
     : momentum
     ? 'Core CPI, 3-month annualized'
     : 'Core CPI inflation'
@@ -355,14 +356,14 @@ export function createInflationComparisonChartOptions({
         const core = values.get(coreName) ?? null
         const lines = [
           formatObservationPeriod(date, frequency),
-          `${headlineName}: ${household ? formatSignedPercentage(headline) : formatPercentage(headline)}`,
-          `${coreName}: ${household ? formatSignedPercentage(core) : formatPercentage(core)}`,
+          `${headlineName}: ${household ? `${formatSignedPercentage(headline)} from a year earlier` : formatPercentage(headline)}`,
+          `${coreName}: ${household ? `${formatSignedPercentage(core)} from a year earlier` : formatPercentage(core)}`,
         ]
         if (!momentum) {
           const difference =
             headline !== null && core !== null ? core - headline : null
           lines.push(
-            `${household ? 'Spending minus income growth' : 'Difference'}: ${formatSignedPercentage(difference)} percentage points`,
+            `${household ? 'Spending minus income growth' : 'Difference'}: ${household ? formatSignedPercentagePoints(difference) : formatSignedPercentage(difference)} percentage points`,
           )
         }
         return lines.join('\n')

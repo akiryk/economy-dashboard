@@ -17,6 +17,7 @@ import {
   refreshCpiData,
   refreshEconomicData,
   refreshHoamData,
+  refreshHouseholdComparisonData,
   refreshProductivityData,
 } from './refreshEconomicData'
 
@@ -233,26 +234,88 @@ describe('refreshEconomicData', () => {
     expect(await readFile(outputPath, 'utf8')).toBe(original)
   })
 
-  it('configures household sources as full-history monthly levels', () => {
+  it('configures household comparison sources as full-history quarterly per-capita levels', () => {
     const sources = [
       householdComparisonConfiguration.incomeSource,
       householdComparisonConfiguration.spendingSource,
       personalSavingRateConfiguration,
     ]
     expect(sources.map((source) => source.providerSeriesId)).toEqual([
-      'A229RX0',
-      'PCEC96',
+      'A229RX0Q048SBEA',
+      'A794RX0Q048SBEA',
       'PSAVERT',
     ])
-    for (const source of sources) {
+    for (const source of sources.slice(0, 2)) {
       expect(source).toMatchObject({
-        frequency: 'monthly',
-        fredFrequency: 'm',
+        frequency: 'quarterly',
+        fredFrequency: 'q',
         historyPolicy: { type: 'full' },
+        localDerivation: 'year-over-year-quarterly-growth',
       })
       expect(source.fredUnits).toBeUndefined()
     }
+    expect(personalSavingRateConfiguration).toMatchObject({
+      frequency: 'monthly', fredFrequency: 'm', historyPolicy: { type: 'full' },
+    })
     expect(personalSavingRateConfiguration.transformation).toBe('Level')
+  })
+
+  it('derives and writes both quarterly per-capita household growth series as one coherent group', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'household-quarterly-'))
+    temporaryDirectories.push(directory)
+    const incomeOutputFile = path.join(directory, 'income.json')
+    const spendingOutputFile = path.join(directory, 'spending.json')
+    const observations = Array.from({ length: 9 }, (_, index) => ({
+      date: new Date(Date.UTC(2023, index * 3, 1)).toISOString().slice(0, 10),
+      value: String(100 + index),
+    })).reverse()
+    const requested: string[] = []
+    const result = await refreshHouseholdComparisonData({
+      apiKey: 'test-key', retrievedAt: '2025-01-01',
+      config: {
+        ...householdComparisonConfiguration,
+        incomeOutputFile, spendingOutputFile,
+        incomeSource: { ...householdComparisonConfiguration.incomeSource, minimumUsableObservations: 5 },
+        spendingSource: { ...householdComparisonConfiguration.spendingSource, minimumUsableObservations: 5 },
+      },
+      fetchImplementation: async (input) => {
+        requested.push(new URL(String(input)).searchParams.get('series_id') ?? '')
+        return new Response(JSON.stringify({ observations }), { status: 200 })
+      },
+    })
+    expect(requested.sort()).toEqual(['A229RX0Q048SBEA', 'A794RX0Q048SBEA'])
+    expect(result.incomeGrowth.observations[0]?.date).toBe('2024-01-01')
+    expect(result.incomeGrowth.observations[0]?.value).toBeCloseTo(4)
+    expect(result.spendingGrowth.observations).toHaveLength(5)
+    expect(validateEconomicSeries(JSON.parse(await readFile(incomeOutputFile, 'utf8'))).frequency).toBe('quarterly')
+    expect(validateEconomicSeries(JSON.parse(await readFile(spendingOutputFile, 'utf8'))).providerSeriesId).toBe('A794RX0Q048SBEA')
+  })
+
+  it('preserves both quarterly household outputs when either source is invalid', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'household-quarterly-'))
+    temporaryDirectories.push(directory)
+    const incomeOutputFile = path.join(directory, 'income.json')
+    const spendingOutputFile = path.join(directory, 'spending.json')
+    await writeFile(incomeOutputFile, 'old income\n', 'utf8')
+    await writeFile(spendingOutputFile, 'old spending\n', 'utf8')
+    await expect(refreshHouseholdComparisonData({
+      apiKey: 'test-key', retrievedAt: '2025-01-01',
+      config: {
+        ...householdComparisonConfiguration,
+        incomeOutputFile, spendingOutputFile,
+        incomeSource: { ...householdComparisonConfiguration.incomeSource, minimumUsableObservations: 2 },
+        spendingSource: { ...householdComparisonConfiguration.spendingSource, minimumUsableObservations: 2 },
+      },
+      fetchImplementation: async (input) => {
+        const id = new URL(String(input)).searchParams.get('series_id')
+        const observations = id === 'A794RX0Q048SBEA'
+          ? [{ date: '2024-01-01', value: 'invalid' }, { date: '2025-01-01', value: '101' }]
+          : [{ date: '2024-01-01', value: '100' }, { date: '2025-01-01', value: '101' }]
+        return new Response(JSON.stringify({ observations }), { status: 200 })
+      },
+    })).rejects.toThrow()
+    expect(await readFile(incomeOutputFile, 'utf8')).toBe('old income\n')
+    expect(await readFile(spendingOutputFile, 'utf8')).toBe('old spending\n')
   })
 
   it('configures one full-history OPHNFB source for level and growth outputs', () => {

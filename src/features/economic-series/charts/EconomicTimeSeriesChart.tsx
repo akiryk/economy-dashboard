@@ -218,7 +218,7 @@ export default function EconomicTimeSeriesChart(
           : props.kind === 'comparison'
             ? 'Nominal wage growth and headline CPI inflation comparison chart'
             : props.kind === 'household-comparison'
-              ? 'Real disposable income per capita growth and real consumer spending growth comparison chart'
+              ? 'Quarterly real disposable income per person growth and real consumer spending per person growth comparison chart'
               : props.kind === 'manufacturing-comparison'
                 ? 'Manufacturing output and employment normalized comparison chart'
               : props.variant === 'momentum'

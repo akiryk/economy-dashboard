@@ -98,6 +98,16 @@ export function formatSignedPercentage(value: number | null): string {
   return value > 0 ? `+${formatted}%` : `−${formatted}%`
 }
 
+export function formatSignedPercentagePoints(value: number | null): string {
+  if (value === null) return 'Not available'
+  if (value === 0) return '0.0'
+  const formatted = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(Math.abs(value))
+  return value > 0 ? `+${formatted}` : `−${formatted}`
+}
+
 export type EconomicValueFormat =
   | 'index'
   | 'percentage'

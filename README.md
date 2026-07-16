@@ -4,7 +4,7 @@ An information-first web application for understanding the U.S. economy through 
 
 ## Current scope
 
-Story 16 adds a Business and manufacturing section comparing inflation-adjusted manufacturing output with manufacturing payroll employment.
+Story 13A corrects the household income-versus-spending card so both measures are quarterly, inflation-adjusted, per person, and available back to 1948.
 
 ## Technology stack
 
@@ -103,8 +103,8 @@ Twenty-two full-history datasets support seventeen visible cards:
 - `payroll-growth.json`: 1,047 rolling three-month averages, April 1939–June 2026, from the same single PAYEMS retrieval.
 - `nominal-wage-growth.json`: year-over-year growth in `AHETPI`, covering January 1965–June 2026.
 - `real-wage-growth.json`: exact AHETPI growth deflated by headline CPI, aligned January 1965–May 2026.
-- `real-disposable-income-per-capita-growth.json`: 797 monthly observations, January 1960–May 2026, calculated locally from FRED `A229RX0` levels.
-- `real-consumer-spending-growth.json`: 221 monthly observations, January 2008–May 2026, calculated locally from FRED `PCEC96` levels.
+- `quarterly-real-disposable-income-per-capita-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, calculated locally from FRED `A229RX0Q048SBEA` real per-capita levels.
+- `quarterly-real-consumer-spending-per-capita-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, calculated locally from FRED `A794RX0Q048SBEA` real per-capita levels.
 - `personal-saving-rate.json`: 809 monthly observations, January 1959–May 2026, published FRED `PSAVERT` percent levels.
 - `household-debt-service-ratio.json`: 85 quarterly observations, 2005 Q1–2026 Q1, published FRED `TDSP` percent levels.
 - `home-ownership-cost-share.json`: 255 monthly observations, January 2005–March 2026, Atlanta Fed HOAM annual payment share of income converted from ratio to percent.
@@ -116,7 +116,7 @@ The manufacturing relationship aligns exact shared months and normalizes each se
 
 HOAM models a median-income household purchasing a median-priced home and includes financing, taxes, insurance, and other documented ownership costs. It is a national model, not a count of households able to buy, and does not describe current owners with older mortgages or every buyer profile. HOUST reports the annualized pace implied by one month's starts; it is neither that month's literal unit count nor a forecast or measure of completed homes.
 
-The household growth rates use `((level_t / level_t-12) - 1) × 100` with exact calendar-month lookups and align only on shared dates. TDSP is a provider-published quarterly level: estimated required mortgage and consumer-debt payments divided by aggregate disposable personal income. These national aggregates do not describe every household. Spending growth does not establish financial sustainability, a higher saving rate is not automatically favorable, and the aggregate debt-service ratio is not a typical household's burden or a complete measure of hardship.
+The household income and spending growth rates use `((level_t / level_t-4 quarters) - 1) × 100` with exact calendar-quarter lookups and align only on shared quarters. Story 13A replaced the prior monthly per-capita-income versus aggregate-spending pair because their denominators were inconsistent and the spending history began only in 2007. A future detail view may restore monthly recency deliberately, but no monthly toggle or hidden monthly dataset exists today. TDSP remains a provider-published quarterly level. These national aggregates do not describe every household, and the comparison alone does not establish why spending and income diverge.
 
 AHETPI is average hourly earnings for private-sector production and nonsupervisory employees. It begins in January 1964, is not a median, excludes supervisory and government workers, and can change with the mix of jobs. Nominal growth is `(wage_t / wage_t-12 - 1) × 100`. Real growth is `((wage_t / wage_t-12) / (CPI_t / CPI_t-12) - 1) × 100`; it is not calculated by subtracting rounded rates.
 

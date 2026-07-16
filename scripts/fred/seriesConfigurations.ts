@@ -363,52 +363,52 @@ export interface HouseholdComparisonConfig {
 
 export const householdIncomeSourceConfiguration: FredSeriesConfig = {
   dataHandling: 'locally-derived',
-  id: 'real-disposable-income-per-capita-growth',
-  slug: 'real-disposable-income-per-capita-growth',
+  id: 'quarterly-real-disposable-income-per-capita-growth',
+  slug: 'quarterly-real-disposable-income-per-capita-growth',
   outputFile:
-    'src/features/economic-series/data/real-disposable-income-per-capita-growth.json',
-  providerSeriesId: 'A229RX0',
-  frequency: 'monthly',
-  fredFrequency: 'm',
+    'src/features/economic-series/data/quarterly-real-disposable-income-per-capita-growth.json',
+  providerSeriesId: 'A229RX0Q048SBEA',
+  frequency: 'quarterly',
+  fredFrequency: 'q',
   historyPolicy: { type: 'full' },
-  localDerivation: 'year-over-year-monthly-growth',
-  minimumUsableObservations: 13,
+  localDerivation: 'year-over-year-quarterly-growth',
+  minimumUsableObservations: 80,
   title: 'Real Disposable Personal Income Per Capita Growth',
   shortTitle: 'Real income per capita growth',
   description:
     'Year-over-year growth in inflation-adjusted after-tax personal income per person.',
-  question: 'Are household incomes and spending growing after inflation?',
+  question: 'Are real household incomes and spending growing per person?',
   units: 'Percent',
   seasonalAdjustment: 'Seasonally adjusted annual rate (underlying level)',
   transformation: 'Percent change from year ago, calculated by the application',
   sourceName:
     'U.S. Bureau of Economic Analysis via FRED; growth calculated by the application',
-  sourceUrl: 'https://fred.stlouisfed.org/series/A229RX0',
+  sourceUrl: 'https://fred.stlouisfed.org/series/A229RX0Q048SBEA',
 }
 
 export const householdSpendingSourceConfiguration: FredSeriesConfig = {
   dataHandling: 'locally-derived',
-  id: 'real-consumer-spending-growth',
-  slug: 'real-consumer-spending-growth',
+  id: 'quarterly-real-consumer-spending-per-capita-growth',
+  slug: 'quarterly-real-consumer-spending-per-capita-growth',
   outputFile:
-    'src/features/economic-series/data/real-consumer-spending-growth.json',
-  providerSeriesId: 'PCEC96',
-  frequency: 'monthly',
-  fredFrequency: 'm',
+    'src/features/economic-series/data/quarterly-real-consumer-spending-per-capita-growth.json',
+  providerSeriesId: 'A794RX0Q048SBEA',
+  frequency: 'quarterly',
+  fredFrequency: 'q',
   historyPolicy: { type: 'full' },
-  localDerivation: 'year-over-year-monthly-growth',
-  minimumUsableObservations: 13,
-  title: 'Real Personal Consumption Expenditures Growth',
-  shortTitle: 'Real consumer spending growth',
+  localDerivation: 'year-over-year-quarterly-growth',
+  minimumUsableObservations: 80,
+  title: 'Real Personal Consumption Expenditures Per Capita Growth',
+  shortTitle: 'Real consumer spending per capita growth',
   description:
-    'Year-over-year growth in inflation-adjusted personal consumption expenditures.',
-  question: 'Are household incomes and spending growing after inflation?',
+    'Year-over-year growth in inflation-adjusted personal consumption expenditures per person.',
+  question: 'Are real household incomes and spending growing per person?',
   units: 'Percent',
   seasonalAdjustment: 'Seasonally adjusted annual rate (underlying level)',
   transformation: 'Percent change from year ago, calculated by the application',
   sourceName:
     'U.S. Bureau of Economic Analysis via FRED; growth calculated by the application',
-  sourceUrl: 'https://fred.stlouisfed.org/series/PCEC96',
+  sourceUrl: 'https://fred.stlouisfed.org/series/A794RX0Q048SBEA',
 }
 
 export const householdComparisonConfiguration: HouseholdComparisonConfig = {

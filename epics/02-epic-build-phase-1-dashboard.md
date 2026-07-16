@@ -113,6 +113,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 | 12 | Add underlying inflation and inflation momentum | Complete |
 | 12A | Clarify productivity momentum and add productivity level | Complete |
 | 13 | Add household income, spending, and saving | Complete |
+| 13A | Align household income and spending on a quarterly per-capita basis | Complete |
 | 14 | Add household financial stress | Complete |
 | 15 | Add housing affordability and construction | Complete |
 | 16 | Add manufacturing output versus employment | Complete |

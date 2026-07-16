@@ -57,7 +57,7 @@ const navigationGroups = [
     cards: [
       {
         id: 'real-income-versus-spending-card',
-        title: 'Are household incomes and spending growing after inflation?',
+        title: 'Are real household incomes and spending growing per person?',
       },
       {
         id: 'personal-saving-rate-card',

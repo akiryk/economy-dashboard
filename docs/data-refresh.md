@@ -22,7 +22,7 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Prime-age employment-to-population ratio (`LNS12300060`, monthly), written to `prime-age-employment-ratio.json`.
 - Payroll growth (`PAYEMS`, monthly source level), derived into `monthly-payroll-change.json` and `payroll-growth.json`.
 - Wages versus inflation (`AHETPI` plus the existing `CPIAUCSL` result), derived into `nominal-wage-growth.json` and `real-wage-growth.json`.
-- Real disposable income per capita and real consumer spending (`A229RX0` and `PCEC96`, monthly source levels), derived into `real-disposable-income-per-capita-growth.json` and `real-consumer-spending-growth.json`.
+- Real disposable income per capita and real consumer spending per capita (`A229RX0Q048SBEA` and `A794RX0Q048SBEA`, quarterly source levels), derived into quarterly per-capita growth outputs.
 - Personal saving rate (`PSAVERT`, monthly), written to `personal-saving-rate.json`.
 - Household debt-service ratio (`TDSP`, quarterly), written as the provider-published level to `household-debt-service-ratio.json`.
 - Housing starts (`HOUST`, monthly), written as the provider-published level to `housing-starts.json`.
@@ -58,8 +58,8 @@ The series-specific requests are:
 - Wages: `series_id=AHETPI` and `frequency=m`, with no `units` parameter.
 - Real GDP per capita: `series_id=A939RX0Q048SBEA` and `frequency=q`, with no `units` parameter.
 - Labor productivity: `series_id=OPHNFB` and `frequency=q`, with no `units` parameter.
-- Real disposable income per capita: `series_id=A229RX0` and `frequency=m`, with no `units` parameter.
-- Real consumer spending: `series_id=PCEC96` and `frequency=m`, with no `units` parameter.
+- Real disposable income per capita: `series_id=A229RX0Q048SBEA` and `frequency=q`, with no `units` parameter.
+- Real consumer spending per capita: `series_id=A794RX0Q048SBEA` and `frequency=q`, with no `units` parameter.
 - Personal saving rate: `series_id=PSAVERT` and `frequency=m`, with no `units` parameter.
 - Household debt-service ratio: `series_id=TDSP` and `frequency=q`, with no `units` parameter.
 - Housing starts: `series_id=HOUST` and `frequency=m`, with no `units` parameter.
@@ -88,7 +88,7 @@ The nominal and real wage outputs are validated and staged together, then replac
 
 ## Household derivations and writes
 
-`A229RX0`, `PCEC96`, and `PSAVERT` each use full history without `observation_start` or a FRED `units` transformation. Income and spending growth are calculated as `((level_t / level_t-12) - 1) × 100` using the exact calendar month one year earlier. Missing endpoints produce `null`, leading warm-up values are omitted, and aligned presentation includes only shared calendar months.
+`A229RX0Q048SBEA` and `A794RX0Q048SBEA` use full quarterly history without `observation_start` or a FRED `units` transformation. Income and spending growth are calculated as `((level_t / level_t-4 quarters) - 1) × 100` using the exact calendar quarter one year earlier. Missing endpoints produce `null`, leading warm-up values are omitted, and presentation aligns only shared calendar quarters. Both generated files validate and replace as one rollback-protected group. The obsolete monthly `A229RX0` and aggregate `PCEC96` paths were removed; a monthly detail view remains deferred rather than hidden current infrastructure. PSAVERT remains an independent monthly provider level.
 
 Income and spending validate and replace as one rollback-protected group, so either failure preserves both prior files. The published PSAVERT level validates and writes independently. Unrelated refresh successes remain intact, and the command reports each generated count, range, latest value, and output path.
 
@@ -119,8 +119,8 @@ Leading unavailable values are removed so generated growth files begin with a va
 - AHETPI/CPI exact real wage growth: 737 aligned observations, January 1965–May 2026.
 - A939RX0Q048SBEA source: 317 level observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
 - OPHNFB source and level output: 317 index observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
-- A229RX0 source: 809 level observations; generated growth: 797 observations, January 1960–May 2026.
-- PCEC96 source: 233 level observations; generated growth: 221 observations, January 2008–May 2026.
+- A229RX0Q048SBEA source: 317 level observations; generated growth: 313 observations, 1948 Q1–2026 Q1.
+- A794RX0Q048SBEA source: 317 level observations; generated growth: 313 observations, 1948 Q1–2026 Q1.
 - PSAVERT: 809 observations, January 1959–May 2026.
 - TDSP source: 185 observations including leading unavailable values; generated level: 85 observations, 2005 Q1–2026 Q1.
 - Atlanta Fed HOAM: 255 observations, January 2005–March 2026.
