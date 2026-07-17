@@ -1,48 +1,40 @@
 # U.S. Economy Dashboard
 
-An information-first web application for understanding the U.S. economy through objective, well-documented economic indicators.
+An information-first web application for understanding the U.S. economy through objective, well-documented indicators and long historical context.
 
-## Current scope
+Phase 1 is complete. The dashboard currently presents 25 cards in nine categories: growth, prices, employment and income, households, housing, business and manufacturing, financial conditions, government finances, and trade and tariffs.
 
-Story 13A corrects the household income-versus-spending card so both measures are quarterly, inflation-adjusted, per person, and available back to 1948.
+See:
 
-## Technology stack
+- [`docs/product-overview.md`](docs/product-overview.md) for what the product shows, why each measure is included, and how the current scope differs from possible future analytical goals.
+- [`docs/product-principles.md`](docs/product-principles.md) for the product’s interpretation and presentation rules.
+- [`docs/data-refresh.md`](docs/data-refresh.md) for the authoritative source, transformation, coverage, and refresh inventory.
+- [`docs/charting.md`](docs/charting.md) and [`docs/data-model.md`](docs/data-model.md) for implementation architecture.
 
-- React
-- TypeScript in strict mode
-- Vite
-- React Router
+## Technology
+
+- React and strict TypeScript
+- Vite and React Router
 - Apache ECharts
 - Plain CSS with custom properties
-- ESLint
-- npm
+- Vitest, React Testing Library, ESLint, and npm
 
-## Prerequisites
+## Requirements and setup
 
 - Node.js 20.19 or newer
 - npm 10 or newer
 
-## Installation
-
-Install dependencies from the project root:
-
 ```bash
 npm install
-```
-
-No environment variables are required to run the dashboard. A FRED API key is required only to refresh the committed source data.
-
-## Development
-
-Start the Vite development server:
-
-```bash
 npm run dev
 ```
 
-## Available commands
+No environment variables are required to run the dashboard. Its validated datasets are committed to the repository, and the browser never contacts data providers directly.
+
+## Commands
 
 ```bash
+npm run dev
 npm run build
 npm run typecheck
 npm run lint
@@ -51,140 +43,33 @@ npm run data:refresh
 npm run preview
 ```
 
-- `build` type-checks the application and creates a production bundle.
-- `typecheck` runs TypeScript without emitting files.
-- `lint` checks the code with ESLint.
-- `test` runs the Vitest unit and component test suite once. Use `npm run test:watch` during development.
-- `data:refresh` retrieves and safely replaces the datasets for all seventeen dashboard cards using official FRED and Atlanta Fed data and local derivations.
-- `preview` serves the production build locally after it has been created.
+`npm run data:refresh` requires `FRED_API_KEY` in an untracked `.env` file or the shell environment. It refreshes the explicitly configured FRED series and the Atlanta Fed housing-affordability workbook, validates direct and locally derived outputs, and safely preserves prior valid files when a refresh fails.
 
-## Testing status
+## Product behavior
 
-Vitest, React Testing Library, jest-dom, and jsdom cover chart-data adaptation, expanded-history range filtering, factual chart summaries, lazy-loading behavior, refresh normalization, provider validation, safe file preservation, and user-visible range controls. ECharts itself is mocked in component tests so tests focus on application data flow rather than canvas internals.
+Every card begins with a human question and latest observation, then provides a nonsmoothed historical chart, independent 5-year, 10-year, 20-year, and maximum ranges, shared historical zoom controls, a factual visible-range summary, explanatory limitations, source metadata, and a semantic recent-observations table.
 
-## Chart behavior
+Relationship cards align observations by exact calendar period. They use compatible units or transparent normalization and avoid dual axes. Maximum shows the full useful authoritative history available for each measure, so starting dates differ across cards.
 
-All seventeen cards render nonsmoothed time-series charts with frequency-aware tooltips and independent 5-year, 10-year, 20-year, and maximum range controls. The default is 20 years. Short-range boundaries are calculated from each series’ latest shared observation date rather than today's date. Maximum includes every generated observation and may start in a different year for each card. Growth and comparison charts include zero where substantively meaningful; productivity, labor-market, saving-rate, debt-service-ratio, affordability, housing-starts, and normalized manufacturing levels do not force zero.
-
-The chart includes an updating text summary of the latest, minimum, and maximum visible observations. GDP and CPI also report whether values fall below zero; that statement is omitted for the labor-market levels where it adds no useful context. The semantic recent-observations table remains available as a detailed nonvisual alternative.
-
-Apache ECharts is integrated directly through a small React lifecycle wrapper and dynamically imported when the chart is rendered. This keeps ECharts out of the initial application chunk while preserving the boundary between chart configuration and economic-domain data. See [`docs/charting.md`](docs/charting.md) for details.
-
-## Information architecture
-
-The page currently contains six semantic sections:
-
-- Growth, containing real GDP growth, real GDP per capita growth, productivity over time, and productivity growth momentum.
-- Prices, containing headline CPI inflation, headline versus core CPI, and recent inflation momentum.
-- Employment and income, containing unemployment, prime-age employment-to-population ratio, payroll growth, and wages versus inflation.
-- Households, containing real disposable income per capita versus real consumer spending, the personal saving rate, and the household debt-service ratio.
-- Housing, containing modeled home-ownership cost as a share of median household income and total housing starts.
-- Business and manufacturing, containing manufacturing output versus manufacturing payroll employment.
-
-Each indicator leads with a human question and one latest value, followed by the range control and chart. Factual context, concise limitations, related concepts, visible source attribution, technical metadata, and recent observations remain available without competing with the chart. Empty future sections are not rendered.
-
-The product principles and current-versus-future conceptual layers are documented in [`docs/product-principles.md`](docs/product-principles.md). A collapsed in-page index lists every card by section.
-
-## Local economic data
-
-Twenty-two full-history datasets support seventeen visible cards:
-
-- `real-gdp-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, FRED `GDPC1`, percent change from one year ago.
-- `real-gdp-per-capita-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, calculated locally from FRED `A939RX0Q048SBEA` levels.
-- `labor-productivity-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, calculated locally from FRED `OPHNFB` index levels.
-- `labor-productivity-level.json`: 317 published quarterly OPHNFB levels, 1947 Q1–2026 Q1; normalized only for the selected display range.
-- `headline-cpi-inflation.json`: 942 monthly observations, January 1948–June 2026, calculated from FRED `CPIAUCSL` levels.
-- `core-cpi-inflation.json`: 822 monthly observations, January 1958–June 2026, calculated from FRED `CPILFESL` levels.
-- `headline-cpi-three-month-annualized.json`: 951 monthly observations, April 1947–June 2026, calculated from `CPIAUCSL` levels.
-- `core-cpi-three-month-annualized.json`: 831 monthly observations, April 1957–June 2026, calculated from `CPILFESL` levels.
-- `unemployment-rate.json`: 942 monthly observations, January 1948–June 2026, FRED `UNRATE`, percent level.
-- `prime-age-employment-ratio.json`: 942 monthly observations, January 1948–June 2026, FRED `LNS12300060`, percent level for adults ages 25 through 54.
-- `monthly-payroll-change.json`: 1,049 locally derived monthly changes, February 1939–June 2026, from FRED `PAYEMS` levels.
-- `payroll-growth.json`: 1,047 rolling three-month averages, April 1939–June 2026, from the same single PAYEMS retrieval.
-- `nominal-wage-growth.json`: year-over-year growth in `AHETPI`, covering January 1965–June 2026.
-- `real-wage-growth.json`: exact AHETPI growth deflated by headline CPI, aligned January 1965–May 2026.
-- `quarterly-real-disposable-income-per-capita-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, calculated locally from FRED `A229RX0Q048SBEA` real per-capita levels.
-- `quarterly-real-consumer-spending-per-capita-growth.json`: 313 quarterly observations, 1948 Q1–2026 Q1, calculated locally from FRED `A794RX0Q048SBEA` real per-capita levels.
-- `personal-saving-rate.json`: 809 monthly observations, January 1959–May 2026, published FRED `PSAVERT` percent levels.
-- `household-debt-service-ratio.json`: 85 quarterly observations, 2005 Q1–2026 Q1, published FRED `TDSP` percent levels.
-- `home-ownership-cost-share.json`: 255 monthly observations, January 2005–March 2026, Atlanta Fed HOAM annual payment share of income converted from ratio to percent.
-- `housing-starts.json`: 809 monthly observations, January 1959–May 2026, published FRED `HOUST` levels in thousands of units at a seasonally adjusted annual rate.
-- `manufacturing-output.json`: 653 monthly observations, January 1972–May 2026, published FRED `IPMAN` seasonally adjusted real-output index levels.
-- `manufacturing-employment.json`: 1,050 monthly observations, January 1939–June 2026, published FRED `MANEMP` seasonally adjusted payroll-employment levels in thousands.
-
-The manufacturing relationship aligns exact shared months and normalizes each series independently to 100 at the first shared valid observation in the selected range. This makes relative paths comparable without mixing native units or using dual axes. The selected-range changes are presentation calculations, not a manufacturing-productivity measure or an explanation for divergence.
-
-HOAM models a median-income household purchasing a median-priced home and includes financing, taxes, insurance, and other documented ownership costs. It is a national model, not a count of households able to buy, and does not describe current owners with older mortgages or every buyer profile. HOUST reports the annualized pace implied by one month's starts; it is neither that month's literal unit count nor a forecast or measure of completed homes.
-
-The household income and spending growth rates use `((level_t / level_t-4 quarters) - 1) × 100` with exact calendar-quarter lookups and align only on shared quarters. Story 13A replaced the prior monthly per-capita-income versus aggregate-spending pair because their denominators were inconsistent and the spending history began only in 2007. A future detail view may restore monthly recency deliberately, but no monthly toggle or hidden monthly dataset exists today. TDSP remains a provider-published quarterly level. These national aggregates do not describe every household, and the comparison alone does not establish why spending and income diverge.
-
-AHETPI is average hourly earnings for private-sector production and nonsupervisory employees. It begins in January 1964, is not a median, excludes supervisory and government workers, and can change with the mix of jobs. Nominal growth is `(wage_t / wage_t-12 - 1) × 100`. Real growth is `((wage_t / wage_t-12) / (CPI_t / CPI_t-12) - 1) × 100`; it is not calculated by subtracting rounded rates.
-
-Headline and core year-over-year inflation use `((index_t / index_t-12) - 1) × 100`. Three-month annualized momentum uses the exact ratio `((index_t / index_t-3)^4 - 1) × 100`, not four times a rounded three-month change. Both formulas require exact calendar months and preserve internal gaps as unavailable. Core CPI excludes food and energy but does not make those household costs irrelevant or remove every volatile category. The annualized measure is responsive and substantially noisier than year-over-year inflation; it describes a recent pace and is not a forecast.
-
-Real GDP per capita uses BEA series `A939RX0Q048SBEA`, published quarterly in chained 2017 dollars at a seasonally adjusted annual rate. Labor productivity uses BLS series `OPHNFB`, a quarterly seasonally adjusted index of nonfarm business output per hour. OPHNFB is fetched once and written as a canonical level plus locally calculated growth. The level card normalizes the first valid selected-range value to 100; cumulative change is `(latest / baseline - 1) × 100`. Growth is `((level_t / level_t-4 quarters) - 1) × 100`, and momentum compares that growth rate with the exact rate four quarters earlier. A falling positive growth line means gains are slowing, not that productivity is falling.
-
-Current snapshots were retrieved from FRED and the Atlanta Fed on July 16, 2026 UTC. FRED sources use the full-history request policy without `observation_start`. Leading unavailable observations are omitted, while meaningful internal missing values remain `null`. PAYEMS is published monthly in thousands of persons, seasonally adjusted; the application calculates consecutive monthly differences and rolling three-month averages from its full source history.
-
-Components request data asynchronously through the `EconomicSeriesRepository` interface instead of importing JSON. The local repository validates committed data at runtime, while preserving a boundary that can later be implemented by an application API or another data store.
-
-The browser never contacts FRED or the Atlanta Fed. The committed dataset supports local and deployed rendering when either provider or the network is unavailable.
-
-## Refreshing economic data
-
-Request a free API key from the [FRED API key page](https://fred.stlouisfed.org/docs/api/api_key.html), copy `.env.example` to an untracked `.env`, and set:
-
-```text
-FRED_API_KEY=your_key_here
-```
-
-Then run:
-
-```bash
-npm run data:refresh
-```
-
-The command refreshes every explicitly configured source. It fetches `CPIAUCSL` and `CPILFESL` once each and derives all four CPI outputs as one rollback-protected group. The generated headline year-over-year series is then reused with one `AHETPI` fetch for wage derivation, so headline CPI is not requested again. `A939RX0Q048SBEA`, `OPHNFB`, and `PAYEMS` are also each fetched once. Successful reporting includes source and generated counts and ranges. A failure preserves the affected prior output group without undoing successful unrelated refreshes. Any failure produces a nonzero exit after every source is attempted.
-
-See [`docs/data-refresh.md`](docs/data-refresh.md) for the data flow and failure behavior.
-
-Data remains committed and browser-static. Refresh remains a manual developer command; there is no live browser fetching, persistence, automatic scheduling, or runtime backend.
+The dashboard is deliberately descriptive rather than predictive. It does not produce an overall economic score, investment signal, political verdict, or causal claim.
 
 ## Project structure
 
 ```text
 src/
-  app/
-    App.tsx
-    router.tsx
-  components/
-    layout/
-      AppHeader.tsx
-      AppLayout.tsx
-  features/
-    economic-series/
-      components/
-      charts/
-      data/
-      models/
-      repositories/
-      utils/
-  pages/
-    DashboardPage.tsx
-    NotFoundPage.tsx
-  styles/
-    global.css
-    tokens.css
-  main.tsx
-docs/
-  charting.md
-  data-refresh.md
-  data-model.md
-  product-principles.md
-scripts/
-  fred/
-  refreshEconomicData.ts
-  writeEconomicSeries.ts
+  app/                  Application shell and routing
+  components/layout/    Shared page and section structure
+  features/economic-series/
+    charts/             ECharts lifecycle and chart options
+    components/         Indicator cards and accessible presentation
+    data/               Committed validated datasets
+    models/             Domain model and runtime validation
+    repositories/       Asynchronous local-data boundary
+    utils/              Economic calculations and chart preparation
+  pages/                Dashboard and not-found pages
+  styles/               Global styles and design tokens
+scripts/                Provider clients, derivations, and safe refresh writes
+docs/                   Product, architecture, epics, and completed stories
 ```
 
-The root also contains Vite, TypeScript, and ESLint configuration. The `docs/epics/` and `docs/stories/` directories contain the broader product plan and implementation stories.
+Repository-wide working rules are in [`AGENTS.md`](AGENTS.md).

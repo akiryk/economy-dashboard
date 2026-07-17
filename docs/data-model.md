@@ -1,5 +1,7 @@
 # Economic-series data model
 
+For the product-level card inventory and rationale, see [`product-overview.md`](product-overview.md). This document describes the shared technical model.
+
 The economic-series domain model keeps source metadata and observations together while distinguishing the meaning of each date.
 
 An `EconomicSeries` identifies the provider and provider series, explains the displayed units and transformation, records seasonal adjustment and frequency, and contains `EconomicObservation` entries. Each observation has an ISO date representing the economic period and a numeric or `null` value. A missing observation remains `null`; it is never treated as zero.

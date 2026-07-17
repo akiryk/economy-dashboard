@@ -2,7 +2,7 @@
 
 ## Status
 
-In progress.
+Complete.
 
 ## Purpose
 
@@ -61,7 +61,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 - Prime-age employment-to-population ratio — complete
 - Payroll growth — complete
 - Wages versus inflation and exact real wage growth — complete
-- One additional leading or participation measure — planned
+- One additional leading or participation measure — deferred; Phase 1 already includes complementary unemployment, prime-age employment, and payroll measures
 
 ### Household condition
 
@@ -122,7 +122,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 | 18 | Add financial conditions and credit stress | Complete |
 | 19 | Add government deficit and debt | Complete |
 | 20 | Add trade flows and tariff burden | Complete |
-| 21 | Complete Phase 1 review and closeout | Planned |
+| 21 | Complete Phase 1 review and closeout | Superseded by owner-declared closeout and documentation reconciliation |
 
 Story numbering may change if implementation reveals a better grouping.
 
@@ -210,3 +210,5 @@ The final Phase 1 story must not add another indicator. It should:
 9. Create a dashboard-review guide.
 10. Identify candidate Phase 2 themes without implementing them.
 11. Mark Epic 02 complete.
+
+Phase 1 was closed after Story 20 by product-owner decision and a repository-wide documentation reconciliation. The exhaustive audit proposed in Story 21 was not executed as a separate implementation story. The resulting product inventory and decision framework are maintained in [`../product-overview.md`](../product-overview.md). Future work should begin by choosing a Phase 2 product objective rather than treating every deferred idea as an automatic requirement.

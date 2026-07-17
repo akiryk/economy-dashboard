@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This repository is built incrementally through small, reviewable stories. Favor simplicity, correctness, and maintainability over clever abstractions.
+Phase 1 is complete. Continue evolving the repository through small, reviewable stories or similarly scoped work items. Favor simplicity, correctness, and maintainability over clever abstractions.
 
 ---
 
@@ -198,6 +198,12 @@ README files should stay accurate.
 
 Document important architectural decisions.
 
+Treat `docs/product-overview.md` as the current product inventory and purpose statement. Update it whenever a visible card is added, removed, combined, or materially reframed.
+
+Treat `docs/data-refresh.md` as the technical source and transformation inventory. Avoid duplicating that full inventory in the README.
+
+Documents under `docs/archive/` are historical context, not current project status.
+
 ---
 
 # Accessibility
@@ -226,7 +232,7 @@ Favor simple code first.
 
 # Scope Control
 
-When implementing a story:
+When implementing a story or scoped work item:
 
 Implement only what the story requests.
 

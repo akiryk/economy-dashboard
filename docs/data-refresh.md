@@ -1,5 +1,7 @@
 # Economic data refresh
 
+This is the authoritative technical inventory for sources, transformations, generated coverage, and refresh behavior. For the shorter product-level explanation of what each visible card shows and why, see [`product-overview.md`](product-overview.md).
+
 ## Data flow
 
 The refresh path is deliberately separate from the browser:

@@ -1,5 +1,9 @@
 # Product principles
 
+## Current product objective
+
+The dashboard is a broad, descriptive, historically grounded briefing. It helps readers understand what major economic measures show and what they leave out. It is not currently optimized for investment timing, forecasting, political evaluation, or distributional analysis. A future phase should name its primary user decision before changing the indicator mix. The current inventory and alternative product lenses are summarized in [`product-overview.md`](product-overview.md).
+
 The U.S. Economy Dashboard is an economic briefing built from complementary indicators, not a system for producing one economic score. Different measures can point in different directions at the same time, and the interface should preserve that ambiguity rather than force a verdict.
 
 ## Three conceptual layers

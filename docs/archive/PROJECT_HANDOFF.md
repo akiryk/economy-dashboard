@@ -1,5 +1,7 @@
 # U.S. Economy Dashboard — Project Handoff
 
+> Archived snapshot. This handoff reflects the project around Stories 13 and 12A and is not a current status document. For the completed Phase 1 product, read `README.md`, `docs/product-overview.md`, `docs/product-principles.md`, and Epic 02. The repository and Git history remain authoritative.
+
 ## Purpose
 
 This document provides a compact, authoritative handoff for continuing the U.S. Economy Dashboard in a fresh AI conversation.

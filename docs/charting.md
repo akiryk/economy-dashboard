@@ -1,5 +1,7 @@
 # Charting architecture
 
+For the product-level inventory of the 25 visible charts and their rationale, see [`product-overview.md`](product-overview.md).
+
 ## Library choice
 
 The dashboard uses Apache ECharts because the broader product will need capable time-series rendering, reference lines, tooltips, accessibility support, and responsive behavior. Story 03 imports only the line, grid, tooltip, mark-line, accessibility, and canvas modules used by the GDP chart. A small repository-owned React wrapper avoids another runtime abstraction dependency.
