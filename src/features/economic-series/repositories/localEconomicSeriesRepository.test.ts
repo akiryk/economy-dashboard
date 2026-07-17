@@ -75,6 +75,19 @@ describe('localEconomicSeriesRepository', () => {
       .resolves.toMatchObject({ providerSeriesId: 'NFCICREDIT', frequency: 'weekly', units: 'Index' })
   })
 
+  it.each([
+    ['initial-unemployment-claims', 'ICSA', 'Provider-published weekly level'],
+    ['initial-unemployment-claims-four-week-average', 'IC4WSA', 'Provider-published four-week moving average'],
+  ])('loads the native-weekly %s series', async (slug, providerSeriesId, transformation) => {
+    await expect(localEconomicSeriesRepository.getBySlug(slug)).resolves.toMatchObject({
+      slug,
+      providerSeriesId,
+      frequency: 'weekly',
+      units: 'Number of claims',
+      transformation,
+    })
+  })
+
   it('loads the annual federal budget-balance ratio', async () => {
     await expect(localEconomicSeriesRepository.getBySlug('federal-budget-balance'))
       .resolves.toMatchObject({ providerSeriesId: 'FYFSGDA188S', frequency: 'annual', units: 'Percent of GDP' })

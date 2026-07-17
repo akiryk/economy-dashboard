@@ -9,6 +9,7 @@ import {
 } from '../features/economic-series/utils/economicSeries'
 
 const payrollSupportingSlugs = ['monthly-payroll-change'] as const
+const weeklyClaimsSupportingSlugs = ['initial-unemployment-claims'] as const
 const wageComparisonSupportingSlugs = [
   'nominal-wage-growth',
   'headline-cpi-inflation',
@@ -148,6 +149,13 @@ export function DashboardPage() {
           slug="payroll-growth"
           supportingSlugs={payrollSupportingSlugs}
           label="payroll growth"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+        <EconomicSeriesCard
+          slug="initial-unemployment-claims-four-week-average"
+          supportingSlugs={weeklyClaimsSupportingSlugs}
+          label="initial unemployment claims"
+          variant="claims-comparison"
           onSeriesLoaded={handleSeriesLoaded}
         />
         <EconomicSeriesCard

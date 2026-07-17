@@ -20,6 +20,8 @@ vi.mock('../features/economic-series/charts/EconomicTimeSeriesChart', () => ({
     variant?: string
     headlineObservations?: readonly EconomicObservation[]
     coreObservations?: readonly EconomicObservation[]
+    movingAverageObservations?: readonly EconomicObservation[]
+    weeklyClaimsObservations?: readonly EconomicObservation[]
   }) => {
     chartPropsSpy(props)
     return <div data-testid={`chart-${props.seriesName ?? props.variant}`} />
@@ -42,13 +44,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('25 cards in 9 categories')).toBeVisible()
+    expect(within(navigation).getByText('26 cards in 9 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(25)
+    expect(links).toHaveLength(26)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -60,6 +62,7 @@ describe('DashboardPage economic series', () => {
       'How difficult is it for people who want work to find it?',
       'What share of prime-age adults are employed?',
       'Are employers adding jobs?',
+      'Are layoffs beginning to rise?',
       'Are workers’ wages keeping up with prices?',
       'Are real household incomes and spending growing per person?',
       'Are households saving or drawing down more of their income?',
@@ -182,9 +185,10 @@ describe('DashboardPage economic series', () => {
       'How difficult is it for people who want work to find it?',
       'What share of prime-age adults are employed?',
       'Are employers adding jobs?',
+      'Are layoffs beginning to rise?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(25)
+    expect(screen.getAllByRole('article')).toHaveLength(26)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'real-income-versus-spending-question',
       'personal-saving-rate-question',
@@ -202,7 +206,7 @@ describe('DashboardPage economic series', () => {
     ).not.toBeInTheDocument()
     expect(
       await screen.findByText(
-        'Latest observations range from 2025 to Week of Jul 10, 2026',
+        'Latest observations range from 2025 to Week of Jul 11, 2026',
       ),
     ).toBeVisible()
   })
@@ -410,10 +414,11 @@ describe('DashboardPage economic series', () => {
       .toEqual([
         'How difficult is it for people who want work to find it?',
         'What share of prime-age adults are employed?',
-        'Are employers adding jobs?',
-        'Are workers’ wages keeping up with prices?',
+      'Are employers adding jobs?',
+      'Are layoffs beginning to rise?',
+      'Are workers’ wages keeping up with prices?',
       ])
-    const comparison = articles[3]!
+    const comparison = articles[4]!
     expect(within(comparison).getByLabelText('Latest real wage growth'))
       .toHaveTextContent('−0.0%')
     expect(within(comparison).getByText(/nominal wages grew 3.4%/))
@@ -421,7 +426,8 @@ describe('DashboardPage economic series', () => {
     expect(within(comparison).getByText(/producing negative real wage growth/))
       .toBeVisible()
     await waitFor(() => {
-      const call = chartPropsSpy.mock.calls
+      const call = [...chartPropsSpy.mock.calls]
+        .reverse()
         .map((item) => item[0] as {
           kind?: string
           nominalObservations?: EconomicObservation[]
@@ -447,6 +453,49 @@ describe('DashboardPage economic series', () => {
     })).not.toBeInTheDocument()
     expect(within(employment).queryByRole('article', { name: /productivity/i }))
       .not.toBeInTheDocument()
+  })
+
+  it('renders official weekly claims and the four-week average without deriving it locally', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+    const card = await screen.findByRole('article', {
+      name: 'Are layoffs beginning to rise?',
+    })
+
+    expect(within(card).getByLabelText('Latest four-week average of initial claims'))
+      .toHaveTextContent('214,250 claims')
+    expect(within(card).getByText(/Four-week average, week ending/))
+      .toHaveTextContent('Jul 11, 2026')
+    expect(within(card).getByText(/Latest weekly claims:/))
+      .toHaveTextContent('208,000')
+    expect(within(card).getByRole('group', {
+      name: 'Initial unemployment claims displayed time range',
+    })).toBeVisible()
+
+    await user.click(within(card).getByRole('button', { name: 'Maximum' }))
+    expect(within(card).getByText('Visible period: Week of Jan 28, 1967–Week of Jul 11, 2026'))
+      .toBeVisible()
+    await waitFor(() => {
+      const call = [...chartPropsSpy.mock.calls]
+        .reverse()
+        .map((item) => item[0] as {
+          kind?: string
+          movingAverageObservations?: EconomicObservation[]
+          weeklyClaimsObservations?: EconomicObservation[]
+        })
+        .find((props) => props.kind === 'claims-comparison')
+      expect(call?.movingAverageObservations).toHaveLength(3103)
+      expect(call?.weeklyClaimsObservations).toHaveLength(3103)
+    })
+
+    await user.click(within(card).getByText('Recent observations'))
+    const table = within(card).getByRole('table', {
+      name: 'Twelve most recent aligned initial-claims observations',
+    })
+    expect(within(table).getAllByRole('row')).toHaveLength(13)
+    await user.click(within(card).getByText('Series details'))
+    expect(within(card).getByText('IC4WSA and ICSA')).toBeVisible()
+    expect(within(card).getByText(/no local moving-average calculation/i)).toBeVisible()
   })
 
   it('renders labor levels with monthly context and accessible tables', async () => {

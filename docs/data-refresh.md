@@ -22,6 +22,7 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Headline and core CPI (`CPIAUCSL` and `CPILFESL`, monthly index levels), derived into year-over-year and three-month annualized outputs.
 - Unemployment rate (`UNRATE`, monthly), written to `unemployment-rate.json`.
 - Prime-age employment-to-population ratio (`LNS12300060`, monthly), written to `prime-age-employment-ratio.json`.
+- Initial unemployment claims and the official four-week average (`ICSA` and `IC4WSA`, weekly), written as separate provider-published levels and aligned only for presentation.
 - Payroll growth (`PAYEMS`, monthly source level), derived into `monthly-payroll-change.json` and `payroll-growth.json`.
 - Wages versus inflation (`AHETPI` plus the existing `CPIAUCSL` result), derived into `nominal-wage-growth.json` and `real-wage-growth.json`.
 - Real disposable income per capita and real consumer spending per capita (`A229RX0Q048SBEA` and `A794RX0Q048SBEA`, quarterly source levels), derived into quarterly per-capita growth outputs.
@@ -65,6 +66,8 @@ The series-specific requests are:
 - Core CPI: `series_id=CPILFESL` and `frequency=m`, with no `units` or `observation_start` parameter.
 - Unemployment: `series_id=UNRATE` and `frequency=m`, with no `units` parameter.
 - Prime-age employment: `series_id=LNS12300060` and `frequency=m`, with no `units` parameter.
+- Initial unemployment claims: `series_id=ICSA` and `frequency=w`, with no `units` parameter.
+- Official four-week average: `series_id=IC4WSA` and `frequency=w`, with no `units` parameter.
 - Payroll: `series_id=PAYEMS` and `frequency=m`, with no `units` parameter.
 - Wages: `series_id=AHETPI` and `frequency=m`, with no `units` parameter.
 - Real GDP per capita: `series_id=A939RX0Q048SBEA` and `frequency=q`, with no `units` parameter.
@@ -140,6 +143,8 @@ Leading unavailable values are removed so generated growth files begin with a va
 - LNS12300060: 942 observations, January 1948–June 2026.
 - PAYEMS monthly change: 1,049 observations, February 1939–June 2026.
 - PAYEMS three-month average: 1,047 observations, April 1939–June 2026.
+- ICSA: 3,106 weekly observations, January 7, 1967–July 11, 2026.
+- IC4WSA: 3,103 weekly observations, January 28, 1967–July 11, 2026; this defines the relationship card's full shared coverage.
 - AHETPI nominal wage growth: 738 observations, January 1965–June 2026.
 - AHETPI/CPI exact real wage growth: 738 aligned observations, January 1965–June 2026.
 - A939RX0Q048SBEA source: 317 level observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.

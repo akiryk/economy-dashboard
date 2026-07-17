@@ -70,6 +70,8 @@ PSAVERT is a provider-published percent level, not a growth rate. Its 12-month c
 
 TDSP is a provider-published quarterly percent level. It estimates required mortgage and consumer-debt payments divided by aggregate disposable personal income. It uses the ordinary single-series observation shape and non-zero-forced level chart policy; no debt-payment components or household-level distribution are inferred from it.
 
+ICSA and IC4WSA remain separate provider-published weekly claim-count levels. The relationship card aligns them by exact Saturday week-ending date and emphasizes IC4WSA; it never derives a moving average in React or during refresh. Missing weeks remain `null` gaps rather than being bridged.
+
 The Atlanta Fed HOAM output uses the same observation shape after its official annual payment share of income is converted from a ratio to a percentage. HOUST is a provider-published monthly level in thousands of housing units at a seasonally adjusted annual rate. Neither is modeled as a growth rate, and both use non-zero-forced level charts.
 
 IPMAN and MANEMP remain separate provider-level series in their native units. Their relationship view aligns exact months and independently normalizes each line to 100 at the first shared valid selected-range observation. Aligned observations, normalized values, cumulative changes, and comparison gaps are presentation models and are not persisted.
@@ -80,7 +82,7 @@ The federal budget balance and federal debt held by the public remain separate p
 
 ## Current limitations
 
-- The application contains twenty-five visible cards backed by thirty-one datasets. Supporting datasets used within relationship cards are not separate cards.
+- The application contains twenty-six visible cards backed by thirty-three datasets. Supporting datasets used within relationship cards are not separate cards.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.

@@ -81,6 +81,13 @@ interface RateComparisonChartProps extends SharedZoomProps {
   frequency: EconomicFrequency
 }
 
+interface ClaimsComparisonChartProps extends SharedZoomProps {
+  kind: 'claims-comparison'
+  movingAverageObservations: readonly EconomicObservation[]
+  weeklyClaimsObservations: readonly EconomicObservation[]
+  frequency: EconomicFrequency
+}
+
 interface ManufacturingComparisonChartProps extends SharedZoomProps {
   kind: 'manufacturing-comparison'
   outputObservations: readonly EconomicObservation[]
@@ -94,6 +101,7 @@ export type EconomicTimeSeriesChartProps =
   | InflationComparisonChartProps
   | HouseholdComparisonChartProps
   | RateComparisonChartProps
+  | ClaimsComparisonChartProps
   | ManufacturingComparisonChartProps
 
 export default function EconomicTimeSeriesChart(
@@ -130,6 +138,15 @@ export default function EconomicTimeSeriesChart(
       kind: 'rate-comparison' as const,
       federalFunds: adaptObservationsToChartData(props.federalFundsObservations),
       treasury: adaptObservationsToChartData(props.treasuryObservations),
+    }
+    if (props.kind === 'claims-comparison') return {
+      kind: 'claims-comparison' as const,
+      movingAverage: adaptObservationsToChartData(
+        props.movingAverageObservations,
+      ),
+      weeklyClaims: adaptObservationsToChartData(
+        props.weeklyClaimsObservations,
+      ),
     }
     return {
       kind: 'household-comparison' as const,
@@ -235,6 +252,18 @@ export default function EconomicTimeSeriesChart(
                         variant: 'rates',
                         zoom: { startValue: props.zoomStartDate, endValue: props.zoomEndDate },
                       })
+                    : props.kind === 'claims-comparison' &&
+                        chartData.kind === 'claims-comparison'
+                      ? createInflationComparisonChartOptions({
+                          headlineData: chartData.movingAverage,
+                          coreData: chartData.weeklyClaims,
+                          frequency: props.frequency,
+                          variant: 'claims',
+                          zoom: {
+                            startValue: props.zoomStartDate,
+                            endValue: props.zoomEndDate,
+                          },
+                        })
             : null
       if (options) chart.setOption(options, { notMerge: true })
     } catch (error: unknown) {
@@ -267,6 +296,8 @@ export default function EconomicTimeSeriesChart(
                 ? 'Manufacturing output and employment normalized comparison chart'
               : props.kind === 'rate-comparison'
                 ? 'Effective federal funds rate and 10-year Treasury yield comparison chart'
+              : props.kind === 'claims-comparison'
+                ? 'Official four-week average and weekly initial unemployment claims comparison chart'
               : props.variant === 'momentum'
               ? 'Headline and core CPI three-month annualized inflation comparison chart'
               : 'Headline and core CPI year-over-year inflation comparison chart'

@@ -6,7 +6,7 @@ The U.S. Economy Dashboard is a descriptive, historically grounded briefing on m
 
 The current product is intentionally broad and nonpartisan. It does not forecast markets, recommend investments, evaluate political actors, infer causation from timing, or collapse mixed evidence into one score. That purpose should remain the baseline unless a future phase explicitly adopts another objective.
 
-The dashboard contains 25 visible cards in nine sections. Most cards use nonsmoothed time-series line charts. Relationship cards use two aligned lines; the manufacturing comparison normalizes two differently scaled series to a common selected-range baseline.
+The dashboard contains 26 visible cards in nine sections. Most cards use nonsmoothed time-series line charts. Relationship cards use two aligned lines; the manufacturing comparison normalizes two differently scaled series to a common selected-range baseline.
 
 ## What the dashboard shows
 
@@ -34,6 +34,7 @@ The dashboard contains 25 visible cards in nine sections. Most cards use nonsmoo
 | How difficult is it for people who want work to find it? | Monthly unemployment rate. | Measures unsuccessful job seeking among people in the labor force. |
 | What share of prime-age adults are employed? | Monthly employment-to-population ratio for ages 25–54. | Adds a broad employment measure less affected by population aging than the all-age ratio. |
 | Are employers adding jobs? | Monthly payroll changes, emphasizing a rolling three-month average. | Shows the direction and recent pace of employer job creation while retaining monthly detail. |
+| Are layoffs beginning to rise? | Weekly initial unemployment claims and the official four-week average, aligned by week ending. | Adds a timely signal of new unemployment-insurance filings while emphasizing the less noisy official average. |
 | Are workers’ wages keeping up with prices? | Monthly nominal wage growth and headline CPI inflation, with exact-ratio real wage growth. | Compares pay growth with consumer-price growth for a defined group of private-sector workers. |
 
 ### Households
@@ -101,7 +102,7 @@ Future work should begin by naming the user decision the dashboard is meant to s
 | Household welfare and distribution | Medians, distributions, demographic and geographic differences, and essential costs. | Real median income and wages, wealth and debt distributions, poverty, labor-force participation, rent burden, regional housing, and subgroup outcomes. |
 | Business operating environment | Demand, costs, financing, investment, inventories, and sector divergence. | New orders, inventories, profits, bankruptcies, lending standards, small-business conditions, and sector detail. |
 
-The current 25-card dashboard should be treated as a baseline inventory, not as a permanent requirement that every card remain. A future phase may add, reframe, combine, or remove measures when doing so better serves an explicitly chosen objective and preserves source transparency.
+The current 26-card dashboard should be treated as a baseline inventory, not as a permanent requirement that every card remain. A future phase may add, reframe, combine, or remove measures when doing so better serves an explicitly chosen objective and preserves source transparency.
 
 ## Related documentation
 

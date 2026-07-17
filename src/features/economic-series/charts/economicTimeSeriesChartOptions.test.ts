@@ -314,4 +314,44 @@ describe('createInflationComparisonChartOptions', () => {
       { seriesName: 'Real consumer spending per person growth', value: ['2026-01-01', 2.1] },
     ])).toContain('Real consumer spending per person growth: +2.1% from a year earlier')
   })
+
+  it('renders claims as unsmoothed exact-date lines on one integer axis', () => {
+    const options = createInflationComparisonChartOptions({
+      headlineData: [['2026-07-11', 214_250]],
+      coreData: [['2026-07-11', 208_000]],
+      frequency: 'weekly',
+      variant: 'claims',
+    })
+    const series = options.series as unknown as Array<{
+      name: string
+      connectNulls: boolean
+      smooth: boolean
+      lineStyle: { width: number; type: string }
+      markLine?: unknown
+    }>
+    const tooltip = options.tooltip as {
+      formatter: (params: Array<{ seriesName: string; value: [string, number] }>) => string
+    }
+    const axis = options.yAxis as YAXisComponentOption
+    const minimum = axis.min as (range: { min: number; max: number }) => number
+
+    expect(options.yAxis).toMatchObject({ name: 'Claims' })
+    expect(minimum({ min: 200_000, max: 6_000_000 })).toBe(0)
+    expect(series.map((item) => item.name)).toEqual([
+      'Four-week average',
+      'Weekly initial claims',
+    ])
+    expect(series.map((item) => item.lineStyle)).toEqual([
+      expect.objectContaining({ width: 2.5, type: 'solid' }),
+      expect.objectContaining({ width: 1.5, type: 'dashed' }),
+    ])
+    expect(series.every((item) => !item.connectNulls && !item.smooth)).toBe(true)
+    expect(series[0]?.markLine).toBeUndefined()
+    expect(tooltip.formatter([
+      { seriesName: 'Four-week average', value: ['2026-07-11', 214_250] },
+      { seriesName: 'Weekly initial claims', value: ['2026-07-11', 208_000] },
+    ])).toBe(
+      'Week of Jul 11, 2026\nFour-week average: 214,250\nWeekly initial claims: 208,000',
+    )
+  })
 })

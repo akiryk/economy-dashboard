@@ -124,6 +124,52 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     sourceUrl: 'https://fred.stlouisfed.org/series/LNS12300060',
   },
   {
+    dataHandling: 'provider-level',
+    id: 'initial-unemployment-claims',
+    slug: 'initial-unemployment-claims',
+    outputFile:
+      'src/features/economic-series/data/initial-unemployment-claims.json',
+    providerSeriesId: 'ICSA',
+    frequency: 'weekly',
+    fredFrequency: 'w',
+    historyPolicy: { type: 'full' },
+    minimumUsableObservations: 2500,
+    title: 'Initial Claims',
+    shortTitle: 'Weekly initial claims',
+    description:
+      'New applications for unemployment-insurance eligibility following separation from an employer.',
+    question: 'Are layoffs beginning to rise?',
+    units: 'Number of claims',
+    seasonalAdjustment: 'Seasonally adjusted',
+    transformation: 'Provider-published weekly level',
+    sourceName:
+      'U.S. Employment and Training Administration via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/ICSA',
+  },
+  {
+    dataHandling: 'provider-level',
+    id: 'initial-unemployment-claims-four-week-average',
+    slug: 'initial-unemployment-claims-four-week-average',
+    outputFile:
+      'src/features/economic-series/data/initial-unemployment-claims-four-week-average.json',
+    providerSeriesId: 'IC4WSA',
+    frequency: 'weekly',
+    fredFrequency: 'w',
+    historyPolicy: { type: 'full' },
+    minimumUsableObservations: 2500,
+    title: '4-Week Moving Average of Initial Claims',
+    shortTitle: 'Four-week average of initial claims',
+    description:
+      'The official four-week moving average of new unemployment-insurance claims.',
+    question: 'Are layoffs beginning to rise?',
+    units: 'Number of claims',
+    seasonalAdjustment: 'Seasonally adjusted',
+    transformation: 'Provider-published four-week moving average',
+    sourceName:
+      'U.S. Employment and Training Administration via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/IC4WSA',
+  },
+  {
     dataHandling: 'locally-derived',
     id: 'real-gdp-per-capita-growth',
     slug: 'real-gdp-per-capita-growth',

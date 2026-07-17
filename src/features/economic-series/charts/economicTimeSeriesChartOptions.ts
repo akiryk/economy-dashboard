@@ -36,7 +36,7 @@ interface InflationComparisonChartOptionsInput {
   headlineData: ChartDataPoint[]
   coreData: ChartDataPoint[]
   frequency: EconomicFrequency
-  variant: 'household' | 'momentum' | 'rates' | 'year-over-year'
+  variant: 'claims' | 'household' | 'momentum' | 'rates' | 'year-over-year'
   zoom?: HistoricalZoomChartConfig
 }
 
@@ -356,14 +356,19 @@ export function createInflationComparisonChartOptions({
   const momentum = variant === 'momentum'
   const household = variant === 'household'
   const rates = variant === 'rates'
-  const headlineName = rates
+  const claims = variant === 'claims'
+  const headlineName = claims
+    ? 'Four-week average'
+    : rates
     ? 'Effective federal funds rate'
     : household
     ? 'Real disposable income per person growth'
     : momentum
     ? 'Headline CPI, 3-month annualized'
     : 'Headline CPI inflation'
-  const coreName = rates
+  const coreName = claims
+    ? 'Weekly initial claims'
+    : rates
     ? '10-year Treasury yield'
     : household
     ? 'Real consumer spending per person growth'
@@ -375,7 +380,7 @@ export function createInflationComparisonChartOptions({
     aria: {
       enabled: true,
       decal: { show: true },
-      description: `${headlineName} and ${coreName} on one shared percentage axis. A factual summary and detailed data table follow the chart.`,
+      description: `${headlineName} and ${coreName} on one shared ${claims ? 'claims' : 'percentage'} axis. A factual summary and detailed data table follow the chart.`,
     },
     dataZoom: sharedDataZoom(zoomForData(zoom, headlineData)),
     legend: {
@@ -398,7 +403,7 @@ export function createInflationComparisonChartOptions({
       formatter: (params: TooltipComponentFormatterCallbackParams) => {
         const items = Array.isArray(params) ? params : [params]
         const first = items.find((item) => isChartDataPoint(item.value))
-        if (!first || !isChartDataPoint(first.value)) return household ? 'Income versus spending' : 'Inflation comparison'
+        if (!first || !isChartDataPoint(first.value)) return claims ? 'Initial claims' : household ? 'Income versus spending' : 'Inflation comparison'
         const date = first.value[0]
         const values = new Map(
           items
@@ -409,10 +414,10 @@ export function createInflationComparisonChartOptions({
         const core = values.get(coreName) ?? null
         const lines = [
           formatObservationPeriod(date, frequency),
-          `${headlineName}: ${household ? `${formatSignedPercentage(headline)} from a year earlier` : formatPercentage(headline)}`,
-          `${coreName}: ${household ? `${formatSignedPercentage(core)} from a year earlier` : formatPercentage(core)}`,
+          `${headlineName}: ${claims ? headline === null ? 'Not available' : Math.round(headline).toLocaleString('en-US') : household ? `${formatSignedPercentage(headline)} from a year earlier` : formatPercentage(headline)}`,
+          `${coreName}: ${claims ? core === null ? 'Not available' : Math.round(core).toLocaleString('en-US') : household ? `${formatSignedPercentage(core)} from a year earlier` : formatPercentage(core)}`,
         ]
-        if (!momentum) {
+        if (!momentum && !claims) {
           const difference =
             headline !== null && core !== null ? core - headline : null
           lines.push(
@@ -436,12 +441,14 @@ export function createInflationComparisonChartOptions({
     },
     yAxis: {
       type: 'value',
-      name: 'Percent',
+      name: claims ? 'Claims' : 'Percent',
       nameLocation: 'end',
       nameTextStyle: { color: '#56616d', align: 'right' },
-      min: (range: ValueRange) => paddedMinimum(range, true),
-      max: (range: ValueRange) => paddedMaximum(range, true),
-      axisLabel: { color: '#56616d', formatter: '{value}%' },
+      min: (range: ValueRange) => claims
+        ? Math.max(0, paddedMinimum(range, false))
+        : paddedMinimum(range, true),
+      max: (range: ValueRange) => paddedMaximum(range, !claims),
+      axisLabel: { color: '#56616d', formatter: claims ? '{value}' : '{value}%' },
       axisLine: { show: false },
       axisTick: { show: false },
       splitLine: { lineStyle: { color: '#e4e7ea', width: 1 } },
@@ -456,13 +463,13 @@ export function createInflationComparisonChartOptions({
         showSymbol: false,
         lineStyle: { color: '#245d72', width: 2.5, type: 'solid' },
         itemStyle: { color: '#245d72' },
-        markLine: {
+        ...(claims ? {} : { markLine: {
           silent: true,
           symbol: 'none',
           label: { show: false },
           lineStyle: { color: '#56616d', width: 1.5, type: 'solid' },
           data: [{ yAxis: 0 }],
-        },
+        } }),
       },
       {
         name: coreName,
@@ -471,7 +478,7 @@ export function createInflationComparisonChartOptions({
         connectNulls: false,
         smooth: false,
         showSymbol: false,
-        lineStyle: { color: '#8a4f2d', width: 2.5, type: 'dashed' },
+        lineStyle: { color: '#8a4f2d', width: claims ? 1.5 : 2.5, type: 'dashed' },
         itemStyle: { color: '#8a4f2d' },
       },
     ],

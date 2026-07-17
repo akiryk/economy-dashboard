@@ -8,6 +8,7 @@ import { HouseholdComparisonSummary } from './HouseholdComparisonSummary'
 import { ProductivityLevelSummary } from './ProductivityLevelSummary'
 import { ManufacturingComparisonSummary } from './ManufacturingComparisonSummary'
 import { RateComparisonSummary } from './RateComparisonSummary'
+import { ClaimsComparisonSummary } from './ClaimsComparisonSummary'
 
 const noSupportingSlugs: readonly string[] = []
 
@@ -32,6 +33,7 @@ interface EconomicSeriesCardProps {
     | 'household-comparison'
     | 'productivity-level'
     | 'rate-comparison'
+    | 'claims-comparison'
     | 'headline-core-comparison'
     | 'single'
     | 'wages-comparison'
@@ -141,6 +143,15 @@ export function EconomicSeriesCard({
 
   if (variant === 'rate-comparison') {
     return <RateComparisonSummary federalFunds={seriesState.series} treasury={seriesState.supportingSeries[0]!} />
+  }
+
+  if (variant === 'claims-comparison') {
+    return (
+      <ClaimsComparisonSummary
+        movingAverage={seriesState.series}
+        weeklyClaims={seriesState.supportingSeries[0]!}
+      />
+    )
   }
 
   if (

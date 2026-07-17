@@ -21,6 +21,10 @@ const localSeriesLoaders: Readonly<
   'unemployment-rate': () => import('../data/unemployment-rate.json'),
   'prime-age-employment-ratio': () =>
     import('../data/prime-age-employment-ratio.json'),
+  'initial-unemployment-claims': () =>
+    import('../data/initial-unemployment-claims.json'),
+  'initial-unemployment-claims-four-week-average': () =>
+    import('../data/initial-unemployment-claims-four-week-average.json'),
   'payroll-growth': () => import('../data/payroll-growth.json'),
   'monthly-payroll-change': () => import('../data/monthly-payroll-change.json'),
   'nominal-wage-growth': () => import('../data/nominal-wage-growth.json'),
