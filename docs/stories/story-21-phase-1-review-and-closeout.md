@@ -2,9 +2,9 @@
 
 ## Status
 
-Superseded.
+Complete.
 
-The product owner declared Phase 1 complete after Story 20 and requested a documentation reconciliation instead of executing this exhaustive audit as a separate story. Current closeout documentation is centered on `docs/product-overview.md`. This file is retained as a useful historical audit proposal, not as a claim that every verification step below was performed. Phase 2 remains intentionally undefined pending selection of a primary product objective.
+The product owner reactivated this story after the initial documentation reconciliation. The executable audit, real-provider refresh, browser verification, accepted limitations, review guide, and final evidence are recorded in `docs/phase-1-closeout.md`, `docs/phase-1-limitations.md`, and `docs/dashboard-review-guide.md`. Phase 2 remains intentionally undefined pending selection of a primary product objective.
 
 ## User story
 

@@ -752,8 +752,8 @@ describe('DashboardPage economic series', () => {
     expect(within(cards[0]!).getAllByText('42.0%')).not.toHaveLength(0)
     expect(within(cards[0]!).getAllByText('March 2026')).not.toHaveLength(0)
     expect(within(cards[0]!).getByText(/A higher percentage means/)).toBeVisible()
-    expect(within(cards[1]!).getAllByText('1.18 million')).not.toHaveLength(0)
-    expect(within(cards[1]!).getAllByText('May 2026')).not.toHaveLength(0)
+    expect(within(cards[1]!).getAllByText('1.43 million')).not.toHaveLength(0)
+    expect(within(cards[1]!).getAllByText('June 2026')).not.toHaveLength(0)
     expect(within(cards[1]!).getByText(/annualized pace implied by one month/)).toBeVisible()
 
     await user.click(within(cards[0]!).getByRole('button', { name: 'Maximum' }))
@@ -804,8 +804,8 @@ describe('DashboardPage economic series', () => {
     expect(within(manufacturing).getAllByRole('article')).toHaveLength(3)
     expect(within(card).getByText(/Both lines begin at 100/)).toBeVisible()
     expect(within(card).getByText(/do not directly measure productivity/)).toBeVisible()
-    expect(within(card).getByText(/Since May 2006/)).toBeVisible()
-    expect(within(card).getByText(/Through May 2026/)).toBeVisible()
+    expect(within(card).getByText(/Since June 2006/)).toBeVisible()
+    expect(within(card).getByText(/Through June 2026/)).toBeVisible()
 
     await user.click(within(card).getByRole('button', { name: 'Maximum' }))
     expect(await within(card).findByText(/Since January 1972/)).toBeVisible()
@@ -815,8 +815,8 @@ describe('DashboardPage economic series', () => {
         outputObservations?: EconomicObservation[]
         employmentObservations?: EconomicObservation[]
       }).filter((candidate) => candidate.kind === 'manufacturing-comparison').at(-1)
-      expect(props?.outputObservations).toHaveLength(653)
-      expect(props?.employmentObservations).toHaveLength(653)
+      expect(props?.outputObservations).toHaveLength(654)
+      expect(props?.employmentObservations).toHaveLength(654)
       expect(props?.outputObservations?.[0]).toEqual({ date: '1972-01-01', value: 100 })
       expect(props?.employmentObservations?.[0]).toEqual({ date: '1972-01-01', value: 100 })
     })
@@ -856,8 +856,8 @@ describe('DashboardPage economic series', () => {
     expect(within(investment).getAllByText('2026 Q1')).not.toHaveLength(0)
     expect(within(investment).getByText(/not purchases of stocks, bonds/)).toBeVisible()
     expect(within(capacity).getByLabelText('Latest industrial capacity utilization'))
-      .toHaveTextContent('76.2%')
-    expect(within(capacity).getAllByText('May 2026')).not.toHaveLength(0)
+      .toHaveTextContent('76.1%')
+    expect(within(capacity).getAllByText('June 2026')).not.toHaveLength(0)
     expect(within(capacity).getByText(/not necessarily a healthier economy/)).toBeVisible()
 
     await user.click(within(investment).getByRole('button', { name: 'Maximum' }))

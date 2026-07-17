@@ -13,7 +13,7 @@
   "transformation": "Published level, normalized to 100 at the selected-range start for display",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/OPHNFB",
-  "retrievedAt": "2026-07-16",
+  "retrievedAt": "2026-07-17",
   "observations": [
     {
       "date": "1947-01-01",

@@ -60,6 +60,46 @@ describe('refreshEconomicData', () => {
     expect(await readFile(outputFile, 'utf8')).toBe('prior valid tariff data')
   })
 
+  it('reports the derived tariff output path instead of a source-only path', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'tariff-report-'))
+    temporaryDirectories.push(directory)
+    const outputFile = path.join(directory, 'effective-tariff-burden.json')
+    const config = {
+      ...tariffBurdenConfiguration,
+      outputFile,
+      customsSource: {
+        ...tariffBurdenConfiguration.customsSource,
+        minimumUsableObservations: 1,
+      },
+      importsSource: {
+        ...tariffBurdenConfiguration.importsSource,
+        minimumUsableObservations: 1,
+      },
+    }
+
+    const outcomes = await refreshAllEconomicData({
+      apiKey: 'test-key',
+      retrievedAt: '2026-07-17',
+      configurations: [],
+      tariffBurdenConfiguration: config,
+      fetchImplementation: async (input) => {
+        const seriesId = new URL(String(input)).searchParams.get('series_id')
+        return new Response(JSON.stringify({
+          observations: [{
+            date: '2024-01-01',
+            value: seriesId === 'B235RC1Q027SBEA' ? '10' : '200',
+          }],
+        }), { status: 200 })
+      },
+    })
+
+    expect(outcomes).toHaveLength(1)
+    expect(outcomes[0]).toMatchObject({
+      status: 'updated',
+      config: { outputFile },
+    })
+  })
+
   it('distinguishes provider-transformed, provider-level, and local data handling', () => {
     expect(fredSeriesConfigurations.slice(0, 2).map((config) => config.dataHandling))
       .toEqual(['provider-transformed', 'locally-derived'])

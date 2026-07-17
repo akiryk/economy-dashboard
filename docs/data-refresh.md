@@ -141,7 +141,7 @@ Leading unavailable values are removed so generated growth files begin with a va
 - PAYEMS monthly change: 1,049 observations, February 1939–June 2026.
 - PAYEMS three-month average: 1,047 observations, April 1939–June 2026.
 - AHETPI nominal wage growth: 738 observations, January 1965–June 2026.
-- AHETPI/CPI exact real wage growth: 737 aligned observations, January 1965–May 2026.
+- AHETPI/CPI exact real wage growth: 738 aligned observations, January 1965–June 2026.
 - A939RX0Q048SBEA source: 317 level observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
 - OPHNFB source and level output: 317 index observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
 - A229RX0Q048SBEA source: 317 level observations; generated growth: 313 observations, 1948 Q1–2026 Q1.
@@ -149,11 +149,11 @@ Leading unavailable values are removed so generated growth files begin with a va
 - PSAVERT: 809 observations, January 1959–May 2026.
 - TDSP source: 185 observations including leading unavailable values; generated level: 85 observations, 2005 Q1–2026 Q1.
 - Atlanta Fed HOAM: 255 observations, January 2005–March 2026.
-- HOUST: 809 observations, January 1959–May 2026.
-- IPMAN: 653 observations, January 1972–May 2026.
+- HOUST: 810 observations, January 1959–June 2026.
+- IPMAN: 654 observations, January 1972–June 2026.
 - MANEMP: 1,050 observations, January 1939–June 2026.
 - PNFIC1 source: 77 usable level observations, 2007 Q1–2026 Q1; generated growth: 73 observations, 2008 Q1–2026 Q1.
-- TCU: 713 observations, January 1967–May 2026.
+- TCU: 714 observations, January 1967–June 2026.
 - FEDFUNDS: 864 observations, July 1954–June 2026.
 - GS10: 879 observations, April 1953–June 2026; exact shared rate coverage begins July 1954.
 - NFCICREDIT: 2,897 weekly observations, January 8, 1971–July 10, 2026.

@@ -127,7 +127,17 @@ interface RefreshAllEconomicDataOptions {
 
 type EconomicSeries = Awaited<ReturnType<typeof refreshEconomicData>>['series']
 
-export async function refreshTariffBurdenData({ apiKey, retrievedAt, config = tariffBurdenConfiguration, fetchImplementation }: { apiKey: string; retrievedAt: string; config?: TariffBurdenConfig; fetchImplementation?: typeof fetch }) {
+export async function refreshTariffBurdenData({
+  apiKey,
+  retrievedAt,
+  config = tariffBurdenConfiguration,
+  fetchImplementation,
+}: {
+  apiKey: string
+  retrievedAt: string
+  config?: TariffBurdenConfig
+  fetchImplementation?: typeof fetch
+}) {
   const [customsResponse, importsResponse] = await Promise.all([
     fetchFredObservations(apiKey, config.customsSource, fetchImplementation),
     fetchFredObservations(apiKey, config.importsSource, fetchImplementation),
@@ -135,8 +145,14 @@ export async function refreshTariffBurdenData({ apiKey, retrievedAt, config = ta
   const customs = normalizeFredSeries(customsResponse, retrievedAt, config.customsSource)
   const imports = normalizeFredSeries(importsResponse, retrievedAt, config.importsSource)
   const series = deriveTariffBurdenSeries(customs, imports, retrievedAt, config)
-  await writeEconomicSeriesGroupAtomically([{ outputPath: path.resolve(config.outputFile), series }])
-  return { series, sourceObservationCount: customsResponse.observations.length, importsSourceObservationCount: importsResponse.observations.length }
+  await writeEconomicSeriesGroupAtomically([
+    { outputPath: path.resolve(config.outputFile), series },
+  ])
+  return {
+    series,
+    sourceObservationCount: customsResponse.observations.length,
+    importsSourceObservationCount: importsResponse.observations.length,
+  }
 }
 
 export async function refreshCpiData({
@@ -524,15 +540,38 @@ export async function refreshAllEconomicData(
     }
   }
 
-  const tariffConfig = options.tariffBurdenConfiguration === undefined
-    ? options.configurations === undefined ? tariffBurdenConfiguration : false
-    : options.tariffBurdenConfiguration
+  const tariffConfig =
+    options.tariffBurdenConfiguration === undefined
+      ? options.configurations === undefined
+        ? tariffBurdenConfiguration
+        : false
+      : options.tariffBurdenConfiguration
   if (tariffConfig) {
     try {
-      const result = await refreshTariffBurdenData({ apiKey, retrievedAt, config: tariffConfig, fetchImplementation })
-      outcomes.push({ status: 'updated', config: tariffConfig.customsSource, series: result.series, sourceObservationCount: result.sourceObservationCount })
+      const result = await refreshTariffBurdenData({
+        apiKey,
+        retrievedAt,
+        config: tariffConfig,
+        fetchImplementation,
+      })
+      outcomes.push({
+        status: 'updated',
+        config: {
+          ...tariffConfig.customsSource,
+          outputFile: tariffConfig.outputFile,
+        },
+        series: result.series,
+        sourceObservationCount: result.sourceObservationCount,
+      })
     } catch (error: unknown) {
-      outcomes.push({ status: 'failed', config: tariffConfig.customsSource, message: error instanceof Error ? error.message : 'Unknown failure' })
+      outcomes.push({
+        status: 'failed',
+        config: {
+          ...tariffConfig.customsSource,
+          outputFile: tariffConfig.outputFile,
+        },
+        message: error instanceof Error ? error.message : 'Unknown failure',
+      })
     }
   }
 

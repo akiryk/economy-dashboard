@@ -106,6 +106,9 @@ The current 25-card dashboard should be treated as a baseline inventory, not as 
 ## Related documentation
 
 - [`product-principles.md`](product-principles.md): presentation and interpretation principles.
+- [`dashboard-review-guide.md`](dashboard-review-guide.md): product-owner review prompts and Phase 2 candidates.
+- [`phase-1-limitations.md`](phase-1-limitations.md): accepted limitations and approved substitutions.
+- [`phase-1-closeout.md`](phase-1-closeout.md): final audit and verification evidence.
 - [`data-refresh.md`](data-refresh.md): exact sources, transformations, coverage, and refresh behavior.
 - [`charting.md`](charting.md): chart behavior, range controls, zoom, and accessibility.
 - [`data-model.md`](data-model.md): domain model and repository boundary.

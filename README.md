@@ -8,6 +8,8 @@ See:
 
 - [`docs/product-overview.md`](docs/product-overview.md) for what the product shows, why each measure is included, and how the current scope differs from possible future analytical goals.
 - [`docs/product-principles.md`](docs/product-principles.md) for the product’s interpretation and presentation rules.
+- [`docs/dashboard-review-guide.md`](docs/dashboard-review-guide.md) for reviewing Phase 1 and choosing the next product objective.
+- [`docs/phase-1-limitations.md`](docs/phase-1-limitations.md) and [`docs/phase-1-closeout.md`](docs/phase-1-closeout.md) for accepted constraints and verification evidence.
 - [`docs/data-refresh.md`](docs/data-refresh.md) for the authoritative source, transformation, coverage, and refresh inventory.
 - [`docs/charting.md`](docs/charting.md) and [`docs/data-model.md`](docs/data-model.md) for implementation architecture.
 
