@@ -106,6 +106,13 @@ const navigationGroups = [
       { id: 'broad-credit-conditions-card', title: 'Are credit conditions tighter or looser than usual?' },
     ],
   },
+  {
+    title: 'Government finances',
+    cards: [
+      { id: 'federal-budget-balance-card', title: 'How large is the federal budget deficit or surplus relative to the economy?' },
+      { id: 'federal-debt-held-by-public-card', title: 'How large is federal debt held by the public relative to the economy?' },
+    ],
+  },
 ] as const
 
 export function DashboardNavigation() {
@@ -118,7 +125,7 @@ export function DashboardNavigation() {
         <summary>
           <span id="dashboard-navigation-heading">Explore all indicators</span>
           <span className="dashboard-navigation__summary-detail">
-            21 cards in 7 categories
+            23 cards in 8 categories
           </span>
         </summary>
         <div className="dashboard-navigation__groups">

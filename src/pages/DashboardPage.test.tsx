@@ -42,13 +42,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('21 cards in 7 categories')).toBeVisible()
+    expect(within(navigation).getByText('23 cards in 8 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(21)
+    expect(links).toHaveLength(23)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -71,6 +71,8 @@ describe('DashboardPage economic series', () => {
       'How fully is industrial capacity being used?',
       'How do short-term and long-term interest rates compare?',
       'Are credit conditions tighter or looser than usual?',
+      'How large is the federal budget deficit or surplus relative to the economy?',
+      'How large is federal debt held by the public relative to the economy?',
     ])
 
     const gdpCard = await screen.findByRole('article', {
@@ -180,7 +182,7 @@ describe('DashboardPage economic series', () => {
       'Are employers adding jobs?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(21)
+    expect(screen.getAllByRole('article')).toHaveLength(23)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'real-income-versus-spending-question',
       'personal-saving-rate-question',
@@ -198,7 +200,7 @@ describe('DashboardPage economic series', () => {
     ).not.toBeInTheDocument()
     expect(
       await screen.findByText(
-        'Latest observations range from 2026 Q1 to Week of Jul 10, 2026',
+        'Latest observations range from 2025 to Week of Jul 10, 2026',
       ),
     ).toBeVisible()
   })
@@ -1150,6 +1152,47 @@ describe('DashboardPage economic series', () => {
     expect(within(credit).getByText('Visible period: Week of Jan 8, 1971–Week of Jul 10, 2026')).toBeVisible()
     await user.click(within(credit).getByRole('button', { name: 'Zoom in' }))
     expect(within(credit).getByRole('button', { name: 'Reset zoom' })).toBeVisible()
+  })
+
+  it('renders annual budget balance and quarterly debt held by the public after Financial conditions', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+    const financial = screen.getByRole('region', { name: 'Financial conditions' })
+    const government = screen.getByRole('region', { name: 'Government finances' })
+    expect(financial.compareDocumentPosition(government) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    const budget = await within(government).findByRole('article', { name: 'How large is the federal budget deficit or surplus relative to the economy?' })
+    const debt = await within(government).findByRole('article', { name: 'How large is federal debt held by the public relative to the economy?' })
+    expect(within(government).getAllByRole('article')).toHaveLength(2)
+    expect(within(budget).getByLabelText('Latest federal budget balance')).toHaveTextContent('−5.8%')
+    expect(within(budget).getByText('Deficit')).toBeVisible()
+    expect(within(budget).getAllByText('2025')).not.toHaveLength(0)
+    expect(within(budget).getByText(/annual flow/)).toBeVisible()
+    expect(within(debt).getByLabelText('Latest federal debt held by the public')).toHaveTextContent('98.7%')
+    expect(within(debt).getAllByText('2026 Q1')).not.toHaveLength(0)
+    expect(within(debt).getByText(/not total public debt/)).toBeVisible()
+    expect(within(debt).getByText(/can fall while nominal debt rises/)).toBeVisible()
+    await user.click(within(budget).getByRole('button', { name: 'Maximum' }))
+    await user.click(within(debt).getByRole('button', { name: 'Maximum' }))
+    expect(within(budget).getByText('Visible period: 1929–2025')).toBeVisible()
+    expect(within(debt).getByText('Visible period: 1970 Q1–2026 Q1')).toBeVisible()
+    await user.click(within(budget).getByRole('button', { name: 'Zoom in' }))
+    expect(within(budget).getByRole('button', { name: 'Reset zoom' })).toBeVisible()
+  })
+
+  it.each([
+    ['federal-budget-balance', 'The federal budget balance data could not be loaded.', 'How large is federal debt held by the public relative to the economy?'],
+    ['federal-debt-held-by-public', 'The federal debt held by the public data could not be loaded.', 'How large is the federal budget deficit or surplus relative to the economy?'],
+  ])('isolates a %s failure within Government finances', async (failedSlug, message, survivor) => {
+    const original = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
+      if (slug === failedSlug) throw new Error('Invalid Story 19 fixture')
+      return original(slug)
+    })
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    render(<DashboardPage />)
+    expect(await screen.findByText(message)).toBeVisible()
+    expect(await screen.findByRole('article', { name: survivor })).toBeVisible()
+    expect(await screen.findByRole('article', { name: 'How do short-term and long-term interest rates compare?' })).toBeVisible()
   })
 
   it.each([

@@ -32,6 +32,10 @@ describe('formatObservationPeriod', () => {
     expect(formatObservationPeriod('2026-07-10', 'weekly')).toBe('Week of Jul 10, 2026')
   })
 
+  it('formats annual observations as years', () => {
+    expect(formatObservationPeriod('2025-01-01', 'annual')).toBe('2025')
+  })
+
   it('does not shift periods across local timezone boundaries', () => {
     expect(formatObservationPeriod('2026-12-01', 'monthly')).toBe(
       'December 2026',

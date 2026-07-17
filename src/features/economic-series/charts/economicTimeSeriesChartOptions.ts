@@ -124,6 +124,10 @@ function formatTooltip(
     const direction = value !== null && value < 0 ? 'lower' : 'higher'
     return `${formatObservationPeriod(date, frequency)}\nProductivity was ${formatPercentage(value === null ? null : Math.abs(value))} ${direction} than one year earlier`
   }
+  if (seriesName === 'Federal budget balance') {
+    const type = value === null ? 'Unavailable' : value < 0 ? 'Deficit' : value > 0 ? 'Surplus' : 'Balanced'
+    return `${formatObservationPeriod(date, frequency)}\nFederal budget balance: ${formatSignedPercentage(value)} of GDP\n${type}`
+  }
   return `${formatObservationPeriod(date, frequency)}\n${seriesName}: ${formatEconomicValue(value, valueFormat)}`
 }
 

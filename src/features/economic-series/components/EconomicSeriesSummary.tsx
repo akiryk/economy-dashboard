@@ -8,6 +8,7 @@ import {
   formatObservationPeriod,
   formatPercentage,
   formatSignedPercentage,
+  formatSignedPercentagePoints,
   formatAnnualizedHousingUnits,
   selectMostRecentObservations,
   sortObservationsChronologically,
@@ -27,6 +28,7 @@ import { calculateProductivityMomentum } from '../utils/productivityData'
 import { ProductivityMomentumTable } from './ProductivityMomentumTable'
 import { HistoricalZoomControls } from './HistoricalZoomControls'
 import { useHistoricalZoom } from './useHistoricalZoom'
+import { BudgetBalanceTable } from './BudgetBalanceTable'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -127,7 +129,11 @@ export function EconomicSeriesSummary({
           </span>
         </p>
         <p className="series-current__label">
-          {series.slug === 'broad-credit-conditions'
+          {series.slug === 'federal-budget-balance'
+            ? latestObservation?.value === null || latestObservation?.value === undefined
+              ? 'Balance unavailable'
+              : latestObservation.value < 0 ? 'Deficit' : latestObservation.value > 0 ? 'Surplus' : 'Balanced'
+            : series.slug === 'broad-credit-conditions'
             ? latestObservation?.value === null || latestObservation?.value === undefined
               ? 'Relative credit conditions unavailable'
               : latestObservation.value > 0
@@ -203,7 +209,15 @@ export function EconomicSeriesSummary({
               onZoomChange={zoom.onChartZoom}
             />
           </Suspense>
-          {series.slug === 'broad-credit-conditions' ? (
+          {series.slug === 'federal-budget-balance' ? (
+            <p className="chart-summary" aria-live="polite">
+              From {firstVisibleObservation ? formatObservationPeriod(firstVisibleObservation.date, series.frequency) : 'an unavailable year'} to {chartSummary.latest ? formatObservationPeriod(chartSummary.latest.date, series.frequency) : 'an unavailable year'}, the federal budget balance moved from {formatValue(firstVisibleObservation?.value ?? null)} to {formatValue(chartSummary.latest?.value ?? null)} of GDP. The largest visible deficit was {formatValue(chartSummary.minimum?.value ?? null)} in {chartSummary.minimum ? formatObservationPeriod(chartSummary.minimum.date, series.frequency) : 'an unavailable year'}{chartSummary.maximum && chartSummary.maximum.value !== null && chartSummary.maximum.value > 0 ? `, and the largest visible surplus was ${formatValue(chartSummary.maximum.value)} in ${formatObservationPeriod(chartSummary.maximum.date, series.frequency)}` : ', and no surplus appears in the visible period'}. The latest observation is {chartSummary.latest?.value === null || chartSummary.latest?.value === undefined ? 'unavailable' : chartSummary.latest.value < 0 ? 'a deficit' : chartSummary.latest.value > 0 ? 'a surplus' : 'balanced'}.
+            </p>
+          ) : series.slug === 'federal-debt-held-by-public' ? (
+            <p className="chart-summary" aria-live="polite">
+              During the visible period, federal debt held by the public moved from {formatValue(firstVisibleObservation?.value ?? null)} of GDP in {firstVisibleObservation ? formatObservationPeriod(firstVisibleObservation.date, series.frequency) : 'an unavailable quarter'} to {formatValue(chartSummary.latest?.value ?? null)} in {chartSummary.latest ? formatObservationPeriod(chartSummary.latest.date, series.frequency) : 'an unavailable quarter'}. It ranged from {formatValue(chartSummary.minimum?.value ?? null)} to {formatValue(chartSummary.maximum?.value ?? null)}. The first-to-latest change was {formatSignedPercentagePoints(chartSummary.latest?.value !== null && chartSummary.latest?.value !== undefined && firstVisibleObservation?.value !== null && firstVisibleObservation?.value !== undefined ? chartSummary.latest.value - firstVisibleObservation.value : null)} percentage points.
+            </p>
+          ) : series.slug === 'broad-credit-conditions' ? (
             <p className="chart-summary" aria-live="polite">
               During the visible period, the credit-conditions index moved from{' '}
               {formatValue(firstVisibleObservation?.value ?? null)} in{' '}
@@ -309,7 +323,9 @@ export function EconomicSeriesSummary({
                   )
                 : 'an unavailable period'}.
             </p>
-          ) : (
+            ) : series.slug === 'federal-budget-balance' ? (
+              <BudgetBalanceTable observations={recentObservations} />
+            ) : (
             <p className="chart-summary" aria-live="polite">
               For the visible period, {series.shortTitle} ranged from{' '}
               {formatValue(chartSummary.minimum?.value ?? null)} in{' '}

@@ -47,6 +47,8 @@ const localSeriesLoaders: Readonly<
   'ten-year-treasury-yield': () =>
     import('../data/ten-year-treasury-yield.json'),
   'broad-credit-conditions': () => import('../data/broad-credit-conditions.json'),
+  'federal-budget-balance': () => import('../data/federal-budget-balance.json'),
+  'federal-debt-held-by-public': () => import('../data/federal-debt-held-by-public.json'),
 }
 
 export const localEconomicSeriesRepository: EconomicSeriesRepository = {

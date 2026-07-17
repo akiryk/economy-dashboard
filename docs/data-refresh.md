@@ -32,6 +32,7 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Industrial capacity utilization (`TCU`, monthly), written as the provider-published percentage level to `industrial-capacity-utilization.json`.
 - Effective federal funds rate and 10-year Treasury yield (`FEDFUNDS` and `GS10`, monthly), written as separate provider-published percentage levels and aligned only for presentation.
 - Broad credit conditions (`NFCICREDIT`, weekly), written as the provider-published standardized index to `broad-credit-conditions.json`.
+- Federal budget balance (`FYFSGDA188S`, annual) and federal debt held by the public (`FYGFGDQ188S`, quarterly), written as separate provider-published percent-of-GDP ratios.
 
 The narrow `scripts/atlantaFed/hoamWorkbook.ts` path downloads the official national HOAM workbook and writes `home-ownership-cost-share.json`; it is intentionally separate from the FRED configuration list.
 
@@ -76,6 +77,8 @@ The series-specific requests are:
 - Effective federal funds rate: `series_id=FEDFUNDS` and `frequency=m`, with no `units` parameter.
 - 10-year Treasury yield: `series_id=GS10` and `frequency=m`, with no `units` parameter.
 - Broad credit conditions: `series_id=NFCICREDIT` and `frequency=w`, with no `units` parameter.
+- Federal budget balance: `series_id=FYFSGDA188S` and `frequency=a`, with no `units` parameter.
+- Federal debt held by the public: `series_id=FYGFGDQ188S` and `frequency=q`, with no `units` parameter.
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
@@ -145,6 +148,8 @@ Leading unavailable values are removed so generated growth files begin with a va
 - FEDFUNDS: 864 observations, July 1954–June 2026.
 - GS10: 879 observations, April 1953–June 2026; exact shared rate coverage begins July 1954.
 - NFCICREDIT: 2,897 weekly observations, January 8, 1971–July 10, 2026.
+- FYFSGDA188S: 97 annual observations, 1929–2025.
+- FYGFGDQ188S: 225 quarterly observations, 1970 Q1–2026 Q1.
 
 ## Safe replacement and failures
 

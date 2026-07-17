@@ -14,7 +14,7 @@ type FetchImplementation = typeof fetch
 
 export interface FredRequestConfig {
   providerSeriesId: string
-  fredFrequency: 'w' | 'm' | 'q'
+  fredFrequency: 'w' | 'm' | 'q' | 'a'
   historyPolicy: { type: 'full' } | { type: 'from'; date: string }
   fredUnits?: 'pc1'
 }

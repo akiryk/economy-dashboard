@@ -6,8 +6,8 @@ export interface FredSeriesConfig {
   slug: string
   outputFile: string
   providerSeriesId: string
-  frequency: Extract<EconomicFrequency, 'weekly' | 'monthly' | 'quarterly'>
-  fredFrequency: 'w' | 'm' | 'q'
+  frequency: Extract<EconomicFrequency, 'weekly' | 'monthly' | 'quarterly' | 'annual'>
+  fredFrequency: 'w' | 'm' | 'q' | 'a'
   historyPolicy: HistoryPolicy
   fredUnits?: 'pc1'
   localDerivation?: LocalDerivation
@@ -364,6 +364,46 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     transformation: 'Provider-published standardized credit subindex',
     sourceName: 'Federal Reserve Bank of Chicago via FRED',
     sourceUrl: 'https://fred.stlouisfed.org/series/NFCICREDIT',
+  },
+  {
+    dataHandling: 'provider-level',
+    id: 'federal-budget-balance',
+    slug: 'federal-budget-balance',
+    outputFile: 'src/features/economic-series/data/federal-budget-balance.json',
+    providerSeriesId: 'FYFSGDA188S',
+    frequency: 'annual',
+    fredFrequency: 'a',
+    historyPolicy: { type: 'full' },
+    minimumUsableObservations: 80,
+    title: 'Federal Surplus or Deficit as Percent of Gross Domestic Product',
+    shortTitle: 'Federal budget balance',
+    description: 'The annual federal surplus or deficit as a share of annual gross domestic product.',
+    question: 'How large is the federal budget deficit or surplus relative to the economy?',
+    units: 'Percent of GDP',
+    seasonalAdjustment: 'Not seasonally adjusted',
+    transformation: 'Provider-published ratio constructed from OMB fiscal data and annual GDP',
+    sourceName: 'U.S. Office of Management and Budget and Federal Reserve Bank of St. Louis via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/FYFSGDA188S',
+  },
+  {
+    dataHandling: 'provider-level',
+    id: 'federal-debt-held-by-public',
+    slug: 'federal-debt-held-by-public',
+    outputFile: 'src/features/economic-series/data/federal-debt-held-by-public.json',
+    providerSeriesId: 'FYGFGDQ188S',
+    frequency: 'quarterly',
+    fredFrequency: 'q',
+    historyPolicy: { type: 'full' },
+    minimumUsableObservations: 200,
+    title: 'Federal Debt Held by the Public as Percent of Gross Domestic Product',
+    shortTitle: 'Federal debt held by the public',
+    description: 'Federal debt held outside federal government accounts as a share of gross domestic product.',
+    question: 'How large is federal debt held by the public relative to the economy?',
+    units: 'Percent of GDP',
+    seasonalAdjustment: 'Seasonally adjusted',
+    transformation: 'Provider-published ratio constructed from debt held by the public and GDP',
+    sourceName: 'U.S. Office of Management and Budget, U.S. Department of the Treasury, and Federal Reserve Bank of St. Louis via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/FYGFGDQ188S',
   },
 ]
 

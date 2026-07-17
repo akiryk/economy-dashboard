@@ -17,6 +17,40 @@ interface EconomicSeriesPresentation {
 }
 
 const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
+  'federal-budget-balance': {
+    topicLabel: 'Federal budget balance',
+    latestValueLabel: 'Latest federal budget balance',
+    whatThisTellsYou:
+      'This annual flow is the federal surplus or deficit as a share of annual GDP. Negative values are deficits and positive values are surpluses. A deficit adds to borrowing needs, but it is not identical to the annual change in debt-to-GDP because GDP growth, timing, transactions, and classifications also matter.',
+    whatThisLeavesOut:
+      'The annual measure is not a real-time estimate of the current fiscal year and does not identify why a deficit or surplus occurred. A smaller negative value remains a deficit until the balance rises above zero.',
+    relatedIndicators: ['Debt held by the public', 'Interest rates', 'Economic growth'],
+    recentObservationCount: 10,
+    recentObservationsCaption: 'Ten most recent federal budget-balance observations',
+    valueColumnLabel: 'Federal budget balance, percent of GDP',
+    includeZeroInChart: true,
+    reportBelowZero: true,
+    valueFormat: 'signed-percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
+  },
+  'federal-debt-held-by-public': {
+    topicLabel: 'Federal debt',
+    latestValueLabel: 'Latest federal debt held by the public',
+    whatThisTellsYou:
+      'This stock-to-flow ratio compares federal debt held outside federal government accounts with the economy’s annual rate of output. Held-by-the-public debt includes private and foreign investors, banks, pension funds, state and local governments, and the Federal Reserve; it excludes intragovernmental holdings such as federal trust funds.',
+    whatThisLeavesOut:
+      'This is not total public debt, gross federal debt, or the percentage of GDP spent on debt. The ratio can rise because debt increases, GDP growth slows, or both, and can fall while nominal debt rises if GDP grows faster. The chart does not determine whether debt is sustainable.',
+    relatedIndicators: ['Federal budget balance', 'Interest rates', 'Economic growth'],
+    recentObservationCount: 8,
+    recentObservationsCaption: 'Eight most recent federal debt-held-by-the-public observations',
+    valueColumnLabel: 'Federal debt held by the public, percent of GDP',
+    includeZeroInChart: false,
+    reportBelowZero: false,
+    valueFormat: 'percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
+  },
   'broad-credit-conditions': {
     topicLabel: 'Credit conditions',
     latestValueLabel: 'Latest broad credit-conditions index',

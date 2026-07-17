@@ -11,6 +11,7 @@ describe('localEconomicSeriesRepository', () => {
     ['household-debt-service-ratio', 'TDSP'],
     ['quarterly-real-disposable-income-per-capita-growth', 'A229RX0Q048SBEA'],
     ['quarterly-real-consumer-spending-per-capita-growth', 'A794RX0Q048SBEA'],
+    ['federal-debt-held-by-public', 'FYGFGDQ188S'],
   ])('loads %s as a quarterly series', async (slug, providerSeriesId) => {
     const series = await localEconomicSeriesRepository.getBySlug(slug)
 
@@ -70,6 +71,11 @@ describe('localEconomicSeriesRepository', () => {
   it('loads the native-weekly broad credit-conditions index', async () => {
     await expect(localEconomicSeriesRepository.getBySlug('broad-credit-conditions'))
       .resolves.toMatchObject({ providerSeriesId: 'NFCICREDIT', frequency: 'weekly', units: 'Index' })
+  })
+
+  it('loads the annual federal budget-balance ratio', async () => {
+    await expect(localEconomicSeriesRepository.getBySlug('federal-budget-balance'))
+      .resolves.toMatchObject({ providerSeriesId: 'FYFSGDA188S', frequency: 'annual', units: 'Percent of GDP' })
   })
 
   it('returns null for an unknown slug', async () => {

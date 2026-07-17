@@ -4,7 +4,7 @@ The economic-series domain model keeps source metadata and observations together
 
 An `EconomicSeries` identifies the provider and provider series, explains the displayed units and transformation, records seasonal adjustment and frequency, and contains `EconomicObservation` entries. Each observation has an ISO date representing the economic period and a numeric or `null` value. A missing observation remains `null`; it is never treated as zero.
 
-The current domain supports quarterly GDP, GDP-per-capita, productivity, household debt-service, and business-investment series plus monthly CPI, labor-market, wage, income, spending, saving, housing-affordability, housing-construction, manufacturing, and industrial-capacity series. One provider level series can generate multiple validated outputs with distinct transformations, as headline and core CPI each do for year-over-year and three-month annualized rates. Frequency-aware presentation formats quarterly dates as `2026 Q1` and monthly dates as `June 2026` using UTC, so local timezone offsets cannot shift an economic period. Invalid and duplicate dates are rejected rather than displayed ambiguously.
+The current domain supports annual, quarterly, monthly, and weekly economic series. One provider level series can generate multiple validated outputs with distinct transformations, as headline and core CPI each do for year-over-year and three-month annualized rates. Frequency-aware presentation formats years as `2025`, quarters as `2026 Q1`, months as `June 2026`, and weeks as `Week of Jul 10, 2026` using UTC, so local timezone offsets cannot shift an economic period. Invalid and duplicate dates are rejected rather than displayed ambiguously.
 
 ## Observation date and retrieval date
 
@@ -74,10 +74,12 @@ IPMAN and MANEMP remain separate provider-level series in their native units. Th
 
 PNFIC1 remains identified as the source for locally derived real business-investment growth. The source has usable levels beginning in 2007 Q1, so exact-quarter year-over-year output begins in 2008 Q1; earlier unavailable provider rows are not reconstructed. TCU remains a separate provider-published monthly percentage level. Its non-zero-forced chart presentation does not turn utilization into a target, threshold, or judgment.
 
+The federal budget balance and federal debt held by the public remain separate provider-published percent-of-GDP ratios. The annual budget balance is a signed flow: negative values are deficits and positive values are surpluses. Debt held by the public is a quarterly stock relative to GDP and excludes intragovernmental holdings; it is not total federal debt or an annual spending share. These interpretations are presentation semantics rather than persisted labels.
+
 ## Current limitations
 
-- The application contains twenty-one visible cards backed by twenty-seven datasets. Supporting datasets used within relationship cards are not separate cards.
+- The application contains twenty-three visible cards backed by twenty-nine datasets. Supporting datasets used within relationship cards are not separate cards.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.
-- Charting currently supports monthly and quarterly percentages, signed monthly job counts, indexes, and annualized counts in thousands.
+- Charting currently supports annual, quarterly, monthly, and weekly percentages or indexes, signed monthly job counts, and annualized counts in thousands.

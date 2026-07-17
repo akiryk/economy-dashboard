@@ -87,8 +87,8 @@ The browser must not depend on live provider requests. Data should refresh throu
 
 ### Government finances
 
-- Federal deficit as a share of GDP — planned
-- Federal debt held by the public as a share of GDP — planned
+- Federal deficit as a share of GDP — complete
+- Federal debt held by the public as a share of GDP — complete
 
 ### Trade and tariffs
 
@@ -120,7 +120,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 | 16 | Add manufacturing output versus employment | Complete |
 | 17 | Add business investment and industrial activity | Complete |
 | 18 | Add financial conditions and credit stress | Complete |
-| 19 | Add government deficit and debt | Planned |
+| 19 | Add government deficit and debt | Complete |
 | 20 | Add trade flows and tariff burden | Planned |
 | 21 | Complete Phase 1 review and closeout | Planned |
 

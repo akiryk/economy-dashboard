@@ -50,6 +50,8 @@ describe('refreshEconomicData', () => {
         'provider-level',
         'provider-level',
         'provider-level',
+        'provider-level',
+        'provider-level',
       ])
     expect(payrollSeriesConfiguration).toMatchObject({
       dataHandling: 'locally-derived',
@@ -221,6 +223,15 @@ describe('refreshEconomicData', () => {
     expect(configs.GS10).toMatchObject({ frequency: 'monthly', fredFrequency: 'm', units: 'Percent', historyPolicy: { type: 'full' } })
     expect(configs.NFCICREDIT).toMatchObject({ frequency: 'weekly', fredFrequency: 'w', units: 'Index', historyPolicy: { type: 'full' } })
     expect(Object.values(configs).every((config) => config.fredUnits === undefined)).toBe(true)
+  })
+
+  it('configures Story 19 ratios as direct full-history provider values', () => {
+    const budget = fredSeriesConfigurations.find((item) => item.providerSeriesId === 'FYFSGDA188S')
+    const debt = fredSeriesConfigurations.find((item) => item.providerSeriesId === 'FYGFGDQ188S')
+    expect(budget).toMatchObject({ frequency: 'annual', fredFrequency: 'a', units: 'Percent of GDP', historyPolicy: { type: 'full' }, sourceName: expect.stringContaining('Office of Management and Budget') })
+    expect(debt).toMatchObject({ frequency: 'quarterly', fredFrequency: 'q', units: 'Percent of GDP', historyPolicy: { type: 'full' }, title: expect.stringContaining('Debt Held by the Public') })
+    expect(budget?.fredUnits).toBeUndefined()
+    expect(debt?.fredUnits).toBeUndefined()
   })
 
   it('configures both labor series as monthly provider levels without pc1', () => {
@@ -610,13 +621,13 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(15)
+    expect(outcomes).toHaveLength(17)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 15, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3, 3, 3, 3])
+    ).toEqual([3, 15, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3, 3, 3, 3, 3, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
@@ -633,10 +644,12 @@ describe('refreshEconomicData', () => {
       'FEDFUNDS',
       'GS10',
       'NFCICREDIT',
+      'FYFSGDA188S',
+      'FYGFGDQ188S',
     ])
     expect(requestedUrls[0]?.searchParams.get('units')).toBe('pc1')
     expect(requestedUrls.slice(1).map((url) => url.searchParams.has('units')))
-      .toEqual([false, false, false, false, false, false, false, false, false, false, false, false, false, false])
+      .toEqual([false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false])
     expect(
       requestedUrls.every((url) => !url.searchParams.has('observation_start')),
     ).toBe(true)

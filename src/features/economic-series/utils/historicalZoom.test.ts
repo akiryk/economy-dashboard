@@ -45,4 +45,12 @@ describe('historical zoom utilities', () => {
       'quarterly',
     )).toBe('Visible period: 1970 Q1–1977 Q4')
   })
+
+  it('formats annual visible periods through the shared zoom path', () => {
+    expect(formatHistoricalZoomPeriod(
+      [{ date: '2020-01-01' }, { date: '2025-01-01' }],
+      { startIndex: 0, endIndex: 1 },
+      'annual',
+    )).toBe('Visible period: 2020–2025')
+  })
 })

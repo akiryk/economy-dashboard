@@ -80,6 +80,8 @@ export function formatObservationPeriod(
     }).format(parsed)}`
   }
 
+  if (frequency === 'annual') return String(year)
+
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
@@ -121,6 +123,7 @@ export type EconomicValueFormat =
   | 'credit-index'
   | 'index'
   | 'percentage'
+  | 'signed-percentage'
   | 'signed-thousands'
   | 'thousands-units'
 
@@ -153,6 +156,8 @@ export function formatEconomicValue(
     ? value === null
       ? 'Unavailable'
       : value.toFixed(2)
+    : format === 'signed-percentage'
+      ? formatSignedPercentage(value)
     : format === 'signed-thousands'
     ? formatSignedThousands(value)
     : format === 'thousands-units'
