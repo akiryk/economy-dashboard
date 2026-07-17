@@ -17,6 +17,23 @@ interface EconomicSeriesPresentation {
 }
 
 const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
+  'broad-credit-conditions': {
+    topicLabel: 'Credit conditions',
+    latestValueLabel: 'Latest broad credit-conditions index',
+    whatThisTellsYou:
+      'The Chicago Fed credit subindex combines multiple credit-related measures relative to their historical averages. Zero is approximately average, positive values indicate tighter-than-average conditions, and negative values indicate looser-than-average conditions. It covers broad credit conditions rather than only corporate bonds.',
+    whatThisLeavesOut:
+      'This standardized composite is not a percentage, borrowing-rate spread, or directly observed price. It does not mean every household, bank, or business faces the same conditions, and its methodology and component relationships may evolve with source revisions.',
+    relatedIndicators: ['Interest rates', 'Business investment', 'Household debt service'],
+    recentObservationCount: 12,
+    recentObservationsCaption: 'Twelve most recent broad credit-conditions observations',
+    valueColumnLabel: 'Credit-conditions index',
+    includeZeroInChart: true,
+    reportBelowZero: true,
+    valueFormat: 'credit-index',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
+  },
   'real-business-investment-growth': {
     topicLabel: 'Business investment',
     latestValueLabel: 'Latest real business investment growth',

@@ -127,7 +127,15 @@ export function EconomicSeriesSummary({
           </span>
         </p>
         <p className="series-current__label">
-          {series.slug === 'labor-productivity-growth'
+          {series.slug === 'broad-credit-conditions'
+            ? latestObservation?.value === null || latestObservation?.value === undefined
+              ? 'Relative credit conditions unavailable'
+              : latestObservation.value > 0
+                ? 'Tighter than average'
+                : latestObservation.value < 0
+                  ? 'Looser than average'
+                  : 'Near average'
+            : series.slug === 'labor-productivity-growth'
             ? latestObservation?.value === null || latestObservation?.value === undefined
               ? 'Productivity change from a year ago is unavailable'
               : latestObservation.value < 0
@@ -195,7 +203,23 @@ export function EconomicSeriesSummary({
               onZoomChange={zoom.onChartZoom}
             />
           </Suspense>
-          {series.slug === 'real-business-investment-growth' ? (
+          {series.slug === 'broad-credit-conditions' ? (
+            <p className="chart-summary" aria-live="polite">
+              During the visible period, the credit-conditions index moved from{' '}
+              {formatValue(firstVisibleObservation?.value ?? null)} in{' '}
+              {firstVisibleObservation ? formatObservationPeriod(firstVisibleObservation.date, series.frequency) : 'an unavailable week'} to{' '}
+              {formatValue(chartSummary.latest?.value ?? null)} in{' '}
+              {chartSummary.latest ? formatObservationPeriod(chartSummary.latest.date, series.frequency) : 'an unavailable week'}. It ranged from{' '}
+              {formatValue(chartSummary.minimum?.value ?? null)} to {formatValue(chartSummary.maximum?.value ?? null)}. The latest visible value indicates{' '}
+              {chartSummary.latest?.value === null || chartSummary.latest?.value === undefined
+                ? 'unavailable relative conditions.'
+                : chartSummary.latest.value > 0
+                  ? 'tighter-than-average credit conditions.'
+                  : chartSummary.latest.value < 0
+                    ? 'looser-than-average credit conditions.'
+                    : 'conditions near their historical average.'}
+            </p>
+          ) : series.slug === 'real-business-investment-growth' ? (
             <p className="chart-summary" aria-live="polite">
               During the visible period, real business investment growth moved
               from {formatValue(firstVisibleObservation?.value ?? null)} in{' '}

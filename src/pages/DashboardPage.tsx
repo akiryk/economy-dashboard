@@ -21,6 +21,7 @@ const householdSpendingSupportingSlugs = [
   'quarterly-real-consumer-spending-per-capita-growth',
 ] as const
 const manufacturingEmploymentSupportingSlugs = ['manufacturing-employment'] as const
+const treasuryYieldSupportingSlugs = ['ten-year-treasury-yield'] as const
 
 export function DashboardPage() {
   const [loadedSeries, setLoadedSeries] = useState<
@@ -219,6 +220,25 @@ export function DashboardPage() {
         <EconomicSeriesCard
           slug="industrial-capacity-utilization"
           label="industrial capacity utilization"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+      </EconomicSection>
+
+      <EconomicSection
+        id="financial-conditions"
+        title="Financial conditions"
+        description="Interest rates and credit conditions affect borrowing costs and access to finance. Short- and long-term rates can move differently, while broader credit conditions can tighten or loosen for reasons not captured by Treasury yields alone."
+      >
+        <EconomicSeriesCard
+          slug="effective-federal-funds-rate"
+          supportingSlugs={treasuryYieldSupportingSlugs}
+          label="interest-rate conditions"
+          variant="rate-comparison"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+        <EconomicSeriesCard
+          slug="broad-credit-conditions"
+          label="broad credit conditions"
           onSeriesLoaded={handleSeriesLoaded}
         />
       </EconomicSection>

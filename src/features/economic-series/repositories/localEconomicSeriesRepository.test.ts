@@ -45,6 +45,8 @@ describe('localEconomicSeriesRepository', () => {
     ['core-cpi-three-month-annualized', 'CPILFESL'],
     ['unemployment-rate', 'UNRATE'],
     ['prime-age-employment-ratio', 'LNS12300060'],
+    ['effective-federal-funds-rate', 'FEDFUNDS'],
+    ['ten-year-treasury-yield', 'GS10'],
   ])('loads %s as a monthly series', async (slug, providerSeriesId) => {
     const series = await localEconomicSeriesRepository.getBySlug(slug)
 
@@ -56,10 +58,18 @@ describe('localEconomicSeriesRepository', () => {
     if (['UNRATE', 'LNS12300060'].includes(providerSeriesId)) {
       expect(series?.units).toBe('Percent')
       expect(series?.transformation).toBe('Level')
+    } else if (['FEDFUNDS', 'GS10'].includes(providerSeriesId)) {
+      expect(series?.units).toBe('Percent')
+      expect(series?.transformation).toContain('Provider-published monthly average')
     } else {
       expect(series?.units).toContain('Percent')
       expect(series?.transformation).toContain('calculated by the application')
     }
+  })
+
+  it('loads the native-weekly broad credit-conditions index', async () => {
+    await expect(localEconomicSeriesRepository.getBySlug('broad-credit-conditions'))
+      .resolves.toMatchObject({ providerSeriesId: 'NFCICREDIT', frequency: 'weekly', units: 'Index' })
   })
 
   it('returns null for an unknown slug', async () => {

@@ -42,13 +42,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('19 cards in 6 categories')).toBeVisible()
+    expect(within(navigation).getByText('21 cards in 7 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(19)
+    expect(links).toHaveLength(21)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -69,6 +69,8 @@ describe('DashboardPage economic series', () => {
       'Are manufacturing output and jobs moving together?',
       'Are businesses increasing investment in productive capacity?',
       'How fully is industrial capacity being used?',
+      'How do short-term and long-term interest rates compare?',
+      'Are credit conditions tighter or looser than usual?',
     ])
 
     const gdpCard = await screen.findByRole('article', {
@@ -178,7 +180,7 @@ describe('DashboardPage economic series', () => {
       'Are employers adding jobs?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(19)
+    expect(screen.getAllByRole('article')).toHaveLength(21)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'real-income-versus-spending-question',
       'personal-saving-rate-question',
@@ -196,7 +198,7 @@ describe('DashboardPage economic series', () => {
     ).not.toBeInTheDocument()
     expect(
       await screen.findByText(
-        'Latest observations range from 2026 Q1 to June 2026',
+        'Latest observations range from 2026 Q1 to Week of Jul 10, 2026',
       ),
     ).toBeVisible()
   })
@@ -1124,6 +1126,48 @@ describe('DashboardPage economic series', () => {
       }
     },
   )
+
+  it('renders the two Financial conditions cards after Business and manufacturing', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+    const business = screen.getByRole('region', { name: 'Business and manufacturing' })
+    const financial = screen.getByRole('region', { name: 'Financial conditions' })
+    expect(business.compareDocumentPosition(financial) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    const rates = await within(financial).findByRole('article', { name: 'How do short-term and long-term interest rates compare?' })
+    const credit = await within(financial).findByRole('article', { name: 'Are credit conditions tighter or looser than usual?' })
+    expect(within(financial).getAllByRole('article')).toHaveLength(2)
+    expect(within(rates).getByText('Federal funds rate: 3.6%')).toBeVisible()
+    expect(within(rates).getByText('10-year Treasury yield: 4.5%')).toBeVisible()
+    expect(within(rates).getAllByText(/above the federal funds rate/)).not.toHaveLength(0)
+    expect(within(rates).getByText(/does not mechanically predict a recession/)).toBeVisible()
+    expect(within(credit).getByLabelText('Latest broad credit-conditions index')).toHaveTextContent('-0.04')
+    expect(within(credit).getByText('Looser than average')).toBeVisible()
+    expect(within(credit).getByText(/not a percentage/)).toBeVisible()
+    expect(within(credit).getAllByText('Week of Jul 10, 2026')).not.toHaveLength(0)
+    await user.click(within(rates).getByRole('button', { name: 'Maximum' }))
+    await user.click(within(credit).getByRole('button', { name: 'Maximum' }))
+    expect(within(rates).getByText('Visible period: July 1954–June 2026')).toBeVisible()
+    expect(within(credit).getByText('Visible period: Week of Jan 8, 1971–Week of Jul 10, 2026')).toBeVisible()
+    await user.click(within(credit).getByRole('button', { name: 'Zoom in' }))
+    expect(within(credit).getByRole('button', { name: 'Reset zoom' })).toBeVisible()
+  })
+
+  it.each([
+    ['effective-federal-funds-rate', 'The interest-rate conditions data could not be loaded.', 'Are credit conditions tighter or looser than usual?'],
+    ['ten-year-treasury-yield', 'The interest-rate conditions data could not be loaded.', 'Are credit conditions tighter or looser than usual?'],
+    ['broad-credit-conditions', 'The broad credit conditions data could not be loaded.', 'How do short-term and long-term interest rates compare?'],
+  ])('isolates a %s failure within Financial conditions', async (failedSlug, message, survivor) => {
+    const original = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
+      if (slug === failedSlug) throw new Error('Invalid Story 18 fixture')
+      return original(slug)
+    })
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    render(<DashboardPage />)
+    expect(await screen.findByText(message)).toBeVisible()
+    expect(await screen.findByRole('article', { name: survivor })).toBeVisible()
+    expect(await screen.findByRole('article', { name: 'Is the U.S. economy growing?' })).toBeVisible()
+  })
 
   it.each([
     [

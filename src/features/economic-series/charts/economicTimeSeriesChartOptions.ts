@@ -36,7 +36,7 @@ interface InflationComparisonChartOptionsInput {
   headlineData: ChartDataPoint[]
   coreData: ChartDataPoint[]
   frequency: EconomicFrequency
-  variant: 'household' | 'momentum' | 'year-over-year'
+  variant: 'household' | 'momentum' | 'rates' | 'year-over-year'
   zoom?: HistoricalZoomChartConfig
 }
 
@@ -113,8 +113,12 @@ function formatTooltip(
   if (!item || !isChartDataPoint(item.value)) return seriesName
 
   const [date, value] = item.value
-  if (valueFormat === 'index') {
+  if (valueFormat === 'index' && seriesName.startsWith('Productivity')) {
     return `${formatObservationPeriod(date, frequency)}\nProductivity index, selected-range baseline = 100: ${formatEconomicValue(value, valueFormat)}\nChange since selected-range start: ${formatSignedPercentage(value === null ? null : value - 100)}`
+  }
+  if (valueFormat === 'credit-index') {
+    const condition = value === null ? 'unavailable' : value > 0 ? 'tighter than average' : value < 0 ? 'looser than average' : 'near average'
+    return `${formatObservationPeriod(date, frequency)}\nCredit-conditions index: ${formatEconomicValue(value, valueFormat)}\n${condition}`
   }
   if (seriesName === 'Productivity momentum') {
     const direction = value !== null && value < 0 ? 'lower' : 'higher'
@@ -179,7 +183,7 @@ export function createEconomicTimeSeriesChartOptions({
           ? 'Jobs (thousands)'
           : valueFormat === 'thousands-units'
             ? 'Units (thousands, annual rate)'
-          : valueFormat === 'index'
+          : valueFormat === 'index' || valueFormat === 'credit-index'
             ? 'Index'
             : 'Percent',
       nameLocation: 'end',
@@ -193,7 +197,7 @@ export function createEconomicTimeSeriesChartOptions({
             ? '{value}K'
             : valueFormat === 'thousands-units'
               ? '{value}K'
-            : valueFormat === 'index'
+            : valueFormat === 'index' || valueFormat === 'credit-index'
               ? '{value}'
               : '{value}%',
       },
@@ -347,12 +351,17 @@ export function createInflationComparisonChartOptions({
 }: InflationComparisonChartOptionsInput): EChartsCoreOption {
   const momentum = variant === 'momentum'
   const household = variant === 'household'
-  const headlineName = household
+  const rates = variant === 'rates'
+  const headlineName = rates
+    ? 'Effective federal funds rate'
+    : household
     ? 'Real disposable income per person growth'
     : momentum
     ? 'Headline CPI, 3-month annualized'
     : 'Headline CPI inflation'
-  const coreName = household
+  const coreName = rates
+    ? '10-year Treasury yield'
+    : household
     ? 'Real consumer spending per person growth'
     : momentum
     ? 'Core CPI, 3-month annualized'
@@ -403,7 +412,7 @@ export function createInflationComparisonChartOptions({
           const difference =
             headline !== null && core !== null ? core - headline : null
           lines.push(
-            `${household ? 'Spending minus income growth' : 'Difference'}: ${household ? formatSignedPercentagePoints(difference) : formatSignedPercentage(difference)} percentage points`,
+            `${household ? 'Spending minus income growth' : rates ? '10-year minus federal funds' : 'Difference'}: ${household || rates ? formatSignedPercentagePoints(difference) : formatSignedPercentage(difference)} percentage points`,
           )
         }
         return lines.join('\n')

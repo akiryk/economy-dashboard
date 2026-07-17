@@ -47,6 +47,9 @@ describe('refreshEconomicData', () => {
         'provider-level',
         'locally-derived',
         'provider-level',
+        'provider-level',
+        'provider-level',
+        'provider-level',
       ])
     expect(payrollSeriesConfiguration).toMatchObject({
       dataHandling: 'locally-derived',
@@ -206,6 +209,18 @@ describe('refreshEconomicData', () => {
       { date: '2026-02-01', value: null },
       { date: '2026-03-01', value: 77.5 },
     ])
+  })
+
+  it('configures Story 18 sources as direct full-history provider levels', () => {
+    const configs = Object.fromEntries(
+      fredSeriesConfigurations
+        .filter((item) => ['FEDFUNDS', 'GS10', 'NFCICREDIT'].includes(item.providerSeriesId))
+        .map((item) => [item.providerSeriesId, item]),
+    )
+    expect(configs.FEDFUNDS).toMatchObject({ frequency: 'monthly', fredFrequency: 'm', units: 'Percent', historyPolicy: { type: 'full' } })
+    expect(configs.GS10).toMatchObject({ frequency: 'monthly', fredFrequency: 'm', units: 'Percent', historyPolicy: { type: 'full' } })
+    expect(configs.NFCICREDIT).toMatchObject({ frequency: 'weekly', fredFrequency: 'w', units: 'Index', historyPolicy: { type: 'full' } })
+    expect(Object.values(configs).every((config) => config.fredUnits === undefined)).toBe(true)
   })
 
   it('configures both labor series as monthly provider levels without pc1', () => {
@@ -595,13 +610,13 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(12)
+    expect(outcomes).toHaveLength(15)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 15, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3])
+    ).toEqual([3, 15, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3, 3, 3, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
@@ -615,10 +630,13 @@ describe('refreshEconomicData', () => {
       'MANEMP',
       'PNFIC1',
       'TCU',
+      'FEDFUNDS',
+      'GS10',
+      'NFCICREDIT',
     ])
     expect(requestedUrls[0]?.searchParams.get('units')).toBe('pc1')
     expect(requestedUrls.slice(1).map((url) => url.searchParams.has('units')))
-      .toEqual([false, false, false, false, false, false, false, false, false, false, false])
+      .toEqual([false, false, false, false, false, false, false, false, false, false, false, false, false, false])
     expect(
       requestedUrls.every((url) => !url.searchParams.has('observation_start')),
     ).toBe(true)

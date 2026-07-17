@@ -42,7 +42,7 @@ Heading hierarchy, native controls, visible focus, nonvisual chart summaries, so
 
 ## Current organization decisions
 
-The implemented sections are Growth, Prices, Employment and income, and Households. Future sections may include housing, business and manufacturing, government, financial conditions, and expectations versus outcomes, but they are not displayed until they contain real indicators.
+The implemented sections are Growth, Prices, Employment and income, Households, Housing, Business and manufacturing, and Financial conditions. Future sections may include government and expectations versus outcomes, but they are not displayed until they contain real indicators.
 
 Employment and income pairs unemployment with prime-age employment-to-population ratio as separate cards. Presenting complementary measures together adds context without combining them into a labor-market score.
 

@@ -76,7 +76,7 @@ PNFIC1 remains identified as the source for locally derived real business-invest
 
 ## Current limitations
 
-- The application contains nineteen visible cards backed by twenty-four datasets. Supporting datasets used within relationship cards are not separate cards.
+- The application contains twenty-one visible cards backed by twenty-seven datasets. Supporting datasets used within relationship cards are not separate cards.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.

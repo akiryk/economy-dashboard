@@ -74,6 +74,13 @@ interface HouseholdComparisonChartProps extends SharedZoomProps {
   frequency: EconomicFrequency
 }
 
+interface RateComparisonChartProps extends SharedZoomProps {
+  kind: 'rate-comparison'
+  federalFundsObservations: readonly EconomicObservation[]
+  treasuryObservations: readonly EconomicObservation[]
+  frequency: EconomicFrequency
+}
+
 interface ManufacturingComparisonChartProps extends SharedZoomProps {
   kind: 'manufacturing-comparison'
   outputObservations: readonly EconomicObservation[]
@@ -86,6 +93,7 @@ export type EconomicTimeSeriesChartProps =
   | ComparisonChartProps
   | InflationComparisonChartProps
   | HouseholdComparisonChartProps
+  | RateComparisonChartProps
   | ManufacturingComparisonChartProps
 
 export default function EconomicTimeSeriesChart(
@@ -117,6 +125,11 @@ export default function EconomicTimeSeriesChart(
       kind: 'manufacturing-comparison' as const,
       output: adaptObservationsToChartData(props.outputObservations),
       employment: adaptObservationsToChartData(props.employmentObservations),
+    }
+    if (props.kind === 'rate-comparison') return {
+      kind: 'rate-comparison' as const,
+      federalFunds: adaptObservationsToChartData(props.federalFundsObservations),
+      treasury: adaptObservationsToChartData(props.treasuryObservations),
     }
     return {
       kind: 'household-comparison' as const,
@@ -214,6 +227,14 @@ export default function EconomicTimeSeriesChart(
                       frequency: props.frequency,
                       zoom: { startValue: props.zoomStartDate, endValue: props.zoomEndDate },
                     })
+                  : props.kind === 'rate-comparison' && chartData.kind === 'rate-comparison'
+                    ? createInflationComparisonChartOptions({
+                        headlineData: chartData.federalFunds,
+                        coreData: chartData.treasury,
+                        frequency: props.frequency,
+                        variant: 'rates',
+                        zoom: { startValue: props.zoomStartDate, endValue: props.zoomEndDate },
+                      })
             : null
       if (options) chart.setOption(options, { notMerge: true })
     } catch (error: unknown) {
@@ -244,6 +265,8 @@ export default function EconomicTimeSeriesChart(
               ? 'Quarterly real disposable income per person growth and real consumer spending per person growth comparison chart'
               : props.kind === 'manufacturing-comparison'
                 ? 'Manufacturing output and employment normalized comparison chart'
+              : props.kind === 'rate-comparison'
+                ? 'Effective federal funds rate and 10-year Treasury yield comparison chart'
               : props.variant === 'momentum'
               ? 'Headline and core CPI three-month annualized inflation comparison chart'
               : 'Headline and core CPI year-over-year inflation comparison chart'

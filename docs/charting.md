@@ -12,7 +12,9 @@ The implementation uses ECharts 6 modular core imports and registers only the li
 
 Economic observations remain `{ date, value }` domain objects. Pure range and summary utilities operate on those objects. Immediately before rendering, `chartAdapters.ts` sorts without mutation and converts each observation to ECharts-compatible `[date, value]` data. `null` remains `null`, so missing observations are neither converted to zero nor joined by the line.
 
-The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage and count data use the same UTC-safe period formatter without conflating their meanings. All nineteen current cards dynamically import the same chart module; ECharts is not duplicated.
+The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage, index, and count data use the same UTC-safe period formatter without conflating their meanings. All twenty-one current cards dynamically import the same chart module; ECharts is not duplicated.
+
+Story 18 adds native weekly labels and range/zoom support through the existing frequency-aware utilities. The interest-rate relationship aligns FEDFUNDS and GS10 by exact month, plots both on one zero-inclusive percentage axis, and calculates GS10 minus FEDFUNDS only in its presentation model. The NFCICREDIT chart retains native weekly observations and includes the meaningful zero line; positive values are described only with the source-defined tighter-than-average wording and negative values as looser than average. Both cards reuse the shared historical-zoom controller.
 
 The same deferred boundary accepts either one series or the wages-versus-inflation comparison. The comparison uses solid nominal wage growth and dashed headline CPI inflation on one shared percentage axis with a concise legend and zero reference line. Dual axes are intentionally avoided. Its tooltip includes the aligned month, both plotted rates, and exact-ratio real wage growth. Both lines use the same latest shared month and selected range.
 
@@ -109,3 +111,5 @@ With Story 13A applied after Story 16, the initial application chunk is 361.71 k
 With Story 09A applied after Story 13A, the initial application chunk is 366.30 kB minified (107.96 kB gzip). Registering ECharts `DataZoomComponent` increases the one shared deferred chart/ECharts chunk to 581.31 kB minified (193.99 kB gzip). No second wrapper or ECharts bundle is emitted; Vite continues to report the established deferred-chunk warning.
 
 With Story 17, the initial application chunk is 371.17 kB minified (108.97 kB gzip). Real business-investment growth and industrial capacity-utilization are separate 4.48 kB (1.74 kB gzip) and 25.22 kB (5.50 kB gzip) data chunks. The one shared deferred chart/ECharts chunk remains 581.31 kB minified (193.98 kB gzip); ECharts remains deduplicated and the established deferred-chunk warning remains.
+
+With Story 18, the initial application chunk is 381.20 kB minified (110.75 kB gzip). FEDFUNDS, GS10, and NFCICREDIT are separate 27.58 kB (4.65 kB gzip), 28.28 kB (4.98 kB gzip), and 92.82 kB (17.38 kB gzip) data chunks. The one shared deferred chart/ECharts chunk is 582.10 kB minified (194.19 kB gzip); ECharts remains deduplicated and the established deferred-chunk warning remains.

@@ -82,8 +82,8 @@ The browser must not depend on live provider requests. Data should refresh throu
 
 ### Financial conditions
 
-- Federal funds rate versus 10-year Treasury yield — planned
-- Broad corporate credit spread — planned
+- Federal funds rate versus 10-year Treasury yield — complete
+- Broad credit stress — complete using the Chicago Fed `NFCICREDIT` credit subindex as the approved non-proprietary substitute for a corporate credit spread
 
 ### Government finances
 
@@ -119,7 +119,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 | 15 | Add housing affordability and construction | Complete |
 | 16 | Add manufacturing output versus employment | Complete |
 | 17 | Add business investment and industrial activity | Complete |
-| 18 | Add financial conditions and credit stress | Planned |
+| 18 | Add financial conditions and credit stress | Complete |
 | 19 | Add government deficit and debt | Planned |
 | 20 | Add trade flows and tariff burden | Planned |
 | 21 | Complete Phase 1 review and closeout | Planned |

@@ -42,6 +42,11 @@ const localSeriesLoaders: Readonly<
     import('../data/real-business-investment-growth.json'),
   'industrial-capacity-utilization': () =>
     import('../data/industrial-capacity-utilization.json'),
+  'effective-federal-funds-rate': () =>
+    import('../data/effective-federal-funds-rate.json'),
+  'ten-year-treasury-yield': () =>
+    import('../data/ten-year-treasury-yield.json'),
+  'broad-credit-conditions': () => import('../data/broad-credit-conditions.json'),
 }
 
 export const localEconomicSeriesRepository: EconomicSeriesRepository = {

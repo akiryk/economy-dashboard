@@ -71,6 +71,15 @@ export function formatObservationPeriod(
     return `${year} Q${quarter}`
   }
 
+  if (frequency === 'weekly') {
+    return `Week of ${new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      timeZone: 'UTC',
+    }).format(parsed)}`
+  }
+
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
@@ -109,6 +118,7 @@ export function formatSignedPercentagePoints(value: number | null): string {
 }
 
 export type EconomicValueFormat =
+  | 'credit-index'
   | 'index'
   | 'percentage'
   | 'signed-thousands'
@@ -139,7 +149,11 @@ export function formatEconomicValue(
   value: number | null,
   format: EconomicValueFormat,
 ): string {
-  return format === 'signed-thousands'
+  return format === 'credit-index'
+    ? value === null
+      ? 'Unavailable'
+      : value.toFixed(2)
+    : format === 'signed-thousands'
     ? formatSignedThousands(value)
     : format === 'thousands-units'
       ? value === null

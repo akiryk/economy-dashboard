@@ -6,8 +6,8 @@ export interface FredSeriesConfig {
   slug: string
   outputFile: string
   providerSeriesId: string
-  frequency: Extract<EconomicFrequency, 'monthly' | 'quarterly'>
-  fredFrequency: 'm' | 'q'
+  frequency: Extract<EconomicFrequency, 'weekly' | 'monthly' | 'quarterly'>
+  fredFrequency: 'w' | 'm' | 'q'
   historyPolicy: HistoryPolicy
   fredUnits?: 'pc1'
   localDerivation?: LocalDerivation
@@ -304,6 +304,66 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     transformation: 'Provider-published level',
     sourceName: 'Board of Governors of the Federal Reserve System via FRED',
     sourceUrl: 'https://fred.stlouisfed.org/series/TCU',
+  },
+  {
+    dataHandling: 'provider-level',
+    id: 'effective-federal-funds-rate',
+    slug: 'effective-federal-funds-rate',
+    outputFile: 'src/features/economic-series/data/effective-federal-funds-rate.json',
+    providerSeriesId: 'FEDFUNDS',
+    frequency: 'monthly',
+    fredFrequency: 'm',
+    historyPolicy: { type: 'full' },
+    minimumUsableObservations: 600,
+    title: 'Federal Funds Effective Rate',
+    shortTitle: 'Effective federal funds rate',
+    description: 'The monthly average of the effective overnight federal funds rate.',
+    question: 'How do short-term and long-term interest rates compare?',
+    units: 'Percent',
+    seasonalAdjustment: 'Not seasonally adjusted',
+    transformation: 'Provider-published monthly average of daily figures',
+    sourceName: 'Board of Governors of the Federal Reserve System via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/FEDFUNDS',
+  },
+  {
+    dataHandling: 'provider-level',
+    id: 'ten-year-treasury-yield',
+    slug: 'ten-year-treasury-yield',
+    outputFile: 'src/features/economic-series/data/ten-year-treasury-yield.json',
+    providerSeriesId: 'GS10',
+    frequency: 'monthly',
+    fredFrequency: 'm',
+    historyPolicy: { type: 'full' },
+    minimumUsableObservations: 600,
+    title: 'Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity',
+    shortTitle: '10-year Treasury yield',
+    description: 'The monthly average market yield on 10-year constant-maturity Treasury securities.',
+    question: 'How do short-term and long-term interest rates compare?',
+    units: 'Percent',
+    seasonalAdjustment: 'Not seasonally adjusted',
+    transformation: 'Provider-published monthly average of business-day yields',
+    sourceName: 'Board of Governors of the Federal Reserve System using U.S. Treasury market data via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/GS10',
+  },
+  {
+    dataHandling: 'provider-level',
+    id: 'broad-credit-conditions',
+    slug: 'broad-credit-conditions',
+    outputFile: 'src/features/economic-series/data/broad-credit-conditions.json',
+    providerSeriesId: 'NFCICREDIT',
+    frequency: 'weekly',
+    fredFrequency: 'w',
+    historyPolicy: { type: 'full' },
+    minimumUsableObservations: 1000,
+    title: 'Chicago Fed National Financial Conditions Credit Subindex',
+    shortTitle: 'Broad credit conditions',
+    description: 'A standardized weekly index of broad U.S. credit conditions relative to historical averages.',
+    question: 'Are credit conditions tighter or looser than usual?',
+    units: 'Index',
+    seasonalAdjustment: 'Not seasonally adjusted',
+    transformation: 'Provider-published standardized credit subindex',
+    sourceName: 'Federal Reserve Bank of Chicago via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/NFCICREDIT',
   },
 ]
 

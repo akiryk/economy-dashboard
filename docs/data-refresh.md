@@ -30,10 +30,14 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Manufacturing employment (`MANEMP`, monthly), written as the provider-published level in thousands to `manufacturing-employment.json`.
 - Real business investment (`PNFIC1`, quarterly source level), derived into exact-quarter year-over-year growth in `real-business-investment-growth.json`.
 - Industrial capacity utilization (`TCU`, monthly), written as the provider-published percentage level to `industrial-capacity-utilization.json`.
+- Effective federal funds rate and 10-year Treasury yield (`FEDFUNDS` and `GS10`, monthly), written as separate provider-published percentage levels and aligned only for presentation.
+- Broad credit conditions (`NFCICREDIT`, weekly), written as the provider-published standardized index to `broad-credit-conditions.json`.
 
 The narrow `scripts/atlantaFed/hoamWorkbook.ts` path downloads the official national HOAM workbook and writes `home-ownership-cost-share.json`; it is intentionally separate from the FRED configuration list.
 
 This is a small configuration boundary, not dynamic discovery or a plugin system.
+
+`NFCICREDIT` is the approved broad-credit-stress measure. It provides a long, redistributable Chicago Fed history focused on credit conditions. It replaces the Epic's contemplated corporate credit spread because current ICE BofA FRED exposure is short and licensed, Moody's terms restrict redistribution and storage, and a high-yield-only spread would cover only speculative-grade borrowers. The overall NFCI is not used because the separate rate card already covers interest-rate conditions.
 
 ## Provider requests
 
@@ -69,6 +73,9 @@ The series-specific requests are:
 - Manufacturing employment: `series_id=MANEMP` and `frequency=m`, with no `units` parameter.
 - Real business investment: `series_id=PNFIC1` and `frequency=q`, with no `units` parameter.
 - Industrial capacity utilization: `series_id=TCU` and `frequency=m`, with no `units` parameter.
+- Effective federal funds rate: `series_id=FEDFUNDS` and `frequency=m`, with no `units` parameter.
+- 10-year Treasury yield: `series_id=GS10` and `frequency=m`, with no `units` parameter.
+- Broad credit conditions: `series_id=NFCICREDIT` and `frequency=w`, with no `units` parameter.
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
@@ -135,6 +142,9 @@ Leading unavailable values are removed so generated growth files begin with a va
 - MANEMP: 1,050 observations, January 1939–June 2026.
 - PNFIC1 source: 77 usable level observations, 2007 Q1–2026 Q1; generated growth: 73 observations, 2008 Q1–2026 Q1.
 - TCU: 713 observations, January 1967–May 2026.
+- FEDFUNDS: 864 observations, July 1954–June 2026.
+- GS10: 879 observations, April 1953–June 2026; exact shared rate coverage begins July 1954.
+- NFCICREDIT: 2,897 weekly observations, January 8, 1971–July 10, 2026.
 
 ## Safe replacement and failures
 
