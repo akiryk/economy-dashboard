@@ -187,4 +187,4 @@ scripts/
   writeEconomicSeries.ts
 ```
 
-The root also contains Vite, TypeScript, and ESLint configuration. The existing `epics/` directory contains the broader product plan and is intentionally preserved.
+The root also contains Vite, TypeScript, and ESLint configuration. The `docs/epics/` and `docs/stories/` directories contain the broader product plan and implementation stories.
