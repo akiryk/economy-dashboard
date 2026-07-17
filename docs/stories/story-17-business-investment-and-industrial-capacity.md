@@ -2,7 +2,7 @@
 
 ## Status
 
-Planned.
+Complete.
 
 ## User story
 
@@ -41,7 +41,12 @@ Use FRED as the intermediary for both official series.
 - **Seasonal adjustment:** Seasonally adjusted annual rate
 - **Source transformation:** Provider-published real level
 - **Displayed transformation:** Locally calculated exact-quarter year-over-year growth
-- **History policy:** Full useful available history, beginning in 1947
+- **History policy:** Full useful available history, currently beginning in 2007 Q1
+
+FRED's current `PNFIC1` source level begins in 2007 Q1. The locally derived
+year-over-year growth series therefore begins in 2008 Q1. Maximum must show
+that complete available source-derived history; do not reconstruct earlier
+values from other series.
 
 Use real rather than nominal investment so inflation does not masquerade as growth.
 
@@ -166,7 +171,7 @@ Use the established single-series quarterly growth chart:
 - no smoothing;
 - gaps remain disconnected;
 - 5y, 10y, 20y, and Maximum;
-- Maximum shows full generated history beginning around 1948;
+- Maximum shows the full generated history beginning in 2008 Q1;
 - Story 09A zoom and reset behavior are inherited through the shared chart boundary;
 - zoom does not recalculate growth values;
 - accessible factual summary;
@@ -439,7 +444,7 @@ Verify in a real browser that:
 - both cards appear in the existing section;
 - each question matches its chart;
 - latest values and periods format correctly;
-- business-investment Maximum reaches approximately 1948;
+- business-investment Maximum reaches the first derived observation in 2008 Q1;
 - capacity-utilization Maximum reaches approximately 1967;
 - all presets work;
 - shared historical zoom and Reset zoom work;

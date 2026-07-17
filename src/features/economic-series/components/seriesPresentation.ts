@@ -17,6 +17,42 @@ interface EconomicSeriesPresentation {
 }
 
 const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
+  'real-business-investment-growth': {
+    topicLabel: 'Business investment',
+    latestValueLabel: 'Latest real business investment growth',
+    whatThisTellsYou:
+      'This series shows how inflation-adjusted private business spending on nonresidential structures, equipment, and intellectual-property products changed from the same quarter one year earlier. A positive rate means the real investment flow is still rising; a falling positive rate means it is rising more slowly. This is productive-asset spending, not purchases of stocks, bonds, or other financial assets.',
+    whatThisLeavesOut:
+      'The measure is a flow of investment spending rather than the total stock of productive assets. It excludes housing and government investment, can conceal differences among industries and investment categories, and does not identify why investment strengthened or weakened.',
+    relatedIndicators: ['Manufacturing output', 'Capacity utilization', 'Productivity'],
+    recentObservationCount: 8,
+    recentObservationsCaption:
+      'Eight most recent real business investment growth observations',
+    valueColumnLabel: 'Year-over-year real investment growth',
+    includeZeroInChart: true,
+    reportBelowZero: true,
+    valueFormat: 'percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
+  },
+  'industrial-capacity-utilization': {
+    topicLabel: 'Industrial activity',
+    latestValueLabel: 'Latest industrial capacity utilization',
+    whatThisTellsYou:
+      'Capacity utilization estimates industrial output as a share of the Federal Reserve estimate of sustainable maximum output for manufacturing, mining, and electric and gas utilities. Higher values mean less spare industrial capacity, not necessarily a healthier economy.',
+    whatThisLeavesOut:
+      'This measure covers the industrial sector rather than the whole economy and does not directly measure investment. High utilization can accompany strong demand, bottlenecks, or price pressure; low utilization can reflect weak output or newly added capacity. No particular value is treated as a target or a verdict.',
+    relatedIndicators: ['Manufacturing output', 'Business investment', 'Inflation'],
+    recentObservationCount: 12,
+    recentObservationsCaption:
+      'Twelve most recent industrial capacity-utilization observations',
+    valueColumnLabel: 'Capacity utilization',
+    includeZeroInChart: false,
+    reportBelowZero: false,
+    valueFormat: 'percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
+  },
   'home-ownership-cost-share': {
     topicLabel: 'Housing affordability',
     latestValueLabel: 'Latest modeled annual ownership cost share',

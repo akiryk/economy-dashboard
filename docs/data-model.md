@@ -4,7 +4,7 @@ The economic-series domain model keeps source metadata and observations together
 
 An `EconomicSeries` identifies the provider and provider series, explains the displayed units and transformation, records seasonal adjustment and frequency, and contains `EconomicObservation` entries. Each observation has an ISO date representing the economic period and a numeric or `null` value. A missing observation remains `null`; it is never treated as zero.
 
-The current domain supports quarterly GDP, GDP-per-capita, productivity, and household debt-service series plus monthly CPI, labor-market, wage, income, spending, saving, housing-affordability, and housing-construction series. One provider level series can generate multiple validated outputs with distinct transformations, as headline and core CPI each do for year-over-year and three-month annualized rates. Frequency-aware presentation formats quarterly dates as `2026 Q1` and monthly dates as `June 2026` using UTC, so local timezone offsets cannot shift an economic period. Invalid and duplicate dates are rejected rather than displayed ambiguously.
+The current domain supports quarterly GDP, GDP-per-capita, productivity, household debt-service, and business-investment series plus monthly CPI, labor-market, wage, income, spending, saving, housing-affordability, housing-construction, manufacturing, and industrial-capacity series. One provider level series can generate multiple validated outputs with distinct transformations, as headline and core CPI each do for year-over-year and three-month annualized rates. Frequency-aware presentation formats quarterly dates as `2026 Q1` and monthly dates as `June 2026` using UTC, so local timezone offsets cannot shift an economic period. Invalid and duplicate dates are rejected rather than displayed ambiguously.
 
 ## Observation date and retrieval date
 
@@ -12,7 +12,7 @@ An observation date identifies the economic period measured. For quarterly GDP, 
 
 The series-level `retrievedAt` date records when this particular local snapshot was downloaded. Economic estimates are revised, so two snapshots with the same observation dates can contain different values.
 
-Observation coverage is series-specific. Maximum history is not a shared common date range: the payroll derivatives begin in 1939, while the current direct series begin in 1948. Series details expose the actual earliest and latest included periods.
+Observation coverage is series-specific. Maximum history is not a shared common date range: manufacturing employment and payroll derivatives begin in 1939, capacity utilization begins in 1967, and locally derived business-investment growth begins in 2008 Q1. Series details expose the actual earliest and latest included periods.
 
 ## Repository boundary
 
@@ -48,7 +48,7 @@ The primary `payroll-growth` and supporting `monthly-payroll-change` series use 
 
 ## Single-source quarterly growth
 
-Real GDP per capita growth and labor productivity growth are locally derived from single official provider level series. Each generated series preserves the level series’ FRED identifier and source attribution, while its description and transformation state that the displayed year-over-year rate is calculated by the application. This avoids implying that FRED directly supplied the exact displayed values.
+Real GDP per capita growth, labor productivity growth, and real business investment growth are locally derived from single official provider level series. Each generated series preserves the level series’ FRED identifier and source attribution, while its description and transformation state that the displayed year-over-year rate is calculated by the application. This avoids implying that FRED directly supplied the exact displayed values.
 
 The derivation compares a quarterly level only with the observation at the exact calendar quarter one year earlier. Missing levels or a missing prior-year quarter produce `null`; the calculation never substitutes the fourth previous array item or bridges a calendar gap. Leading unavailable values are omitted after derivation, while internal unavailable values remain in the unchanged `{ date, value }` observation shape.
 
@@ -72,9 +72,11 @@ The Atlanta Fed HOAM output uses the same observation shape after its official a
 
 IPMAN and MANEMP remain separate provider-level series in their native units. Their relationship view aligns exact months and independently normalizes each line to 100 at the first shared valid selected-range observation. Aligned observations, normalized values, cumulative changes, and comparison gaps are presentation models and are not persisted.
 
+PNFIC1 remains identified as the source for locally derived real business-investment growth. The source has usable levels beginning in 2007 Q1, so exact-quarter year-over-year output begins in 2008 Q1; earlier unavailable provider rows are not reconstructed. TCU remains a separate provider-published monthly percentage level. Its non-zero-forced chart presentation does not turn utilization into a target, threshold, or judgment.
+
 ## Current limitations
 
-- The application contains seventeen visible cards backed by twenty-two datasets. Supporting datasets used within relationship cards are not separate cards.
+- The application contains nineteen visible cards backed by twenty-four datasets. Supporting datasets used within relationship cards are not separate cards.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.

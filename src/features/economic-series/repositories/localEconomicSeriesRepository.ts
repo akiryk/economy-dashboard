@@ -38,6 +38,10 @@ const localSeriesLoaders: Readonly<
   'manufacturing-output': () => import('../data/manufacturing-output.json'),
   'manufacturing-employment': () =>
     import('../data/manufacturing-employment.json'),
+  'real-business-investment-growth': () =>
+    import('../data/real-business-investment-growth.json'),
+  'industrial-capacity-utilization': () =>
+    import('../data/industrial-capacity-utilization.json'),
 }
 
 export const localEconomicSeriesRepository: EconomicSeriesRepository = {

@@ -37,6 +37,25 @@ interface EconomicSeriesSummaryProps {
   supportingSeries?: EconomicSeries | null
 }
 
+function describeInvestmentDirection(
+  firstValue: number | null | undefined,
+  latestValue: number | null | undefined,
+): string {
+  if (latestValue === null || latestValue === undefined) {
+    return 'The latest visible year-over-year direction is unavailable.'
+  }
+  if (latestValue < 0) {
+    return 'The latest visible value is negative, so the real investment level is below its year-earlier level.'
+  }
+  if (latestValue === 0) {
+    return 'The latest visible value is zero, so the real investment level is unchanged from one year earlier.'
+  }
+  if (firstValue !== null && firstValue !== undefined && latestValue < firstValue) {
+    return 'The latest visible value remains positive, so real investment is still above its year-earlier level even though its growth rate is slower than at the visible period’s start.'
+  }
+  return 'The latest visible value is positive, so the real investment level is above its year-earlier level.'
+}
+
 export function EconomicSeriesSummary({
   series,
   supportingSeries,
@@ -176,7 +195,51 @@ export function EconomicSeriesSummary({
               onZoomChange={zoom.onChartZoom}
             />
           </Suspense>
-          {series.slug === 'housing-starts' ? (
+          {series.slug === 'real-business-investment-growth' ? (
+            <p className="chart-summary" aria-live="polite">
+              During the visible period, real business investment growth moved
+              from {formatValue(firstVisibleObservation?.value ?? null)} in{' '}
+              {firstVisibleObservation
+                ? formatObservationPeriod(firstVisibleObservation.date, series.frequency)
+                : 'an unavailable quarter'} to{' '}
+              {formatValue(chartSummary.latest?.value ?? null)} in{' '}
+              {chartSummary.latest
+                ? formatObservationPeriod(chartSummary.latest.date, series.frequency)
+                : 'an unavailable quarter'}. It ranged from{' '}
+              {formatValue(chartSummary.minimum?.value ?? null)} in{' '}
+              {chartSummary.minimum
+                ? formatObservationPeriod(chartSummary.minimum.date, series.frequency)
+                : 'an unavailable quarter'} to{' '}
+              {formatValue(chartSummary.maximum?.value ?? null)} in{' '}
+              {chartSummary.maximum
+                ? formatObservationPeriod(chartSummary.maximum.date, series.frequency)
+                : 'an unavailable quarter'}.{' '}
+              {describeInvestmentDirection(
+                firstVisibleObservation?.value,
+                chartSummary.latest?.value,
+              )}
+            </p>
+          ) : series.slug === 'industrial-capacity-utilization' ? (
+            <p className="chart-summary" aria-live="polite">
+              During the visible period, industrial capacity utilization moved
+              from {formatValue(firstVisibleObservation?.value ?? null)} in{' '}
+              {firstVisibleObservation
+                ? formatObservationPeriod(firstVisibleObservation.date, series.frequency)
+                : 'an unavailable month'} to{' '}
+              {formatValue(chartSummary.latest?.value ?? null)} in{' '}
+              {chartSummary.latest
+                ? formatObservationPeriod(chartSummary.latest.date, series.frequency)
+                : 'an unavailable month'}. The visible minimum was{' '}
+              {formatValue(chartSummary.minimum?.value ?? null)} in{' '}
+              {chartSummary.minimum
+                ? formatObservationPeriod(chartSummary.minimum.date, series.frequency)
+                : 'an unavailable month'}, and the visible maximum was{' '}
+              {formatValue(chartSummary.maximum?.value ?? null)} in{' '}
+              {chartSummary.maximum
+                ? formatObservationPeriod(chartSummary.maximum.date, series.frequency)
+                : 'an unavailable month'}.
+            </p>
+          ) : series.slug === 'housing-starts' ? (
             <p className="chart-summary" aria-live="polite">
               For the visible period, housing starts began at{' '}
               {formatValue(firstVisibleObservation?.value ?? null)} in{' '}

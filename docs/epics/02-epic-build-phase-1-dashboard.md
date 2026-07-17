@@ -47,7 +47,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 - Real GDP growth — complete
 - Real GDP per capita — complete
 - Labor productivity — complete
-- Broad business investment — planned
+- Broad business investment — complete
 
 ### Prices and inflation
 
@@ -77,8 +77,8 @@ The browser must not depend on live provider requests. Data should refresh throu
 ### Business and manufacturing
 
 - Manufacturing output versus manufacturing employment — complete
-- Industrial production or capacity utilization — planned
-- Business investment — planned
+- Industrial production or capacity utilization — complete (capacity utilization)
+- Business investment — complete
 
 ### Financial conditions
 
@@ -118,7 +118,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 | 14 | Add household financial stress | Complete |
 | 15 | Add housing affordability and construction | Complete |
 | 16 | Add manufacturing output versus employment | Complete |
-| 17 | Add business investment and industrial activity | Planned |
+| 17 | Add business investment and industrial activity | Complete |
 | 18 | Add financial conditions and credit stress | Planned |
 | 19 | Add government deficit and debt | Planned |
 | 20 | Add trade flows and tariff burden | Planned |

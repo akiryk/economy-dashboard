@@ -7,6 +7,7 @@ describe('localEconomicSeriesRepository', () => {
     ['real-gdp-per-capita-growth', 'A939RX0Q048SBEA'],
     ['labor-productivity-growth', 'OPHNFB'],
     ['labor-productivity-level', 'OPHNFB'],
+    ['real-business-investment-growth', 'PNFIC1'],
     ['household-debt-service-ratio', 'TDSP'],
     ['quarterly-real-disposable-income-per-capita-growth', 'A229RX0Q048SBEA'],
     ['quarterly-real-consumer-spending-per-capita-growth', 'A794RX0Q048SBEA'],
@@ -28,6 +29,7 @@ describe('localEconomicSeriesRepository', () => {
     ['housing-starts', 'HOUST'],
     ['manufacturing-output', 'IPMAN'],
     ['manufacturing-employment', 'MANEMP'],
+    ['industrial-capacity-utilization', 'TCU'],
   ])('loads the Story 15 %s series', async (slug, providerSeriesId) => {
     await expect(localEconomicSeriesRepository.getBySlug(slug)).resolves.toMatchObject({
       slug,

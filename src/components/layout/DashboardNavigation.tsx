@@ -89,6 +89,14 @@ const navigationGroups = [
         id: 'manufacturing-output-versus-employment-card',
         title: 'Are manufacturing output and jobs moving together?',
       },
+      {
+        id: 'real-business-investment-growth-card',
+        title: 'Are businesses increasing investment in productive capacity?',
+      },
+      {
+        id: 'industrial-capacity-utilization-card',
+        title: 'How fully is industrial capacity being used?',
+      },
     ],
   },
 ] as const
@@ -103,7 +111,7 @@ export function DashboardNavigation() {
         <summary>
           <span id="dashboard-navigation-heading">Explore all indicators</span>
           <span className="dashboard-navigation__summary-detail">
-            17 cards in 6 categories
+            19 cards in 6 categories
           </span>
         </summary>
         <div className="dashboard-navigation__groups">

@@ -42,13 +42,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('17 cards in 6 categories')).toBeVisible()
+    expect(within(navigation).getByText('19 cards in 6 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(17)
+    expect(links).toHaveLength(19)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -67,6 +67,8 @@ describe('DashboardPage economic series', () => {
       'Can a median-income household afford a typical home?',
       'How much new housing is being started?',
       'Are manufacturing output and jobs moving together?',
+      'Are businesses increasing investment in productive capacity?',
+      'How fully is industrial capacity being used?',
     ])
 
     const gdpCard = await screen.findByRole('article', {
@@ -176,7 +178,7 @@ describe('DashboardPage economic series', () => {
       'Are employers adding jobs?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(17)
+    expect(screen.getAllByRole('article')).toHaveLength(19)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'real-income-versus-spending-question',
       'personal-saving-rate-question',
@@ -785,7 +787,7 @@ describe('DashboardPage economic series', () => {
     expect(await screen.findByRole('region', { name: 'Growth' })).toBeVisible()
   })
 
-  it('renders one Business and manufacturing relationship card after Housing with range-dependent normalization', async () => {
+  it('renders the Business and manufacturing cards after Housing', async () => {
     const user = userEvent.setup()
     render(<DashboardPage />)
 
@@ -793,7 +795,7 @@ describe('DashboardPage economic series', () => {
     const manufacturing = screen.getByRole('region', { name: 'Business and manufacturing' })
     expect(housing.compareDocumentPosition(manufacturing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     const card = await within(manufacturing).findByRole('article', { name: 'Are manufacturing output and jobs moving together?' })
-    expect(within(manufacturing).getAllByRole('article')).toHaveLength(1)
+    expect(within(manufacturing).getAllByRole('article')).toHaveLength(3)
     expect(within(card).getByText(/Both lines begin at 100/)).toBeVisible()
     expect(within(card).getByText(/do not directly measure productivity/)).toBeVisible()
     expect(within(card).getByText(/Since May 2006/)).toBeVisible()
@@ -829,6 +831,84 @@ describe('DashboardPage economic series', () => {
     expect(await screen.findByText('The manufacturing output versus employment data could not be loaded.')).toBeVisible()
     expect(await screen.findByRole('article', { name: 'How much new housing is being started?' })).toBeVisible()
     expect(await screen.findByRole('article', { name: 'Is the U.S. economy growing?' })).toBeVisible()
+  })
+
+  it('renders business investment and capacity utilization with full available histories', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+
+    const business = screen.getByRole('region', { name: 'Business and manufacturing' })
+    const investment = await within(business).findByRole('article', {
+      name: 'Are businesses increasing investment in productive capacity?',
+    })
+    const capacity = await within(business).findByRole('article', {
+      name: 'How fully is industrial capacity being used?',
+    })
+
+    expect(within(investment).getByLabelText('Latest real business investment growth'))
+      .toHaveTextContent('5.8%')
+    expect(within(investment).getAllByText('2026 Q1')).not.toHaveLength(0)
+    expect(within(investment).getByText(/not purchases of stocks, bonds/)).toBeVisible()
+    expect(within(capacity).getByLabelText('Latest industrial capacity utilization'))
+      .toHaveTextContent('76.2%')
+    expect(within(capacity).getAllByText('May 2026')).not.toHaveLength(0)
+    expect(within(capacity).getByText(/not necessarily a healthier economy/)).toBeVisible()
+
+    await user.click(within(investment).getByRole('button', { name: 'Maximum' }))
+    await user.click(within(capacity).getByRole('button', { name: 'Maximum' }))
+    await waitFor(() => {
+      const calls = chartPropsSpy.mock.calls.map((call) => call[0] as {
+        seriesName: string
+        observations: EconomicObservation[]
+        frequency: EconomicFrequency
+        includeZero: boolean
+      })
+      expect([...calls].reverse().find((call) => call.seriesName === 'Real business investment growth'))
+        .toMatchObject({
+          frequency: 'quarterly',
+          includeZero: true,
+          observations: expect.arrayContaining([
+            expect.objectContaining({ date: '2008-01-01' }),
+          ]),
+        })
+      expect([...calls].reverse().find((call) => call.seriesName === 'Industrial capacity utilization'))
+        .toMatchObject({
+          frequency: 'monthly',
+          includeZero: false,
+          observations: expect.arrayContaining([
+            expect.objectContaining({ date: '1967-01-01' }),
+          ]),
+        })
+    })
+
+    await user.click(within(investment).getByText('Recent observations'))
+    await user.click(within(capacity).getByText('Recent observations'))
+    expect(within(investment).getByRole('table', {
+      name: 'Eight most recent real business investment growth observations',
+    })).toBeVisible()
+    expect(within(capacity).getByRole('table', {
+      name: 'Twelve most recent industrial capacity-utilization observations',
+    })).toBeVisible()
+  })
+
+  it.each([
+    ['real-business-investment-growth', 'The real business investment growth data could not be loaded.', 'How fully is industrial capacity being used?'],
+    ['industrial-capacity-utilization', 'The industrial capacity utilization data could not be loaded.', 'Are businesses increasing investment in productive capacity?'],
+  ])('isolates a %s failure from the other business cards', async (failedSlug, message, survivor) => {
+    const originalGetBySlug = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
+      if (slug === failedSlug) throw new Error('Invalid Story 17 fixture')
+      return originalGetBySlug(slug)
+    })
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    render(<DashboardPage />)
+
+    expect(await screen.findByText(message)).toBeVisible()
+    expect(await screen.findByRole('article', { name: survivor })).toBeVisible()
+    expect(await screen.findByRole('article', {
+      name: 'Are manufacturing output and jobs moving together?',
+    })).toBeVisible()
   })
 
   it('keeps GDP visible when CPI loading fails', async () => {

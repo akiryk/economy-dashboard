@@ -257,6 +257,54 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     sourceName: 'U.S. Bureau of Labor Statistics via FRED',
     sourceUrl: 'https://fred.stlouisfed.org/series/MANEMP',
   },
+  {
+    dataHandling: 'locally-derived',
+    id: 'real-business-investment-growth',
+    slug: 'real-business-investment-growth',
+    outputFile:
+      'src/features/economic-series/data/real-business-investment-growth.json',
+    providerSeriesId: 'PNFIC1',
+    frequency: 'quarterly',
+    fredFrequency: 'q',
+    historyPolicy: { type: 'full' },
+    localDerivation: 'year-over-year-quarterly-growth',
+    minimumUsableObservations: 70,
+    title: 'Real Private Nonresidential Fixed Investment Growth',
+    shortTitle: 'Real business investment growth',
+    description:
+      'Year-over-year growth in inflation-adjusted private nonresidential fixed investment in structures, equipment, and intellectual-property products.',
+    question: 'Are businesses increasing investment in productive capacity?',
+    units: 'Percent change from year ago',
+    seasonalAdjustment:
+      'Seasonally adjusted annual rate (underlying real investment level)',
+    transformation:
+      'Exact-quarter percent change from year ago, calculated by the application',
+    sourceName:
+      'U.S. Bureau of Economic Analysis via FRED; growth calculated by the application',
+    sourceUrl: 'https://fred.stlouisfed.org/series/PNFIC1',
+  },
+  {
+    dataHandling: 'provider-level',
+    id: 'industrial-capacity-utilization',
+    slug: 'industrial-capacity-utilization',
+    outputFile:
+      'src/features/economic-series/data/industrial-capacity-utilization.json',
+    providerSeriesId: 'TCU',
+    frequency: 'monthly',
+    fredFrequency: 'm',
+    historyPolicy: { type: 'full' },
+    minimumUsableObservations: 240,
+    title: 'Capacity Utilization: Total Index',
+    shortTitle: 'Industrial capacity utilization',
+    description:
+      'Industrial output as a percentage of the Federal Reserve estimate of sustainable maximum output for manufacturing, mining, and utilities.',
+    question: 'How fully is industrial capacity being used?',
+    units: 'Percent',
+    seasonalAdjustment: 'Seasonally adjusted',
+    transformation: 'Provider-published level',
+    sourceName: 'Board of Governors of the Federal Reserve System via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/TCU',
+  },
 ]
 
 export interface PayrollSeriesConfig {

@@ -45,6 +45,8 @@ describe('refreshEconomicData', () => {
         'provider-level',
         'provider-level',
         'provider-level',
+        'locally-derived',
+        'provider-level',
       ])
     expect(payrollSeriesConfiguration).toMatchObject({
       dataHandling: 'locally-derived',
@@ -74,8 +76,8 @@ describe('refreshEconomicData', () => {
     ).toBe(true)
   })
 
-  it('configures both quarterly local derivations from full-history levels', () => {
-    const configurations = ['A939RX0Q048SBEA', 'OPHNFB'].map((providerSeriesId) =>
+  it('configures quarterly local derivations from full-history levels', () => {
+    const configurations = ['A939RX0Q048SBEA', 'OPHNFB', 'PNFIC1'].map((providerSeriesId) =>
       fredSeriesConfigurations.find(
         (config) => config.providerSeriesId === providerSeriesId,
       ),
@@ -91,6 +93,60 @@ describe('refreshEconomicData', () => {
       })
       expect(config?.fredUnits).toBeUndefined()
     }
+  })
+
+  it('derives PNFIC1 growth by exact quarter and preserves gaps and precision', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'investment-data-'))
+    temporaryDirectories.push(directory)
+    const outputPath = path.join(directory, 'investment.json')
+    const config = {
+      ...fredSeriesConfigurations.find(
+        (candidate) => candidate.providerSeriesId === 'PNFIC1',
+      )!,
+      minimumUsableObservations: 5,
+    }
+    let requestedUrl: URL | undefined
+    await refreshEconomicData({
+      apiKey: 'test-key',
+      outputPath,
+      retrievedAt: '2026-07-17',
+      config,
+      fetchImplementation: async (input) => {
+        requestedUrl = new URL(String(input))
+        return new Response(JSON.stringify({ observations: [
+          { date: '2023-01-01', value: '100' },
+          { date: '2023-07-01', value: '100' },
+          { date: '2023-10-01', value: '100' },
+          { date: '2024-01-01', value: '110' },
+          { date: '2024-04-01', value: '120' },
+          { date: '2024-07-01', value: '100' },
+          { date: '2024-10-01', value: '90' },
+          { date: '2025-01-01', value: '116.789' },
+        ] }), { status: 200 })
+      },
+    })
+
+    expect(requestedUrl?.searchParams.get('series_id')).toBe('PNFIC1')
+    expect(requestedUrl?.searchParams.get('frequency')).toBe('q')
+    expect(requestedUrl?.searchParams.has('units')).toBe(false)
+    expect(requestedUrl?.searchParams.has('observation_start')).toBe(false)
+    const series = validateEconomicSeries(
+      JSON.parse(await readFile(outputPath, 'utf8')),
+    )
+    expect(series).toMatchObject({
+      providerSeriesId: 'PNFIC1',
+      frequency: 'quarterly',
+      units: 'Percent change from year ago',
+      sourceName: expect.stringContaining('Bureau of Economic Analysis'),
+      seasonalAdjustment: expect.stringContaining('annual rate'),
+    })
+    expect(series.observations).toEqual([
+      { date: '2024-01-01', value: 10.000000000000009 },
+      { date: '2024-04-01', value: null },
+      { date: '2024-07-01', value: 0 },
+      { date: '2024-10-01', value: -9.999999999999998 },
+      { date: '2025-01-01', value: 6.171818181818178 },
+    ])
   })
 
   it.each([
@@ -109,6 +165,47 @@ describe('refreshEconomicData', () => {
       transformation,
     })
     expect(config?.fredUnits).toBeUndefined()
+  })
+
+  it('preserves TCU as a provider-published monthly percentage level', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'capacity-data-'))
+    temporaryDirectories.push(directory)
+    const outputPath = path.join(directory, 'capacity.json')
+    const config = {
+      ...fredSeriesConfigurations.find(
+        (candidate) => candidate.providerSeriesId === 'TCU',
+      )!,
+      minimumUsableObservations: 2,
+    }
+    await refreshEconomicData({
+      apiKey: 'test-key',
+      outputPath,
+      retrievedAt: '2026-07-17',
+      config,
+      fetchImplementation: async () => new Response(JSON.stringify({ observations: [
+        { date: '2026-01-01', value: '76.1234' },
+        { date: '2026-02-01', value: '.' },
+        { date: '2026-03-01', value: '77.5' },
+        { date: '2027-01-01', value: '99.9' },
+      ] }), { status: 200 }),
+    })
+
+    const series = validateEconomicSeries(
+      JSON.parse(await readFile(outputPath, 'utf8')),
+    )
+    expect(series).toMatchObject({
+      providerSeriesId: 'TCU',
+      frequency: 'monthly',
+      units: 'Percent',
+      seasonalAdjustment: 'Seasonally adjusted',
+      transformation: 'Provider-published level',
+      sourceName: expect.stringContaining('Federal Reserve System'),
+    })
+    expect(series.observations).toEqual([
+      { date: '2026-01-01', value: 76.1234 },
+      { date: '2026-02-01', value: null },
+      { date: '2026-03-01', value: 77.5 },
+    ])
   })
 
   it('configures both labor series as monthly provider levels without pc1', () => {
@@ -447,7 +544,7 @@ describe('refreshEconomicData', () => {
     expect(await readFile(cpiPath, 'utf8')).toBe(existingCpi)
   })
 
-  it('refreshes all ten direct sources once and omits provider transformations for local derivations', async () => {
+  it('refreshes all twelve direct sources once and omits provider transformations for local derivations', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
     temporaryDirectories.push(directory)
     const configurations = fredSeriesConfigurations.map((config) => ({
@@ -460,7 +557,7 @@ describe('refreshEconomicData', () => {
       const url = new URL(String(input))
       requestedUrls.push(url)
       const seriesId = url.searchParams.get('series_id')
-      const locallyDerived = ['A939RX0Q048SBEA', 'OPHNFB'].includes(seriesId ?? '')
+      const locallyDerived = ['A939RX0Q048SBEA', 'OPHNFB', 'PNFIC1'].includes(seriesId ?? '')
       const cpiLevels = seriesId === 'CPIAUCSL'
         ? [
             ...Array.from({ length: 14 }, (_, index) => ({
@@ -498,13 +595,13 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(10)
+    expect(outcomes).toHaveLength(12)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 15, 3, 3, 6, 6, 3, 3, 3, 3])
+    ).toEqual([3, 15, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
@@ -516,10 +613,12 @@ describe('refreshEconomicData', () => {
       'HOUST',
       'IPMAN',
       'MANEMP',
+      'PNFIC1',
+      'TCU',
     ])
     expect(requestedUrls[0]?.searchParams.get('units')).toBe('pc1')
     expect(requestedUrls.slice(1).map((url) => url.searchParams.has('units')))
-      .toEqual([false, false, false, false, false, false, false, false, false])
+      .toEqual([false, false, false, false, false, false, false, false, false, false, false])
     expect(
       requestedUrls.every((url) => !url.searchParams.has('observation_start')),
     ).toBe(true)
@@ -530,7 +629,7 @@ describe('refreshEconomicData', () => {
       )
       const expectedDate = config.providerSeriesId === 'CPIAUCSL'
         ? '2025-02-01'
-        : ['A939RX0Q048SBEA', 'OPHNFB'].includes(config.providerSeriesId)
+        : ['A939RX0Q048SBEA', 'OPHNFB', 'PNFIC1'].includes(config.providerSeriesId)
           ? '2025-01-01'
           : '2024-02-01'
       expect(series.observations.at(-1)?.date).toBe(expectedDate)

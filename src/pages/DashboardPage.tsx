@@ -202,13 +202,23 @@ export function DashboardPage() {
       <EconomicSection
         id="business-and-manufacturing"
         title="Business and manufacturing"
-        description="Manufacturing output and employment describe different dimensions of the sector. Comparing them shows whether production and payroll jobs have moved together, without assuming that either one alone captures manufacturing’s overall condition."
+        description="Business and manufacturing indicators show how production, employment, capital spending, and industrial operating intensity are changing. These measures can diverge because they describe different parts and time horizons of business activity."
       >
         <EconomicSeriesCard
           slug="manufacturing-output"
           supportingSlugs={manufacturingEmploymentSupportingSlugs}
           label="manufacturing output versus employment"
           variant="manufacturing-comparison"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+        <EconomicSeriesCard
+          slug="real-business-investment-growth"
+          label="real business investment growth"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+        <EconomicSeriesCard
+          slug="industrial-capacity-utilization"
+          label="industrial capacity utilization"
           onSeriesLoaded={handleSeriesLoaded}
         />
       </EconomicSection>
