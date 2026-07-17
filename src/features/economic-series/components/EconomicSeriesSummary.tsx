@@ -29,6 +29,7 @@ import { ProductivityMomentumTable } from './ProductivityMomentumTable'
 import { HistoricalZoomControls } from './HistoricalZoomControls'
 import { useHistoricalZoom } from './useHistoricalZoom'
 import { BudgetBalanceTable } from './BudgetBalanceTable'
+import { TradeBalanceTable } from './TradeBalanceTable'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -129,7 +130,9 @@ export function EconomicSeriesSummary({
           </span>
         </p>
         <p className="series-current__label">
-          {series.slug === 'federal-budget-balance'
+          {series.slug === 'trade-balance-share-of-gdp'
+            ? latestObservation?.value === null || latestObservation?.value === undefined ? 'Balance unavailable' : latestObservation.value < 0 ? 'Trade deficit' : latestObservation.value > 0 ? 'Trade surplus' : 'Balanced trade'
+            : series.slug === 'federal-budget-balance'
             ? latestObservation?.value === null || latestObservation?.value === undefined
               ? 'Balance unavailable'
               : latestObservation.value < 0 ? 'Deficit' : latestObservation.value > 0 ? 'Surplus' : 'Balanced'
@@ -212,6 +215,10 @@ export function EconomicSeriesSummary({
           {series.slug === 'federal-budget-balance' ? (
             <p className="chart-summary" aria-live="polite">
               From {firstVisibleObservation ? formatObservationPeriod(firstVisibleObservation.date, series.frequency) : 'an unavailable year'} to {chartSummary.latest ? formatObservationPeriod(chartSummary.latest.date, series.frequency) : 'an unavailable year'}, the federal budget balance moved from {formatValue(firstVisibleObservation?.value ?? null)} to {formatValue(chartSummary.latest?.value ?? null)} of GDP. The largest visible deficit was {formatValue(chartSummary.minimum?.value ?? null)} in {chartSummary.minimum ? formatObservationPeriod(chartSummary.minimum.date, series.frequency) : 'an unavailable year'}{chartSummary.maximum && chartSummary.maximum.value !== null && chartSummary.maximum.value > 0 ? `, and the largest visible surplus was ${formatValue(chartSummary.maximum.value)} in ${formatObservationPeriod(chartSummary.maximum.date, series.frequency)}` : ', and no surplus appears in the visible period'}. The latest observation is {chartSummary.latest?.value === null || chartSummary.latest?.value === undefined ? 'unavailable' : chartSummary.latest.value < 0 ? 'a deficit' : chartSummary.latest.value > 0 ? 'a surplus' : 'balanced'}.
+            </p>
+          ) : series.slug === 'trade-balance-share-of-gdp' ? (
+            <p className="chart-summary" aria-live="polite">
+              From {firstVisibleObservation ? formatObservationPeriod(firstVisibleObservation.date, series.frequency) : 'an unavailable quarter'} to {chartSummary.latest ? formatObservationPeriod(chartSummary.latest.date, series.frequency) : 'an unavailable quarter'}, the trade balance moved from {formatValue(firstVisibleObservation?.value ?? null)} to {formatValue(chartSummary.latest?.value ?? null)} of GDP. The largest visible deficit was {formatValue(chartSummary.minimum?.value ?? null)} in {chartSummary.minimum ? formatObservationPeriod(chartSummary.minimum.date, series.frequency) : 'an unavailable quarter'}{chartSummary.maximum && chartSummary.maximum.value !== null && chartSummary.maximum.value > 0 ? `, and the largest visible surplus was ${formatValue(chartSummary.maximum.value)} in ${formatObservationPeriod(chartSummary.maximum.date, series.frequency)}` : ', and no surplus appears in the visible period'}. The latest observation is {chartSummary.latest?.value === null || chartSummary.latest?.value === undefined ? 'unavailable' : chartSummary.latest.value < 0 ? 'a trade deficit' : chartSummary.latest.value > 0 ? 'a trade surplus' : 'balanced trade'}.
             </p>
           ) : series.slug === 'federal-debt-held-by-public' ? (
             <p className="chart-summary" aria-live="polite">
@@ -323,9 +330,7 @@ export function EconomicSeriesSummary({
                   )
                 : 'an unavailable period'}.
             </p>
-            ) : series.slug === 'federal-budget-balance' ? (
-              <BudgetBalanceTable observations={recentObservations} />
-            ) : (
+          ) : (
             <p className="chart-summary" aria-live="polite">
               For the visible period, {series.shortTitle} ranged from{' '}
               {formatValue(chartSummary.minimum?.value ?? null)} in{' '}
@@ -448,6 +453,10 @@ export function EconomicSeriesSummary({
             <ProductivityMomentumTable observations={visibleObservations} />
           ) : series.slug === 'personal-saving-rate' ? (
             <SavingRateTable observations={visibleObservations} />
+          ) : series.slug === 'federal-budget-balance' ? (
+            <BudgetBalanceTable observations={recentObservations} />
+          ) : series.slug === 'trade-balance-share-of-gdp' ? (
+            <TradeBalanceTable observations={recentObservations} />
           ) : presentation.recentTable === 'payroll-changes' && supportingSeries ? (
             <PayrollObservationsTable
               averages={visibleObservations}

@@ -11,6 +11,7 @@ import {
   householdComparisonConfiguration,
   personalSavingRateConfiguration,
   productivitySeriesConfiguration,
+  tariffBurdenConfiguration,
 } from './fred/seriesConfigurations'
 import {
   refreshAllEconomicData,
@@ -19,6 +20,7 @@ import {
   refreshHoamData,
   refreshHouseholdComparisonData,
   refreshProductivityData,
+  refreshTariffBurdenData,
 } from './refreshEconomicData'
 
 const temporaryDirectories: string[] = []
@@ -32,6 +34,32 @@ afterEach(async () => {
 })
 
 describe('refreshEconomicData', () => {
+  it('preserves the prior tariff output when either source is invalid', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'tariff-data-'))
+    temporaryDirectories.push(directory)
+    const outputFile = path.join(directory, 'effective-tariff-burden.json')
+    await writeFile(outputFile, 'prior valid tariff data')
+    const config = {
+      ...tariffBurdenConfiguration,
+      outputFile,
+      customsSource: { ...tariffBurdenConfiguration.customsSource, minimumUsableObservations: 1 },
+      importsSource: { ...tariffBurdenConfiguration.importsSource, minimumUsableObservations: 1 },
+    }
+
+    await expect(refreshTariffBurdenData({
+      apiKey: 'test-key',
+      retrievedAt: '2026-07-17',
+      config,
+      fetchImplementation: async (input) => {
+        const seriesId = new URL(String(input)).searchParams.get('series_id')
+        return new Response(JSON.stringify(seriesId === 'B235RC1Q027SBEA'
+          ? { observations: [{ date: '2024-01-01', value: '10' }] }
+          : { malformed: true }), { status: 200 })
+      },
+    })).rejects.toThrow()
+    expect(await readFile(outputFile, 'utf8')).toBe('prior valid tariff data')
+  })
+
   it('distinguishes provider-transformed, provider-level, and local data handling', () => {
     expect(fredSeriesConfigurations.slice(0, 2).map((config) => config.dataHandling))
       .toEqual(['provider-transformed', 'locally-derived'])
@@ -46,6 +74,7 @@ describe('refreshEconomicData', () => {
         'provider-level',
         'provider-level',
         'locally-derived',
+        'provider-level',
         'provider-level',
         'provider-level',
         'provider-level',
@@ -621,13 +650,13 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(17)
+    expect(outcomes).toHaveLength(18)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 15, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3, 3, 3, 3, 3, 3])
+    ).toEqual([3, 15, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3, 3, 3, 3, 3, 3, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
@@ -646,10 +675,11 @@ describe('refreshEconomicData', () => {
       'NFCICREDIT',
       'FYFSGDA188S',
       'FYGFGDQ188S',
+      'A019RE1Q156NBEA',
     ])
     expect(requestedUrls[0]?.searchParams.get('units')).toBe('pc1')
     expect(requestedUrls.slice(1).map((url) => url.searchParams.has('units')))
-      .toEqual([false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false])
+      .toEqual([false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false])
     expect(
       requestedUrls.every((url) => !url.searchParams.has('observation_start')),
     ).toBe(true)

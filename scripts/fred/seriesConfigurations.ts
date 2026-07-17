@@ -405,7 +405,44 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     sourceName: 'U.S. Office of Management and Budget, U.S. Department of the Treasury, and Federal Reserve Bank of St. Louis via FRED',
     sourceUrl: 'https://fred.stlouisfed.org/series/FYGFGDQ188S',
   },
+  {
+    dataHandling: 'provider-level',
+    id: 'trade-balance-share-of-gdp',
+    slug: 'trade-balance-share-of-gdp',
+    outputFile: 'src/features/economic-series/data/trade-balance-share-of-gdp.json',
+    providerSeriesId: 'A019RE1Q156NBEA',
+    frequency: 'quarterly', fredFrequency: 'q', historyPolicy: { type: 'full' },
+    minimumUsableObservations: 200,
+    title: 'Shares of Gross Domestic Product: Net Exports of Goods and Services',
+    shortTitle: 'Net exports of goods and services',
+    description: 'Exports minus imports of goods and services as a share of GDP.',
+    question: 'How large is the U.S. trade balance relative to the economy?',
+    units: 'Percent of GDP', seasonalAdjustment: 'Seasonally adjusted annual rate',
+    transformation: 'Provider-published ratio',
+    sourceName: 'U.S. Bureau of Economic Analysis via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/A019RE1Q156NBEA',
+  },
 ]
+
+export interface TariffBurdenConfig {
+  customsSource: FredSeriesConfig
+  importsSource: FredSeriesConfig
+  outputFile: string
+}
+
+export const tariffBurdenConfiguration: TariffBurdenConfig = {
+  customsSource: {
+    dataHandling: 'provider-level', id: 'customs-duties-source', slug: 'customs-duties-source', outputFile: '',
+    providerSeriesId: 'B235RC1Q027SBEA', frequency: 'quarterly', fredFrequency: 'q', historyPolicy: { type: 'full' }, minimumUsableObservations: 200,
+    title: 'Federal Government Current Receipts: Customs Duties', shortTitle: 'Customs duties', description: 'Federal customs-duty receipts.', question: 'What share of imported goods is collected as customs duties?', units: 'Billions of dollars, seasonally adjusted annual rate', seasonalAdjustment: 'Seasonally adjusted annual rate', transformation: 'Provider-published level', sourceName: 'U.S. Bureau of Economic Analysis via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/B235RC1Q027SBEA',
+  },
+  importsSource: {
+    dataHandling: 'provider-level', id: 'goods-imports-source', slug: 'goods-imports-source', outputFile: '',
+    providerSeriesId: 'A255RC1Q027SBEA', frequency: 'quarterly', fredFrequency: 'q', historyPolicy: { type: 'full' }, minimumUsableObservations: 200,
+    title: 'Imports of Goods', shortTitle: 'Goods imports', description: 'Imports of goods.', question: 'What share of imported goods is collected as customs duties?', units: 'Billions of dollars, seasonally adjusted annual rate', seasonalAdjustment: 'Seasonally adjusted annual rate', transformation: 'Provider-published level', sourceName: 'U.S. Bureau of Economic Analysis via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/A255RC1Q027SBEA',
+  },
+  outputFile: 'src/features/economic-series/data/effective-tariff-burden.json',
+}
 
 export interface PayrollSeriesConfig {
   dataHandling: 'locally-derived'

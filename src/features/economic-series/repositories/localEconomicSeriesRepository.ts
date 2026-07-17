@@ -49,6 +49,8 @@ const localSeriesLoaders: Readonly<
   'broad-credit-conditions': () => import('../data/broad-credit-conditions.json'),
   'federal-budget-balance': () => import('../data/federal-budget-balance.json'),
   'federal-debt-held-by-public': () => import('../data/federal-debt-held-by-public.json'),
+  'trade-balance-share-of-gdp': () => import('../data/trade-balance-share-of-gdp.json'),
+  'effective-tariff-burden': () => import('../data/effective-tariff-burden.json'),
 }
 
 export const localEconomicSeriesRepository: EconomicSeriesRepository = {

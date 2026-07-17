@@ -33,6 +33,8 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Effective federal funds rate and 10-year Treasury yield (`FEDFUNDS` and `GS10`, monthly), written as separate provider-published percentage levels and aligned only for presentation.
 - Broad credit conditions (`NFCICREDIT`, weekly), written as the provider-published standardized index to `broad-credit-conditions.json`.
 - Federal budget balance (`FYFSGDA188S`, annual) and federal debt held by the public (`FYGFGDQ188S`, quarterly), written as separate provider-published percent-of-GDP ratios.
+- Trade balance as a share of GDP (`A019RE1Q156NBEA`, quarterly), written as the provider-published signed ratio.
+- Effective tariff burden, derived from quarterly customs-duty receipts (`B235RC1Q027SBEA`) divided by goods imports (`A255RC1Q027SBEA`) and written to `effective-tariff-burden.json`.
 
 The narrow `scripts/atlantaFed/hoamWorkbook.ts` path downloads the official national HOAM workbook and writes `home-ownership-cost-share.json`; it is intentionally separate from the FRED configuration list.
 
@@ -79,6 +81,9 @@ The series-specific requests are:
 - Broad credit conditions: `series_id=NFCICREDIT` and `frequency=w`, with no `units` parameter.
 - Federal budget balance: `series_id=FYFSGDA188S` and `frequency=a`, with no `units` parameter.
 - Federal debt held by the public: `series_id=FYGFGDQ188S` and `frequency=q`, with no `units` parameter.
+- Trade balance: `series_id=A019RE1Q156NBEA` and `frequency=q`, with no `units` parameter.
+- Customs duties: `series_id=B235RC1Q027SBEA` and `frequency=q`, with no `units` parameter.
+- Imports of goods: `series_id=A255RC1Q027SBEA` and `frequency=q`, with no `units` parameter.
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
@@ -109,6 +114,8 @@ The nominal and real wage outputs are validated and staged together, then replac
 Income and spending validate and replace as one rollback-protected group, so either failure preserves both prior files. The published PSAVERT level validates and writes independently. Unrelated refresh successes remain intact, and the command reports each generated count, range, latest value, and output path.
 
 `TDSP` uses the direct provider-level path with full history, quarterly frequency, and no FRED units transformation. FRED currently returns leading unavailable observations before the published series begins; normalization omits those leading values and retains the 85 usable quarterly levels from 2005 Q1 through 2026 Q1. Internal missing values would remain `null`. The file is validated and atomically replaced independently, so a TDSP failure preserves its prior valid dataset without rolling back other sources.
+
+`A019RE1Q156NBEA` preserves the provider-published signed trade balance as a share of GDP. Negative values mean a deficit and positive values mean a surplus. The tariff workflow aligns customs duties and goods imports by exact calendar quarter and calculates `(customs duties / goods imports) × 100` without rounding stored values. Missing inputs or nonpositive import denominators produce `null`; leading unavailable ratios are omitted. The validated two-source output is replaced through the grouped rollback-protected writer, so either-source or write failure preserves the prior tariff dataset.
 
 `HOUST` uses the same direct provider-level path with full monthly history and no FRED units transformation. Values remain thousands of housing units at a seasonally adjusted annual rate.
 
@@ -150,10 +157,12 @@ Leading unavailable values are removed so generated growth files begin with a va
 - NFCICREDIT: 2,897 weekly observations, January 8, 1971–July 10, 2026.
 - FYFSGDA188S: 97 annual observations, 1929–2025.
 - FYGFGDQ188S: 225 quarterly observations, 1970 Q1–2026 Q1.
+- A019RE1Q156NBEA: 317 quarterly observations, 1947 Q1–2026 Q1.
+- B235RC1Q027SBEA/A255RC1Q027SBEA effective tariff burden: 269 derived quarterly observations, 1959 Q1–2026 Q1.
 
 ## Safe replacement and failures
 
-Only fully retrieved, normalized, domain-validated, and serialized series reach the writer. Direct series use one temporary file and atomic rename. CPI, payroll, wage, and household comparison outputs are validated and staged as explicit groups; existing files are backed up during replacement and restored if grouped replacement fails. Temporary and backup files are removed where practical.
+Only fully retrieved, normalized, domain-validated, and serialized series reach the writer. Direct series use one temporary file and atomic rename. CPI, payroll, wage, household comparison, and effective-tariff outputs are validated and staged through the grouped writer; existing files are backed up during replacement and restored if grouped replacement fails. Temporary and backup files are removed where practical.
 
 A missing key, network failure, HTTP error, malformed response, insufficient history, validation failure, or write failure leaves that series’ previous dataset intact. Errors are concise and never include the API key or a full provider response.
 

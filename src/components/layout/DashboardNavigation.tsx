@@ -113,6 +113,13 @@ const navigationGroups = [
       { id: 'federal-debt-held-by-public-card', title: 'How large is federal debt held by the public relative to the economy?' },
     ],
   },
+  {
+    title: 'Trade and tariffs',
+    cards: [
+      { id: 'trade-balance-share-of-gdp-card', title: 'How large is the U.S. trade balance relative to the economy?' },
+      { id: 'effective-tariff-burden-card', title: 'What share of imported goods is collected as customs duties?' },
+    ],
+  },
 ] as const
 
 export function DashboardNavigation() {
@@ -125,7 +132,7 @@ export function DashboardNavigation() {
         <summary>
           <span id="dashboard-navigation-heading">Explore all indicators</span>
           <span className="dashboard-navigation__summary-detail">
-            23 cards in 8 categories
+            25 cards in 9 categories
           </span>
         </summary>
         <div className="dashboard-navigation__groups">

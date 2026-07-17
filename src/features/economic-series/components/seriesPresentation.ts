@@ -17,6 +17,20 @@ interface EconomicSeriesPresentation {
 }
 
 const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
+  'trade-balance-share-of-gdp': {
+    topicLabel: 'Trade flows', latestValueLabel: 'Latest net exports share of GDP',
+    whatThisTellsYou: 'Net exports equal exports minus imports of goods and services. Negative values mean imports exceeded exports; positive values mean exports exceeded imports. Expressing the balance relative to GDP supports historical comparison.',
+    whatThisLeavesOut: 'A trade deficit is not automatically evidence of weakness, and a surplus is not automatically evidence of strength. Exports, imports, domestic and foreign demand, prices, exchange rates, and other factors can move the balance.',
+    relatedIndicators: ['Economic growth', 'Effective tariff burden', 'Exchange rates'], recentObservationCount: 8,
+    recentObservationsCaption: 'Eight most recent net-exports-share observations', valueColumnLabel: 'Net exports, percent of GDP', includeZeroInChart: true, reportBelowZero: true, valueFormat: 'signed-percentage', summaryFormat: 'numeric-range', recentTable: 'single-value',
+  },
+  'effective-tariff-burden': {
+    topicLabel: 'Tariffs', latestValueLabel: 'Latest effective tariff burden',
+    whatThisTellsYou: 'This ratio divides federal customs-duty receipts by imports of goods. Both inputs are quarterly seasonally adjusted annual rates from the BEA national accounts. It is an average effective customs-duty burden, not a statutory tariff schedule.',
+    whatThisLeavesOut: 'The ratio can change with collections, import composition and value, exemptions, timing, or policy. It does not show rates for every product or country, identify who bears the economic cost, or describe nontariff barriers.',
+    relatedIndicators: ['Trade balance', 'Imports', 'Inflation'], recentObservationCount: 8,
+    recentObservationsCaption: 'Eight most recent effective tariff-burden observations', valueColumnLabel: 'Effective tariff burden', includeZeroInChart: true, reportBelowZero: false, valueFormat: 'percentage', summaryFormat: 'numeric-range', recentTable: 'single-value',
+  },
   'federal-budget-balance': {
     topicLabel: 'Federal budget balance',
     latestValueLabel: 'Latest federal budget balance',

@@ -42,13 +42,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('23 cards in 8 categories')).toBeVisible()
+    expect(within(navigation).getByText('25 cards in 9 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(23)
+    expect(links).toHaveLength(25)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -73,6 +73,8 @@ describe('DashboardPage economic series', () => {
       'Are credit conditions tighter or looser than usual?',
       'How large is the federal budget deficit or surplus relative to the economy?',
       'How large is federal debt held by the public relative to the economy?',
+      'How large is the U.S. trade balance relative to the economy?',
+      'What share of imported goods is collected as customs duties?',
     ])
 
     const gdpCard = await screen.findByRole('article', {
@@ -182,7 +184,7 @@ describe('DashboardPage economic series', () => {
       'Are employers adding jobs?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(23)
+    expect(screen.getAllByRole('article')).toHaveLength(25)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'real-income-versus-spending-question',
       'personal-saving-rate-question',
@@ -1164,7 +1166,7 @@ describe('DashboardPage economic series', () => {
     const debt = await within(government).findByRole('article', { name: 'How large is federal debt held by the public relative to the economy?' })
     expect(within(government).getAllByRole('article')).toHaveLength(2)
     expect(within(budget).getByLabelText('Latest federal budget balance')).toHaveTextContent('−5.8%')
-    expect(within(budget).getByText('Deficit')).toBeVisible()
+    expect(within(budget).getAllByText('Deficit')[0]).toBeVisible()
     expect(within(budget).getAllByText('2025')).not.toHaveLength(0)
     expect(within(budget).getByText(/annual flow/)).toBeVisible()
     expect(within(debt).getByLabelText('Latest federal debt held by the public')).toHaveTextContent('98.7%')
@@ -1193,6 +1195,46 @@ describe('DashboardPage economic series', () => {
     expect(await screen.findByText(message)).toBeVisible()
     expect(await screen.findByRole('article', { name: survivor })).toBeVisible()
     expect(await screen.findByRole('article', { name: 'How do short-term and long-term interest rates compare?' })).toBeVisible()
+  })
+
+  it('renders trade flows and effective tariff burden after Government finances', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+    const government = screen.getByRole('region', { name: 'Government finances' })
+    const trade = screen.getByRole('region', { name: 'Trade and tariffs' })
+    expect(government.compareDocumentPosition(trade) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    const balance = await within(trade).findByRole('article', { name: 'How large is the U.S. trade balance relative to the economy?' })
+    const tariff = await within(trade).findByRole('article', { name: 'What share of imported goods is collected as customs duties?' })
+    expect(within(trade).getAllByRole('article')).toHaveLength(2)
+    expect(within(balance).getByLabelText('Latest net exports share of GDP')).toHaveTextContent('−2.6%')
+    expect(within(balance).getByText('Trade deficit')).toBeVisible()
+    expect(within(tariff).getByLabelText('Latest effective tariff burden')).toHaveTextContent('10.1%')
+    expect(within(tariff).getByText(/not a statutory tariff schedule/)).toBeVisible()
+    expect(within(tariff).getByText(/identify who bears the economic cost/)).toBeVisible()
+    await user.click(within(balance).getByText('Recent observations'))
+    expect(within(balance).getByRole('table', { name: 'Eight most recent trade-balance observations' })).toHaveTextContent('Deficit')
+    await user.click(within(balance).getByRole('button', { name: 'Maximum' }))
+    await user.click(within(tariff).getByRole('button', { name: 'Maximum' }))
+    expect(within(balance).getByText('Visible period: 1947 Q1–2026 Q1')).toBeVisible()
+    expect(within(tariff).getByText('Visible period: 1959 Q1–2026 Q1')).toBeVisible()
+    await user.click(within(balance).getByRole('button', { name: 'Zoom in' }))
+    expect(within(balance).getByRole('button', { name: 'Reset zoom' })).toBeVisible()
+  })
+
+  it.each([
+    ['trade-balance-share-of-gdp', 'The trade balance data could not be loaded.', 'What share of imported goods is collected as customs duties?'],
+    ['effective-tariff-burden', 'The effective tariff burden data could not be loaded.', 'How large is the U.S. trade balance relative to the economy?'],
+  ])('isolates a %s failure within Trade and tariffs', async (failedSlug, message, survivor) => {
+    const original = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
+      if (slug === failedSlug) throw new Error('Invalid Story 20 fixture')
+      return original(slug)
+    })
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    render(<DashboardPage />)
+    expect(await screen.findByText(message)).toBeVisible()
+    expect(await screen.findByRole('article', { name: survivor })).toBeVisible()
+    expect(await screen.findByRole('article', { name: 'How large is federal debt held by the public relative to the economy?' })).toBeVisible()
   })
 
   it.each([

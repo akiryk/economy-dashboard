@@ -92,8 +92,8 @@ The browser must not depend on live provider requests. Data should refresh throu
 
 ### Trade and tariffs
 
-- Imports, exports, and trade balance — planned
-- Effective tariff burden or duties collected relative to imports — planned
+- Trade balance as a share of GDP — complete
+- Effective tariff burden relative to goods imports — complete
 
 ## Story map
 
@@ -121,7 +121,7 @@ The browser must not depend on live provider requests. Data should refresh throu
 | 17 | Add business investment and industrial activity | Complete |
 | 18 | Add financial conditions and credit stress | Complete |
 | 19 | Add government deficit and debt | Complete |
-| 20 | Add trade flows and tariff burden | Planned |
+| 20 | Add trade flows and tariff burden | Complete |
 | 21 | Complete Phase 1 review and closeout | Planned |
 
 Story numbering may change if implementation reveals a better grouping.

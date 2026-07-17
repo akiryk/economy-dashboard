@@ -12,6 +12,8 @@ describe('localEconomicSeriesRepository', () => {
     ['quarterly-real-disposable-income-per-capita-growth', 'A229RX0Q048SBEA'],
     ['quarterly-real-consumer-spending-per-capita-growth', 'A794RX0Q048SBEA'],
     ['federal-debt-held-by-public', 'FYGFGDQ188S'],
+    ['trade-balance-share-of-gdp', 'A019RE1Q156NBEA'],
+    ['effective-tariff-burden', 'B235RC1Q027SBEA / A255RC1Q027SBEA'],
   ])('loads %s as a quarterly series', async (slug, providerSeriesId) => {
     const series = await localEconomicSeriesRepository.getBySlug(slug)
 

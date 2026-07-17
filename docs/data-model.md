@@ -78,7 +78,7 @@ The federal budget balance and federal debt held by the public remain separate p
 
 ## Current limitations
 
-- The application contains twenty-three visible cards backed by twenty-nine datasets. Supporting datasets used within relationship cards are not separate cards.
+- The application contains twenty-five visible cards backed by thirty-one datasets. Supporting datasets used within relationship cards are not separate cards.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.
