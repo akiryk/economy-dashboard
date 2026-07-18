@@ -72,6 +72,9 @@ export function DashboardPage() {
           verdict; historical context and relationships among indicators matter.
         </p>
         {updateContext && <p className="page-update">{updateContext}</p>}
+        <p className="page-preview-link">
+          <a href="/briefing">Preview the Labor at-a-glance briefing</a>
+        </p>
       </section>
 
       <DashboardNavigation />

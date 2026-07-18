@@ -63,6 +63,12 @@ p {
   padding: var(--space-4) var(--space-6);
 }
 
+.app-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
 .app-header__brand {
   color: var(--color-text);
   font-weight: 700;
@@ -112,6 +118,175 @@ p {
   color: var(--color-text-muted);
   font-size: 0.875rem;
   font-weight: 600;
+}
+
+.page-intro .page-preview-link {
+  font-size: 1rem;
+}
+
+.briefing-page {
+  max-width: 50rem;
+}
+
+.labor-briefing {
+  display: grid;
+  gap: var(--space-6);
+  padding: var(--space-8);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+}
+
+.labor-briefing__header {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.labor-briefing__header h2,
+.briefing-disclosure h4 {
+  margin: 0;
+}
+
+.labor-briefing__eyebrow {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.labor-briefing__readings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.labor-briefing__readings p {
+  display: grid;
+  min-width: 10rem;
+  gap: var(--space-1);
+}
+
+.labor-briefing__readings span,
+.briefing-sparkline figcaption,
+.labor-briefing__freshness {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.labor-briefing__readings strong {
+  font-size: 1.25rem;
+  text-transform: capitalize;
+}
+
+.labor-briefing__synthesis {
+  font-size: 1.125rem;
+}
+
+.briefing-sparkline {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.briefing-sparkline svg {
+  width: 100%;
+  min-width: 0;
+  background: var(--color-page-background);
+  border-radius: var(--radius-small);
+}
+
+.briefing-sparkline__band {
+  fill: var(--color-context-band);
+}
+
+.briefing-sparkline__median {
+  stroke: var(--color-text-muted);
+  stroke-dasharray: 6 5;
+}
+
+.briefing-sparkline__line {
+  fill: none;
+  stroke: var(--color-link);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.briefing-sparkline__latest {
+  fill: var(--color-focus);
+  stroke: var(--color-surface);
+  stroke-width: 2;
+}
+
+.briefing-sparkline__labels,
+.briefing-trace__indicator dl,
+.briefing-disclosure dl {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.briefing-sparkline__labels div,
+.briefing-disclosure dl div {
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+}
+
+.briefing-sparkline__labels dt,
+.briefing-disclosure dt {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.briefing-sparkline__labels dd,
+.briefing-disclosure dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.briefing-disclosure {
+  border-top: 1px solid var(--color-border);
+}
+
+.briefing-disclosure summary {
+  padding-block: var(--space-4);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.briefing-disclosure__content {
+  display: grid;
+  gap: var(--space-6);
+  padding-bottom: var(--space-4);
+}
+
+.briefing-trace__indicator {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.status-message--compact {
+  padding: var(--space-4);
+}
+
+@media (max-width: 40rem) {
+  .app-header__content {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .labor-briefing {
+    padding: var(--space-6);
+  }
+
+  .briefing-sparkline__labels,
+  .briefing-trace__indicator dl,
+  .briefing-disclosure dl {
+    grid-template-columns: 1fr;
+  }
 }
 
 .dashboard-navigation {

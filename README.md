@@ -4,6 +4,8 @@ An information-first web application for understanding the U.S. economy through 
 
 Phase 1 is complete. The dashboard currently presents 28 cards in nine categories: growth, prices, employment and income, households, housing, business and manufacturing, financial conditions, government finances, and trade and tariffs.
 
+A non-default `/briefing` preview now presents the Labor Market as the first at-a-glance vertical slice. The full research dashboard remains the default experience while that synthesis is reviewed against real data.
+
 See:
 
 - [`docs/product-overview.md`](docs/product-overview.md) for what the product shows, why each measure is included, and how the current scope differs from possible future analytical goals.
@@ -69,8 +71,8 @@ src/
     models/             Domain model and runtime validation
     repositories/       Asynchronous local-data boundary
     utils/              Economic calculations and chart preparation
-  features/briefing/    Pure briefing interpretation types and rules (not yet visible)
-  pages/                Dashboard and not-found pages
+  features/briefing/    Briefing rules and the Labor vertical slice
+  pages/                Dashboard, briefing preview, and not-found pages
   styles/               Global styles and design tokens
 scripts/                Provider clients, derivations, and safe refresh writes
 docs/                   Product, architecture, epics, and completed stories

@@ -6,7 +6,9 @@ The economic-series domain model keeps source metadata and observations together
 
 ## Briefing interpretation boundary
 
-The future at-a-glance briefing is implemented as pure domain logic in `src/features/briefing`. It accepts already-loaded, validated observations and explicit configuration, then returns typed condition, direction, freshness, and agreement results with trace metadata. It performs no repository access, rendering, or prose generation. The committed research datasets and their existing repositories remain the evidence layer; no application route imports the briefing module yet.
+The at-a-glance briefing interpretation is implemented as pure domain logic in `src/features/briefing`. It accepts already-loaded, validated observations and explicit configuration, then returns typed condition, direction, freshness, and agreement results with trace metadata. It performs no repository access or rendering. The committed research datasets and their existing repositories remain the evidence layer.
+
+The non-default `/briefing` route is the first vertical slice over that boundary. Its Labor-specific orchestration loads unemployment, payroll growth, prime-age employment, and initial claims through the existing repository, selects finite synthesis templates, and creates a typed view model for the Labor tile. Repository loading, interpretation, template selection, and React rendering remain separate. The default `/` route is still the full research dashboard.
 
 An `EconomicSeries` identifies the provider and provider series, explains the displayed units and transformation, records seasonal adjustment and frequency, and contains `EconomicObservation` entries. Each observation has an ISO date representing the economic period and a numeric or `null` value. A missing observation remains `null`; it is never treated as zero.
 

@@ -43,6 +43,8 @@ Valence converts raw rank into meaning: higher-is-better retains it, lower-is-be
 
 Thus exact 20 is unfavorable, 40 and 60 are typical, and 80 is favorable: every boundary resolves toward typical. Visible dimension wording and the inflation deflation guard belong to later UI stories.
 
+The Labor vertical slice maps very favorable to `strong`, favorable to `solid`, typical to `typical`, unfavorable to `soft`, and very unfavorable to `weak`. At dimension level, two primary tiers on the favorable side display `solid` and two on the unfavorable side display `soft`; the more emphatic `strong` and `weak` labels remain available for indicator-level and later reviewed presentation. Primary disagreement displays `mixed`, and inadequate evidence displays `unclear`.
+
 ## Direction and noise gate
 
 Recent change uses exact period identity: latest versus 13 weeks earlier for weekly data, 6 months earlier for monthly data, and 2 quarters earlier for quarterly data. For example, monthly movement from 1 on January 1 to 4 on July 1 is +3. If January 1 is absent, a nearby observation is not substituted.
@@ -78,3 +80,7 @@ The engine accepts observations and configuration and performs no repository acc
 After the Labor slice, review the tier thresholds, 60th-percentile gate, direction windows, freshness multipliers, template tone, Growth and Household vocabulary, and whether normalizing should ever extend beyond Labor. These parameters are provisional; the no-score, separate-reading, conflict, and template-only architecture is not.
 
 Every worked example above is pinned by a test named `docs example` in `src/features/briefing/briefingRules.test.ts`.
+
+## Labor vertical-slice review note
+
+The `/briefing` route now applies these rules to committed Labor data without tuning thresholds to obtain a preferred label. Payroll direction that clears the material-movement gate receives the standing sentence qualification that the newest payroll estimate is commonly revised. The human review checkpoint should assess whether the resulting condition grouping, direction gate, observation-period freshness semantics, and template tone remain useful before other dimensions are added.
