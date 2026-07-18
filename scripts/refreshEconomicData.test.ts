@@ -12,6 +12,7 @@ import {
   personalSavingRateConfiguration,
   productivitySeriesConfiguration,
   tariffBurdenConfiguration,
+  corporateProfitShareConfiguration,
 } from './fred/seriesConfigurations'
 import {
   refreshAllEconomicData,
@@ -21,6 +22,7 @@ import {
   refreshHouseholdComparisonData,
   refreshProductivityData,
   refreshTariffBurdenData,
+  refreshCorporateProfitShareData,
 } from './refreshEconomicData'
 
 const temporaryDirectories: string[] = []
@@ -34,6 +36,74 @@ afterEach(async () => {
 })
 
 describe('refreshEconomicData', () => {
+  it('atomically preserves the prior profit-share output when either input fails', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'profit-share-data-'))
+    temporaryDirectories.push(directory)
+    const outputFile = path.join(directory, 'corporate-profit-share.json')
+    await writeFile(outputFile, 'prior valid profit-share data')
+    const config = {
+      ...corporateProfitShareConfiguration,
+      outputFile,
+      profitsSource: {
+        ...corporateProfitShareConfiguration.profitsSource,
+        minimumUsableObservations: 1,
+      },
+      gdpSource: {
+        ...corporateProfitShareConfiguration.gdpSource,
+        minimumUsableObservations: 1,
+      },
+    }
+
+    await expect(refreshCorporateProfitShareData({
+      apiKey: 'test-key',
+      retrievedAt: '2026-07-18',
+      config,
+      fetchImplementation: async (input) => {
+        const seriesId = new URL(String(input)).searchParams.get('series_id')
+        return new Response(JSON.stringify(
+          seriesId === 'CPATAX'
+            ? { observations: [{ date: '2024-01-01', value: '100' }] }
+            : { malformed: true },
+        ), { status: 200 })
+      },
+    })).rejects.toThrow()
+    expect(await readFile(outputFile, 'utf8')).toBe('prior valid profit-share data')
+  })
+
+  it('fetches both profit-share inputs once and writes their exact ratio', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'profit-share-data-'))
+    temporaryDirectories.push(directory)
+    const outputFile = path.join(directory, 'corporate-profit-share.json')
+    const config = {
+      ...corporateProfitShareConfiguration,
+      outputFile,
+      profitsSource: { ...corporateProfitShareConfiguration.profitsSource, minimumUsableObservations: 1 },
+      gdpSource: { ...corporateProfitShareConfiguration.gdpSource, minimumUsableObservations: 1 },
+    }
+    const requested: string[] = []
+
+    const result = await refreshCorporateProfitShareData({
+      apiKey: 'test-key',
+      retrievedAt: '2026-07-18',
+      config,
+      fetchImplementation: async (input) => {
+        const seriesId = new URL(String(input)).searchParams.get('series_id')!
+        requested.push(seriesId)
+        return new Response(JSON.stringify({
+          observations: [{
+            date: '2024-01-01',
+            value: seriesId === 'CPATAX' ? '123.456' : '987.654',
+          }],
+        }), { status: 200 })
+      },
+    })
+
+    expect(requested.sort()).toEqual(['CPATAX', 'GDP'])
+    expect(result.series.observations[0]?.value).toBe((123.456 / 987.654) * 100)
+    expect(validateEconomicSeries(JSON.parse(await readFile(outputFile, 'utf8'))))
+      .toMatchObject({ providerSeriesId: 'CPATAX / GDP' })
+  })
+
   it('preserves the prior tariff output when either source is invalid', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'tariff-data-'))
     temporaryDirectories.push(directory)

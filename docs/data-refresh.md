@@ -32,6 +32,7 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Manufacturing output (`IPMAN`, monthly), written as the provider-published index to `manufacturing-output.json`.
 - Manufacturing employment (`MANEMP`, monthly), written as the provider-published level in thousands to `manufacturing-employment.json`.
 - Real business investment (`PNFIC1`, quarterly source level), derived into exact-quarter year-over-year growth in `real-business-investment-growth.json`.
+- After-tax corporate profit share, derived by exact quarter from adjusted after-tax corporate profits (`CPATAX`) divided by nominal GDP (`GDP`) and written to `corporate-profit-share.json`.
 - Industrial capacity utilization (`TCU`, monthly), written as the provider-published percentage level to `industrial-capacity-utilization.json`.
 - Effective federal funds rate and 10-year Treasury yield (`FEDFUNDS` and `GS10`, monthly), written as separate provider-published percentage levels and aligned only for presentation.
 - Broad credit conditions (`NFCICREDIT`, weekly), written as the provider-published standardized index to `broad-credit-conditions.json`.
@@ -81,6 +82,7 @@ The series-specific requests are:
 - Manufacturing output: `series_id=IPMAN` and `frequency=m`, with no `units` parameter.
 - Manufacturing employment: `series_id=MANEMP` and `frequency=m`, with no `units` parameter.
 - Real business investment: `series_id=PNFIC1` and `frequency=q`, with no `units` parameter.
+- Corporate profit share inputs: `series_id=CPATAX` and `series_id=GDP`, each with `frequency=q` and no `units` parameter.
 - Industrial capacity utilization: `series_id=TCU` and `frequency=m`, with no `units` parameter.
 - Effective federal funds rate: `series_id=FEDFUNDS` and `frequency=m`, with no `units` parameter.
 - 10-year Treasury yield: `series_id=GS10` and `frequency=m`, with no `units` parameter.
@@ -160,6 +162,7 @@ Leading unavailable values are removed so generated growth files begin with a va
 - IPMAN: 654 observations, January 1972–June 2026.
 - MANEMP: 1,050 observations, January 1939–June 2026.
 - PNFIC1 source: 77 usable level observations, 2007 Q1–2026 Q1; generated growth: 73 observations, 2008 Q1–2026 Q1.
+- CPATAX: 317 usable quarterly observations, 1947 Q1–2026 Q1; nominal GDP: 317 observations over the same useful coverage; generated profit share: 317 exact-quarter observations, 1947 Q1–2026 Q1.
 - TCU: 714 observations, January 1967–June 2026.
 - FEDFUNDS: 864 observations, July 1954–June 2026.
 - GS10: 879 observations, April 1953–June 2026; exact shared rate coverage begins July 1954.
@@ -172,11 +175,11 @@ Leading unavailable values are removed so generated growth files begin with a va
 
 ## Safe replacement and failures
 
-Only fully retrieved, normalized, domain-validated, and serialized series reach the writer. Direct series use one temporary file and atomic rename. CPI, payroll, wage, household comparison, and effective-tariff outputs are validated and staged through the grouped writer; existing files are backed up during replacement and restored if grouped replacement fails. Temporary and backup files are removed where practical.
+Only fully retrieved, normalized, domain-validated, and serialized series reach the writer. Direct series use one temporary file and atomic rename. CPI, payroll, wage, household comparison, corporate profit-share, and effective-tariff outputs are validated and staged through the grouped writer; existing files are backed up during replacement and restored if grouped replacement fails. Temporary and backup files are removed where practical.
 
 A missing key, network failure, HTTP error, malformed response, insufficient history, validation failure, or write failure leaves that series’ previous dataset intact. Errors are concise and never include the API key or a full provider response.
 
-Failure of one source does not stop the next or roll back an unrelated successful file. Each single-source quarterly derivation replaces only its own validated output. CPI, PAYEMS, wage, and household comparison failures preserve their complete output groups. After all entries run, any failure produces a nonzero exit status and the command identifies which outputs updated and which were preserved.
+Failure of one source does not stop the next or roll back an unrelated successful file. Each single-source quarterly derivation replaces only its own validated output. CPI, PAYEMS, wage, household comparison, corporate profit-share, and effective-tariff failures preserve their complete output groups. After all entries run, any failure produces a nonzero exit status and the command identifies which outputs updated and which were preserved.
 
 ## Manual refresh
 

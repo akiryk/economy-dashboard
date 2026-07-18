@@ -6,7 +6,7 @@ The U.S. Economy Dashboard is a descriptive, historically grounded briefing on m
 
 The current product is intentionally broad and nonpartisan. It does not forecast markets, recommend investments, evaluate political actors, infer causation from timing, or collapse mixed evidence into one score. That purpose should remain the baseline unless a future phase explicitly adopts another objective.
 
-The dashboard contains 27 visible cards in nine sections. Most cards use nonsmoothed time-series line charts. Relationship cards use two aligned lines; the manufacturing comparison normalizes two differently scaled series to a common selected-range baseline.
+The dashboard contains 28 visible cards in nine sections. Most cards use nonsmoothed time-series line charts. Relationship cards use two aligned lines; the manufacturing comparison normalizes two differently scaled series to a common selected-range baseline.
 
 ## What the dashboard shows
 
@@ -58,6 +58,7 @@ The dashboard contains 27 visible cards in nine sections. Most cards use nonsmoo
 |---|---|---|
 | Are manufacturing output and jobs moving together? | Monthly real manufacturing output and manufacturing payroll employment, each normalized to 100 at the selected range’s first shared observation. | Makes their relative paths comparable without mixing native units or implying that divergence has one cause. |
 | Are businesses increasing investment in productive capacity? | Quarterly real private nonresidential fixed investment, year-over-year growth. | Tracks inflation-adjusted spending on structures, equipment, and intellectual property used in production. |
+| Are corporate profits growing relative to the economy? | Quarterly adjusted after-tax corporate profits divided by nominal GDP. | Scales national-account profits to the economy for historical comparison instead of showing a raw dollar total. It is an economy-wide profit share, not an S&P 500 or company revenue margin. |
 | How fully is industrial capacity being used? | Monthly industrial capacity utilization. | Shows operating intensity and spare capacity across manufacturing, mining, and utilities. |
 
 ### Financial conditions
@@ -103,7 +104,7 @@ Future work should begin by naming the user decision the dashboard is meant to s
 | Household welfare and distribution | Medians, distributions, demographic and geographic differences, and essential costs. | Real median income and wages, wealth and debt distributions, poverty, labor-force participation, rent burden, regional housing, and subgroup outcomes. |
 | Business operating environment | Demand, costs, financing, investment, inventories, and sector divergence. | New orders, inventories, profits, bankruptcies, lending standards, small-business conditions, and sector detail. |
 
-The current 27-card dashboard should be treated as a baseline inventory, not as a permanent requirement that every card remain. A future phase may add, reframe, combine, or remove measures when doing so better serves an explicitly chosen objective and preserves source transparency.
+The current 28-card dashboard should be treated as a baseline inventory, not as a permanent requirement that every card remain. A future phase may add, reframe, combine, or remove measures when doing so better serves an explicitly chosen objective and preserves source transparency.
 
 ## Related documentation
 

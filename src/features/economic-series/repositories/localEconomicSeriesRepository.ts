@@ -44,6 +44,7 @@ const localSeriesLoaders: Readonly<
     import('../data/manufacturing-employment.json'),
   'real-business-investment-growth': () =>
     import('../data/real-business-investment-growth.json'),
+  'corporate-profit-share': () => import('../data/corporate-profit-share.json'),
   'industrial-capacity-utilization': () =>
     import('../data/industrial-capacity-utilization.json'),
   'effective-federal-funds-rate': () =>

@@ -117,6 +117,23 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     summaryFormat: 'numeric-range',
     recentTable: 'single-value',
   },
+  'corporate-profit-share': {
+    topicLabel: 'Corporate profitability',
+    latestValueLabel: 'Latest after-tax corporate profit share',
+    whatThisTellsYou:
+      'This card divides adjusted after-tax corporate profits by nominal GDP. Scaling profits to the economy makes periods more comparable than raw dollar totals. Inventory valuation and capital consumption adjustments are intended to better represent profits from current production. A rising share means adjusted after-tax profits increased relative to GDP; a falling share means the share was compressed relative to GDP.',
+    whatThisLeavesOut:
+      'This national-accounts measure is not a company revenue margin, S&P 500 margin, earnings per share, expected earnings, equity valuation, investment signal, or household-welfare measure. It includes corporations beyond publicly traded U.S. companies and conceals industry and company differences. Prices, wages, productivity, taxes, interest costs, sector composition, and other factors can affect the ratio; the card does not assign causation or measure the labor-versus-capital income split.',
+    relatedIndicators: ['Business investment', 'Capacity utilization', 'Bank lending standards', 'Wages'],
+    recentObservationCount: 8,
+    recentObservationsCaption: 'Eight most recent corporate profit-share observations',
+    valueColumnLabel: 'After-tax corporate profit share of GDP',
+    includeZeroInChart: false,
+    reportBelowZero: false,
+    valueFormat: 'percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
+  },
   'industrial-capacity-utilization': {
     topicLabel: 'Industrial activity',
     latestValueLabel: 'Latest industrial capacity utilization',

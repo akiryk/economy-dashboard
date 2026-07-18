@@ -65,6 +65,19 @@ function describeInvestmentDirection(
   return 'The latest visible value is positive, so the real investment level is above its year-earlier level.'
 }
 
+function medianObservationValue(
+  observations: readonly { value: number | null }[],
+): number | null {
+  const values = observations
+    .flatMap((observation) => observation.value === null ? [] : [observation.value])
+    .sort((a, b) => a - b)
+  if (values.length === 0) return null
+  const middle = Math.floor(values.length / 2)
+  return values.length % 2 === 0
+    ? (values[middle - 1]! + values[middle]!) / 2
+    : values[middle]!
+}
+
 export function EconomicSeriesSummary({
   series,
   supportingSeries,
@@ -101,6 +114,7 @@ export function EconomicSeriesSummary({
   const previousVisibleObservation = visibleValidObservations.at(-2)
   const lendingCounts = lendingStandardsCounts(visibleObservations)
   const lendingMedian = medianLendingStandards(visibleObservations)
+  const visibleMedian = medianObservationValue(visibleObservations)
   const formatValue = (value: number | null) =>
     formatEconomicValue(value, presentation.valueFormat)
   const savingRateChange =
@@ -159,6 +173,8 @@ export function EconomicSeriesSummary({
                 : latestObservation.value < 0
                   ? 'Looser than average'
                   : 'Near average'
+            : series.slug === 'corporate-profit-share' && latestObservation
+            ? `After-tax corporate profit share, ${formatObservationPeriod(latestObservation.date, series.frequency)}`
             : series.slug === 'labor-productivity-growth'
             ? latestObservation?.value === null || latestObservation?.value === undefined
               ? 'Productivity change from a year ago is unavailable'
@@ -227,7 +243,11 @@ export function EconomicSeriesSummary({
               onZoomChange={zoom.onChartZoom}
             />
           </Suspense>
-          {series.slug === 'bank-lending-standards' ? (
+          {series.slug === 'corporate-profit-share' ? (
+            <p className="chart-summary" aria-live="polite">
+              From {firstVisibleObservation ? formatObservationPeriod(firstVisibleObservation.date, series.frequency) : 'an unavailable quarter'} to {chartSummary.latest ? formatObservationPeriod(chartSummary.latest.date, series.frequency) : 'an unavailable quarter'}, the after-tax corporate profit share {chartSummary.latest?.value !== null && chartSummary.latest?.value !== undefined && firstVisibleObservation?.value !== null && firstVisibleObservation?.value !== undefined && chartSummary.latest.value > firstVisibleObservation.value ? 'rose' : chartSummary.latest?.value === firstVisibleObservation?.value ? 'was unchanged' : 'fell'} from {formatValue(firstVisibleObservation?.value ?? null)} to {formatValue(chartSummary.latest?.value ?? null)} of GDP. This means adjusted after-tax profits {chartSummary.latest?.value !== null && chartSummary.latest?.value !== undefined && firstVisibleObservation?.value !== null && firstVisibleObservation?.value !== undefined && chartSummary.latest.value >= firstVisibleObservation.value ? 'expanded' : 'were compressed'} relative to the economy; it does not state that the raw dollar level of profits {chartSummary.latest?.value !== null && chartSummary.latest?.value !== undefined && firstVisibleObservation?.value !== null && firstVisibleObservation?.value !== undefined && chartSummary.latest.value >= firstVisibleObservation.value ? 'rose' : 'fell'}. The visible range ran from {formatValue(chartSummary.minimum?.value ?? null)} to {formatValue(chartSummary.maximum?.value ?? null)}, and the latest share was {visibleMedian !== null && chartSummary.latest?.value !== null && chartSummary.latest?.value !== undefined && chartSummary.latest.value >= visibleMedian ? 'at or above' : 'below'} its visible-range median.
+            </p>
+          ) : series.slug === 'bank-lending-standards' ? (
             <p className="chart-summary" aria-live="polite">
               In {chartSummary.latest ? formatObservationPeriod(chartSummary.latest.date, series.frequency) : 'the latest visible quarter'}, banks reported {formatLendingStandardsCallout(chartSummary.latest?.value ?? null).toLowerCase()}.{' '}
               {describeLendingStandardsChange(
@@ -424,10 +444,21 @@ export function EconomicSeriesSummary({
 
       <footer className="series-supporting">
         <p className="series-source">
-          Source:{' '}
-          <a href={series.sourceUrl} rel="noreferrer" target="_blank">
-            {series.sourceName}
-          </a>
+          {series.sources ? 'Sources: ' : 'Source: '}
+          {series.sources ? (
+            series.sources.map((source, index) => (
+              <span key={`${source.providerSeriesId}-${source.role ?? index}`}>
+                {index > 0 && '; '}
+                <a href={source.sourceUrl} rel="noreferrer" target="_blank">
+                  {source.providerSeriesId} — {source.sourceName}
+                </a>
+              </span>
+            ))
+          ) : (
+            <a href={series.sourceUrl} rel="noreferrer" target="_blank">
+              {series.sourceName}
+            </a>
+          )}
         </p>
 
         <details className="supporting-disclosure">
@@ -468,6 +499,24 @@ export function EconomicSeriesSummary({
                   : 'Not available'}
               </dd>
             </div>
+            {series.sources?.some(
+              (source) => source.observationStart && source.observationEnd,
+            ) && (
+              <div>
+                <dt>Source coverage</dt>
+                <dd>
+                  {series.sources
+                    .filter(
+                      (source) => source.observationStart && source.observationEnd,
+                    )
+                    .map(
+                      (source) =>
+                        `${source.providerSeriesId}: ${formatObservationPeriod(source.observationStart!, series.frequency)} to ${formatObservationPeriod(source.observationEnd!, series.frequency)}`,
+                    )
+                    .join('; ')}
+                </dd>
+              </div>
+            )}
           </dl>
         </details>
 

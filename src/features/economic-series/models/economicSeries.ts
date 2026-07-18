@@ -39,4 +39,6 @@ export interface EconomicSeriesSource {
   sourceName: string
   sourceUrl: string
   role?: string
+  observationStart?: string
+  observationEnd?: string
 }

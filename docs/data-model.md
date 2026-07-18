@@ -78,13 +78,15 @@ IPMAN and MANEMP remain separate provider-level series in their native units. Th
 
 PNFIC1 remains identified as the source for locally derived real business-investment growth. The source has usable levels beginning in 2007 Q1, so exact-quarter year-over-year output begins in 2008 Q1; earlier unavailable provider rows are not reconstructed. TCU remains a separate provider-published monthly percentage level. Its non-zero-forced chart presentation does not turn utilization into a target, threshold, or judgment.
 
+The corporate profit-share series aligns adjusted after-tax corporate profits (`CPATAX`) with nominal GDP (`GDP`) by exact quarter and calculates `CPATAX / GDP × 100` only when both values exist and GDP is nonzero. Raw and intermediate values are not rounded. Both source records carry their own optional observation coverage, while the derived series retains its separate coverage and full multi-source provenance.
+
 The federal budget balance and federal debt held by the public remain separate provider-published percent-of-GDP ratios. The annual budget balance is a signed flow: negative values are deficits and positive values are surpluses. Debt held by the public is a quarterly stock relative to GDP and excludes intragovernmental holdings; it is not total federal debt or an annual spending share. These interpretations are presentation semantics rather than persisted labels.
 
 DRTSCILM is a provider-published quarterly signed net percentage. Positive, zero, negative, and missing values retain their source meanings and ordinary observation shape. Sign-aware net-tightening or net-easing language, visible-range counts, and median comparisons are presentation calculations; the series is never combined with NFCICREDIT or transformed into a score.
 
 ## Current limitations
 
-- The application contains twenty-seven visible cards backed by thirty-four datasets. Supporting datasets used within relationship cards are not separate cards.
+- The application contains twenty-eight visible cards backed by thirty-five datasets. Supporting datasets used within relationship cards are not separate cards.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.

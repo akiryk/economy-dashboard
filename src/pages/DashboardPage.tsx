@@ -226,6 +226,11 @@ export function DashboardPage() {
           onSeriesLoaded={handleSeriesLoaded}
         />
         <EconomicSeriesCard
+          slug="corporate-profit-share"
+          label="corporate profit share"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+        <EconomicSeriesCard
           slug="industrial-capacity-utilization"
           label="industrial capacity utilization"
           onSeriesLoaded={handleSeriesLoaded}

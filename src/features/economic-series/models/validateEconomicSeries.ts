@@ -18,12 +18,22 @@ function validateSource(value: unknown, index: number): EconomicSeriesSource {
   if (role !== undefined && !isNonEmptyString(role)) {
     throw new Error(`Economic series source ${index} has an invalid role`)
   }
+  const observationStart = value.observationStart
+  const observationEnd = value.observationEnd
+  if (observationStart !== undefined && !isIsoDate(observationStart)) {
+    throw new Error(`Economic series source ${index} has an invalid observation start`)
+  }
+  if (observationEnd !== undefined && !isIsoDate(observationEnd)) {
+    throw new Error(`Economic series source ${index} has an invalid observation end`)
+  }
   return {
     provider: getRequiredString(value, 'provider'),
     providerSeriesId: getRequiredString(value, 'providerSeriesId'),
     sourceName: getRequiredString(value, 'sourceName'),
     sourceUrl: getRequiredString(value, 'sourceUrl'),
     ...(role === undefined ? {} : { role }),
+    ...(observationStart === undefined ? {} : { observationStart }),
+    ...(observationEnd === undefined ? {} : { observationEnd }),
   }
 }
 

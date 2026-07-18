@@ -44,13 +44,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('27 cards in 9 categories')).toBeVisible()
+    expect(within(navigation).getByText('28 cards in 9 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(27)
+    expect(links).toHaveLength(28)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -71,6 +71,7 @@ describe('DashboardPage economic series', () => {
       'How much new housing is being started?',
       'Are manufacturing output and jobs moving together?',
       'Are businesses increasing investment in productive capacity?',
+      'Are corporate profits growing relative to the economy?',
       'How fully is industrial capacity being used?',
       'How do short-term and long-term interest rates compare?',
       'Are credit conditions tighter or looser than usual?',
@@ -189,7 +190,7 @@ describe('DashboardPage economic series', () => {
       'Are layoffs beginning to rise?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(27)
+    expect(screen.getAllByRole('article')).toHaveLength(28)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'real-income-versus-spending-question',
       'personal-saving-rate-question',
@@ -851,7 +852,7 @@ describe('DashboardPage economic series', () => {
     const manufacturing = screen.getByRole('region', { name: 'Business and manufacturing' })
     expect(housing.compareDocumentPosition(manufacturing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     const card = await within(manufacturing).findByRole('article', { name: 'Are manufacturing output and jobs moving together?' })
-    expect(within(manufacturing).getAllByRole('article')).toHaveLength(3)
+    expect(within(manufacturing).getAllByRole('article')).toHaveLength(4)
     expect(within(card).getByText(/Both lines begin at 100/)).toBeVisible()
     expect(within(card).getByText(/do not directly measure productivity/)).toBeVisible()
     expect(within(card).getByText(/Since June 2006/)).toBeVisible()
@@ -964,6 +965,71 @@ describe('DashboardPage economic series', () => {
     expect(await screen.findByRole('article', { name: survivor })).toBeVisible()
     expect(await screen.findByRole('article', {
       name: 'Are manufacturing output and jobs moving together?',
+    })).toBeVisible()
+  })
+
+  it('renders the corporate profit share as a scale-adjusted ratio', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+    const card = await screen.findByRole('article', {
+      name: 'Are corporate profits growing relative to the economy?',
+    })
+
+    expect(within(card).getByLabelText('Latest after-tax corporate profit share'))
+      .toHaveTextContent('11.4%')
+    expect(within(card).getByText('After-tax corporate profit share, 2026 Q1'))
+      .toBeVisible()
+    expect(within(card).getByText(/not a company revenue margin/)).toBeVisible()
+    expect(within(card).getByText(/not state that the raw dollar level of profits/)).toBeVisible()
+    expect(within(card).getByRole('link', { name: /CPATAX/ })).toHaveAttribute(
+      'href',
+      'https://fred.stlouisfed.org/series/CPATAX',
+    )
+    expect(within(card).getByRole('link', { name: /GDP/ })).toHaveAttribute(
+      'href',
+      'https://fred.stlouisfed.org/series/GDP',
+    )
+
+    await user.click(within(card).getByRole('button', { name: 'Maximum' }))
+    expect(within(card).getByText('Visible period: 1947 Q1–2026 Q1')).toBeVisible()
+    await waitFor(() => {
+      const props = [...chartPropsSpy.mock.calls].reverse()
+        .map((call) => call[0] as {
+          seriesName?: string
+          observations?: EconomicObservation[]
+          includeZero?: boolean
+        })
+        .find((candidate) => candidate.seriesName === 'After-tax corporate profit share')
+      expect(props?.observations).toHaveLength(317)
+      expect(props?.includeZero).toBe(false)
+    })
+    await user.click(within(card).getByText('Recent observations'))
+    expect(within(card).getByRole('table', {
+      name: 'Eight most recent corporate profit-share observations',
+    })).toBeVisible()
+    await user.click(within(card).getByText('Series details'))
+    expect(within(card).getByText('CPATAX / GDP')).toBeVisible()
+    expect(within(card).getByText(/CPATAX divided by GDP/)).toBeVisible()
+    expect(within(card).getByText(
+      'CPATAX: 1947 Q1 to 2026 Q1; GDP: 1947 Q1 to 2026 Q1',
+    )).toBeVisible()
+  })
+
+  it('isolates a corporate profit-share card load failure', async () => {
+    const original = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
+      if (slug === 'corporate-profit-share') throw new Error('Invalid profit-share fixture')
+      return original(slug)
+    })
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    render(<DashboardPage />)
+
+    expect(await screen.findByText('The corporate profit share data could not be loaded.')).toBeVisible()
+    expect(await screen.findByRole('article', {
+      name: 'Are businesses increasing investment in productive capacity?',
+    })).toBeVisible()
+    expect(await screen.findByRole('article', {
+      name: 'How fully is industrial capacity being used?',
     })).toBeVisible()
   })
 

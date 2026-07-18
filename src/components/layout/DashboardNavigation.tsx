@@ -98,6 +98,10 @@ const navigationGroups = [
         title: 'Are businesses increasing investment in productive capacity?',
       },
       {
+        id: 'corporate-profit-share-card',
+        title: 'Are corporate profits growing relative to the economy?',
+      },
+      {
         id: 'industrial-capacity-utilization-card',
         title: 'How fully is industrial capacity being used?',
       },
@@ -137,7 +141,7 @@ export function DashboardNavigation() {
         <summary>
           <span id="dashboard-navigation-heading">Explore all indicators</span>
           <span className="dashboard-navigation__summary-detail">
-            27 cards in 9 categories
+            28 cards in 9 categories
           </span>
         </summary>
         <div className="dashboard-navigation__groups">

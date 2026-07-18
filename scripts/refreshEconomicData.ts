@@ -7,6 +7,7 @@ import { derivePayrollSeries } from './fred/derivePayrollSeries'
 import { deriveWageSeries } from './fred/deriveWageSeries'
 import { deriveQuarterlyGrowthSeries } from './fred/deriveQuarterlyGrowthSeries'
 import { deriveTariffBurdenSeries } from './fred/deriveTariffBurdenSeries'
+import { deriveCorporateProfitShareSeries } from './fred/deriveCorporateProfitShareSeries'
 import {
   deriveCpiSeries,
   deriveSingleMonthlyGrowthSeries,
@@ -27,6 +28,8 @@ import {
   type ProductivitySeriesConfig,
   tariffBurdenConfiguration,
   type TariffBurdenConfig,
+  corporateProfitShareConfiguration,
+  type CorporateProfitShareConfig,
 } from './fred/seriesConfigurations'
 import {
   writeEconomicSeriesAtomically,
@@ -121,6 +124,7 @@ interface RefreshAllEconomicDataOptions {
   savingRateConfiguration?: FredSeriesConfig | false
   productivityConfiguration?: ProductivitySeriesConfig | false
   tariffBurdenConfiguration?: TariffBurdenConfig | false
+  corporateProfitShareConfiguration?: CorporateProfitShareConfig | false
   hoamConfiguration?: HoamConfiguration | false
   fetchImplementation?: typeof fetch
 }
@@ -152,6 +156,43 @@ export async function refreshTariffBurdenData({
     series,
     sourceObservationCount: customsResponse.observations.length,
     importsSourceObservationCount: importsResponse.observations.length,
+  }
+}
+
+export async function refreshCorporateProfitShareData({
+  apiKey,
+  retrievedAt,
+  config = corporateProfitShareConfiguration,
+  fetchImplementation,
+}: {
+  apiKey: string
+  retrievedAt: string
+  config?: CorporateProfitShareConfig
+  fetchImplementation?: typeof fetch
+}) {
+  const [profitsResponse, gdpResponse] = await Promise.all([
+    fetchFredObservations(apiKey, config.profitsSource, fetchImplementation),
+    fetchFredObservations(apiKey, config.gdpSource, fetchImplementation),
+  ])
+  const profits = normalizeFredSeries(
+    profitsResponse,
+    retrievedAt,
+    config.profitsSource,
+  )
+  const gdp = normalizeFredSeries(gdpResponse, retrievedAt, config.gdpSource)
+  const series = deriveCorporateProfitShareSeries(
+    profits,
+    gdp,
+    retrievedAt,
+    config,
+  )
+  await writeEconomicSeriesGroupAtomically([
+    { outputPath: path.resolve(config.outputFile), series },
+  ])
+  return {
+    series,
+    sourceObservationCount: profitsResponse.observations.length,
+    gdpSourceObservationCount: gdpResponse.observations.length,
   }
 }
 
@@ -535,6 +576,41 @@ export async function refreshAllEconomicData(
       outcomes.push({
         status: 'failed',
         config: householdConfig.incomeSource,
+        message: error instanceof Error ? error.message : 'Unknown failure',
+      })
+    }
+  }
+
+  const corporateProfitConfig =
+    options.corporateProfitShareConfiguration === undefined
+      ? options.configurations === undefined
+        ? corporateProfitShareConfiguration
+        : false
+      : options.corporateProfitShareConfiguration
+  if (corporateProfitConfig) {
+    try {
+      const result = await refreshCorporateProfitShareData({
+        apiKey,
+        retrievedAt,
+        config: corporateProfitConfig,
+        fetchImplementation,
+      })
+      outcomes.push({
+        status: 'updated',
+        config: {
+          ...corporateProfitConfig.profitsSource,
+          outputFile: corporateProfitConfig.outputFile,
+        },
+        series: result.series,
+        sourceObservationCount: result.sourceObservationCount,
+      })
+    } catch (error: unknown) {
+      outcomes.push({
+        status: 'failed',
+        config: {
+          ...corporateProfitConfig.profitsSource,
+          outputFile: corporateProfitConfig.outputFile,
+        },
         message: error instanceof Error ? error.message : 'Unknown failure',
       })
     }
