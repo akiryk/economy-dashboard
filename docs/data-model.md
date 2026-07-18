@@ -4,6 +4,10 @@ For the product-level card inventory and rationale, see [`product-overview.md`](
 
 The economic-series domain model keeps source metadata and observations together while distinguishing the meaning of each date.
 
+## Briefing interpretation boundary
+
+The future at-a-glance briefing is implemented as pure domain logic in `src/features/briefing`. It accepts already-loaded, validated observations and explicit configuration, then returns typed condition, direction, freshness, and agreement results with trace metadata. It performs no repository access, rendering, or prose generation. The committed research datasets and their existing repositories remain the evidence layer; no application route imports the briefing module yet.
+
 An `EconomicSeries` identifies the provider and provider series, explains the displayed units and transformation, records seasonal adjustment and frequency, and contains `EconomicObservation` entries. Each observation has an ISO date representing the economic period and a numeric or `null` value. A missing observation remains `null`; it is never treated as zero.
 
 The current domain supports annual, quarterly, monthly, and weekly economic series. One provider level series can generate multiple validated outputs with distinct transformations, as headline and core CPI each do for year-over-year and three-month annualized rates. Frequency-aware presentation formats years as `2025`, quarters as `2026 Q1`, months as `June 2026`, and weeks as `Week of Jul 10, 2026` using UTC, so local timezone offsets cannot shift an economic period. Invalid and duplicate dates are rejected rather than displayed ambiguously.

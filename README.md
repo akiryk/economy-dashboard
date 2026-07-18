@@ -11,6 +11,7 @@ See:
 - [`docs/dashboard-review-guide.md`](docs/dashboard-review-guide.md) for reviewing Phase 1 and choosing the next product objective.
 - [`docs/phase-1-limitations.md`](docs/phase-1-limitations.md) and [`docs/phase-1-closeout.md`](docs/phase-1-closeout.md) for accepted constraints and verification evidence.
 - [`docs/data-refresh.md`](docs/data-refresh.md) for the authoritative source, transformation, coverage, and refresh inventory.
+- [`docs/briefing-rules.md`](docs/briefing-rules.md) for the deterministic interpretation rules that will support the future at-a-glance briefing.
 - [`docs/charting.md`](docs/charting.md) and [`docs/data-model.md`](docs/data-model.md) for implementation architecture.
 
 ## Technology
@@ -68,6 +69,7 @@ src/
     models/             Domain model and runtime validation
     repositories/       Asynchronous local-data boundary
     utils/              Economic calculations and chart preparation
+  features/briefing/    Pure briefing interpretation types and rules (not yet visible)
   pages/                Dashboard and not-found pages
   styles/               Global styles and design tokens
 scripts/                Provider clients, derivations, and safe refresh writes
