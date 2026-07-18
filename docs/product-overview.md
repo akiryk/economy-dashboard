@@ -6,7 +6,7 @@ The U.S. Economy Dashboard is a descriptive, historically grounded briefing on m
 
 The current product is intentionally broad and nonpartisan. It does not forecast markets, recommend investments, evaluate political actors, infer causation from timing, or collapse mixed evidence into one score. That purpose should remain the baseline unless a future phase explicitly adopts another objective.
 
-The dashboard contains 26 visible cards in nine sections. Most cards use nonsmoothed time-series line charts. Relationship cards use two aligned lines; the manufacturing comparison normalizes two differently scaled series to a common selected-range baseline.
+The dashboard contains 27 visible cards in nine sections. Most cards use nonsmoothed time-series line charts. Relationship cards use two aligned lines; the manufacturing comparison normalizes two differently scaled series to a common selected-range baseline.
 
 ## What the dashboard shows
 
@@ -66,6 +66,7 @@ The dashboard contains 26 visible cards in nine sections. Most cards use nonsmoo
 |---|---|---|
 | How do short-term and long-term interest rates compare? | Monthly effective federal funds rate and 10-year Treasury yield. | Compares a policy-linked short rate with a benchmark long rate without treating the curve as a mechanical recession forecast. |
 | Are credit conditions tighter or looser than usual? | Weekly Chicago Fed NFCI credit subindex relative to its historical average. | Adds broad credit availability and risk conditions not captured by Treasury yields alone. |
+| Are banks making it harder to borrow? | Quarterly net percentage of domestic banks reporting tighter C&I lending standards for large and middle-market firms. | Adds a direct SLOOS survey measure for one borrower class, distinct from the NFCI composite and from loan demand or denial rates. |
 
 ### Government finances
 
@@ -102,7 +103,7 @@ Future work should begin by naming the user decision the dashboard is meant to s
 | Household welfare and distribution | Medians, distributions, demographic and geographic differences, and essential costs. | Real median income and wages, wealth and debt distributions, poverty, labor-force participation, rent burden, regional housing, and subgroup outcomes. |
 | Business operating environment | Demand, costs, financing, investment, inventories, and sector divergence. | New orders, inventories, profits, bankruptcies, lending standards, small-business conditions, and sector detail. |
 
-The current 26-card dashboard should be treated as a baseline inventory, not as a permanent requirement that every card remain. A future phase may add, reframe, combine, or remove measures when doing so better serves an explicitly chosen objective and preserves source transparency.
+The current 27-card dashboard should be treated as a baseline inventory, not as a permanent requirement that every card remain. A future phase may add, reframe, combine, or remove measures when doing so better serves an explicitly chosen objective and preserves source transparency.
 
 ## Related documentation
 

@@ -1,6 +1,6 @@
 # Charting architecture
 
-For the product-level inventory of the 26 visible charts and their rationale, see [`product-overview.md`](product-overview.md).
+For the product-level inventory of the 27 visible charts and their rationale, see [`product-overview.md`](product-overview.md).
 
 ## Library choice
 
@@ -14,7 +14,7 @@ The implementation uses ECharts 6 modular core imports and registers only the li
 
 Economic observations remain `{ date, value }` domain objects. Pure range and summary utilities operate on those objects. Immediately before rendering, `chartAdapters.ts` sorts without mutation and converts each observation to ECharts-compatible `[date, value]` data. `null` remains `null`, so missing observations are neither converted to zero nor joined by the line.
 
-The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage, index, and count data use the same UTC-safe period formatter without conflating their meanings. All twenty-six current cards dynamically import the same chart module; ECharts is not duplicated.
+The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage, index, and count data use the same UTC-safe period formatter without conflating their meanings. All twenty-seven current cards dynamically import the same chart module; ECharts is not duplicated.
 
 Story 18 adds native weekly labels and range/zoom support through the existing frequency-aware utilities. The interest-rate relationship aligns FEDFUNDS and GS10 by exact month, plots both on one zero-inclusive percentage axis, and calculates GS10 minus FEDFUNDS only in its presentation model. The NFCICREDIT chart retains native weekly observations and includes the meaningful zero line; positive values are described only with the source-defined tighter-than-average wording and negative values as looser than average. Both cards reuse the shared historical-zoom controller.
 
@@ -23,6 +23,8 @@ Story 19 adds shared annual year labels and FRED annual-frequency requests witho
 Story 20 adds two quarterly charts through that same path. Trade balance includes zero and preserves signed deficit/surplus values; effective tariff burden includes zero and displays the locally derived customs-to-goods-import ratio. Both cards inherit the established range presets, canvas slider, companion controls, visible-period summaries, and reset behavior.
 
 Story 22 adds an exact-date weekly relationship chart for ICSA and the provider-published IC4WSA four-week average. The average is the prominent solid line and weekly claims are a thinner dashed secondary line on one claims axis. Neither line is smoothed or connected across missing dates, and the tooltip displays whole claim counts.
+
+Story 23 uses the existing signed single-series path for quarterly DRTSCILM. Its zero reference line distinguishes net tightening from net easing, while the nonsmoothed line preserves missing quarters. No background verdict zones, rolling average, or mathematical combination with NFCI is added.
 
 The same deferred boundary accepts either one series or the wages-versus-inflation comparison. The comparison uses solid nominal wage growth and dashed headline CPI inflation on one shared percentage axis with a concise legend and zero reference line. Dual axes are intentionally avoided. Its tooltip includes the aligned month, both plotted rates, and exact-ratio real wage growth. Both lines use the same latest shared month and selected range.
 
@@ -127,3 +129,5 @@ With Story 19, the initial application chunk is 386.94 kB minified (111.96 kB gz
 With Story 20, the initial application chunk is 391.60 kB minified (112.79 kB gzip). The trade-balance-share-of-GDP and effective-tariff-burden data chunks are 10.58 kB (1.93 kB gzip) and 13.59 kB (4.25 kB gzip). The one shared deferred chart/ECharts chunk remains 582.27 kB minified (194.25 kB gzip); ECharts remains deduplicated and the established deferred-chunk warning remains.
 
 With Story 22, the initial application chunk is 399.42 kB minified (114.09 kB gzip). The ICSA and IC4WSA data chunks are 100.09 kB (17.10 kB gzip) and 102.61 kB (18.85 kB gzip). The one shared deferred chart/ECharts chunk is 583.04 kB minified (194.47 kB gzip); ECharts remains deduplicated and the established deferred-chunk warning remains.
+
+With Story 23, the initial application chunk is 402.89 kB minified (114.99 kB gzip), and the DRTSCILM data chunk is 5.57 kB (1.41 kB gzip). The one shared deferred chart/ECharts chunk remains 583.04 kB minified (194.47 kB gzip); ECharts remains deduplicated and the established deferred-chunk warning remains.

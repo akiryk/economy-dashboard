@@ -35,6 +35,7 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Industrial capacity utilization (`TCU`, monthly), written as the provider-published percentage level to `industrial-capacity-utilization.json`.
 - Effective federal funds rate and 10-year Treasury yield (`FEDFUNDS` and `GS10`, monthly), written as separate provider-published percentage levels and aligned only for presentation.
 - Broad credit conditions (`NFCICREDIT`, weekly), written as the provider-published standardized index to `broad-credit-conditions.json`.
+- Bank lending standards (`DRTSCILM`, quarterly), written as the provider-published net percentage of domestic banks reporting tighter C&I standards for large and middle-market firms.
 - Federal budget balance (`FYFSGDA188S`, annual) and federal debt held by the public (`FYGFGDQ188S`, quarterly), written as separate provider-published percent-of-GDP ratios.
 - Trade balance as a share of GDP (`A019RE1Q156NBEA`, quarterly), written as the provider-published signed ratio.
 - Effective tariff burden, derived from quarterly customs-duty receipts (`B235RC1Q027SBEA`) divided by goods imports (`A255RC1Q027SBEA`) and written to `effective-tariff-burden.json`.
@@ -84,6 +85,7 @@ The series-specific requests are:
 - Effective federal funds rate: `series_id=FEDFUNDS` and `frequency=m`, with no `units` parameter.
 - 10-year Treasury yield: `series_id=GS10` and `frequency=m`, with no `units` parameter.
 - Broad credit conditions: `series_id=NFCICREDIT` and `frequency=w`, with no `units` parameter.
+- Bank lending standards: `series_id=DRTSCILM` and `frequency=q`, with no `units` parameter.
 - Federal budget balance: `series_id=FYFSGDA188S` and `frequency=a`, with no `units` parameter.
 - Federal debt held by the public: `series_id=FYGFGDQ188S` and `frequency=q`, with no `units` parameter.
 - Trade balance: `series_id=A019RE1Q156NBEA` and `frequency=q`, with no `units` parameter.
@@ -162,6 +164,7 @@ Leading unavailable values are removed so generated growth files begin with a va
 - FEDFUNDS: 864 observations, July 1954–June 2026.
 - GS10: 879 observations, April 1953–June 2026; exact shared rate coverage begins July 1954.
 - NFCICREDIT: 2,897 weekly observations, January 8, 1971–July 10, 2026.
+- DRTSCILM: 145 quarterly observations, 1990 Q2–2026 Q2.
 - FYFSGDA188S: 97 annual observations, 1929–2025.
 - FYGFGDQ188S: 225 quarterly observations, 1970 Q1–2026 Q1.
 - A019RE1Q156NBEA: 317 quarterly observations, 1947 Q1–2026 Q1.

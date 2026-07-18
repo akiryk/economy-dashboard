@@ -123,6 +123,7 @@ describe('refreshEconomicData', () => {
         'provider-level',
         'provider-level',
         'provider-level',
+        'provider-level',
       ])
     expect(payrollSeriesConfiguration).toMatchObject({
       dataHandling: 'locally-derived',
@@ -641,7 +642,7 @@ describe('refreshEconomicData', () => {
     expect(await readFile(cpiPath, 'utf8')).toBe(existingCpi)
   })
 
-  it('refreshes all fourteen direct sources once and omits provider transformations for local derivations', async () => {
+  it('refreshes all fifteen direct sources once and omits provider transformations for local derivations', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
     temporaryDirectories.push(directory)
     const configurations = fredSeriesConfigurations.map((config) => ({
@@ -692,13 +693,13 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(20)
+    expect(outcomes).toHaveLength(21)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 15, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3, 3, 3, 3, 3, 3, 3])
+    ).toEqual([3, 15, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3, 3, 3, 3, 3, 3, 3, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
@@ -717,13 +718,14 @@ describe('refreshEconomicData', () => {
       'FEDFUNDS',
       'GS10',
       'NFCICREDIT',
+      'DRTSCILM',
       'FYFSGDA188S',
       'FYGFGDQ188S',
       'A019RE1Q156NBEA',
     ])
     expect(requestedUrls[0]?.searchParams.get('units')).toBe('pc1')
     expect(requestedUrls.slice(1).map((url) => url.searchParams.has('units')))
-      .toEqual([false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false])
+      .toEqual([false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false])
     expect(
       requestedUrls.every((url) => !url.searchParams.has('observation_start')),
     ).toBe(true)
@@ -820,6 +822,33 @@ describe('refreshEconomicData', () => {
     expect(outcomes.map((outcome) => outcome.status)).toEqual(['failed', 'updated'])
     expect(await readFile(protectedPath, 'utf8')).toBe(existing)
     await expect(readFile(configurations[1]!.outputFile, 'utf8')).resolves.toContain('IC4WSA')
+  })
+
+  it('preserves the prior lending-standards file when its refresh is invalid', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
+    temporaryDirectories.push(directory)
+    const source = fredSeriesConfigurations.find(
+      (config) => config.providerSeriesId === 'DRTSCILM',
+    )!
+    const config = {
+      ...source,
+      outputFile: path.join(directory, 'bank-lending-standards.json'),
+      minimumUsableObservations: 2,
+    }
+    const existing = '{"existing":"valid lending standards fixture"}\n'
+    await writeFile(config.outputFile, existing, 'utf8')
+
+    const outcomes = await refreshAllEconomicData({
+      apiKey: 'test-key',
+      retrievedAt: '2026-07-17',
+      configurations: [config],
+      fetchImplementation: async () => new Response(JSON.stringify({
+        observations: [{ date: '2026-04-01', value: 'invalid' }],
+      }), { status: 200 }),
+    })
+
+    expect(outcomes[0]?.status).toBe('failed')
+    expect(await readFile(config.outputFile, 'utf8')).toBe(existing)
   })
 
   it('fetches PAYEMS once and atomically writes both derived outputs', async () => {

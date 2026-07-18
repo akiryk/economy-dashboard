@@ -249,6 +249,11 @@ export function DashboardPage() {
           label="broad credit conditions"
           onSeriesLoaded={handleSeriesLoaded}
         />
+        <EconomicSeriesCard
+          slug="bank-lending-standards"
+          label="bank lending standards"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
       </EconomicSection>
 
       <EconomicSection

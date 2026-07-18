@@ -25,6 +25,24 @@ function getYAxis(includeZero: boolean): YAXisComponentOption {
 }
 
 describe('createEconomicTimeSeriesChartOptions', () => {
+  it('uses only a zero reference line for signed lending standards', () => {
+    const options = createEconomicTimeSeriesChartOptions({
+      data: [['2026-01-01', -5], ['2026-04-01', 8.1]],
+      seriesName: 'Bank lending standards',
+      frequency: 'quarterly',
+      units: 'Net percent reporting tighter standards',
+      transformation: 'Provider-published net percentage',
+      includeZero: true,
+      valueFormat: 'signed-percentage',
+    })
+    const series = (options.series as Array<{ markArea?: unknown; markLine?: { data: unknown[] }; smooth: boolean; connectNulls: boolean }>)[0]!
+
+    expect(series.markLine?.data).toEqual([{ yAxis: 0 }])
+    expect(series.markArea).toBeUndefined()
+    expect(series.smooth).toBe(false)
+    expect(series.connectNulls).toBe(false)
+  })
+
   it('adds the same visible two-handle dataZoom slider to compatible charts', () => {
     const chartOptions = createEconomicTimeSeriesChartOptions({
       data: [['2024-01-01', 1], ['2024-03-01', 2]],

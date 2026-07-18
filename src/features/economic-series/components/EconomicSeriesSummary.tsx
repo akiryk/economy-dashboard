@@ -30,6 +30,12 @@ import { HistoricalZoomControls } from './HistoricalZoomControls'
 import { useHistoricalZoom } from './useHistoricalZoom'
 import { BudgetBalanceTable } from './BudgetBalanceTable'
 import { TradeBalanceTable } from './TradeBalanceTable'
+import {
+  describeLendingStandardsChange,
+  formatLendingStandardsCallout,
+  lendingStandardsCounts,
+  medianLendingStandards,
+} from '../utils/lendingStandardsData'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -88,6 +94,13 @@ export function EconomicSeriesSummary({
   const firstVisibleObservation = visibleObservations.find(
     (observation) => observation.value !== null,
   )
+  const visibleValidObservations = visibleObservations.filter(
+    (observation): observation is typeof observation & { value: number } =>
+      observation.value !== null,
+  )
+  const previousVisibleObservation = visibleValidObservations.at(-2)
+  const lendingCounts = lendingStandardsCounts(visibleObservations)
+  const lendingMedian = medianLendingStandards(visibleObservations)
   const formatValue = (value: number | null) =>
     formatEconomicValue(value, presentation.valueFormat)
   const savingRateChange =
@@ -124,7 +137,9 @@ export function EconomicSeriesSummary({
                 : undefined
             }
           >
-            {series.slug === 'housing-starts'
+            {series.slug === 'bank-lending-standards'
+              ? formatLendingStandardsCallout(latestObservation?.value ?? null)
+              : series.slug === 'housing-starts'
               ? formatAnnualizedHousingUnits(latestObservation?.value ?? null)
               : formatValue(latestObservation?.value ?? null)}
           </span>
@@ -212,7 +227,16 @@ export function EconomicSeriesSummary({
               onZoomChange={zoom.onChartZoom}
             />
           </Suspense>
-          {series.slug === 'federal-budget-balance' ? (
+          {series.slug === 'bank-lending-standards' ? (
+            <p className="chart-summary" aria-live="polite">
+              In {chartSummary.latest ? formatObservationPeriod(chartSummary.latest.date, series.frequency) : 'the latest visible quarter'}, banks reported {formatLendingStandardsCallout(chartSummary.latest?.value ?? null).toLowerCase()}.{' '}
+              {describeLendingStandardsChange(
+                previousVisibleObservation?.value ?? null,
+                chartSummary.latest?.value ?? null,
+              )}{' '}
+              The visible range ran from {formatValue(chartSummary.minimum?.value ?? null)} to {formatValue(chartSummary.maximum?.value ?? null)}; {lendingCounts.above} observations were above zero, {lendingCounts.below} were below zero, and {lendingCounts.zero} were exactly zero. The latest value was {lendingMedian !== null && chartSummary.latest?.value !== null && chartSummary.latest?.value !== undefined && chartSummary.latest.value >= lendingMedian ? 'at or above' : 'below'} the visible-range median.
+            </p>
+          ) : series.slug === 'federal-budget-balance' ? (
             <p className="chart-summary" aria-live="polite">
               From {firstVisibleObservation ? formatObservationPeriod(firstVisibleObservation.date, series.frequency) : 'an unavailable year'} to {chartSummary.latest ? formatObservationPeriod(chartSummary.latest.date, series.frequency) : 'an unavailable year'}, the federal budget balance moved from {formatValue(firstVisibleObservation?.value ?? null)} to {formatValue(chartSummary.latest?.value ?? null)} of GDP. The largest visible deficit was {formatValue(chartSummary.minimum?.value ?? null)} in {chartSummary.minimum ? formatObservationPeriod(chartSummary.minimum.date, series.frequency) : 'an unavailable year'}{chartSummary.maximum && chartSummary.maximum.value !== null && chartSummary.maximum.value > 0 ? `, and the largest visible surplus was ${formatValue(chartSummary.maximum.value)} in ${formatObservationPeriod(chartSummary.maximum.date, series.frequency)}` : ', and no surplus appears in the visible period'}. The latest observation is {chartSummary.latest?.value === null || chartSummary.latest?.value === undefined ? 'unavailable' : chartSummary.latest.value < 0 ? 'a deficit' : chartSummary.latest.value > 0 ? 'a surplus' : 'balanced'}.
             </p>

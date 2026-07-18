@@ -44,13 +44,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('26 cards in 9 categories')).toBeVisible()
+    expect(within(navigation).getByText('27 cards in 9 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(26)
+    expect(links).toHaveLength(27)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -74,6 +74,7 @@ describe('DashboardPage economic series', () => {
       'How fully is industrial capacity being used?',
       'How do short-term and long-term interest rates compare?',
       'Are credit conditions tighter or looser than usual?',
+      'Are banks making it harder to borrow?',
       'How large is the federal budget deficit or surplus relative to the economy?',
       'How large is federal debt held by the public relative to the economy?',
       'How large is the U.S. trade balance relative to the economy?',
@@ -188,7 +189,7 @@ describe('DashboardPage economic series', () => {
       'Are layoffs beginning to rise?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(26)
+    expect(screen.getAllByRole('article')).toHaveLength(27)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'real-income-versus-spending-question',
       'personal-saving-rate-question',
@@ -1180,7 +1181,7 @@ describe('DashboardPage economic series', () => {
     },
   )
 
-  it('renders the two Financial conditions cards after Business and manufacturing', async () => {
+  it('renders the three Financial conditions cards after Business and manufacturing', async () => {
     const user = userEvent.setup()
     render(<DashboardPage />)
     const business = screen.getByRole('region', { name: 'Business and manufacturing' })
@@ -1188,7 +1189,8 @@ describe('DashboardPage economic series', () => {
     expect(business.compareDocumentPosition(financial) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     const rates = await within(financial).findByRole('article', { name: 'How do short-term and long-term interest rates compare?' })
     const credit = await within(financial).findByRole('article', { name: 'Are credit conditions tighter or looser than usual?' })
-    expect(within(financial).getAllByRole('article')).toHaveLength(2)
+    const lending = await within(financial).findByRole('article', { name: 'Are banks making it harder to borrow?' })
+    expect(within(financial).getAllByRole('article')).toHaveLength(3)
     expect(within(rates).getByText('Federal funds rate: 3.6%')).toBeVisible()
     expect(within(rates).getByText('10-year Treasury yield: 4.5%')).toBeVisible()
     expect(within(rates).getAllByText(/above the federal funds rate/)).not.toHaveLength(0)
@@ -1197,12 +1199,23 @@ describe('DashboardPage economic series', () => {
     expect(within(credit).getByText('Looser than average')).toBeVisible()
     expect(within(credit).getByText(/not a percentage/)).toBeVisible()
     expect(within(credit).getAllByText('Week of Jul 10, 2026')).not.toHaveLength(0)
+    expect(within(lending).getByLabelText('Latest bank lending standards')).toHaveTextContent('8.1% net tightening')
+    expect(within(lending).getAllByText('2026 Q2')).not.toHaveLength(0)
+    expect(within(lending).getByText(/not a denial rate/)).toBeVisible()
+    expect(within(lending).getByText(/loan demand/i)).toBeVisible()
     await user.click(within(rates).getByRole('button', { name: 'Maximum' }))
     await user.click(within(credit).getByRole('button', { name: 'Maximum' }))
+    await user.click(within(lending).getByRole('button', { name: 'Maximum' }))
     expect(within(rates).getByText('Visible period: July 1954–June 2026')).toBeVisible()
     expect(within(credit).getByText('Visible period: Week of Jan 8, 1971–Week of Jul 10, 2026')).toBeVisible()
+    expect(within(lending).getByText('Visible period: 1990 Q2–2026 Q2')).toBeVisible()
     await user.click(within(credit).getByRole('button', { name: 'Zoom in' }))
     expect(within(credit).getByRole('button', { name: 'Reset zoom' })).toBeVisible()
+    await user.click(within(lending).getByText('Recent observations'))
+    expect(within(lending).getByRole('table', { name: 'Eight most recent bank lending-standards observations' })).toBeVisible()
+    await user.click(within(lending).getByText('Series details'))
+    expect(within(lending).getByText('DRTSCILM')).toBeVisible()
+    expect(within(lending).getByText('Not seasonally adjusted')).toBeVisible()
   })
 
   it('renders annual budget balance and quarterly debt held by the public after Financial conditions', async () => {
@@ -1228,6 +1241,25 @@ describe('DashboardPage economic series', () => {
     expect(within(debt).getByText('Visible period: 1970 Q1–2026 Q1')).toBeVisible()
     await user.click(within(budget).getByRole('button', { name: 'Zoom in' }))
     expect(within(budget).getByRole('button', { name: 'Reset zoom' })).toBeVisible()
+  })
+
+  it('isolates a bank lending-standards card load failure', async () => {
+    const original = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
+    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
+      if (slug === 'bank-lending-standards') throw new Error('Invalid SLOOS fixture')
+      return original(slug)
+    })
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    render(<DashboardPage />)
+
+    expect(await screen.findByText('The bank lending standards data could not be loaded.')).toBeVisible()
+    expect(await screen.findByRole('article', {
+      name: 'Are credit conditions tighter or looser than usual?',
+    })).toBeVisible()
+    expect(await screen.findByRole('article', {
+      name: 'How do short-term and long-term interest rates compare?',
+    })).toBeVisible()
   })
 
   it.each([

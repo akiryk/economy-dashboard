@@ -108,6 +108,7 @@ const navigationGroups = [
     cards: [
       { id: 'interest-rate-conditions-card', title: 'How do short-term and long-term interest rates compare?' },
       { id: 'broad-credit-conditions-card', title: 'Are credit conditions tighter or looser than usual?' },
+      { id: 'bank-lending-standards-card', title: 'Are banks making it harder to borrow?' },
     ],
   },
   {
@@ -136,7 +137,7 @@ export function DashboardNavigation() {
         <summary>
           <span id="dashboard-navigation-heading">Explore all indicators</span>
           <span className="dashboard-navigation__summary-detail">
-            26 cards in 9 categories
+            27 cards in 9 categories
           </span>
         </summary>
         <div className="dashboard-navigation__groups">

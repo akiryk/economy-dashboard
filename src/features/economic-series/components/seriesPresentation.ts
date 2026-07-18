@@ -82,6 +82,23 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     summaryFormat: 'numeric-range',
     recentTable: 'single-value',
   },
+  'bank-lending-standards': {
+    topicLabel: 'Bank credit availability',
+    latestValueLabel: 'Latest bank lending standards',
+    whatThisTellsYou:
+      'The Senior Loan Officer Opinion Survey asks whether banks tightened or eased lending standards over the survey period. This card shows the net percentage of domestic banks reporting tighter standards for commercial and industrial loans to large and middle-market firms. Positive values indicate net tightening; negative values indicate net easing. Tighter standards may restrict credit availability and can signal caution among lenders.',
+    whatThisLeavesOut:
+      'This survey measure is not a denial rate, loan volume, borrowing cost, or census of lending. It omits loan demand and every other borrower and loan category. A positive value does not mean every bank tightened. The respondent sample, questions, and reporting convention may evolve, and survey responses and economic outcomes may move at different times.',
+    relatedIndicators: ['Broad credit conditions', 'Interest rates', 'Business investment', 'Corporate profits'],
+    recentObservationCount: 8,
+    recentObservationsCaption: 'Eight most recent bank lending-standards observations',
+    valueColumnLabel: 'Net percent reporting tighter standards',
+    includeZeroInChart: true,
+    reportBelowZero: true,
+    valueFormat: 'signed-percentage',
+    summaryFormat: 'numeric-range',
+    recentTable: 'single-value',
+  },
   'real-business-investment-growth': {
     topicLabel: 'Business investment',
     latestValueLabel: 'Latest real business investment growth',

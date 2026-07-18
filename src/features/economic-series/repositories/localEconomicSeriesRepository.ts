@@ -51,6 +51,7 @@ const localSeriesLoaders: Readonly<
   'ten-year-treasury-yield': () =>
     import('../data/ten-year-treasury-yield.json'),
   'broad-credit-conditions': () => import('../data/broad-credit-conditions.json'),
+  'bank-lending-standards': () => import('../data/bank-lending-standards.json'),
   'federal-budget-balance': () => import('../data/federal-budget-balance.json'),
   'federal-debt-held-by-public': () => import('../data/federal-debt-held-by-public.json'),
   'trade-balance-share-of-gdp': () => import('../data/trade-balance-share-of-gdp.json'),

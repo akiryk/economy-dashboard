@@ -75,6 +75,22 @@ describe('localEconomicSeriesRepository', () => {
       .resolves.toMatchObject({ providerSeriesId: 'NFCICREDIT', frequency: 'weekly', units: 'Index' })
   })
 
+  it('loads quarterly bank lending standards with survey metadata and signed values', async () => {
+    const series = await localEconomicSeriesRepository.getBySlug('bank-lending-standards')
+
+    expect(series).toMatchObject({
+      providerSeriesId: 'DRTSCILM',
+      frequency: 'quarterly',
+      units: 'Net percent reporting tighter standards',
+      seasonalAdjustment: 'Not seasonally adjusted',
+    })
+    expect(series?.observations[0]?.date).toBe('1990-04-01')
+    expect(series?.observations.at(-1)?.date).toBe('2026-04-01')
+    expect(series?.observations.some((observation) => observation.value! < 0)).toBe(true)
+    expect(series?.observations.some((observation) => observation.value === 0)).toBe(true)
+    expect(series?.observations.some((observation) => observation.value! > 0)).toBe(true)
+  })
+
   it.each([
     ['initial-unemployment-claims', 'ICSA', 'Provider-published weekly level'],
     ['initial-unemployment-claims-four-week-average', 'IC4WSA', 'Provider-published four-week moving average'],
