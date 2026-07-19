@@ -1,6 +1,6 @@
 # Briefing interpretation rules
 
-Status: Story 26 analytical foundation. These rules are implemented as pure TypeScript but are not yet used by a visible route or component. Parameters marked provisional must be reviewed after the Labor vertical slice.
+Status: implemented and reviewed through the Story 28 Labor vertical slice. The non-default `/briefing` route uses these rules for Labor; other dimensions remain unimplemented.
 
 ## Product boundary and dimensions
 
@@ -61,6 +61,8 @@ When material, favorable movement is `improving` and adverse movement is `deteri
 
 Freshness compares calendar-day evidence age with explicit expected cadence. Age at or below 1.5 times cadence is `current`; above 1.5 and at or below 2 times is `stale-warning`; above 2 times is `no-fresh-evidence` and suppresses direction. Exact boundaries remain less severe. For a ten-day cadence, age 15 is current, 16 warns, 20 warns, and 21 suppresses. Suppression never repeats an old direction or calls absent news stable. Seven-day new markers and page refresh UI are later work.
 
+Economic-series monthly and quarterly dates identify the first day of a measured period, not a release date. Labor freshness therefore measures monthly age from the final calendar day of the observation month (and quarterly age from quarter-end); weekly series retain their exact weekly date. This avoids treating a completed monthly period as already one month old on its represented date. It remains a cadence proxy until explicit release dates exist.
+
 ## Combining two primaries
 
 Condition tiers group into favorable side, typical, and unfavorable side. Matching primary groups produce the shared group. Favorable plus typical, or favorable plus unfavorable, is `mixed`. Missing or inadequate primary evidence is `unclear`. There is no averaging, weighting, winner, or supporting input.
@@ -77,10 +79,10 @@ The engine accepts observations and configuration and performs no repository acc
 
 ## Provisional parameters
 
-After the Labor slice, review the tier thresholds, 60th-percentile gate, direction windows, freshness multipliers, template tone, Growth and Household vocabulary, and whether normalizing should ever extend beyond Labor. These parameters are provisional; the no-score, separate-reading, conflict, and template-only architecture is not.
+Story 28 retained the Labor tier thresholds, 60th-percentile gate, direction windows, freshness multipliers, and Labor-only scope for normalizing. Growth and Household vocabulary and any use of normalizing outside Labor remain unapproved. The no-score, separate-reading, conflict, and template-only architecture is permanent.
 
 Every worked example above is pinned by a test named `docs example` in `src/features/briefing/briefingRules.test.ts`.
 
 ## Labor vertical-slice review note
 
-The `/briefing` route now applies these rules to committed Labor data without tuning thresholds to obtain a preferred label. Payroll direction that clears the material-movement gate receives the standing sentence qualification that the newest payroll estimate is commonly revised. The human review checkpoint should assess whether the resulting condition grouping, direction gate, observation-period freshness semantics, and template tone remain useful before other dimensions are added.
+The `/briefing` route applies these rules to committed Labor data without tuning thresholds to obtain a preferred label. Payroll direction that clears the material-movement gate receives the standing sentence qualification that the newest payroll estimate is commonly revised. Story 28 retained the analytical parameters and requires full-history secondary ranks in the primary trace and copy that names every simultaneous primary conflict. See [`labor-briefing-review.md`](labor-briefing-review.md).

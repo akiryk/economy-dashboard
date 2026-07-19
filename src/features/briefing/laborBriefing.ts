@@ -10,10 +10,12 @@ import type {
 import {
   calculateIndicatorCondition,
   calculateIndicatorDirection,
+  calculatePercentileRank,
   calculatePercentileValue,
   combineDimensionConditions,
   combineDimensionDirections,
   evaluateFreshness,
+  orientPercentile,
   selectComparisonWindow,
   suppressStaleDirection,
 } from './briefingRules'
@@ -50,6 +52,8 @@ export interface LaborEvidence {
   value: string
   period: string
   condition: IndicatorConditionResult
+  fullHistoryRawPercentile: number
+  fullHistoryOrientedPercentile: number
   direction: IndicatorDirectionResult
   freshness: FreshnessResult
   link: string
@@ -130,6 +134,13 @@ function formatPercentile(value: number): string {
   return `${rounded}${suffix}`
 }
 
+function freshnessReferencePeriod(period: string, frequency: EconomicSeries['frequency']): string {
+  if (frequency !== 'monthly' && frequency !== 'quarterly') return period
+  const date = new Date(`${period}T00:00:00Z`)
+  date.setUTCMonth(date.getUTCMonth() + (frequency === 'monthly' ? 1 : 3), 0)
+  return date.toISOString().slice(0, 10)
+}
+
 function buildEvidence(
   id: LaborEvidence['id'],
   label: string,
@@ -143,18 +154,23 @@ function buildEvidence(
   const current = latest(values)
   if (!current) return undefined
   const condition = calculateIndicatorCondition(values, valence)
+  const allValues = values.map(({ value }) => value)
+  const fullHistoryRawPercentile = calculatePercentileRank(allValues, current.value)
+  if (fullHistoryRawPercentile === undefined) return undefined
   const rawDirection = calculateIndicatorDirection(values, {
     frequency: series.frequency === 'weekly' ? 'weekly' : 'monthly',
     valence,
     normalizingDimension: id === 'unemployment' || id === 'payrolls' ? 'labor' : undefined,
     condition,
   })
-  const freshness = evaluateFreshness(current.period, evaluationPeriod, {
+  const freshness = evaluateFreshness(freshnessReferencePeriod(current.period, series.frequency), evaluationPeriod, {
     expectedCadenceDays: series.frequency === 'weekly' ? 7 : 31,
   })
   return {
     id, label, value: formatValue(current.value, kind),
     period: formatObservationPeriod(current.period, series.frequency), condition,
+    fullHistoryRawPercentile,
+    fullHistoryOrientedPercentile: orientPercentile(fullHistoryRawPercentile, valence)!,
     direction: suppressStaleDirection(rawDirection, freshness), freshness,
     link: LABOR_RESEARCH_LINKS[id], role,
   }
@@ -187,9 +203,10 @@ export function selectLaborTemplate(
   stale: boolean,
 ): LaborTemplateId {
   if (condition === 'unclear' || direction === 'unclear') return 'unclear-primary'
-  if (direction === 'no-fresh-evidence' || stale) return 'stale-primary'
+  if (direction === 'no-fresh-evidence') return 'stale-primary'
   if (condition === 'mixed') return 'mixed-condition'
   if (direction === 'mixed') return 'mixed-direction'
+  if (stale) return 'stale-primary'
   if (condition === 'favorable-side' && direction === 'normalizing') return 'favorable-normalizing'
   if (condition === 'favorable-side' && direction === 'deteriorating') return 'favorable-deteriorating'
   if (condition === 'unfavorable-side' && direction === 'improving') return 'unfavorable-improving'
@@ -203,17 +220,23 @@ export function renderLaborSynthesis(template: LaborTemplateId, unemployment: La
     ? `${formatPercentile(unemployment.condition.rawPercentile)} historical percentile`
     : 'insufficient historical context'
   const facts = `Unemployment is ${unemployment.value} (${percentile}) while payroll growth averages ${payrolls.value}.`
+  const directionNames = [unemployment.direction, payrolls.direction].map((direction) => direction.evidence === 'adequate' ? direction.direction : direction.evidence)
+  const conditionNames = [unemployment.condition, payrolls.condition].map((condition) => condition.evidence === 'adequate' && condition.valence !== 'unvalenced' ? condition.group : condition.evidence)
+  const normalizingEvidence = unemployment.direction.evidence === 'adequate' && unemployment.direction.direction === 'normalizing' ? unemployment : payrolls
+  const normalizingMovement = normalizingEvidence.direction.evidence === 'adequate'
+    ? `${normalizingEvidence.label} moved adversely by ${normalizingEvidence.direction.currentChange.absoluteChange.toFixed(1)} over six months`
+    : 'A primary measure moved adversely'
   const interpretations: Record<LaborTemplateId, string> = {
     'agree-improving': 'Labor conditions and direction are improving.',
     'agree-stable': 'Labor conditions are aligned while recent direction is broadly stable.',
-    'favorable-normalizing': 'Conditions remain favorable while unemployment or payroll movement is adverse and normalizing toward its historical range.',
+    'favorable-normalizing': `Conditions remain favorable while ${normalizingMovement} beyond ordinary noise; this is classified as normalizing, not as a forecast.`,
     'favorable-deteriorating': 'Conditions remain favorable while recent direction is deteriorating.',
     'unfavorable-improving': 'Conditions remain unfavorable while recent direction is improving.',
-    'mixed-condition': 'The primary condition signals disagree, so the condition reading is mixed.',
+    'mixed-condition': `The primary condition signals disagree (${conditionNames.join(' versus ')}), so condition is mixed${directionNames[0] !== directionNames[1] ? `; direction also disagrees (${directionNames.join(' versus ')}) and is mixed` : ''}.`,
     'mixed-direction': 'The primary direction signals disagree, so the direction reading is mixed.',
     'stale-primary': 'Primary evidence is stale, so recent direction is not treated as stable.',
     'unclear-primary': 'Primary evidence is insufficient for a clear condition or direction reading.',
-    'other-valid': 'Condition and direction are reported separately from the two primary measures.',
+    'other-valid': `Primary conditions are ${conditionNames.join(' and ')}, while directions are ${directionNames.join(' and ')}.`,
   }
   return `${facts} ${interpretations[template]}${revision ? ' The newest payroll estimate is commonly revised.' : ''}`
 }

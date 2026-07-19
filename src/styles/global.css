@@ -125,16 +125,27 @@ p {
 }
 
 .briefing-page {
+  width: 100%;
+  min-width: 0;
   max-width: 50rem;
 }
 
 .labor-briefing {
   display: grid;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   gap: var(--space-6);
   padding: var(--space-8);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-medium);
+}
+
+.labor-briefing > *,
+.briefing-sparkline {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .labor-briefing__header {
@@ -163,7 +174,8 @@ p {
 
 .labor-briefing__readings p {
   display: grid;
-  min-width: 10rem;
+  flex: 1 1 8rem;
+  min-width: 8rem;
   gap: var(--space-1);
 }
 
@@ -181,6 +193,11 @@ p {
 
 .labor-briefing__synthesis {
   font-size: 1.125rem;
+  overflow-wrap: anywhere;
+}
+
+.briefing-sparkline figcaption {
+  overflow-wrap: anywhere;
 }
 
 .briefing-sparkline {

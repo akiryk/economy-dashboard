@@ -47,9 +47,9 @@ describe('Labor briefing orchestration', () => {
   })
 
   it('selects stale and no-fresh evidence templates without implying stability', () => {
-    const stale = buildLaborBriefing(fixtures(), '2024-02-20')
-    const suppressed = buildLaborBriefing(fixtures(), '2024-04-01')
-    expect(stale).toMatchObject({ status: 'ready', templateId: 'stale-primary', staleWarning: true })
+    const stale = buildLaborBriefing(fixtures(), '2024-03-20')
+    const suppressed = buildLaborBriefing(fixtures(), '2024-04-15')
+    expect(stale).toMatchObject({ status: 'ready', templateId: 'mixed-condition', staleWarning: true })
     expect(suppressed).toMatchObject({ status: 'ready', directionLabel: 'no fresh evidence', templateId: 'stale-primary' })
     if (suppressed.status === 'ready') expect(suppressed.synthesis).not.toMatch(/broadly stable/i)
   })
@@ -83,6 +83,20 @@ describe('Labor briefing orchestration', () => {
     expect(selectLaborTemplate('typical', 'no-fresh-evidence', false)).toBe('stale-primary')
     expect(selectLaborTemplate('unclear', 'unclear', false)).toBe('unclear-primary')
     expect(selectLaborTemplate('typical', 'deteriorating', false)).toBe('other-valid')
+  })
+
+  it('uses the end of a monthly observation period for freshness age', () => {
+    const result = buildLaborBriefing(fixtures(), '2024-02-15')
+    expect(result).toMatchObject({ status: 'ready', staleWarning: false })
+    if (result.status !== 'ready') return
+    expect(result.primaries[0].freshness.evidenceAgeDays).toBe(15)
+  })
+
+  it('retains full-history secondary percentiles for trace comparison', () => {
+    const result = buildLaborBriefing(fixtures(), '2024-01-15')
+    if (result.status !== 'ready') throw new Error('Expected ready fixture')
+    expect(result.primaries[0].fullHistoryRawPercentile).toBeGreaterThanOrEqual(0)
+    expect(result.primaries[0].fullHistoryOrientedPercentile).toBeLessThanOrEqual(100)
   })
 
   it('renders all reviewed templates with both facts and required conflict or adverse wording', () => {

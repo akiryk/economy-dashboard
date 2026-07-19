@@ -15,6 +15,7 @@ function EvidenceTrace({ evidence }: { evidence: LaborBriefingReady['primaries']
         {condition.evidence === 'adequate' && <>
           <div><dt>Raw percentile</dt><dd>{Math.round(condition.rawPercentile)}</dd></div>
           <div><dt>Oriented percentile</dt><dd>{condition.valence === 'unvalenced' ? 'Not valenced' : Math.round(condition.orientedPercentile)}</dd></div>
+          <div><dt>Full-history percentile</dt><dd>{Math.round(evidence.fullHistoryRawPercentile)} raw; {Math.round(evidence.fullHistoryOrientedPercentile)} oriented</dd></div>
           <div><dt>Comparison</dt><dd>{condition.window.comparisonStart} to {condition.window.comparisonEnd}{condition.window.usedShortHistory ? ' (short history)' : ''}</dd></div>
           <div><dt>Condition</dt><dd>{condition.valence === 'unvalenced' ? condition.historicalPosition : `${condition.tier}; ${condition.group}`}</dd></div>
         </>}
