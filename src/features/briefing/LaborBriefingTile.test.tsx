@@ -24,9 +24,10 @@ describe('LaborBriefingTile', () => {
     const header = screen.getByRole('heading', { name: 'Can people find and keep work?' }).closest('header')!
     expect(within(header).getByText('Condition')).toBeVisible()
     expect(within(header).getByText('Direction')).toBeVisible()
-    expect(screen.getByText(/Unemployment is/)).toBeVisible()
-    expect(screen.getByText(/Based on unemployment through/)).toBeVisible()
+    expect(screen.getByText(/unemployment is/)).toBeVisible()
+    expect(screen.getByText(/Based on unemployment, payrolls, and prime-age employment/)).toBeVisible()
     expect(screen.getByRole('img', { name: /interquartile band/i })).toBeVisible()
+    expect(screen.queryByText('10-year minimum')).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'View Labor research cards' })).toHaveAttribute('href', '/#employment-and-income')
   })
 
@@ -37,8 +38,8 @@ describe('LaborBriefingTile', () => {
     const supporting = screen.getByText('Supporting evidence')
     await user.click(why)
     expect(within(why.closest('details')!).getByText('Dimension result')).toBeVisible()
+    expect(within(why.closest('details')!).getAllByRole('link', { name: 'View research card' })).toHaveLength(3)
     await user.click(supporting)
-    expect(within(supporting.closest('details')!).getByRole('link', { name: 'View research card' })).toBeVisible()
     expect(within(supporting.closest('details')!).getByText(/Initial claims data is unavailable/)).toBeVisible()
   })
 })

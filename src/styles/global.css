@@ -127,7 +127,50 @@ p {
 .briefing-page {
   width: 100%;
   min-width: 0;
-  max-width: 50rem;
+  max-width: none;
+}
+
+.briefing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  gap: var(--space-6);
+}
+
+.briefing-placeholders {
+  display: contents;
+}
+
+.briefing-placeholder {
+  display: grid;
+  min-height: 22rem;
+  align-content: start;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  color: var(--color-text-muted);
+  background: var(--color-placeholder);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+}
+
+.briefing-placeholder p {
+  font-weight: 700;
+}
+
+.briefing-placeholder span {
+  font-size: 0.875rem;
+}
+
+.briefing-placeholder i {
+  display: block;
+  width: 80%;
+  height: 0.75rem;
+  background: var(--color-border);
+  border-radius: var(--radius-small);
+}
+
+.briefing-placeholder i:nth-of-type(2) {
+  width: 55%;
 }
 
 .labor-briefing {
@@ -135,8 +178,8 @@ p {
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  gap: var(--space-6);
-  padding: var(--space-8);
+  gap: var(--space-4);
+  padding: var(--space-6);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-medium);
@@ -156,6 +199,11 @@ p {
 .labor-briefing__header h2,
 .briefing-disclosure h4 {
   margin: 0;
+}
+
+.labor-briefing__header h2 {
+  font-size: 1.35rem;
+  line-height: 1.25;
 }
 
 .labor-briefing__eyebrow {
@@ -192,7 +240,7 @@ p {
 }
 
 .labor-briefing__synthesis {
-  font-size: 1.125rem;
+  font-size: 1rem;
   overflow-wrap: anywhere;
 }
 
@@ -211,6 +259,17 @@ p {
   min-width: 0;
   background: var(--color-page-background);
   border-radius: var(--radius-small);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .briefing-sparkline__band {
@@ -302,6 +361,18 @@ p {
   .briefing-sparkline__labels,
   .briefing-trace__indicator dl,
   .briefing-disclosure dl {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 56rem) {
+  .briefing-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 36rem) {
+  .briefing-grid {
     grid-template-columns: 1fr;
   }
 }

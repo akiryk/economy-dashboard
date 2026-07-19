@@ -141,3 +141,17 @@ The gate suppresses ordinary wiggle in 1999, 2010, and unemployment in 2024/2026
 - Comparable episodes, recession dating, cross-dimension tensions, and the full grid.
 
 No other dimension was implemented, and no threshold changed to obtain a preferred current label.
+
+## Story 29 corrected-model re-review — July 19, 2026
+
+Story 29 supersedes the symmetric two-primary interpretation reviewed above. Condition now uses unemployment as its anchor and prime-age employment as its confirmer; payroll level has no condition role. Direction uses payroll movement as its anchor and unemployment movement as its confirmer. Initial claims remain supporting evidence and cannot determine either headline reading.
+
+The committed June 2026 endpoint produces **Solid** condition and **Improving** direction. Unemployment is 4.2% and on the favorable side of its 25-year distribution; prime-age employment is 80.2% and confirms that condition. Payroll growth averages +111K and its material improvement determines direction while unemployment movement remains broadly stable. The reviewed first-screen synthesis is:
+
+> In June 2026, unemployment is 4.2%, lower than in roughly 75% of the past 25 years, while payroll growth averages +111K. Labor conditions are solid. Recent movement is improving overall. The newest payroll estimate is commonly revised.
+
+The revised finite combination tables were exercised directly and against the ten historical endpoints. Adjacent condition readings retain the unemployment anchor, only opposing material direction moves produce `mixed`, stable plus material movement preserves the material movement, deteriorating plus normalizing remains deteriorating, and absent fresh movement produces no-fresh evidence. Payroll-level changes cannot alter condition, missing prime-age employment makes condition unclear, and missing claims does not suppress a valid result.
+
+The compact tile was reviewed in the intended 3×2 desktop skeleton and at two-column and one-column breakpoints. Its question, two readings, synthesis, compact sparkline, freshness, research link, and disclosures remain legible at grid-cell scale. Exactly five visibly inert, assistive-technology-hidden placeholders communicate future composition without resembling live analysis. The fixed 10-year unemployment sparkline remains dominated by the 2020 spike, but it still communicates shape and latest position; the limitation is accepted rather than addressed by changing scale in this story.
+
+**Re-review decision: ready with documented cautions.** The corrected Labor model and grid-cell presentation are suitable as the reference for the next dimension. This decision replaces the earlier Story 28 readiness conclusion; the historical record above is retained to show why the correction was required.

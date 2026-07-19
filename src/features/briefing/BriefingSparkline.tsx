@@ -4,7 +4,7 @@ interface BriefingSparklineProps { model: LaborSparklineModel }
 
 export function BriefingSparkline({ model }: BriefingSparklineProps) {
   const width = 640
-  const height = 190
+  const height = 105
   const padding = 18
   const range = model.maximum - model.minimum || 1
   const x = (index: number) => padding + index * ((width - padding * 2) / (model.observations.length - 1))
@@ -19,12 +19,7 @@ export function BriefingSparkline({ model }: BriefingSparklineProps) {
         <polyline className="briefing-sparkline__line" points={points} />
         <circle className="briefing-sparkline__latest" cx={x(model.observations.length - 1)} cy={y(model.latest.value)} r="5" />
       </svg>
-      <figcaption>{summary} The band describes a historical distribution, not a confidence interval.</figcaption>
-      <dl className="briefing-sparkline__labels">
-        <div><dt>10-year minimum</dt><dd>{model.minimum.toFixed(1)}%</dd></div>
-        <div><dt>Latest</dt><dd>{model.latest.value.toFixed(1)}%</dd></div>
-        <div><dt>10-year maximum</dt><dd>{model.maximum.toFixed(1)}%</dd></div>
-      </dl>
+      <figcaption className="visually-hidden">{summary} The band describes a historical distribution, not a confidence interval.</figcaption>
     </figure>
   )
 }

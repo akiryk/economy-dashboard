@@ -1,37 +1,120 @@
 # Briefing interpretation rules
 
-Status: implemented and reviewed through the Story 28 Labor vertical slice. The non-default `/briefing` route uses these rules for Labor; other dimensions remain unimplemented.
+Status: revised after the Story 28 Labor review gate. The non-default `/briefing` route currently implements Labor only. The Labor model below supersedes the earlier symmetric two-primary interpretation.
 
 ## Product boundary and dimensions
 
-The future briefing is a thin synthesis of committed research data. Its five cyclical dimensions are Growth and business activity, Inflation and purchasing power, Labor market, Household finances, and Credit and financial conditions. Federal finances and external accounts form a structural backdrop containing budget balance, debt held by the public, trade balance, and tariff burden. The backdrop receives historical-position context, not cyclical verdicts.
+The briefing is a thin synthesis of committed research data. Its five cyclical dimensions are Growth and business activity, Inflation and purchasing power, Labor market, Household finances, and Credit and financial conditions. Federal finances and external accounts form a structural backdrop containing budget balance, debt held by the public, trade balance, and tariff burden.
 
 There is permanently no overall economy score, chip, verdict, or weighted composite. The briefing describes the economy, not markets, forecasts, policy effects, or portfolio implications.
 
+The research cards remain the evidence layer. Briefing readings must be deterministic, traceable, and reproducible from the same committed observations.
+
 ## Indicator roles
 
-Primary indicators alone determine dimension readings. Supporting indicators may later qualify a synthesis or trigger a reviewed tension rule, but cannot flip a reading. Deep-dive cards remain research evidence only.
+Indicator roles are reading-specific.
 
-| Dimension | Primary | Supporting | Deep-dive |
+An indicator may serve as:
+
+- a condition anchor;
+- a condition confirmer;
+- a direction anchor;
+- a direction confirmer;
+- supporting evidence;
+- deep-dive evidence.
+
+An indicator does not need to determine both condition and direction.
+
+Supporting indicators may qualify synthesis or later trigger reviewed tension rules, but they do not set a dimension reading unless explicitly designated as an anchor or confirmer for that reading.
+
+### Labor roles
+
+| Reading | Anchor | Confirmer | Supporting |
 |---|---|---|---|
-| Growth | Real GDP growth; real business investment growth | GDP per capita growth; productivity momentum; housing starts; profit share; capacity utilization | Productivity level; manufacturing output vs employment |
-| Inflation | Headline vs core CPI; real wage growth | Standalone headline CPI; inflation momentum | — |
-| Labor | Unemployment; payroll growth | Prime-age employment-to-population; initial claims | — |
-| Households | Income vs spending per person; debt-service ratio | Saving rate; home-ownership cost share | — |
-| Credit | NFCI credit subindex; SLOOS C&I standards | Fed funds vs 10-year Treasury | — |
-| Backdrop | — | Budget balance; public debt; trade balance; tariff burden | — |
+| Condition | Unemployment-rate level | Prime-age employment-to-population level | Initial claims |
+| Direction | Payroll-growth movement | Unemployment-rate movement | Initial claims |
 
-The ten primaries are exactly two per cyclical dimension. Each indicator's reviewed configuration declares `higher-is-better`, `lower-is-better`, or `unvalenced`; meaning is never inferred from the value. Saving, profit share, capacity utilization, rate levels, budget balance, public debt, trade balance, and tariff burden are unvalenced in v1.
+Payroll growth is not used as a Labor condition-level measure. Its absolute level is structurally weak for comparison across decades because the economy and payroll base grow over time. Payroll remains the direction anchor because its recent movement is economically meaningful.
+
+Initial claims remains supporting evidence only in the current Labor slice.
+
+### Other dimensions
+
+The approved roles for Growth, Inflation, Households, Credit, and the backdrop remain provisional until each dimension receives its own vertical-slice review. This Labor amendment must not be mechanically generalized without review.
 
 ## Condition
 
-Condition answers where the latest level stands relative to history. Direction answers how it has recently moved beyond ordinary noise. They are calculated independently; direction never changes a condition tier.
+Condition answers:
 
-The comparison window ends at the latest finite, valid observation and begins 25 years earlier, including that boundary. If committed history begins later, all available history is used and the actual start is retained. Gaps remain gaps: the engine neither interpolates nor converts missing values to zero. Five valid observations are the minimum for a percentile.
+> Where does this measure currently stand relative to history?
 
-Percentile rank uses average zero-based rank divided by `n - 1`. The minimum and maximum rank at 0 and 100; ties share the average of their occupied ranks. For example, value 3 in `[5, 1, 3, 3, 2]` ranks at 62.5. The inverse percentile uses linear interpolation on that rank scale; the 60th percentile of `[0, 10, 20, 30, 40, 50]` is 30.
+Direction answers:
 
-Valence converts raw rank into meaning: higher-is-better retains it, lower-is-better uses `100 - raw`, and unvalenced has no oriented rank or favorable verdict. For example, raw 75 stays 75 for higher-is-better and becomes 25 for lower-is-better. Unvalenced results are only `high`, `typical`, or `low`, with 40 and 60 included in typical.
+> How has it recently moved beyond ordinary noise?
+
+They are calculated independently. Direction never changes a condition tier.
+
+### Comparison window
+
+The primary comparison window ends at the latest finite, valid observation and begins 25 years earlier, including that boundary.
+
+When committed history begins later, use all available history and retain the actual comparison start.
+
+Do not:
+
+- interpolate gaps;
+- convert missing observations to zero;
+- substitute nearby observations for missing exact periods.
+
+Five valid observations are the minimum for a percentile.
+
+### Percentile convention
+
+Percentile rank uses average zero-based rank divided by `n - 1`.
+
+- minimum value ranks at 0;
+- maximum value ranks at 100;
+- ties share the average of their occupied ranks.
+
+Example:
+
+- value `3` in `[5, 1, 3, 3, 2]` ranks at `62.5`.
+
+Inverse percentiles use linear interpolation on the same rank scale.
+
+Example:
+
+- the 60th percentile of `[0, 10, 20, 30, 40, 50]` is `30`.
+
+### Valence
+
+Each indicator declares one of:
+
+- higher-is-better;
+- lower-is-better;
+- unvalenced.
+
+Valence is explicit and never inferred from the value.
+
+- higher-is-better retains the raw percentile;
+- lower-is-better uses `100 - raw percentile`;
+- unvalenced indicators receive no favorable or unfavorable interpretation.
+
+For first-screen copy, historical context must use valence-oriented language.
+
+For unemployment, prefer:
+
+> Unemployment is lower than in roughly three-quarters of the past 25 years.
+
+Do not show raw wording such as:
+
+> 23rd historical percentile
+
+in first-screen synthesis copy.
+
+Raw and oriented percentiles both remain available in the trace.
+
+### Internal condition tiers
 
 | Oriented percentile | Internal tier |
 |---|---|
@@ -41,48 +124,311 @@ Valence converts raw rank into meaning: higher-is-better retains it, lower-is-be
 | 20 through less than 40 | Unfavorable |
 | 0 through less than 20 | Very unfavorable |
 
-Thus exact 20 is unfavorable, 40 and 60 are typical, and 80 is favorable: every boundary resolves toward typical. Visible dimension wording and the inflation deflation guard belong to later UI stories.
+Exact boundaries resolve toward Typical:
 
-The Labor vertical slice maps very favorable to `strong`, favorable to `solid`, typical to `typical`, unfavorable to `soft`, and very unfavorable to `weak`. At dimension level, two primary tiers on the favorable side display `solid` and two on the unfavorable side display `soft`; the more emphatic `strong` and `weak` labels remain available for indicator-level and later reviewed presentation. Primary disagreement displays `mixed`, and inadequate evidence displays `unclear`.
+- 20 → Unfavorable;
+- 40 → Typical;
+- 60 → Typical;
+- 80 → Favorable.
+
+### Labor display vocabulary
+
+| Internal tier | Visible Labor wording |
+|---|---|
+| Very favorable | Strong |
+| Favorable | Solid |
+| Typical | Typical |
+| Unfavorable | Soft |
+| Very unfavorable | Weak |
+
+Internal tier names and group names are trace-only. Visible copy should use natural economic language.
+
+## Labor condition combination
+
+Labor condition combines:
+
+- unemployment-rate level as anchor;
+- prime-age employment-to-population level as confirmer.
+
+Group tiers into:
+
+- favorable side;
+- typical;
+- unfavorable side.
+
+Rules:
+
+1. same group → shared group;
+2. favorable anchor + typical confirmer → favorable;
+3. typical anchor + favorable confirmer → typical, with favorable confirmation available in synthesis or trace;
+4. unfavorable anchor + typical confirmer → unfavorable;
+5. typical anchor + unfavorable confirmer → typical, with adverse confirmation available in synthesis or trace;
+6. favorable versus unfavorable → Mixed;
+7. inadequate required evidence → Unclear.
+
+There is no numeric weighting or averaging.
+
+Adjacent-group differences do not automatically force Mixed.
+
+Reason codes remain trace-only.
 
 ## Direction and noise gate
 
-Recent change uses exact period identity: latest versus 13 weeks earlier for weekly data, 6 months earlier for monthly data, and 2 quarters earlier for quarterly data. For example, monthly movement from 1 on January 1 to 4 on July 1 is +3. If January 1 is absent, a nearby observation is not substituted.
+Recent change uses exact period identity:
 
-For each eligible endpoint in the comparison window, the engine calculates the same exact-period change and collects its absolute magnitude. Missing comparison periods are skipped. At least five historical changes are required. The initial gate is their linearly interpolated 60th percentile. Current movement must be strictly greater than the gate to be material; equality is broadly stable. For example, zero current movement against a zero gate remains broadly stable.
+- weekly: latest versus 13 weeks earlier;
+- monthly: latest versus 6 months earlier;
+- quarterly: latest versus 2 quarters earlier.
 
-When material, favorable movement is `improving` and adverse movement is `deteriorating`. For unvalenced data, positive movement is `rising` and negative movement is `falling`. Movement that does not clear the gate is `broadly-stable`. Results retain signed and absolute change, threshold, eligible history count, gate result, and comparison dates.
+Nearby observations are never substituted for a missing exact comparison period.
+
+For each eligible historical endpoint in the comparison window:
+
+1. calculate the same exact-period change;
+2. take its absolute magnitude;
+3. collect all valid historical changes;
+4. calculate the 60th percentile of those absolute changes.
+
+At least five historical changes are required.
+
+A current movement must be strictly greater than the gate to count as material.
+
+- equal to gate → Broadly stable;
+- below gate → Broadly stable;
+- above gate → classify by valence.
+
+For valenced indicators:
+
+- favorable material movement → Improving;
+- adverse material movement → Deteriorating.
+
+For unvalenced indicators:
+
+- positive material movement → Rising;
+- negative material movement → Falling.
 
 ### Labor-only normalizing
 
-`Normalizing` is enabled only by Labor configuration. It requires an adverse, gate-clearing movement in a valenced indicator whose current condition remains favorable or very favorable. The result preserves `adverse` as the underlying orientation. For example, a materially rising lower-is-better Labor measure with favorable condition is normalizing; at typical condition the same movement is deteriorating. Favorable movement remains improving. No other dimension can enable this state in v1.
+Normalizing is enabled only for Labor.
 
-## Freshness and evidence
+For unemployment movement:
 
-Freshness compares calendar-day evidence age with explicit expected cadence. Age at or below 1.5 times cadence is `current`; above 1.5 and at or below 2 times is `stale-warning`; above 2 times is `no-fresh-evidence` and suppresses direction. Exact boundaries remain less severe. For a ten-day cadence, age 15 is current, 16 warns, 20 warns, and 21 suppresses. Suppression never repeats an old direction or calls absent news stable. Seven-day new markers and page refresh UI are later work.
+- material rise while unemployment condition remains favorable → Normalizing;
+- material rise when condition is typical or unfavorable → Deteriorating;
+- material fall → Improving;
+- movement below the gate → Broadly stable.
 
-Economic-series monthly and quarterly dates identify the first day of a measured period, not a release date. Labor freshness therefore measures monthly age from the final calendar day of the observation month (and quarterly age from quarter-end); weekly series retain their exact weekly date. This avoids treating a completed monthly period as already one month old on its represented date. It remains a cadence proxy until explicit release dates exist.
+The result preserves the fact that the movement is adverse.
 
-## Combining two primaries
+Visible copy must state that unemployment increased. The word `normalizing` must not soften or conceal deterioration.
 
-Condition tiers group into favorable side, typical, and unfavorable side. Matching primary groups produce the shared group. Favorable plus typical, or favorable plus unfavorable, is `mixed`. Missing or inadequate primary evidence is `unclear`. There is no averaging, weighting, winner, or supporting input.
+## Labor direction combination
 
-Direction agrees only when both primary states match exactly. Different adequate states are `mixed`; normalizing versus deteriorating therefore remains mixed. Inadequate primary direction is `unclear`. If either primary crosses freshness suppression, the dimension is `no-fresh-evidence`. Every result retains both inputs and a reason code.
+Labor direction combines:
 
-`Mixed` means adequate evidence conflicts. `Unclear` means evidence cannot support a reading. `No fresh evidence` is age-driven. These meanings never collapse into one label.
+- payroll-growth movement as anchor;
+- unemployment-rate movement as confirmer.
 
-## Synthesis and traceability
+Rules:
 
-Future prose must come from a finite, reviewed template set keyed by analytical state. Generated commentary, causal claims, and one-off editorial interpretations are prohibited. Every visible reading must expose its inputs, dates, window, percentile, thresholds, and deterministic reason.
+| Payroll direction | Unemployment direction | Dimension direction |
+|---|---|---|
+| Broadly stable | Broadly stable | Broadly stable |
+| Improving | Broadly stable | Improving |
+| Broadly stable | Improving | Improving |
+| Deteriorating | Broadly stable | Deteriorating |
+| Broadly stable | Deteriorating | Deteriorating |
+| Normalizing | Broadly stable | Normalizing |
+| Broadly stable | Normalizing | Normalizing |
+| Improving | Improving | Improving |
+| Deteriorating | Deteriorating | Deteriorating |
+| Normalizing | Normalizing | Normalizing |
+| Improving | Deteriorating | Mixed |
+| Deteriorating | Improving | Mixed |
+| Improving | Normalizing | Mixed |
+| Normalizing | Improving | Mixed |
+| Deteriorating | Normalizing | Deteriorating |
+| Normalizing | Deteriorating | Deteriorating |
 
-The engine accepts observations and configuration and performs no repository access, file reads, network calls, React rendering, browser work, prose generation, styling, or chart configuration.
+Core rule:
 
-## Provisional parameters
+> Mixed requires opposing material movements.
 
-Story 28 retained the Labor tier thresholds, 60th-percentile gate, direction windows, freshness multipliers, and Labor-only scope for normalizing. Growth and Household vocabulary and any use of normalizing outside Labor remain unapproved. The no-score, separate-reading, conflict, and template-only architecture is permanent.
+Broadly stable plus a material movement resolves to the material movement.
 
-Every worked example above is pinned by a test named `docs example` in `src/features/briefing/briefingRules.test.ts`.
+Deteriorating plus Normalizing resolves to Deteriorating, while synthesis should note that one adverse movement began from a still-favorable level.
 
-## Labor vertical-slice review note
+If either required direction input is inadequate, direction is Unclear.
 
-The `/briefing` route applies these rules to committed Labor data without tuning thresholds to obtain a preferred label. Payroll direction that clears the material-movement gate receives the standing sentence qualification that the newest payroll estimate is commonly revised. Story 28 retained the analytical parameters and requires full-history secondary ranks in the primary trace and copy that names every simultaneous primary conflict. See [`labor-briefing-review.md`](labor-briefing-review.md).
+If either required direction input crosses freshness suppression, direction is No fresh evidence.
+
+There is no averaging of signed changes.
+
+## Mixed, Unclear, and No fresh evidence
+
+These states remain distinct:
+
+- Mixed: adequate evidence points in substantively opposing directions;
+- Unclear: evidence is missing, inadequate, or unusable;
+- No fresh evidence: evidence is too old to support a current direction reading.
+
+Stable-plus-moving evidence is not Mixed.
+
+Supporting evidence cannot independently create a dimension-level Mixed reading.
+
+## Freshness
+
+Freshness compares calendar-day evidence age with explicit expected cadence.
+
+- age at or below 1.5× cadence → Current;
+- above 1.5× and at or below 2× → Stale warning;
+- above 2× → No fresh evidence and suppress direction.
+
+Exact boundaries remain less severe.
+
+For a ten-day cadence:
+
+- age 15 → Current;
+- age 16 → Stale warning;
+- age 20 → Stale warning;
+- age 21 → No fresh evidence.
+
+Suppression never repeats an old direction or translates absent data into stability.
+
+Monthly and quarterly economic-series dates identify measured periods, not release dates. Labor freshness therefore ages:
+
+- monthly observations from month-end;
+- quarterly observations from quarter-end;
+- weekly observations from their exact weekly date.
+
+This remains a cadence proxy until explicit release metadata exists.
+
+## Synthesis rules
+
+Visible synthesis prose must come from a finite, reviewed template set.
+
+First-screen copy must:
+
+- state economic facts;
+- use readable dates;
+- use valence-oriented historical context;
+- distinguish condition from direction;
+- name genuine disagreement;
+- name adverse movement when using Normalizing;
+- remain concise enough for a grid cell.
+
+First-screen copy must not expose:
+
+- raw percentile phrasing;
+- internal tier names;
+- favorable-side or unfavorable-side group labels;
+- reason codes;
+- raw ISO dates;
+- calculation mechanics;
+- generated commentary;
+- causal claims;
+- forecasts;
+- political interpretation.
+
+The sanctioned pattern remains factual:
+
+> X while Y.
+
+Trace terminology belongs only in `Why this label`.
+
+## Compact Labor tile anatomy
+
+The collapsed Labor tile should contain, in order:
+
+1. dimension label;
+2. human question;
+3. condition and direction;
+4. one short synthesis block;
+5. one compact visual;
+6. freshness;
+7. details and research navigation.
+
+The collapsed tile should not visibly include:
+
+- a long chart-summary paragraph;
+- a min/latest/max strip;
+- raw comparison-window dates;
+- detailed interquartile-band explanation;
+- percentile mechanics;
+- revision mechanics.
+
+Those details remain available in disclosure or accessible text.
+
+## Labor anchor visual
+
+Unemployment remains the Labor anchor visual for the current correction.
+
+The visible chart should be compact and may retain:
+
+- latest marker;
+- median;
+- interquartile historical band.
+
+The trailing 10-year display window is provisional.
+
+The Labor review must revisit whether the 2020 spike makes the compact sparkline less useful than a historical-position strip or distribution graphic.
+
+No future dimension is required to use a 10-year sparkline.
+
+## 3×2 layout review skeleton
+
+The `/briefing` route may render one real Labor tile inside a 3×2 desktop skeleton with five inert layout placeholders.
+
+Placeholders exist only to evaluate:
+
+- density;
+- proportions;
+- spacing;
+- hierarchy;
+- first-screen fit;
+- responsive behavior.
+
+They must:
+
+- contain no real economic values;
+- contain no condition or direction claims;
+- make no repository or network requests;
+- expose no interactive controls;
+- not be presented as real briefing content to assistive technology.
+
+This skeleton does not count as implementation of the other dimensions.
+
+## Revision disclosure
+
+Payroll estimates are commonly revised.
+
+When the current interpretation materially depends on the newest payroll observations, visible synthesis may include a brief qualification:
+
+> The newest payroll estimate is commonly revised.
+
+Do not claim revision magnitude, likely direction, or vintage history that the repository does not store.
+
+## Traceability
+
+Every visible reading must expose:
+
+- inputs;
+- periods;
+- comparison window;
+- raw percentile;
+- oriented percentile;
+- thresholds;
+- freshness;
+- deterministic reason.
+
+The engine and orchestration perform no generated prose, network access, file reads, or browser-side data acquisition.
+
+## Current readiness status
+
+The Story 28 conclusion is superseded by the corrected Story 29 implementation and re-review.
+
+The Labor briefing is:
+
+> Ready to extend with documented cautions.
+
+The corrected Labor tile has been reviewed at its intended grid-cell scale. The fixed 10-year sparkline remains visually dominated by the 2020 shock, and latest-vintage data cannot reproduce contemporaneous estimates or quantify revisions; neither caution blocks the next dimension.
