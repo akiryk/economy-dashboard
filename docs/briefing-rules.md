@@ -1,12 +1,37 @@
 # Briefing interpretation rules
 
-Status: revised after the Story 28 Labor review gate. The non-default `/briefing` route currently implements Labor only. The Labor model below supersedes the earlier symmetric two-primary interpretation.
+Status: revised through Story 30. The non-default `/briefing` route currently implements Labor only. The LMCI rules below supersede the Story 29 unemployment/payroll-derived Labor model.
 
 ## Product boundary and dimensions
 
 The briefing is a thin synthesis of committed research data. Its five cyclical dimensions are Growth and business activity, Inflation and purchasing power, Labor market, Household finances, and Credit and financial conditions. Federal finances and external accounts form a structural backdrop containing budget balance, debt held by the public, trade balance, and tariff burden.
 
 There is permanently no overall economy score, chip, verdict, or weighted composite. The briefing describes the economy, not markets, forecasts, policy effects, or portfolio implications.
+
+## Current Labor rules — Story 30
+
+The Labor headline uses two provider-published Kansas City Fed Labor Market Conditions Indicators:
+
+- LMCI Level of Activity (`FRBKCLMCILA`) determines Labor Market Activity;
+- LMCI Momentum (`FRBKCLMCIM`) determines Labor Market Momentum.
+
+Unemployment, the latest monthly payroll change, three-month average payroll change, prime-age employment, and initial claims are expanded supporting evidence only. They never determine or override either headline.
+
+Each raw, unbounded standardized LMCI index is ranked against all finite observations in its own committed history, currently January 1992 through June 2026. Average zero-based rank handles ties; display values are clamped to 0–100. Exact 20, 40, 60, and 80 boundaries enter the upper tier.
+
+| Activity percentile | Label | Momentum percentile | Label |
+|---|---|---|---|
+| 0 to <20 | Well Below Avg. | 0 to <20 | Weakening Sharply |
+| 20 to <40 | Below Avg. | 20 to <40 | Weakening |
+| 40 to <60 | Near Avg. | 40 to <60 | Steady |
+| 60 to <80 | Above Avg. | 60 to <80 | Strengthening |
+| 80 to 100 | Well Above Avg. | 80 to 100 | Strengthening Sharply |
+
+Percentiles below 40 use the adverse semantic band, 40 to below 60 neutral, and 60 or above favorable. The activity bar fill equals the percentile and marks the 50th-percentile historical midpoint without presenting it as a target. Momentum maps percentile `p` to `((p - 50) / 50) × 45°`, clamped to −45° through +45°; 50 is horizontal, low percentiles point downward, and high percentiles upward.
+
+The collapsed tile contains only its eyebrow, question, the two labeled visuals, and More. More reveals deterministic interpretation, raw values and dates, methodology, supporting data, source links, and attribution. A missing latest primary value is unavailable rather than carried forward; suppressed stale momentum is never called steady.
+
+The Story 29 Labor-specific role, combination, sparkline, and synthesis sections retained later in this document are historical design records and no longer govern the implemented Labor tile. General percentile, freshness, traceability, and product-boundary rules still apply where they do not conflict with this section.
 
 The research cards remain the evidence layer. Briefing readings must be deterministic, traceable, and reproducible from the same committed observations.
 
@@ -425,10 +450,10 @@ The engine and orchestration perform no generated prose, network access, file re
 
 ## Current readiness status
 
-The Story 28 conclusion is superseded by the corrected Story 29 implementation and re-review.
+The Story 28 and Story 29 readiness conclusions are superseded by Story 30.
 
 The Labor briefing is:
 
-> Ready to extend with documented cautions.
+> Implemented with LMCI primary evidence; visual and data verification complete.
 
-The corrected Labor tile has been reviewed at its intended grid-cell scale. The fixed 10-year sparkline remains visually dominated by the 2020 shock, and latest-vintage data cannot reproduce contemporaneous estimates or quantify revisions; neither caution blocks the next dimension.
+The compact tile uses an outlined percentile bar and bounded crosshair arrow rather than the former unemployment sparkline. Raw LMCI values are standardized and unbounded, the percentile graphics are distributional rather than scores, and latest-vintage history cannot reproduce contemporaneous releases.

@@ -8,6 +8,8 @@ The current product is intentionally broad and nonpartisan. It does not forecast
 
 The dashboard contains 28 visible cards in nine sections. Most cards use nonsmoothed time-series line charts. Relationship cards use two aligned lines; the manufacturing comparison normalizes two differently scaled series to a common selected-range baseline.
 
+The non-default `/briefing` preview currently adds one compact Labor tile. Its activity bar and momentum arrow show full-history percentile positions of the Kansas City Fed Labor Market Conditions Indicators; raw LMCI readings and the existing unemployment, payroll, prime-age employment, and claims measures appear only under More. The supporting measures cannot override the LMCI headline tiers.
+
 ## What the dashboard shows
 
 ### Growth

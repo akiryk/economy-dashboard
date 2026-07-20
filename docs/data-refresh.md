@@ -24,6 +24,7 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Prime-age employment-to-population ratio (`LNS12300060`, monthly), written to `prime-age-employment-ratio.json`.
 - Initial unemployment claims and the official four-week average (`ICSA` and `IC4WSA`, weekly), written as separate provider-published levels and aligned only for presentation.
 - Payroll growth (`PAYEMS`, monthly source level), derived into `monthly-payroll-change.json` and `payroll-growth.json`.
+- Kansas City Fed Labor Market Conditions Indicators (`FRBKCLMCILA` activity and `FRBKCLMCIM` momentum, monthly), written as separate provider-published standardized indexes for briefing use.
 - Wages versus inflation (`AHETPI` plus the existing `CPIAUCSL` result), derived into `nominal-wage-growth.json` and `real-wage-growth.json`.
 - Real disposable income per capita and real consumer spending per capita (`A229RX0Q048SBEA` and `A794RX0Q048SBEA`, quarterly source levels), derived into quarterly per-capita growth outputs.
 - Personal saving rate (`PSAVERT`, monthly), written to `personal-saving-rate.json`.
@@ -71,6 +72,7 @@ The series-specific requests are:
 - Initial unemployment claims: `series_id=ICSA` and `frequency=w`, with no `units` parameter.
 - Official four-week average: `series_id=IC4WSA` and `frequency=w`, with no `units` parameter.
 - Payroll: `series_id=PAYEMS` and `frequency=m`, with no `units` parameter.
+- LMCI Activity and Momentum: `series_id=FRBKCLMCILA` and `series_id=FRBKCLMCIM`, each with `frequency=m` and no `units` parameter.
 - Wages: `series_id=AHETPI` and `frequency=m`, with no `units` parameter.
 - Real GDP per capita: `series_id=A939RX0Q048SBEA` and `frequency=q`, with no `units` parameter.
 - Labor productivity: `series_id=OPHNFB` and `frequency=q`, with no `units` parameter.
@@ -96,7 +98,9 @@ The series-specific requests are:
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
-The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, unemployment, prime-age employment, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, personal saving, household debt service, housing starts, manufacturing output, manufacturing employment, real business investment, and industrial capacity utilization. Domain transformation metadata separately records provider values and local calculations.
+The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, unemployment, prime-age employment, LMCI, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, personal saving, household debt service, housing starts, manufacturing output, manufacturing employment, real business investment, and industrial capacity utilization. Domain transformation metadata separately records provider values and local calculations.
+
+The two LMCI outputs contain 414 monthly observations from January 1992 through June 2026 and were retrieved July 20, 2026. They remain raw standardized, seasonally adjusted indexes; percentile ranks are derived at briefing interpretation time from each output's full committed finite history. Source: Federal Reserve Bank of Kansas City, Labor Market Conditions Indicators. Required citation: Hakkio, Craig S., and Jonathan L. Willis. 2014. “Kansas City Fed’s Labor Market Conditions Indicators (LMCI).” Federal Reserve Bank of Kansas City, *The Macro Bulletin*, August 28. FRED series pages: [`FRBKCLMCILA`](https://fred.stlouisfed.org/series/FRBKCLMCILA) and [`FRBKCLMCIM`](https://fred.stlouisfed.org/series/FRBKCLMCIM).
 
 ## CPI derivations and reuse
 

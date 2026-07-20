@@ -25,6 +25,10 @@ const localSeriesLoaders: Readonly<
     import('../data/initial-unemployment-claims.json'),
   'initial-unemployment-claims-four-week-average': () =>
     import('../data/initial-unemployment-claims-four-week-average.json'),
+  'labor-market-activity-index': () =>
+    import('../data/labor-market-activity-index.json'),
+  'labor-market-momentum-index': () =>
+    import('../data/labor-market-momentum-index.json'),
   'payroll-growth': () => import('../data/payroll-growth.json'),
   'monthly-payroll-change': () => import('../data/monthly-payroll-change.json'),
   'nominal-wage-growth': () => import('../data/nominal-wage-growth.json'),

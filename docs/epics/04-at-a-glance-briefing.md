@@ -33,7 +33,7 @@ Real GDP growth, real GDP per capita, business investment, capacity utilization,
 Headline CPI, core CPI, short-run inflation momentum, and real wage growth belong together because inflation matters to a household mainly through purchasing power. Reporting a CPI number without the real-wage comparison invites exactly the headline-metric error the product exists to prevent (inflation "falling" while cumulative price levels still outpace pay, or vice versa). The important idea captured is nominal stability: whether the price system is quietly doing its job or distorting decisions and eroding incomes.
 
 **C. Labor market — "Can people find and keep work?"**
-Unemployment, prime-age employment-to-population, payroll growth, and initial claims form a coherent evidence set about one question, with a well-known internal structure: unemployment and prime-age EPOP describe the *stock* (condition), while payrolls and claims describe the *flow* (direction). That stock/flow structure is precisely what the condition/direction framework in section 5 is built to express. Nominal wage growth stays in dimension B because its briefing-level meaning is purchasing power, though the research card is cross-linked from both.
+The Kansas City Fed LMCI Activity and Momentum indexes provide the Labor headline pair: activity summarizes the current state and momentum summarizes broad direction across 24 inputs. Unemployment, prime-age employment-to-population, payroll growth, and initial claims remain supporting evidence under More and cannot override the LMCI tiers. Nominal wage growth stays in dimension B because its briefing-level meaning is purchasing power, though the research card is cross-linked from both.
 
 **D. Household finances — "Are household resources, cushions, and obligations sustainable?"**
 Real income versus spending per person, saving rate, debt-service ratio, and home-ownership affordability describe whether the household sector is living within its means and how exposed it is to shocks. The important idea is resilience rather than momentum: households can look fine on labor-market measures while running down savings, taking on unaffordable housing costs, or carrying rising required debt payments. This is the dimension most subject to the aggregate-versus-distribution caveat, and its copy carries that qualification permanently.
@@ -61,9 +61,9 @@ Roles: **Primary** — directly determines the dimension's condition/direction r
 | 5 | Headline CPI inflation | Inflation | Supporting | Demoted from primary (Amendment A): the headline/core relationship card already contains the headline series, so a standalone primary would double-count it. Headline remains contractually named in every inflation synthesis sentence. |
 | 6 | Headline vs core CPI | Inflation | **Primary** | Carries the dimension's inflation primary role: core sets the condition reading (persistence), headline is contained within the same card, and core is the anchor sparkline. |
 | 7 | Recent inflation momentum (3-mo annualized) | Inflation | Supporting | Sets/qualifies the direction reading; too noisy to set condition. |
-| 8 | Unemployment rate | Labor | **Primary** | Condition anchor for the dimension. |
-| 9 | Prime-age employment-to-population | Labor | Supporting | Confirms or contradicts unemployment (participation effects). |
-| 10 | Payroll growth (3-mo avg) | Labor | **Primary** | Direction anchor; revision-prone flag applies. |
+| 8 | Unemployment rate | Labor | Supporting | Context for the LMCI activity reading. |
+| 9 | Prime-age employment-to-population | Labor | Supporting | Adds participation context. |
+| 10 | Payroll growth (latest and 3-mo avg) | Labor | Supporting | Adds employer-demand context; revision-prone flag applies. |
 | 11 | Initial unemployment claims (4-wk avg) | Labor | Supporting | Timeliest stress signal; can trigger a tension line; never sole basis of a reading. |
 | 12 | Wages vs inflation (real wage growth) | Inflation | **Primary** | The purchasing-power half of dimension B; cross-linked from Labor. |
 | 13 | Real income vs spending per person | Households | **Primary** | The sustainability comparison; spending persistently outrunning income is the key pattern. |
@@ -85,7 +85,7 @@ Roles: **Primary** — directly determines the dimension's condition/direction r
 
 **Redundancy in the briefing (not in the research layer):** GDP per capita duplicates GDP for at-a-glance purposes; the standalone headline-CPI card duplicates the headline series inside the relationship card; the manufacturing relationship card and the productivity level card are analysis rather than status; the rate card's briefing content reduces to two numbers and a spread. All remain full research cards.
 
-Count check: 10 primary-role cards, exactly two per dimension — GDP and business investment; the headline/core relationship and real wages; unemployment and payrolls; income-vs-spending and debt service; NFCI and SLOOS. Two primaries per dimension is small enough that a reader can learn what drives each reading, and it makes the agree/mixed logic maximally honest: no dimension has a tie-breaking majority, so any primary disagreement necessarily surfaces as mixed.
+Story 30 creates a reviewed Labor exception to the original research-card count: its two primary datasets are LMCI Activity and Momentum rather than visible research cards. The other dimensions retain the proposed two-primary inventory pending their own vertical-slice reviews.
 
 ---
 
@@ -304,6 +304,8 @@ Product decisions come first; each subsequent step is a small, reviewable story 
 **Step 3 / Story 28 — initial human review checkpoint against real data. Complete, later superseded.** The review reconciled the tile with all four research cards and exposed a structural flaw in the symmetric two-primary interpretation. Its historical findings remain recorded in `docs/labor-briefing-review.md`, but its readiness conclusion is no longer current.
 
 **Story 29 — corrected Labor rules and grid-cell layout. Complete: ready with documented cautions.** Condition now uses unemployment as anchor and prime-age employment as confirmer; direction uses payroll movement as anchor and unemployment movement as confirmer. Payroll level cannot affect condition, claims remain supporting only, the synthesis uses reader-facing language, and the compact tile has passed re-review in a 3×2 skeleton with responsive two- and one-column layouts. The dated re-review in `docs/labor-briefing-review.md` is the current readiness decision.
+
+**Story 30 — LMCI Labor headline and compact visual tile. Complete.** Kansas City Fed LMCI Activity and Momentum replace the homegrown Labor headline. Full-history percentiles drive an outlined activity bar and bounded crosshair arrow; the four prior labor measures remain expanded supporting evidence only. Story 30 supersedes the Labor-specific Story 29 model without changing the research cards or full briefing grid.
 
 **Stories 4–7 — remaining tiles, one story each:** Inflation & purchasing power (exercises dimension-specific vocabulary, the deflation guard, and the PCE-objective copy rule), Growth (exercises short-history display, quarterly staleness, and the unvalenced supporting indicators), Households (exercises unvalenced saving-rate handling and the standing aggregate caveat), Credit (exercises sign semantics and index-valued anchors). Each ends with a mini review.
 

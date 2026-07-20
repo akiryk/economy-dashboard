@@ -51,6 +51,8 @@ describe('localEconomicSeriesRepository', () => {
     ['prime-age-employment-ratio', 'LNS12300060'],
     ['effective-federal-funds-rate', 'FEDFUNDS'],
     ['ten-year-treasury-yield', 'GS10'],
+    ['labor-market-activity-index', 'FRBKCLMCILA'],
+    ['labor-market-momentum-index', 'FRBKCLMCIM'],
   ])('loads %s as a monthly series', async (slug, providerSeriesId) => {
     const series = await localEconomicSeriesRepository.getBySlug(slug)
 
@@ -59,7 +61,10 @@ describe('localEconomicSeriesRepository', () => {
       providerSeriesId,
       frequency: 'monthly',
     })
-    if (['UNRATE', 'LNS12300060'].includes(providerSeriesId)) {
+    if (providerSeriesId.startsWith('FRBKCLMCI')) {
+      expect(series?.units).toBe('Index')
+      expect(series?.transformation).toContain('full-history percentile')
+    } else if (['UNRATE', 'LNS12300060'].includes(providerSeriesId)) {
       expect(series?.units).toBe('Percent')
       expect(series?.transformation).toBe('Level')
     } else if (['FEDFUNDS', 'GS10'].includes(providerSeriesId)) {
@@ -69,6 +74,17 @@ describe('localEconomicSeriesRepository', () => {
       expect(series?.units).toContain('Percent')
       expect(series?.transformation).toContain('calculated by the application')
     }
+  })
+
+  it.each(['labor-market-activity-index', 'labor-market-momentum-index'])('loads valid complete %s history', async (slug) => {
+    const series = await localEconomicSeriesRepository.getBySlug(slug)
+    expect(series?.observations).toHaveLength(414)
+    expect(series?.observations[0]?.date).toBe('1992-01-01')
+    expect(series?.observations.at(-1)?.date).toBe('2026-06-01')
+    const dates = series!.observations.map(({ date }) => date)
+    expect(dates).toEqual([...dates].sort())
+    expect(new Set(dates).size).toBe(dates.length)
+    expect(dates.every((date) => date <= series!.retrievedAt)).toBe(true)
   })
 
   it('loads the native-weekly broad credit-conditions index', async () => {

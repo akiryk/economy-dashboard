@@ -11,6 +11,8 @@ const gdpConfig = fredSeriesConfigurations[0]!
 const cpiConfig = fredSeriesConfigurations[1]!
 const unemploymentConfig = fredSeriesConfigurations[2]!
 const primeAgeEmploymentConfig = fredSeriesConfigurations[3]!
+const lmciActivityConfig = fredSeriesConfigurations.find(({ providerSeriesId }) => providerSeriesId === 'FRBKCLMCILA')!
+const lmciMomentumConfig = fredSeriesConfigurations.find(({ providerSeriesId }) => providerSeriesId === 'FRBKCLMCIM')!
 
 function createQuarterlyResponse(count = 81): FredObservationsResponse {
   return {
@@ -122,6 +124,19 @@ describe('normalizeFredSeries', () => {
     normalizeFredSeries(response, '2025-01-01', gdpConfig)
 
     expect(response).toEqual(original)
+  })
+
+  it.each([lmciActivityConfig, lmciMomentumConfig])('normalizes LMCI history and preserves internal missing values for $providerSeriesId', (config) => {
+    const response: FredObservationsResponse = {
+      observations: Array.from({ length: 301 }, (_, index) => ({
+        date: new Date(Date.UTC(1992, index, 1)).toISOString().slice(0, 10),
+        value: index === 150 ? '.' : String(index / 100 - 1),
+      })),
+    }
+    const series = normalizeFredSeries(response, '2020-01-01', { ...config, minimumUsableObservations: 300 })
+    expect(series.observations[150]?.value).toBeNull()
+    expect(series).toMatchObject({ providerSeriesId: config.providerSeriesId, frequency: 'monthly', units: 'Index' })
+    expect(validateEconomicSeries(series)).toEqual(series)
   })
 
   it('configures CPI for local year-over-year derivation from full-history levels', () => {

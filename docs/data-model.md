@@ -8,7 +8,7 @@ The economic-series domain model keeps source metadata and observations together
 
 The at-a-glance briefing interpretation is implemented as pure domain logic in `src/features/briefing`. It accepts already-loaded, validated observations and explicit configuration, then returns typed condition, direction, freshness, and agreement results with trace metadata. It performs no repository access or rendering. The committed research datasets and their existing repositories remain the evidence layer.
 
-The non-default `/briefing` route is the first vertical slice over that boundary. Its Labor-specific orchestration loads unemployment, payroll growth, prime-age employment, and initial claims through the existing repository, selects finite synthesis templates, and creates a typed view model for the Labor tile. Reading roles are explicit and asymmetric: unemployment anchors condition with prime-age employment as confirmer, while payroll movement anchors direction with unemployment movement as confirmer; initial claims are supporting only. Repository loading, interpretation, template selection, and React rendering remain separate. The default `/` route is still the full research dashboard.
+The non-default `/briefing` route is the first vertical slice over that boundary. Its Labor-specific orchestration loads the Kansas City Fed LMCI Activity and Momentum indexes as its two primary readings, derives full-history percentile ranks, selects fixed tiers and deterministic copy, and creates a typed view model for the Labor tile. Unemployment, monthly and three-month-average payroll changes, prime-age employment, and initial claims are supporting evidence only. Repository loading, interpretation, visual transformations, and React rendering remain separate. The default `/` route is still the full research dashboard.
 
 An `EconomicSeries` identifies the provider and provider series, explains the displayed units and transformation, records seasonal adjustment and frequency, and contains `EconomicObservation` entries. Each observation has an ISO date representing the economic period and a numeric or `null` value. A missing observation remains `null`; it is never treated as zero.
 
@@ -92,7 +92,7 @@ DRTSCILM is a provider-published quarterly signed net percentage. Positive, zero
 
 ## Current limitations
 
-- The application contains twenty-eight visible cards backed by thirty-five datasets. Supporting datasets used within relationship cards are not separate cards.
+- The application contains twenty-eight visible research cards backed by thirty-seven datasets. The two LMCI datasets support the briefing rather than separate research cards; other supporting datasets used within relationship cards are likewise not separate cards.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.

@@ -194,6 +194,8 @@ describe('refreshEconomicData', () => {
         'provider-level',
         'provider-level',
         'provider-level',
+        'provider-level',
+        'provider-level',
       ])
     expect(payrollSeriesConfiguration).toMatchObject({
       dataHandling: 'locally-derived',
@@ -763,13 +765,13 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(21)
+    expect(outcomes).toHaveLength(23)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 15, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3, 3, 3, 3, 3, 3, 3, 3])
+    ).toEqual([3, 15, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
@@ -792,10 +794,12 @@ describe('refreshEconomicData', () => {
       'FYFSGDA188S',
       'FYGFGDQ188S',
       'A019RE1Q156NBEA',
+      'FRBKCLMCILA',
+      'FRBKCLMCIM',
     ])
     expect(requestedUrls[0]?.searchParams.get('units')).toBe('pc1')
     expect(requestedUrls.slice(1).map((url) => url.searchParams.has('units')))
-      .toEqual([false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false])
+      .toEqual([false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false])
     expect(
       requestedUrls.every((url) => !url.searchParams.has('observation_start')),
     ).toBe(true)

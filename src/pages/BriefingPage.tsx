@@ -13,7 +13,7 @@ export function BriefingPage() {
       </section>
       {state.status === 'loading' && <p className="status-message" role="status">Loading Labor briefing…</p>}
       {state.status === 'error' && <p className="status-message status-message--error" role="alert">{state.message}</p>}
-      {state.status === 'loaded' && state.result.status === 'unclear' && <section className="labor-briefing"><h2>Can people find and keep work?</h2><p role="status"><strong>Condition: unclear. Direction: unclear.</strong> {state.result.message}</p></section>}
+      {state.status === 'loaded' && state.result.status === 'unclear' && <section className="labor-briefing"><h2>Can people find and keep work?</h2><p role="status"><strong>Labor reading unavailable.</strong> {state.result.message}</p></section>}
       {state.status === 'loaded' && state.result.status === 'ready' && <section className="briefing-grid" aria-label="At-a-glance layout preview">
         <LaborBriefingTile model={state.result} />
         <div className="briefing-placeholders" aria-hidden="true">

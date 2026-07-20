@@ -1,97 +1,96 @@
 import { describe, expect, it } from 'vitest'
 import type { EconomicSeries } from '../economic-series/models/economicSeries'
-import type { ConditionGroup, ConditionTier, DirectionState, IndicatorConditionResult, IndicatorDirectionResult } from './briefingModels'
-import { buildLaborBriefing, combineLaborCondition, combineLaborDirection } from './laborBriefing'
+import {
+  activityTier,
+  buildLaborBriefing,
+  clampPercentile,
+  momentumArrowAngle,
+  momentumTier,
+} from './laborBriefing'
 
-const window = { requestedYears: 25, comparisonStart: '2000-01-01', comparisonEnd: '2025-01-01', observationCount: 100, usedShortHistory: false }
-
-function condition(group: ConditionGroup, tier: ConditionTier = group === 'typical' ? 'typical' : group === 'favorable-side' ? 'favorable' : 'unfavorable'): IndicatorConditionResult {
-  return { evidence: 'adequate', valence: 'higher-is-better', rawPercentile: 70, orientedPercentile: 70, tier, group, window }
+function series(slug: string, values: Array<number | null>, startYear = 2020): EconomicSeries {
+  return {
+    id: slug, slug, provider: 'Fixture', providerSeriesId: slug,
+    title: slug, shortTitle: slug, description: '', question: '', units: 'Index',
+    frequency: 'monthly', seasonalAdjustment: 'Seasonally adjusted', transformation: 'Level',
+    sourceName: 'Fixture', sourceUrl: 'https://example.com', retrievedAt: '2026-07-01',
+    observations: values.map((value, index) => ({
+      date: new Date(Date.UTC(startYear, index, 1)).toISOString().slice(0, 10), value,
+    })),
+  }
 }
 
-function direction(value: DirectionState): IndicatorDirectionResult {
-  return { evidence: 'adequate', direction: value, underlyingOrientation: value === 'improving' ? 'favorable' : value === 'broadly-stable' ? 'neutral' : 'adverse', currentChange: { frequency: 'monthly', windowPeriods: 6, latestPeriod: '2025-01-01', latestValue: 2, comparisonPeriod: '2024-07-01', comparisonValue: 1, signedChange: 1, absoluteChange: 1 }, noiseThreshold: 0.5, historicalChangeCount: 20, noiseGatePassed: value !== 'broadly-stable', comparisonWindow: window }
+function input(activityValues: Array<number | null>, momentumValues: Array<number | null>) {
+  const supporting = Array.from({ length: 60 }, (_, index) => 4 + index / 100)
+  return {
+    activity: series('labor-market-activity-index', activityValues),
+    momentum: series('labor-market-momentum-index', momentumValues),
+    unemployment: series('unemployment-rate', supporting),
+    payrolls: series('payroll-growth', supporting.map((value) => value * 20)),
+    monthlyPayrollChange: series('monthly-payroll-change', supporting.map((value) => value * 20)),
+    primeAgeEmployment: series('prime-age-employment-ratio', supporting.map((value) => value + 75)),
+    claims: series('initial-unemployment-claims-four-week-average', supporting.map((value) => value * 50_000)),
+  }
 }
 
-function series(slug: string, values: readonly number[], frequency: 'monthly' | 'weekly' = 'monthly'): EconomicSeries {
-  return { id: slug, slug, provider: 'Fixture', providerSeriesId: slug, title: slug, shortTitle: slug, description: '', question: '', units: '', frequency, seasonalAdjustment: null, transformation: '', sourceName: 'Fixture', sourceUrl: 'https://example.com', retrievedAt: '2024-01-01', observations: values.map((value, index) => ({ date: new Date(Date.UTC(2020, frequency === 'monthly' ? index : 0, frequency === 'weekly' ? 1 + index * 7 : 1)).toISOString().slice(0, 10), value })) }
-}
-
-const levels = Array.from({ length: 60 }, (_, index) => 4 + (index % 3) * 0.1)
-function fixtures(payrollValues: readonly number[] = levels.map((_, index) => 100 + (index % 3))) {
-  return { unemployment: series('unemployment-rate', levels), payrolls: series('payroll-growth', payrollValues), primeAgeEmployment: series('prime-age-employment-ratio', levels.map((value) => 80 - value)), claims: null }
-}
-
-describe('corrected Labor condition combination', () => {
-  it('uses unemployment anchor and EPOP confirmer agreement', () => {
-    expect(combineLaborCondition(condition('favorable-side'), condition('favorable-side'))).toMatchObject({ reading: 'favorable-side', reason: 'agree' })
-  })
-
-  it('retains the anchor for adjacent groups in both directions', () => {
-    expect(combineLaborCondition(condition('favorable-side'), condition('typical')).reading).toBe('favorable-side')
-    expect(combineLaborCondition(condition('typical'), condition('favorable-side')).reading).toBe('typical')
-    expect(combineLaborCondition(condition('unfavorable-side'), condition('typical')).reading).toBe('unfavorable-side')
-    expect(combineLaborCondition(condition('typical'), condition('unfavorable-side')).reading).toBe('typical')
-  })
-
-  it('uses mixed only for directly opposing condition groups', () => {
-    expect(combineLaborCondition(condition('favorable-side'), condition('unfavorable-side'))).toMatchObject({ reading: 'mixed', reason: 'opposing-groups' })
-  })
-
-  it('returns unclear when required condition evidence is missing', () => {
-    expect(combineLaborCondition(condition('favorable-side'), { evidence: 'insufficient', reason: 'missing' }).reading).toBe('unclear')
-  })
-})
-
-describe('corrected Labor direction combination', () => {
+describe('LMCI Labor briefing domain', () => {
   it.each([
-    ['broadly-stable', 'broadly-stable', 'broadly-stable'],
-    ['broadly-stable', 'improving', 'improving'],
-    ['improving', 'broadly-stable', 'improving'],
-    ['broadly-stable', 'deteriorating', 'deteriorating'],
-    ['broadly-stable', 'normalizing', 'normalizing'],
-    ['improving', 'deteriorating', 'mixed'],
-    ['improving', 'normalizing', 'mixed'],
-    ['deteriorating', 'normalizing', 'deteriorating'],
-  ] as const)('%s plus %s resolves to %s', (anchor, confirmer, expected) => {
-    expect(combineLaborDirection(direction(anchor), direction(confirmer)).reading).toBe(expected)
+    [0, 'Well Below Avg.'], [20, 'Below Avg.'], [40, 'Near Avg.'],
+    [60, 'Above Avg.'], [80, 'Well Above Avg.'], [100, 'Well Above Avg.'],
+  ])('maps activity boundary %s to the upper tier', (percentile, expected) => {
+    expect(activityTier(percentile)).toBe(expected)
   })
 
-  it('suppresses direction when either required input has no fresh evidence', () => {
-    expect(combineLaborDirection(direction('improving'), { evidence: 'no-fresh-evidence', reason: 'old' }).reading).toBe('no-fresh-evidence')
-  })
-})
-
-describe('corrected Labor orchestration and copy', () => {
-  it('does not let payroll level alter condition', () => {
-    const low = buildLaborBriefing(fixtures(levels.map(() => -500)), '2024-12-15')
-    const high = buildLaborBriefing(fixtures(levels.map(() => 5_000)), '2024-12-15')
-    expect(low.status).toBe('ready')
-    expect(high.status).toBe('ready')
-    if (low.status !== 'ready' || high.status !== 'ready') return
-    expect(low.conditionReading.reading).toBe(high.conditionReading.reading)
-    expect(low.readingEvidence.find(({ id }) => id === 'payrolls')?.condition).toBeUndefined()
+  it.each([
+    [0, 'Weakening Sharply'], [20, 'Weakening'], [40, 'Steady'],
+    [60, 'Strengthening'], [80, 'Strengthening Sharply'], [100, 'Strengthening Sharply'],
+  ])('maps momentum boundary %s to the upper tier', (percentile, expected) => {
+    expect(momentumTier(percentile)).toBe(expected)
   })
 
-  it('requires unemployment, payrolls, and EPOP but not claims', () => {
-    expect(buildLaborBriefing({ ...fixtures(), primeAgeEmployment: null }, '2024-12-15').status).toBe('unclear')
-    expect(buildLaborBriefing(fixtures(), '2024-12-15')).toMatchObject({ status: 'ready', supportingErrors: ['Initial claims data is unavailable.'] })
+  it('clamps display percentiles and bounds the momentum angle', () => {
+    expect(clampPercentile(-20)).toBe(0)
+    expect(clampPercentile(120)).toBe(100)
+    expect(momentumArrowAngle(0)).toBe(-45)
+    expect(momentumArrowAngle(50)).toBe(0)
+    expect(momentumArrowAngle(100)).toBe(45)
+    expect(momentumArrowAngle(-100)).toBe(-45)
+    expect(momentumArrowAngle(500)).toBe(45)
   })
 
-  it('uses plain valence-oriented copy with values and no trace language', () => {
-    const result = buildLaborBriefing(fixtures(), '2024-12-15')
-    if (result.status !== 'ready') throw new Error('Expected ready fixture')
-    expect(result.synthesis).toContain('unemployment is')
-    expect(result.synthesis).toContain('payroll growth averages')
-    expect(result.synthesis).toMatch(/lower than in roughly \d+% of the past 25 years/)
-    expect(result.synthesis).not.toMatch(/historical percentile|favorable-side|unfavorable-side|primaries-|\d{4}-\d{2}-\d{2}/)
+  it('uses full-history average-rank percentiles, including duplicate values', () => {
+    const result = buildLaborBriefing(input([0, 1, 1, 2, 1], [-2, -1, 0, 1, 2]), '2020-06-15')
+    if (result.status !== 'ready') throw new Error('Expected ready result')
+    expect(result.activity.rawValue).toBe(1)
+    expect(result.activity.percentile).toBe(50)
+    expect(result.activity.tier).toBe('Near Avg.')
+    expect(result.momentum.percentile).toBe(100)
+    expect(result.momentumAngle).toBe(45)
   })
 
-  it('keeps the payroll revision qualifier conditional', () => {
-    const stable = buildLaborBriefing(fixtures(), '2024-12-15')
-    const material = buildLaborBriefing(fixtures([...levels.slice(0, -1), 2_000]), '2024-12-15')
-    if (stable.status !== 'ready' || material.status !== 'ready') throw new Error('Expected ready fixtures')
-    expect(stable.synthesis).not.toContain('commonly revised')
-    expect(material.synthesis).toContain('commonly revised')
+  it('maps lowest, median, and highest latest readings without using raw values as percentages', () => {
+    for (const [values, expected] of [
+      [[1, 2, 3, 4, 0], 0], [[0, 1, 3, 4, 2], 50], [[0, 1, 2, 3, 4], 100],
+    ] as const) {
+      const result = buildLaborBriefing(input([...values], [...values]), '2020-06-15')
+      if (result.status !== 'ready') throw new Error('Expected ready result')
+      expect(result.activity.percentile).toBe(expected)
+    }
+  })
+
+  it('requires a finite latest value for each primary and tolerates supporting gaps', () => {
+    expect(buildLaborBriefing(input([0, 1, 2, 3, null], [0, 1, 2, 3, 4]), '2020-06-15'))
+      .toEqual({ status: 'unclear', message: 'Labor Market Activity is unavailable.' })
+    const withoutSupport = { ...input([0, 1, 2, 3, 4], [0, 1, 2, 3, 4]), unemployment: null, payrolls: null, monthlyPayrollChange: null, primeAgeEmployment: null, claims: null }
+    const result = buildLaborBriefing(withoutSupport, '2020-06-15')
+    expect(result.status).toBe('ready')
+    if (result.status === 'ready') expect(result.supportingErrors).toHaveLength(5)
+  })
+
+  it('does not call stale momentum steady', () => {
+    const result = buildLaborBriefing(input([0, 1, 2, 3, 4], [0, 1, 2, 3, 4]), '2021-01-15')
+    if (result.status !== 'ready') throw new Error('Expected ready result')
+    expect(result.momentum.noFreshEvidence).toBe(true)
+    expect(result.synthesis).toContain('too old to assess')
   })
 })

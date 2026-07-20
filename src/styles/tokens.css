@@ -9,6 +9,9 @@
   --color-focus: #a95c00;
   --color-context-band: #dbe5e9;
   --color-placeholder: #eceff1;
+  --color-adverse: #8f2d21;
+  --color-neutral: #56616d;
+  --color-favorable: #2f6b3b;
   --content-max-width: 70rem;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
