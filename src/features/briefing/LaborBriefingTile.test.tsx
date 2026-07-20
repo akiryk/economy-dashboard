@@ -30,9 +30,11 @@ function model() {
 afterEach(cleanup)
 
 describe('LaborBriefingTile', () => {
-  it('keeps the collapsed tile limited to the two visual headline metrics', () => {
-    render(<LaborBriefingTile model={model()} />)
+  it('places the deterministic answer before the two collapsed visual headline metrics', () => {
+    const { container } = render(<LaborBriefingTile model={model()} />)
+    const answer = screen.getByText('People are finding and keeping work much more readily than usual, and conditions are strengthening sharply.')
     expect(screen.getByRole('heading', { name: 'Can people find and keep work?' })).toBeVisible()
+    expect(answer).toBeVisible()
     expect(screen.getByText('Labor Market Activity')).toBeVisible()
     expect(screen.getByText('Labor Market Momentum')).toBeVisible()
     expect(screen.getByRole('img', { name: /midpoint marks the historical median/i })).toBeVisible()
@@ -41,11 +43,16 @@ describe('LaborBriefingTile', () => {
     expect(screen.queryByText(/standardized indexes centered/)).not.toBeInTheDocument()
     expect(screen.queryByText('Unemployment rate')).not.toBeInTheDocument()
     expect(screen.queryByText(/0\.\d{5}/)).not.toBeInTheDocument()
+    const tileChildren = [...container.querySelector('.labor-briefing')!.children]
+    expect(tileChildren.map((element) => element.className)).toEqual([
+      'labor-briefing__header', 'labor-briefing__answer', 'labor-metrics', 'labor-briefing__toggle',
+    ])
   })
 
   it('reveals traceable LMCI and supporting evidence, then collapses it', async () => {
     const user = userEvent.setup()
     render(<LaborBriefingTile model={model()} />)
+    const answer = screen.getByText('People are finding and keeping work much more readily than usual, and conditions are strengthening sharply.')
     await user.click(screen.getByRole('button', { name: /More/ }))
     expect(screen.getByRole('button', { name: /Less/ })).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getByText(/standardized indexes centered/)).toBeVisible()
@@ -59,7 +66,9 @@ describe('LaborBriefingTile', () => {
     await user.click(supporting)
     expect(within(supporting.closest('details')!).getByText(/Hakkio, Craig S/)).toBeVisible()
     expect(screen.getByText('Unemployment rate')).toBeVisible()
+    expect(screen.getAllByText(answer.textContent!)).toHaveLength(1)
     await user.click(screen.getByRole('button', { name: /Less/ }))
     expect(screen.queryByText('LMCI Activity')).not.toBeInTheDocument()
+    expect(answer).toBeVisible()
   })
 })

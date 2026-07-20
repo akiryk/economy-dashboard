@@ -239,8 +239,10 @@ p {
   text-transform: capitalize;
 }
 
-.labor-briefing__synthesis {
+.labor-briefing__answer {
+  margin: 0;
   font-size: 1rem;
+  line-height: 1.45;
   overflow-wrap: anywhere;
 }
 

@@ -1,6 +1,6 @@
 # Briefing interpretation rules
 
-Status: revised through Story 30. The non-default `/briefing` route currently implements Labor only. The LMCI rules below supersede the Story 29 unemployment/payroll-derived Labor model.
+Status: revised through Story 31. The non-default `/briefing` route currently implements Labor only. The LMCI rules below supersede the Story 29 unemployment/payroll-derived Labor model.
 
 ## Product boundary and dimensions
 
@@ -29,7 +29,29 @@ Each raw, unbounded standardized LMCI index is ranked against all finite observa
 
 Percentiles below 40 use the adverse semantic band, 40 to below 60 neutral, and 60 or above favorable. The activity bar fill equals the percentile and marks the 50th-percentile historical midpoint without presenting it as a target. Momentum maps percentile `p` to `((p - 50) / 50) × 45°`, clamped to −45° through +45°; 50 is horizontal, low percentiles point downward, and high percentiles upward.
 
-The collapsed tile contains only its eyebrow, question, the two labeled visuals, and More. More reveals deterministic interpretation, raw values and dates, methodology, supporting data, source links, and attribution. A missing latest primary value is unavailable rather than carried forward; suppressed stale momentum is never called steady.
+The collapsed tile contains, in order, its eyebrow, question, deterministic answer, two labeled visuals, and More. The answer is built from the following finite clause maps rather than independently authored combinations:
+
+| Activity tier | Activity clause | Direction |
+|---|---|---:|
+| Well Below Avg. | People are finding and keeping work much less readily than usual | -2 |
+| Below Avg. | People are finding and keeping work less readily than usual | -1 |
+| Near Avg. | People are finding and keeping work about as readily as usual | 0 |
+| Above Avg. | People are finding and keeping work more readily than usual | 1 |
+| Well Above Avg. | People are finding and keeping work much more readily than usual | 2 |
+
+| Momentum tier | Momentum clause | Direction |
+|---|---|---:|
+| Weakening Sharply | conditions are weakening sharply | -2 |
+| Weakening | conditions are weakening | -1 |
+| Steady | conditions are holding steady | 0 |
+| Strengthening | conditions are strengthening | 1 |
+| Strengthening Sharply | conditions are strengthening sharply | 2 |
+
+The normal sentence is `{activity clause}, {connector} {momentum clause}.` The connector is `but` only when both directions are nonzero and have opposite signs; every other combination uses `and`.
+
+If Activity is unavailable but fresh Momentum is available, the answer says Activity cannot be assessed and reports momentum after `but`. If Activity is available while Momentum is missing or stale, it retains the activity clause and says there is no fresh evidence about whether conditions are changing. If neither current classification is available, the answer says current labor-market conditions cannot be assessed from the available data. A missing latest primary value is unavailable rather than carried forward, and suppressed stale momentum is never called steady.
+
+More reveals raw values and dates, methodology, supporting data, source links, and attribution without duplicating the collapsed answer.
 
 The Story 29 Labor-specific role, combination, sparkline, and synthesis sections retained later in this document are historical design records and no longer govern the implemented Labor tile. General percentile, freshness, traceability, and product-boundary rules still apply where they do not conflict with this section.
 

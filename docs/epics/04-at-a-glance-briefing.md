@@ -307,6 +307,8 @@ Product decisions come first; each subsequent step is a small, reviewable story 
 
 **Story 30 — LMCI Labor headline and compact visual tile. Complete.** Kansas City Fed LMCI Activity and Momentum replace the homegrown Labor headline. Full-history percentiles drive an outlined activity bar and bounded crosshair arrow; the four prior labor measures remain expanded supporting evidence only. Story 30 supersedes the Labor-specific Story 29 model without changing the research cards or full briefing grid.
 
+**Story 31 — deterministic plain-English Labor answer. Complete.** The collapsed Labor tile now answers its question before the visuals using reviewed activity and momentum clause maps plus a deterministic `and`/`but` rule. Missing or stale primary classifications use explicit fallbacks, and the expanded state does not duplicate the answer.
+
 **Stories 4–7 — remaining tiles, one story each:** Inflation & purchasing power (exercises dimension-specific vocabulary, the deflation guard, and the PCE-objective copy rule), Growth (exercises short-history display, quarterly staleness, and the unvalenced supporting indicators), Households (exercises unvalenced saving-rate handling and the standing aggregate caveat), Credit (exercises sign semantics and index-valued anchors). Each ends with a mini review.
 
 **Story 8 — conflict layer:** within-dimension tension lines and the cross-dimension tension catalog and strip, with tests for every cataloged rule, including the brief's six example conflicts as fixtures.

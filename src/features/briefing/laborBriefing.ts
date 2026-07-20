@@ -51,10 +51,10 @@ export interface LaborBriefingReady {
   status: 'ready'
   dimension: 'labor'
   question: 'Can people find and keep work?'
-  activity: LaborPrimaryReading<LaborActivityTier>
-  momentum: LaborPrimaryReading<LaborMomentumTier>
-  momentumAngle: number
-  synthesis: string
+  activity: LaborPrimaryReading<LaborActivityTier> | null
+  momentum: LaborPrimaryReading<LaborMomentumTier> | null
+  momentumAngle: number | null
+  answer: string
   tension: string | null
   supporting: LaborSupportingEvidence[]
   supportingErrors: string[]
@@ -82,6 +82,57 @@ export function momentumTier(percentile: number): LaborMomentumTier {
   if (value < 60) return 'Steady'
   if (value < 80) return 'Strengthening'
   return 'Strengthening Sharply'
+}
+
+export const LABOR_ACTIVITY_CLAUSES: Record<LaborActivityTier, string> = {
+  'Well Below Avg.': 'People are finding and keeping work much less readily than usual',
+  'Below Avg.': 'People are finding and keeping work less readily than usual',
+  'Near Avg.': 'People are finding and keeping work about as readily as usual',
+  'Above Avg.': 'People are finding and keeping work more readily than usual',
+  'Well Above Avg.': 'People are finding and keeping work much more readily than usual',
+}
+
+export const LABOR_MOMENTUM_CLAUSES: Record<LaborMomentumTier, string> = {
+  'Weakening Sharply': 'conditions are weakening sharply',
+  Weakening: 'conditions are weakening',
+  Steady: 'conditions are holding steady',
+  Strengthening: 'conditions are strengthening',
+  'Strengthening Sharply': 'conditions are strengthening sharply',
+}
+
+const LABOR_ACTIVITY_DIRECTIONS: Record<LaborActivityTier, -2 | -1 | 0 | 1 | 2> = {
+  'Well Below Avg.': -2, 'Below Avg.': -1, 'Near Avg.': 0, 'Above Avg.': 1, 'Well Above Avg.': 2,
+}
+
+const LABOR_MOMENTUM_DIRECTIONS: Record<LaborMomentumTier, -2 | -1 | 0 | 1 | 2> = {
+  'Weakening Sharply': -2, Weakening: -1, Steady: 0, Strengthening: 1, 'Strengthening Sharply': 2,
+}
+
+const LABOR_MOMENTUM_FALLBACKS: Record<LaborMomentumTier, string> = {
+  'Weakening Sharply': 'weakening sharply', Weakening: 'weakening', Steady: 'holding steady',
+  Strengthening: 'strengthening', 'Strengthening Sharply': 'strengthening sharply',
+}
+
+export function buildLaborAnswer(
+  activity: LaborActivityTier | null,
+  momentum: LaborMomentumTier | null,
+  momentumIsFresh = true,
+): string {
+  if (!activity) {
+    if (!momentum || !momentumIsFresh) {
+      return 'Current labor-market conditions cannot be assessed from the available data.'
+    }
+    return `Current labor-market activity cannot be assessed from the available data, but momentum is ${LABOR_MOMENTUM_FALLBACKS[momentum]}.`
+  }
+  if (!momentum || !momentumIsFresh) {
+    return `${LABOR_ACTIVITY_CLAUSES[activity]}, but there is no fresh evidence about whether conditions are changing.`
+  }
+  const activityDirection = LABOR_ACTIVITY_DIRECTIONS[activity]
+  const momentumDirection = LABOR_MOMENTUM_DIRECTIONS[momentum]
+  const connector = activityDirection !== 0 && momentumDirection !== 0 && Math.sign(activityDirection) !== Math.sign(momentumDirection)
+    ? 'but'
+    : 'and'
+  return `${LABOR_ACTIVITY_CLAUSES[activity]}, ${connector} ${LABOR_MOMENTUM_CLAUSES[momentum]}.`
 }
 
 export function semanticBand(percentile: number): LaborSemanticBand {
@@ -133,18 +184,6 @@ function primaryReading<Tier extends string>(
   }
 }
 
-function activityPhrase(tier: LaborActivityTier): string {
-  if (tier === 'Well Below Avg.') return 'well below its historical average'
-  if (tier === 'Below Avg.') return 'below its historical average'
-  if (tier === 'Near Avg.') return 'near its historical average'
-  if (tier === 'Above Avg.') return 'above its historical average'
-  return 'well above its historical average'
-}
-
-function momentumPhrase(tier: LaborMomentumTier): string {
-  return tier.toLowerCase()
-}
-
 function formatSupportingValue(series: EconomicSeries, kind: 'percent' | 'jobs' | 'claims'): string | undefined {
   const latest = latestFinite(series)
   if (!latest) return undefined
@@ -182,13 +221,8 @@ function tensionStatement(input: LaborSeriesInput, momentum: LaborPrimaryReading
 }
 
 export function buildLaborBriefing(input: LaborSeriesInput, evaluationPeriod: string): LaborBriefingResult {
-  if (!input.activity || !input.momentum) {
-    return { status: 'unclear', message: 'Kansas City Fed LMCI Activity and Momentum data are required for the Labor reading.' }
-  }
-  const activity = primaryReading(input.activity, evaluationPeriod, activityTier)
-  const momentum = primaryReading(input.momentum, evaluationPeriod, momentumTier)
-  if (!activity) return { status: 'unclear', message: 'Labor Market Activity is unavailable.' }
-  if (!momentum) return { status: 'unclear', message: 'Labor Market Momentum is unavailable.' }
+  const activity = input.activity ? primaryReading(input.activity, evaluationPeriod, activityTier) ?? null : null
+  const momentum = input.momentum ? primaryReading(input.momentum, evaluationPeriod, momentumTier) ?? null : null
 
   const evidence = [
     supportingEvidence('unemployment', 'Unemployment rate', input.unemployment, 'percent', 'Provider-published monthly level.'),
@@ -201,8 +235,8 @@ export function buildLaborBriefing(input: LaborSeriesInput, evaluationPeriod: st
   const supportingErrors = evidence.flatMap((item, index) => item ? [] : [`${['Unemployment', 'Latest monthly payroll change', 'Three-month payroll average', 'Prime-age employment', 'Initial claims'][index]} data is unavailable.`])
   return {
     status: 'ready', dimension: 'labor', question: 'Can people find and keep work?', activity, momentum,
-    momentumAngle: momentumArrowAngle(momentum.percentile),
-    synthesis: `Labor-market activity is ${activityPhrase(activity.tier)}, while momentum is ${momentum.noFreshEvidence ? 'too old to assess' : momentumPhrase(momentum.tier)}.`,
-    tension: tensionStatement(input, momentum), supporting, supportingErrors,
+    momentumAngle: momentum ? momentumArrowAngle(momentum.percentile) : null,
+    answer: buildLaborAnswer(activity?.tier ?? null, momentum?.tier ?? null, momentum ? !momentum.noFreshEvidence : false),
+    tension: momentum ? tensionStatement(input, momentum) : null, supporting, supportingErrors,
   }
 }

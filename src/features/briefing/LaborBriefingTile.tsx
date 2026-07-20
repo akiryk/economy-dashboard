@@ -15,6 +15,11 @@ function percent(value: number): string {
 }
 
 function ActivityGraphic({ reading }: { reading: LaborBriefingReady['activity'] }) {
+  if (!reading) {
+    return <div className="labor-visual labor-visual--neutral" role="img" aria-label="Labor Market Activity is unavailable.">
+      <strong>Unavailable</strong>
+    </div>
+  }
   const style = { '--labor-activity-fill': `${reading.percentile}%` } as CSSProperties
   return <div
     className={`labor-visual labor-visual--${reading.band}`}
@@ -30,6 +35,11 @@ function ActivityGraphic({ reading }: { reading: LaborBriefingReady['activity'] 
 }
 
 function MomentumGraphic({ model }: { model: LaborBriefingReady }) {
+  if (!model.momentum || model.momentumAngle === null) {
+    return <div className="labor-visual labor-visual--neutral" role="img" aria-label="Labor Market Momentum is unavailable.">
+      <strong>Unavailable</strong>
+    </div>
+  }
   const label = model.momentum.noFreshEvidence ? 'No fresh evidence' : model.momentum.tier
   const orientation = model.momentumAngle > 0 ? 'upward' : model.momentumAngle < 0 ? 'downward' : 'horizontal'
   return <div
@@ -72,6 +82,7 @@ export function LaborBriefingTile({ model }: LaborBriefingTileProps) {
         <p className="labor-briefing__eyebrow">Labor market</p>
         <h2 id="labor-briefing-question">{model.question}</h2>
       </header>
+      <p className="labor-briefing__answer">{model.answer}</p>
       <div className="labor-metrics">
         <section className="labor-metric" aria-labelledby="labor-activity-label">
           <h3 id="labor-activity-label">Labor Market Activity</h3>
@@ -84,22 +95,21 @@ export function LaborBriefingTile({ model }: LaborBriefingTileProps) {
       </div>
 
       {expanded && <div className="labor-briefing__expanded" id={expandedId}>
-        <p className="labor-briefing__synthesis">{model.synthesis}</p>
-        {(model.activity.stale || model.momentum.stale) && <p className="status-message status-message--compact"><strong>Stale LMCI evidence.</strong> Review the observation dates below.</p>}
+        {(model.activity?.stale || model.momentum?.stale) && <p className="status-message status-message--compact"><strong>Stale LMCI evidence.</strong> Review the observation dates below.</p>}
         {model.tension && <p className="labor-briefing__tension"><strong>Supporting tension:</strong> {model.tension}</p>}
         <div className="labor-reading-details">
-          <ReadingDetails label="LMCI Activity" reading={model.activity} />
-          <ReadingDetails label="LMCI Momentum" reading={model.momentum} />
+          {model.activity && <ReadingDetails label="LMCI Activity" reading={model.activity} />}
+          {model.momentum && <ReadingDetails label="LMCI Momentum" reading={model.momentum} />}
         </div>
         <p className="labor-briefing__index-note">LMCI readings are standardized indexes centered on their historical averages. Positive and negative raw values are not percentages and are not bounded between −1 and +1.</p>
         <details className="briefing-disclosure">
           <summary>Why this label</summary>
           <div className="briefing-disclosure__content">
-            <p>Both readings use all committed monthly LMCI history from {model.activity.comparisonStart} through {model.activity.comparisonEnd}. Tied values share their average rank.</p>
+            <p>Available readings use all committed monthly LMCI history. Tied values share their average rank.</p>
             <p>The activity bar fill is the exact activity percentile; its marker is the 50th-percentile historical midpoint. Activity tiers begin at 0, 20, 40, 60, and 80.</p>
             <p>The momentum arrow maps 0–100 percentiles continuously to −45° through +45°, with the 50th percentile horizontal. Momentum tiers use the same boundaries.</p>
-            <p>Activity: {model.activity.rawValue.toFixed(5)}, {percent(model.activity.percentile)}, {model.activity.tier}, observed {model.activity.formattedPeriod}{model.activity.stale ? '; stale' : '; current'}.</p>
-            <p>Momentum: {model.momentum.rawValue.toFixed(5)}, {percent(model.momentum.percentile)}, {model.momentum.tier}, observed {model.momentum.formattedPeriod}{model.momentum.stale ? '; stale' : '; current'}.</p>
+            {model.activity && <p>Activity: {model.activity.rawValue.toFixed(5)}, {percent(model.activity.percentile)}, {model.activity.tier}, observed {model.activity.formattedPeriod}{model.activity.stale ? '; stale' : '; current'}.</p>}
+            {model.momentum && <p>Momentum: {model.momentum.rawValue.toFixed(5)}, {percent(model.momentum.percentile)}, {model.momentum.tier}, observed {model.momentum.formattedPeriod}{model.momentum.stale ? '; stale' : '; current'}.</p>}
           </div>
         </details>
         <details className="briefing-disclosure">

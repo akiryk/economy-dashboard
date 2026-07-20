@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { EconomicSeries } from '../economic-series/models/economicSeries'
 import {
   activityTier,
+  buildLaborAnswer,
   buildLaborBriefing,
   clampPercentile,
   momentumArrowAngle,
@@ -34,6 +35,45 @@ function input(activityValues: Array<number | null>, momentumValues: Array<numbe
 }
 
 describe('LMCI Labor briefing domain', () => {
+  const activities = ['Well Below Avg.', 'Below Avg.', 'Near Avg.', 'Above Avg.', 'Well Above Avg.'] as const
+  const momentums = ['Weakening Sharply', 'Weakening', 'Steady', 'Strengthening', 'Strengthening Sharply'] as const
+  const activityClauses = [
+    'People are finding and keeping work much less readily than usual',
+    'People are finding and keeping work less readily than usual',
+    'People are finding and keeping work about as readily as usual',
+    'People are finding and keeping work more readily than usual',
+    'People are finding and keeping work much more readily than usual',
+  ] as const
+  const momentumClauses = [
+    'conditions are weakening sharply', 'conditions are weakening', 'conditions are holding steady',
+    'conditions are strengthening', 'conditions are strengthening sharply',
+  ] as const
+
+  it.each(activities.map((tier, index) => [tier, activityClauses[index]] as const))('maps %s to its approved activity clause', (tier, clause) => {
+    expect(buildLaborAnswer(tier, 'Steady')).toBe(`${clause}, and conditions are holding steady.`)
+  })
+
+  it.each(momentums.map((tier, index) => [tier, momentumClauses[index]] as const))('maps %s to its approved momentum clause', (tier, clause) => {
+    expect(buildLaborAnswer('Near Avg.', tier)).toBe(`People are finding and keeping work about as readily as usual, and ${clause}.`)
+  })
+
+  it.each(activities.flatMap((activity, activityIndex) => momentums.map((momentum, momentumIndex) => {
+    const activityDirection = activityIndex - 2
+    const momentumDirection = momentumIndex - 2
+    const connector = activityDirection !== 0 && momentumDirection !== 0 && Math.sign(activityDirection) !== Math.sign(momentumDirection) ? 'but' : 'and'
+    return [activity, momentum, `${activityClauses[activityIndex]}, ${connector} ${momentumClauses[momentumIndex]}.`] as const
+  })))('constructs the approved answer for %s plus %s', (activity, momentum, expected) => {
+    expect(buildLaborAnswer(activity, momentum)).toBe(expected)
+  })
+
+  it('uses deterministic unavailable and stale fallbacks', () => {
+    expect(buildLaborAnswer(null, null)).toBe('Current labor-market conditions cannot be assessed from the available data.')
+    expect(buildLaborAnswer(null, 'Steady')).toBe('Current labor-market activity cannot be assessed from the available data, but momentum is holding steady.')
+    expect(buildLaborAnswer(null, 'Strengthening', false)).toBe('Current labor-market conditions cannot be assessed from the available data.')
+    expect(buildLaborAnswer('Above Avg.', null)).toBe('People are finding and keeping work more readily than usual, but there is no fresh evidence about whether conditions are changing.')
+    expect(buildLaborAnswer('Above Avg.', 'Steady', false)).toBe('People are finding and keeping work more readily than usual, but there is no fresh evidence about whether conditions are changing.')
+  })
+
   it.each([
     [0, 'Well Below Avg.'], [20, 'Below Avg.'], [40, 'Near Avg.'],
     [60, 'Above Avg.'], [80, 'Well Above Avg.'], [100, 'Well Above Avg.'],
@@ -61,10 +101,10 @@ describe('LMCI Labor briefing domain', () => {
   it('uses full-history average-rank percentiles, including duplicate values', () => {
     const result = buildLaborBriefing(input([0, 1, 1, 2, 1], [-2, -1, 0, 1, 2]), '2020-06-15')
     if (result.status !== 'ready') throw new Error('Expected ready result')
-    expect(result.activity.rawValue).toBe(1)
-    expect(result.activity.percentile).toBe(50)
-    expect(result.activity.tier).toBe('Near Avg.')
-    expect(result.momentum.percentile).toBe(100)
+    expect(result.activity?.rawValue).toBe(1)
+    expect(result.activity?.percentile).toBe(50)
+    expect(result.activity?.tier).toBe('Near Avg.')
+    expect(result.momentum?.percentile).toBe(100)
     expect(result.momentumAngle).toBe(45)
   })
 
@@ -74,13 +114,17 @@ describe('LMCI Labor briefing domain', () => {
     ] as const) {
       const result = buildLaborBriefing(input([...values], [...values]), '2020-06-15')
       if (result.status !== 'ready') throw new Error('Expected ready result')
-      expect(result.activity.percentile).toBe(expected)
+      expect(result.activity?.percentile).toBe(expected)
     }
   })
 
-  it('requires a finite latest value for each primary and tolerates supporting gaps', () => {
-    expect(buildLaborBriefing(input([0, 1, 2, 3, null], [0, 1, 2, 3, 4]), '2020-06-15'))
-      .toEqual({ status: 'unclear', message: 'Labor Market Activity is unavailable.' })
+  it('renders a fallback for a missing primary and tolerates supporting gaps', () => {
+    const missingActivity = buildLaborBriefing(input([0, 1, 2, 3, null], [0, 1, 2, 3, 4]), '2020-06-15')
+    expect(missingActivity.status).toBe('ready')
+    if (missingActivity.status === 'ready') {
+      expect(missingActivity.activity).toBeNull()
+      expect(missingActivity.answer).toBe('Current labor-market activity cannot be assessed from the available data, but momentum is strengthening sharply.')
+    }
     const withoutSupport = { ...input([0, 1, 2, 3, 4], [0, 1, 2, 3, 4]), unemployment: null, payrolls: null, monthlyPayrollChange: null, primeAgeEmployment: null, claims: null }
     const result = buildLaborBriefing(withoutSupport, '2020-06-15')
     expect(result.status).toBe('ready')
@@ -90,7 +134,7 @@ describe('LMCI Labor briefing domain', () => {
   it('does not call stale momentum steady', () => {
     const result = buildLaborBriefing(input([0, 1, 2, 3, 4], [0, 1, 2, 3, 4]), '2021-01-15')
     if (result.status !== 'ready') throw new Error('Expected ready result')
-    expect(result.momentum.noFreshEvidence).toBe(true)
-    expect(result.synthesis).toContain('too old to assess')
+    expect(result.momentum?.noFreshEvidence).toBe(true)
+    expect(result.answer).toBe('People are finding and keeping work much more readily than usual, but there is no fresh evidence about whether conditions are changing.')
   })
 })
