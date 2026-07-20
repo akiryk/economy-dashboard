@@ -3,6 +3,7 @@ node_modules/
 
 # Build output
 dist/
+performance-results/
 
 # Local environment files
 .env
