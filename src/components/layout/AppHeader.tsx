@@ -11,6 +11,9 @@ export function AppHeader() {
           <NavLink className="app-header__nav-link" to="/" end>
             Dashboard
           </NavLink>
+          <NavLink className="app-header__nav-link" to="/secondary">
+            Secondary indicators
+          </NavLink>
           <NavLink className="app-header__nav-link" to="/briefing">
             Labor briefing preview
           </NavLink>
