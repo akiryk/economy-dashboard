@@ -3,7 +3,7 @@ import type { EconomicObservation } from '../models/economicSeries'
 import { sortObservationsChronologically } from './economicSeries'
 
 export const GDP_COMPARISON_YEARS = 25
-export const GDP_RECENT_QUARTERS = 12
+export const GDP_RECENT_QUARTERS = 20
 export const GDP_MINIMUM_COMPARISON_OBSERVATIONS = 20
 
 export type GdpHistoricalPosition =

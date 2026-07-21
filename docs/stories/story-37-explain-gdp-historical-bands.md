@@ -7,6 +7,7 @@ As a reader, I want concise help for the compact Real GDP chart so that I can un
 ## Completed behavior
 
 - A help button appears at the compact chart’s lower-right corner.
+- The compact line shows the latest 20 quarters, or five years.
 - Click, tap, Enter, or Space opens an anchored explanation.
 - Escape closes the explanation and restores focus to the button.
 - Clicking or tapping outside the chart closes the explanation.

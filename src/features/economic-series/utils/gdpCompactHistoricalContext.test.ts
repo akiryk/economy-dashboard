@@ -54,13 +54,13 @@ describe('compact GDP historical context', () => {
     expect(result.status).toBe('ready')
     if (result.status !== 'ready') return
     expect(result.validObservationCount).toBe(24)
-    expect(result.recentObservations).toHaveLength(12)
-    expect(result.recentObservations[3]).toMatchObject({ value: null })
+    expect(result.recentObservations).toHaveLength(20)
+    expect(result.recentObservations[11]).toMatchObject({ value: null })
     expect(result.recentObservations.map(({ date }) => date)).toEqual([...result.recentObservations].map(({ date }) => date).sort())
     expect(result.latestObservation).toEqual(result.recentObservations.at(-1))
   })
 
-  it('returns every available recent observation when fewer than 12 exist', () => {
+  it('returns every available recent observation when fewer than 20 exist', () => {
     const result = deriveCompactGdpHistoricalContext(quarters([1, 2, 3, 4, 5]))
     expect(result.status).toBe('insufficient-history')
     expect(result.recentObservations).toHaveLength(5)
@@ -93,7 +93,7 @@ describe('compact GDP historical context', () => {
     expect(result.status).toBe('ready')
     if (result.status !== 'ready') return
     expect(result.latestObservation).toEqual({ date: '2026-01-01', value: 2.68474 })
-    expect(result.recentObservations).toHaveLength(12)
+    expect(result.recentObservations).toHaveLength(20)
     expect(result.comparisonStart).toBe('2001-01-01')
     expect(result.comparisonEnd).toBe('2026-01-01')
     expect(result.validObservationCount).toBe(101)

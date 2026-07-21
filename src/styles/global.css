@@ -658,8 +658,8 @@ p {
 
 .gdp-compact-chart__help {
   position: absolute;
-  right: var(--space-2);
-  bottom: var(--space-2);
+  right: 0;
+  bottom: -22px;
   z-index: 2;
 }
 
