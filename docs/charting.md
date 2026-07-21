@@ -41,7 +41,7 @@ Story 34 adds a pure, ECharts-independent preparation model for the future compa
 - The comparison window is the trailing 25 years ending at the latest committed quarter, including the exact boundary.
 - At least 20 finite quarterly observations are required. Fewer values return an explicit insufficient-history result rather than percentile bands.
 - Nulls are excluded from percentile calculations and preserved as gaps in the recent display sequence.
-- The recent sequence contains the latest 12 committed quarterly observations in chronological order, or all observations when fewer than 12 exist.
+- The recent sequence contains the latest 20 committed quarterly observations in chronological order, or all observations when fewer than 20 exist.
 - The 10th, 25th, 50th, 75th, and 90th percentiles use linear interpolation on the zero-based sorted-index scale: `index = percentile / 100 × (n - 1)`. Exact observations and ties retain their sorted values; interpolation occurs only when the index is fractional. Domain thresholds retain full precision.
 - The latest position categories are `belowOuterBand`, `betweenOuterAndInnerLow`, `insideInnerBand`, `betweenInnerAndOuterHigh`, and `aboveOuterBand`. Exact 10th and 90th percentile values belong to their adjacent outer-to-inner categories; exact 25th and 75th percentile values belong inside the inner band. A null latest observation produces an explicit unavailable result.
 
@@ -55,11 +55,13 @@ Product review on July 20, 2026 found the original 12-quarter path legible at bo
 
 Story 36 integrates the approved component into the production Real GDP card only. The headline callout and compact chart share the already loaded series and render side by side from 48rem upward, stacking below that breakpoint. The compact chart remains mounted when More reveals the unchanged full research chart; each owns and resizes its own valid ECharts canvas, and the build continues to emit one shared ECharts renderer dependency rather than a duplicate library. The production figure visually hides its long caption to preserve scan density, but that caption remains the figure's single accessible name and precedes More in reading order; decorative canvas internals are hidden from assistive technology. The isolated preview retains the visible caption.
 
-Story 37 adds a lower-right help button to the compact chart. Its anchored 14px explanation reports the data-derived comparison period and defines the dark middle-50% band, the light middle-80% range, and observations in the highest or lowest 10%. It opens by click, tap, Enter, or Space and closes on a second activation, Escape, or an outside pointer action. Escape restores focus to the trigger. The help layer does not alter the chart calculation or full research view.
+Story 36A adds a lower-right help button to the compact chart. Its anchored 14px explanation reports the comparison period and defines the dark middle-50% band, the light middle-80% range, and observations in the highest or lowest 10%. It opens by click, tap, Enter, or Space and closes on a second activation, Escape, or an outside pointer action. Escape restores focus to the trigger. The help layer does not alter the chart calculation or full research view.
 
 The compact chart footer pairs that help button with a small, muted lower-left title. The title is data-derived rather than hard-coded: it names Real GDP growth and formats the actual first and last quarters in the 20-observation line. For the July 2026 committed data, that range is 2021 Q2–2026 Q1.
 
 Wide, 900px laptop, and 360px integration review found no horizontal overflow. Compact canvases measured 589×192, 457×192, and 294×192 respectively; full expanded charts measured 1006×384, 786×384, and 294×384. Preset selection, zoom, reset, source access, keyboard expansion, and simultaneous compact/full rendering all remained functional. Compared with the Story 33 value-only card, the result adds immediate trajectory and historical commonness while remaining materially shorter and easier to scan than the expanded research view. This remains a single-card experiment pending broader review.
+
+Story 37 audits that experiment and records the accepted reuse boundary in [`compact-card-architecture.md`](compact-card-architecture.md). It deliberately leaves Card #1 unchanged and defers extraction until Card #2 provides a second concrete consumer.
 
 Maximum passes every generated observation to the chart boundary. It is series-specific and does not imply a common starting year. The 5-year, 10-year, and 20-year filters remain anchored to each series' latest observation date, and the default remains 20 years.
 

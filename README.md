@@ -15,7 +15,7 @@ See:
 - [`docs/data-refresh.md`](docs/data-refresh.md) for the authoritative source, transformation, coverage, and refresh inventory.
 - [`docs/briefing-rules.md`](docs/briefing-rules.md) for the deterministic interpretation rules that will support the future at-a-glance briefing.
 - [`docs/labor-briefing-review.md`](docs/labor-briefing-review.md) for the real-data and historical calibration of the first briefing vertical slice.
-- [`docs/charting.md`](docs/charting.md) and [`docs/data-model.md`](docs/data-model.md) for implementation architecture.
+- [`docs/charting.md`](docs/charting.md), [`docs/data-model.md`](docs/data-model.md), and [`docs/compact-card-architecture.md`](docs/compact-card-architecture.md) for implementation architecture.
 
 ## Technology
 
