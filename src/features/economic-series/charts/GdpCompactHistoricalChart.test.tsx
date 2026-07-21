@@ -18,11 +18,14 @@ afterEach(() => {
 })
 
 const ready: CompactGdpHistoricalContextResult = {
-  status: 'ready', recentObservations: [{ date: '2026-01-01', value: 2.7 }],
+  status: 'ready', recentObservations: [
+    { date: '2021-04-01', value: 12.4 },
+    { date: '2026-01-01', value: 2.7 },
+  ],
   outerLower: 0.5, innerLower: 1.7, median: 2.3, innerUpper: 3, outerUpper: 3.5,
   latestPosition: 'insideInnerBand', latestObservation: { date: '2026-01-01', value: 2.7 },
   comparisonStart: '2001-01-01', comparisonEnd: '2026-01-01',
-  validObservationCount: 101, recentObservationCount: 1,
+  validObservationCount: 101, recentObservationCount: 2,
 }
 
 describe('GdpCompactHistoricalChart', () => {
@@ -30,6 +33,9 @@ describe('GdpCompactHistoricalChart', () => {
     const { unmount } = render(<GdpCompactHistoricalChart context={ready} />)
     expect(screen.getByRole('figure', { name: /Real GDP growth was 2.7% in 2026 Q1/ })).toBeVisible()
     expect(screen.getByText(/darker band marks the middle 50%/)).toBeVisible()
+    expect(document.querySelector('.gdp-compact-chart__title')).toHaveTextContent(
+      'Real GDP growth · 2021 Q2–2026 Q1',
+    )
     expect(init).toHaveBeenCalledOnce()
     expect(chart.setOption).toHaveBeenCalledOnce()
     unmount()

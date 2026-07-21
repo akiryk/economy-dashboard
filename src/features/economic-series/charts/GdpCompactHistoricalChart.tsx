@@ -79,6 +79,11 @@ export function GdpCompactHistoricalChart({
   }
   return <figure ref={figureRef} className="gdp-compact-chart" aria-labelledby={summaryId}>
     <div ref={containerRef} className="gdp-compact-chart__canvas" aria-hidden="true" />
+    <p className="gdp-compact-chart__title">
+      Real GDP growth <span aria-hidden="true">·</span>{' '}
+      {formatObservationPeriod(context.recentObservations[0].date, 'quarterly')}
+      –{formatObservationPeriod(context.latestObservation.date, 'quarterly')}
+    </p>
     <div className="gdp-compact-chart__help">
       <button
         ref={helpButtonRef}

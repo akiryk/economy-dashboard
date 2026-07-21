@@ -57,6 +57,8 @@ Story 36 integrates the approved component into the production Real GDP card onl
 
 Story 37 adds a lower-right help button to the compact chart. Its anchored 14px explanation reports the data-derived comparison period and defines the dark middle-50% band, the light middle-80% range, and observations in the highest or lowest 10%. It opens by click, tap, Enter, or Space and closes on a second activation, Escape, or an outside pointer action. Escape restores focus to the trigger. The help layer does not alter the chart calculation or full research view.
 
+The compact chart footer pairs that help button with a small, muted lower-left title. The title is data-derived rather than hard-coded: it names Real GDP growth and formats the actual first and last quarters in the 20-observation line. For the July 2026 committed data, that range is 2021 Q2–2026 Q1.
+
 Wide, 900px laptop, and 360px integration review found no horizontal overflow. Compact canvases measured 589×192, 457×192, and 294×192 respectively; full expanded charts measured 1006×384, 786×384, and 294×384. Preset selection, zoom, reset, source access, keyboard expansion, and simultaneous compact/full rendering all remained functional. Compared with the Story 33 value-only card, the result adds immediate trajectory and historical commonness while remaining materially shorter and easier to scan than the expanded research view. This remains a single-card experiment pending broader review.
 
 Maximum passes every generated observation to the chart boundary. It is series-specific and does not imply a common starting year. The 5-year, 10-year, and 20-year filters remain anchored to each series' latest observation date, and the default remains 20 years.
