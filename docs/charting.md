@@ -34,6 +34,19 @@ The boundary also accepts the two CPI comparison variants. Both use solid headli
 
 Chart options are built separately from React lifecycle management. This keeps filtering, adaptation, visual configuration, and canvas ownership independently understandable and testable.
 
+### Real GDP compact historical context
+
+Story 34 adds a pure, ECharts-independent preparation model for the future compact Real GDP growth chart. It does not yet change either the collapsed card or the full research chart.
+
+- The comparison window is the trailing 25 years ending at the latest committed quarter, including the exact boundary.
+- At least 20 finite quarterly observations are required. Fewer values return an explicit insufficient-history result rather than percentile bands.
+- Nulls are excluded from percentile calculations and preserved as gaps in the recent display sequence.
+- The recent sequence contains the latest 12 committed quarterly observations in chronological order, or all observations when fewer than 12 exist.
+- The 10th, 25th, 50th, 75th, and 90th percentiles use linear interpolation on the zero-based sorted-index scale: `index = percentile / 100 × (n - 1)`. Exact observations and ties retain their sorted values; interpolation occurs only when the index is fractional. Domain thresholds retain full precision.
+- The latest position categories are `belowOuterBand`, `betweenOuterAndInnerLow`, `insideInnerBand`, `betweenInnerAndOuterHigh`, and `aboveOuterBand`. Exact 10th and 90th percentile values belong to their adjacent outer-to-inner categories; exact 25th and 75th percentile values belong inside the inner band. A null latest observation produces an explicit unavailable result.
+
+For the committed January 2026 endpoint, the comparison spans January 2001 through January 2026 with 101 valid observations. The thresholds are 0.48924% (10th), 1.67926% (25th), 2.32528% (median), 3.00914% (75th), and 3.49486% (90th). The latest 2.68474% reading is `insideInnerBand`. These bands describe historical commonness, not whether growth is good or bad.
+
 Maximum passes every generated observation to the chart boundary. It is series-specific and does not imply a common starting year. The 5-year, 10-year, and 20-year filters remain anchored to each series' latest observation date, and the default remains 20 years.
 
 ## Presets and historical zoom
