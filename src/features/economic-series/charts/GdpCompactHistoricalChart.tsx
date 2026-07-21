@@ -10,9 +10,13 @@ echarts.use([AriaComponent, GridComponent, LineChart, MarkAreaComponent, MarkLin
 
 interface GdpCompactHistoricalChartProps {
   context: CompactGdpHistoricalContextResult
+  visuallyHideSummary?: boolean
 }
 
-export function GdpCompactHistoricalChart({ context }: GdpCompactHistoricalChartProps) {
+export function GdpCompactHistoricalChart({
+  context,
+  visuallyHideSummary = false,
+}: GdpCompactHistoricalChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [chartError, setChartError] = useState(false)
   const options = useMemo(
@@ -20,6 +24,7 @@ export function GdpCompactHistoricalChart({ context }: GdpCompactHistoricalChart
     [context],
   )
   const summary = context.status === 'ready' ? createGdpCompactAccessibleSummary(context) : null
+  const summaryId = 'gdp-compact-chart-summary'
 
   useEffect(() => {
     const container = containerRef.current
@@ -48,8 +53,13 @@ export function GdpCompactHistoricalChart({ context }: GdpCompactHistoricalChart
   if (chartError) {
     return <p className="chart-state chart-state--compact" role="alert">The compact GDP chart could not be displayed.</p>
   }
-  return <figure className="gdp-compact-chart">
-    <div ref={containerRef} className="gdp-compact-chart__canvas" role="img" aria-label={summary ?? undefined} />
-    <figcaption className="gdp-compact-chart__summary">{summary}</figcaption>
+  return <figure className="gdp-compact-chart" aria-labelledby={summaryId}>
+    <div ref={containerRef} className="gdp-compact-chart__canvas" aria-hidden="true" />
+    <figcaption
+      className={visuallyHideSummary ? 'visually-hidden' : 'gdp-compact-chart__summary'}
+      id={summaryId}
+    >
+      {summary}
+    </figcaption>
   </figure>
 }

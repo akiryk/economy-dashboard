@@ -729,6 +729,19 @@ p {
   min-width: 0;
 }
 
+.series-card__headline {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-6);
+}
+
+@media (min-width: 48rem) {
+  .series-card__headline--with-chart {
+    grid-template-columns: minmax(15rem, 0.8fr) minmax(20rem, 1.2fr);
+    align-items: center;
+  }
+}
+
 .series-card__expanded {
   display: grid;
   min-width: 0;

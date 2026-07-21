@@ -3,10 +3,12 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import realGdpGrowthData from '../data/real-gdp-growth.json'
 import type { EconomicObservation } from '../models/economicSeries'
+import type { CompactGdpHistoricalContextResult } from '../utils/gdpCompactHistoricalContext'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import { EconomicSeriesSummary } from './EconomicSeriesSummary'
 
 const chartPropsSpy = vi.hoisted(() => vi.fn())
+const compactChartPropsSpy = vi.hoisted(() => vi.fn())
 
 vi.mock('../charts/EconomicTimeSeriesChart', () => ({
   default: (props: {
@@ -19,11 +21,19 @@ vi.mock('../charts/EconomicTimeSeriesChart', () => ({
   },
 }))
 
+vi.mock('../charts/GdpCompactHistoricalChart', () => ({
+  GdpCompactHistoricalChart: (props: { context: CompactGdpHistoricalContextResult }) => {
+    compactChartPropsSpy(props)
+    return <figure data-testid="gdp-compact-chart"><figcaption>Compact GDP historical summary</figcaption></figure>
+  },
+}))
+
 const series = validateEconomicSeries(realGdpGrowthData)
 
 afterEach(() => {
   cleanup()
   chartPropsSpy.mockClear()
+  compactChartPropsSpy.mockClear()
 })
 
 describe('EconomicSeriesSummary', () => {
@@ -46,6 +56,14 @@ describe('EconomicSeriesSummary', () => {
     expect(screen.getByRole('heading', { name: 'Is the U.S. economy growing?' })).toBeVisible()
     expect(screen.getByText('Real Gross Domestic Product: Percent Change from Year Ago')).toBeVisible()
     expect(screen.getByLabelText('Latest real GDP growth')).toBeVisible()
+    expect(await screen.findByTestId('gdp-compact-chart')).toBeVisible()
+    const headline = container.querySelector('.series-card__headline')
+    expect(headline?.children[0]).toHaveClass('series-current')
+    expect(headline?.children[1]).toBe(screen.getByTestId('gdp-compact-chart'))
+    expect(compactChartPropsSpy).toHaveBeenCalledOnce()
+    expect(compactChartPropsSpy.mock.calls[0]?.[0].context).toMatchObject({
+      status: 'ready', latestObservation: { date: '2026-01-01', value: 2.68474 },
+    })
     const more = screen.getByRole('button', { name: /More/ })
     expect(more).toHaveAttribute('aria-expanded', 'false')
     expect(container.querySelector('#real-gdp-growth-expanded')).not.toBeInTheDocument()
@@ -58,11 +76,13 @@ describe('EconomicSeriesSummary', () => {
     await user.keyboard('{Enter}')
     expect(screen.getByRole('button', { name: /Less/ })).toHaveAttribute('aria-expanded', 'true')
     expect(await screen.findByTestId('economic-chart')).toBeVisible()
+    expect(screen.getByTestId('gdp-compact-chart')).toBeVisible()
     expect(screen.getByRole('heading', { name: 'What this tells you' })).toBeVisible()
     expect(screen.getByText('U.S. Bureau of Economic Analysis via FRED')).toBeVisible()
     await user.click(screen.getByRole('button', { name: '5 years' }))
     await user.click(screen.getByRole('button', { name: /Less/ }))
     expect(screen.queryByRole('button', { name: '5 years' })).not.toBeInTheDocument()
+    expect(screen.getByTestId('gdp-compact-chart')).toBeVisible()
     await user.click(screen.getByRole('button', { name: /More/ }))
     expect(screen.getByRole('button', { name: '5 years' })).toHaveAttribute('aria-pressed', 'true')
   })

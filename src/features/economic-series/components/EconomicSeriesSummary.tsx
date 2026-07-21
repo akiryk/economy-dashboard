@@ -36,9 +36,16 @@ import {
   lendingStandardsCounts,
   medianLendingStandards,
 } from '../utils/lendingStandardsData'
+import { deriveCompactGdpHistoricalContext } from '../utils/gdpCompactHistoricalContext'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
+)
+
+const GdpCompactHistoricalChart = lazy(() =>
+  import('../charts/GdpCompactHistoricalChart').then((module) => ({
+    default: module.GdpCompactHistoricalChart,
+  })),
 )
 
 interface EconomicSeriesSummaryProps {
@@ -118,6 +125,12 @@ export function EconomicSeriesSummary({
   const lendingCounts = lendingStandardsCounts(visibleObservations)
   const lendingMedian = medianLendingStandards(visibleObservations)
   const visibleMedian = medianObservationValue(visibleObservations)
+  const compactGdpContext = useMemo(
+    () => collapsible && series.slug === 'real-gdp-growth'
+      ? deriveCompactGdpHistoricalContext(series.observations)
+      : null,
+    [collapsible, series.observations, series.slug],
+  )
   const formatValue = (value: number | null) =>
     formatEconomicValue(value, presentation.valueFormat)
   const savingRateChange =
@@ -145,7 +158,10 @@ export function EconomicSeriesSummary({
         <p className="series-card__title">{series.title}</p>
       </header>
 
-      <div className="series-current" aria-label={presentation.latestValueLabel}>
+      <div
+        className={`series-card__headline${compactGdpContext ? ' series-card__headline--with-chart' : ''}`}
+      >
+        <div className="series-current" aria-label={presentation.latestValueLabel}>
         <p className="series-current__value">
           <span
             aria-label={
@@ -212,6 +228,21 @@ export function EconomicSeriesSummary({
                 : `by ${formatPercentage(Math.abs(productivityMomentum))} percentage points from a year earlier.`}
             </p>
           )}
+        </div>
+        {compactGdpContext && (
+          <Suspense
+            fallback={
+              <p className="chart-state chart-state--compact" role="status">
+                Loading compact GDP chart…
+              </p>
+            }
+          >
+            <GdpCompactHistoricalChart
+              context={compactGdpContext}
+              visuallyHideSummary
+            />
+          </Suspense>
+        )}
       </div>
 
       {collapsible && (

@@ -27,7 +27,7 @@ const ready: CompactGdpHistoricalContextResult = {
 describe('GdpCompactHistoricalChart', () => {
   it('initializes the existing ECharts lifecycle and exposes the factual summary', () => {
     const { unmount } = render(<GdpCompactHistoricalChart context={ready} />)
-    expect(screen.getByRole('img', { name: /Real GDP growth was 2.7% in 2026 Q1/ })).toBeVisible()
+    expect(screen.getByRole('figure', { name: /Real GDP growth was 2.7% in 2026 Q1/ })).toBeVisible()
     expect(screen.getByText(/darker band marks the middle 50%/)).toBeVisible()
     expect(init).toHaveBeenCalledOnce()
     expect(chart.setOption).toHaveBeenCalledOnce()
@@ -45,6 +45,16 @@ describe('GdpCompactHistoricalChart', () => {
     expect(init).not.toHaveBeenCalled()
   })
 
+  it('keeps one accessible summary when production visually hides the caption', () => {
+    render(<GdpCompactHistoricalChart context={ready} visuallyHideSummary />)
+    const figure = screen.getByRole('figure', { name: /Real GDP growth was 2.7% in 2026 Q1/ })
+    expect(figure).toBeVisible()
+    expect(screen.getAllByText(/Real GDP growth was 2.7% in 2026 Q1/)).toHaveLength(1)
+    expect(screen.getByText(/Real GDP growth was 2.7% in 2026 Q1/)).toHaveClass(
+      'visually-hidden',
+    )
+  })
+
   it('omits the chart and latest marker when the latest observation is unavailable', () => {
     render(<GdpCompactHistoricalChart context={{
       status: 'latest-unavailable', recentObservations: [{ date: '2026-01-01', value: null }],
@@ -53,7 +63,7 @@ describe('GdpCompactHistoricalChart', () => {
       validObservationCount: 100, recentObservationCount: 1, minimumRequired: 20,
     }} />)
     expect(screen.getByRole('status')).toHaveTextContent('Historical GDP context is unavailable.')
-    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+    expect(screen.queryByRole('figure')).not.toBeInTheDocument()
     expect(init).not.toHaveBeenCalled()
   })
 })

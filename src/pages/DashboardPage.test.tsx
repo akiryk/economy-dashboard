@@ -5,6 +5,7 @@ import type {
   EconomicFrequency,
   EconomicObservation,
 } from '../features/economic-series/models/economicSeries'
+import type { CompactGdpHistoricalContextResult } from '../features/economic-series/utils/gdpCompactHistoricalContext'
 import { localEconomicSeriesRepository } from '../features/economic-series/repositories/localEconomicSeriesRepository'
 import { DashboardPage } from './DashboardPage'
 
@@ -26,6 +27,11 @@ vi.mock('../features/economic-series/charts/EconomicTimeSeriesChart', () => ({
     chartPropsSpy(props)
     return <div data-testid={`chart-${props.seriesName ?? props.variant}`} />
   },
+}))
+
+vi.mock('../features/economic-series/charts/GdpCompactHistoricalChart', () => ({
+  GdpCompactHistoricalChart: ({ context }: { context: CompactGdpHistoricalContextResult }) =>
+    <figure data-testid="production-gdp-compact-chart" data-status={context.status} />,
 }))
 
 afterEach(() => {
@@ -103,6 +109,14 @@ describe('DashboardPage economic series', () => {
     const cpiCard = await screen.findByRole('article', {
       name: 'How quickly are consumer prices rising?',
     })
+
+    expect(within(gdpCard).getByTestId('production-gdp-compact-chart')).toHaveAttribute(
+      'data-status',
+      'ready',
+    )
+    expect(
+      within(cpiCard).queryByTestId('production-gdp-compact-chart'),
+    ).not.toBeInTheDocument()
 
     await user.click(within(gdpCard).getByRole('button', { name: /More/ }))
     await user.click(within(gdpCard).getByText('Series details'))
