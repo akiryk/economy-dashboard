@@ -16,12 +16,12 @@ function series(slug: string, base: number): EconomicSeries {
   }
 }
 
-function model() {
+function model({ claims = true } = {}) {
   const result = buildLaborBriefing({
     activity: series('labor-market-activity-index', -2), momentum: series('labor-market-momentum-index', -3),
-    unemployment: series('unemployment-rate', 4), payrolls: series('payroll-growth', 100),
+    unemployment: series('unemployment-rate', 4), payrolls: series('payroll-growth', 200),
     monthlyPayrollChange: series('monthly-payroll-change', 100), primeAgeEmployment: series('prime-age-employment-ratio', 75),
-    claims: series('initial-unemployment-claims-four-week-average', 200_000),
+    claims: claims ? series('initial-unemployment-claims-four-week-average', 200_000) : null,
   }, '2025-01-15')
   if (result.status !== 'ready') throw new Error('Expected ready fixture')
   return result
@@ -49,26 +49,58 @@ describe('LaborBriefingTile', () => {
     ])
   })
 
-  it('reveals traceable LMCI and supporting evidence, then collapses it', async () => {
+  it('shows supporting evidence first and keeps methodology one closed disclosure deeper', async () => {
     const user = userEvent.setup()
-    render(<LaborBriefingTile model={model()} />)
+    const { container } = render(<LaborBriefingTile model={model()} />)
     const answer = screen.getByText('People are finding and keeping work much more readily than usual, and conditions are strengthening sharply.')
     await user.click(screen.getByRole('button', { name: /More/ }))
     expect(screen.getByRole('button', { name: /Less/ })).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText(/standardized indexes centered/)).toBeVisible()
-    expect(screen.getByText('LMCI Activity')).toBeVisible()
-    const why = screen.getByText('Why this label')
-    const supporting = screen.getByText('Supporting evidence')
-    expect(why.closest('details')).not.toHaveAttribute('open')
-    expect(supporting.closest('details')).not.toHaveAttribute('open')
-    await user.click(why)
-    expect(within(why.closest('details')!).getByText(/maps 0–100 percentiles/)).toBeVisible()
-    await user.click(supporting)
-    expect(within(supporting.closest('details')!).getByText(/Hakkio, Craig S/)).toBeVisible()
-    expect(screen.getByText('Unemployment rate')).toBeVisible()
+    const expanded = container.querySelector('#labor-briefing-expanded')!
+    expect([...expanded.children].map((element) => element.tagName)).toEqual(['SECTION', 'DETAILS'])
+    expect(screen.getByRole('heading', { name: 'Supporting evidence' })).toBeVisible()
+    const methodology = screen.getByText('How this assessment is calculated')
+    expect(methodology.closest('details')).not.toHaveAttribute('open')
+
+    for (const label of ['Unemployment rate', 'Latest monthly payroll change', 'Three-month average payroll change', 'Prime-age employment-to-population ratio', 'Initial claims, four-week average']) {
+      expect(screen.getByRole('heading', { name: label })).toBeVisible()
+    }
+    expect(screen.getByText('+106K')).toBeVisible()
+    expect(screen.getByText('+206K')).toBeVisible()
+    expect(screen.getAllByText(/December 2024/).length).toBeGreaterThanOrEqual(4)
+    expect(screen.getByText('Latest month; commonly revised.')).toBeVisible()
+    expect(screen.getByText('Average monthly change across the latest three months; commonly revised.')).toBeVisible()
+    expect(screen.getAllByText('Fixture source.', { exact: false })).toHaveLength(5)
+    expect(screen.getByRole('link', { name: 'View unemployment rate research card' })).toHaveAttribute('href', '/#unemployment-rate-card')
+    expect(screen.getByRole('link', { name: 'View latest monthly payroll change research card' })).toHaveAttribute('href', '/#payroll-growth-card')
+    expect(screen.getByRole('link', { name: 'View initial claims, four-week average research card' })).toHaveAttribute('href', '/#initial-unemployment-claims-card')
+    expect(screen.queryByText('Why this label')).not.toBeInTheDocument()
+    expect(screen.queryByText(/not bounded between/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/0\.\d{5}/)).not.toBeInTheDocument()
+
+    await user.click(methodology)
+    const methodologyDetails = methodology.closest('details')!
+    expect(methodologyDetails).toHaveAttribute('open')
+    expect(within(methodologyDetails).getByText(/summarizes the overall level/)).toBeVisible()
+    expect(within(methodologyDetails).getByText(/summarizes whether those broad conditions/)).toBeVisible()
+    expect(within(methodologyDetails).getByText(/January 2020 through December 2024/)).toBeVisible()
+    expect(within(methodologyDetails).getByText(/Hakkio, Craig S/)).toBeVisible()
+    expect(within(methodologyDetails).getByText(/Well Above Avg/)).toBeVisible()
     expect(screen.getAllByText(answer.textContent!)).toHaveLength(1)
+
     await user.click(screen.getByRole('button', { name: /Less/ }))
-    expect(screen.queryByText('LMCI Activity')).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Supporting evidence' })).not.toBeInTheDocument()
     expect(answer).toBeVisible()
+    await user.click(screen.getByRole('button', { name: /More/ }))
+    expect(screen.getByText('How this assessment is calculated').closest('details')).not.toHaveAttribute('open')
+  })
+
+  it('keeps available supporting evidence visible when one series is missing', async () => {
+    const user = userEvent.setup()
+    render(<LaborBriefingTile model={model({ claims: false })} />)
+    await user.click(screen.getByRole('button', { name: /More/ }))
+    expect(screen.getAllByRole('heading', { level: 4 })).toHaveLength(4)
+    expect(screen.getByRole('heading', { name: 'Unemployment rate' })).toBeVisible()
+    expect(screen.queryByRole('heading', { name: 'Initial claims, four-week average' })).not.toBeInTheDocument()
+    expect(screen.getByText('Initial claims data is unavailable.')).toBeVisible()
   })
 })

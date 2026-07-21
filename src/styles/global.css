@@ -361,7 +361,7 @@ p {
 .labor-briefing__toggle:hover { background: var(--color-page-background); }
 
 .labor-briefing__expanded,
-.labor-reading-detail,
+.labor-supporting,
 .labor-supporting-grid section {
   display: grid;
   gap: var(--space-3);
@@ -372,29 +372,22 @@ p {
   border-top: 1px solid var(--color-border);
 }
 
-.labor-reading-details,
 .labor-supporting-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-3);
 }
 
-.labor-reading-detail,
 .labor-supporting-grid section,
-.labor-briefing__index-note,
 .labor-briefing__tension {
   padding: var(--space-3);
   background: var(--color-page-background);
   border-radius: var(--radius-small);
 }
 
-.labor-reading-detail h4,
+.labor-supporting h3,
 .labor-supporting-grid h4,
 .labor-supporting-grid p { margin: 0; }
-
-.labor-reading-detail dl {
-  grid-template-columns: 1fr;
-}
 
 .visually-hidden {
   position: absolute;
@@ -471,8 +464,7 @@ p {
     grid-template-columns: 1fr;
   }
 
-  .labor-metrics,
-  .labor-reading-details {
+  .labor-metrics {
     grid-template-columns: 1fr;
   }
 }

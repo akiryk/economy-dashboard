@@ -1,6 +1,6 @@
 # Briefing interpretation rules
 
-Status: revised through Story 31. The non-default `/briefing` route currently implements Labor only. The LMCI rules below supersede the Story 29 unemployment/payroll-derived Labor model.
+Status: revised through Story 32. The non-default `/briefing` route currently implements Labor only. The LMCI rules below supersede the Story 29 unemployment/payroll-derived Labor model.
 
 ## Product boundary and dimensions
 
@@ -51,7 +51,9 @@ The normal sentence is `{activity clause}, {connector} {momentum clause}.` The c
 
 If Activity is unavailable but fresh Momentum is available, the answer says Activity cannot be assessed and reports momentum after `but`. If Activity is available while Momentum is missing or stale, it retains the activity clause and says there is no fresh evidence about whether conditions are changing. If neither current classification is available, the answer says current labor-market conditions cannot be assessed from the available data. A missing latest primary value is unavailable rather than carried forward, and suppressed stale momentum is never called steady.
 
-More reveals raw values and dates, methodology, supporting data, source links, and attribution without duplicating the collapsed answer.
+More reveals supporting evidence first: unemployment, latest monthly payroll change, three-month average payroll change, prime-age employment-to-population, and initial claims. These familiar measures provide context but never determine or override either LMCI headline. Each compact evidence item includes its current value and period, a short note, provider attribution, and a research-card link.
+
+A single closed-by-default **How this assessment is calculated** disclosure follows the supporting evidence. It explains Activity and Momentum in plain language, shows their current tiers and observation periods, states the actual comparison history, and retains the Kansas City Fed source, methodology link, and full Hakkio-Willis citation. Raw LMCI index values and exact visualization mechanics are intentionally deemphasized in the interface; the percentile, tier-boundary, bar-fill, and arrow-angle rules remain documented above for deterministic implementation and review.
 
 The Story 29 Labor-specific role, combination, sparkline, and synthesis sections retained later in this document are historical design records and no longer govern the implemented Labor tile. General percentile, freshness, traceability, and product-boundary rules still apply where they do not conflict with this section.
 
