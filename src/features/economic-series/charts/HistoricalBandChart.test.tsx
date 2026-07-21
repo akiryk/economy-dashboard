@@ -1,0 +1,91 @@
+import { cleanup, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import type { HistoricalBandModel } from '../utils/historicalBandContext'
+import { HistoricalBandChart } from './HistoricalBandChart'
+
+const chart = vi.hoisted(() => ({ setOption: vi.fn(), resize: vi.fn(), dispose: vi.fn() }))
+const init = vi.hoisted(() => vi.fn(() => chart))
+
+vi.mock('echarts/core', () => ({ init, use: vi.fn() }))
+
+afterEach(() => {
+  cleanup()
+  vi.clearAllMocks()
+})
+
+const model: HistoricalBandModel = {
+  status: 'ready',
+  recentObservations: [
+    { date: '2021-04-01', value: 1 },
+    { date: '2026-01-01', value: 2 },
+  ],
+  outerLower: -1, innerLower: 0.5, median: 1,
+  innerUpper: 2.5, outerUpper: 4,
+  latestObservation: { date: '2026-01-01', value: 2 },
+  comparisonStart: '2001-01-01', comparisonEnd: '2026-01-01',
+  validObservationCount: 101, recentObservationCount: 20,
+}
+
+const defaultProps = {
+  model,
+  seriesLabel: 'Example growth',
+  frequency: 'quarterly' as const,
+  valueFormatter: (value: number | null) => value === null ? 'Unavailable' : `${value}%`,
+  accessibleSummary: 'Example accessible summary',
+  latestPositionDescription: 'within the historical middle 50%',
+  helpText: {
+    heading: 'Recent historical comparison: past 25 years',
+    description: 'The dark band shows the middle 50%.',
+  },
+  caption: 'Example growth · 2021 Q2–2026 Q1',
+  showZeroLine: true,
+  showLatestMarker: true,
+}
+
+describe('HistoricalBandChart', () => {
+  it('owns one chart lifecycle and exposes one supplied accessible summary', () => {
+    const { unmount } = render(
+      <HistoricalBandChart {...defaultProps} visuallyHideSummary />,
+    )
+    expect(screen.getByRole('figure', { name: 'Example accessible summary' })).toBeVisible()
+    expect(screen.getAllByText('Example accessible summary')).toHaveLength(1)
+    expect(screen.getByText('Example accessible summary')).toHaveClass('visually-hidden')
+    expect(screen.getByText('Example growth · 2021 Q2–2026 Q1')).toBeVisible()
+    expect(init).toHaveBeenCalledOnce()
+    unmount()
+    expect(chart.dispose).toHaveBeenCalledOnce()
+  })
+
+  it('opens supplied help by hover, click, and keyboard and dismisses accessibly', async () => {
+    const user = userEvent.setup()
+    render(<HistoricalBandChart {...defaultProps} />)
+    const button = screen.getByRole('button', { name: 'Explain the historical bands' })
+
+    await user.hover(button)
+    expect(screen.getByRole('dialog')).toHaveTextContent('The dark band shows the middle 50%.')
+    await user.unhover(button)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+    await user.click(button)
+    expect(button).toHaveAttribute('aria-expanded', 'true')
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(button).toHaveFocus()
+
+    await user.keyboard(' ')
+    expect(screen.getByRole('dialog')).toBeVisible()
+    await user.click(document.body)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('renders an explicit unavailable state without initializing ECharts', () => {
+    render(<HistoricalBandChart {...defaultProps} model={{
+      status: 'empty', recentObservations: [], comparisonStart: null,
+      comparisonEnd: null, latestObservation: null, validObservationCount: 0,
+      recentObservationCount: 0, minimumRequired: 20,
+    }} accessibleSummary={null} latestPositionDescription={null} />)
+    expect(screen.getByRole('status')).toHaveTextContent('Historical context is unavailable.')
+    expect(init).not.toHaveBeenCalled()
+  })
+})

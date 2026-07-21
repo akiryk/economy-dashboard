@@ -36,15 +36,19 @@ import {
   lendingStandardsCounts,
   medianLendingStandards,
 } from '../utils/lendingStandardsData'
-import { deriveCompactGdpHistoricalContext } from '../utils/gdpCompactHistoricalContext'
+import {
+  getCompactHistoricalMetricDefinition,
+} from '../utils/compactHistoricalMetrics'
+import { deriveHistoricalBandContext } from '../utils/historicalBandContext'
+import { CompactMetricCardLayout } from './CompactMetricCardLayout'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
 )
 
-const GdpCompactHistoricalChart = lazy(() =>
-  import('../charts/GdpCompactHistoricalChart').then((module) => ({
-    default: module.GdpCompactHistoricalChart,
+const CompactHistoricalMetricChart = lazy(() =>
+  import('../charts/CompactHistoricalMetricChart').then((module) => ({
+    default: module.CompactHistoricalMetricChart,
   })),
 )
 
@@ -91,7 +95,6 @@ export function EconomicSeriesSummary({
   series,
   supportingSeries,
 }: EconomicSeriesSummaryProps) {
-  const [expanded, setExpanded] = useState(!collapsible)
   const [selectedRange, setSelectedRange] = useState<TimeRange>('20y')
   const presentation = getEconomicSeriesPresentation(series.slug)
   const latestObservation = findLatestNonNullObservation(series.observations)
@@ -125,11 +128,17 @@ export function EconomicSeriesSummary({
   const lendingCounts = lendingStandardsCounts(visibleObservations)
   const lendingMedian = medianLendingStandards(visibleObservations)
   const visibleMedian = medianObservationValue(visibleObservations)
-  const compactGdpContext = useMemo(
-    () => collapsible && series.slug === 'real-gdp-growth'
-      ? deriveCompactGdpHistoricalContext(series.observations)
+  const compactDefinition = collapsible
+    ? getCompactHistoricalMetricDefinition(series.slug)
+    : null
+  const compactModel = useMemo(
+    () => compactDefinition
+      ? deriveHistoricalBandContext(
+          series.observations,
+          compactDefinition.historicalBands,
+        )
       : null,
-    [collapsible, series.observations, series.slug],
+    [compactDefinition, series.observations],
   )
   const formatValue = (value: number | null) =>
     formatEconomicValue(value, presentation.valueFormat)
@@ -146,22 +155,8 @@ export function EconomicSeriesSummary({
         )?.momentumChange ?? null
       : null
 
-  return (
-    <article
-      id={`${series.slug}-card`}
-      className="series-card"
-      aria-labelledby={`${series.slug}-question`}
-    >
-      <header className="series-card__header">
-        <p className="series-card__eyebrow">{presentation.topicLabel}</p>
-        <h3 id={`${series.slug}-question`}>{series.question}</h3>
-        <p className="series-card__title">{series.title}</p>
-      </header>
-
-      <div
-        className={`series-card__headline${compactGdpContext ? ' series-card__headline--with-chart' : ''}`}
-      >
-        <div className="series-current" aria-label={presentation.latestValueLabel}>
+  const latestValueContent = (
+    <div className="series-current" aria-label={presentation.latestValueLabel}>
         <p className="series-current__value">
           <span
             aria-label={
@@ -228,37 +223,35 @@ export function EconomicSeriesSummary({
                 : `by ${formatPercentage(Math.abs(productivityMomentum))} percentage points from a year earlier.`}
             </p>
           )}
-        </div>
-        {compactGdpContext && (
-          <Suspense
-            fallback={
-              <p className="chart-state chart-state--compact" role="status">
-                Loading compact GDP chart…
-              </p>
-            }
-          >
-            <GdpCompactHistoricalChart
-              context={compactGdpContext}
-              visuallyHideSummary
-            />
-          </Suspense>
-        )}
-      </div>
+    </div>
+  )
+  const compactVisual = compactModel && compactDefinition ? (
+    <Suspense
+      fallback={
+        <p className="chart-state chart-state--compact" role="status">
+          Loading compact historical chart…
+        </p>
+      }
+    >
+      <CompactHistoricalMetricChart
+        model={compactModel}
+        definition={compactDefinition}
+        visuallyHideSummary
+      />
+    </Suspense>
+  ) : undefined
 
-      {collapsible && (
-        <button
-          className="series-card__toggle"
-          type="button"
-          aria-expanded={expanded}
-          aria-controls={`${series.slug}-expanded`}
-          onClick={() => setExpanded((current) => !current)}
-        >
-          {expanded ? 'Less' : 'More'} <span aria-hidden="true">{expanded ? '⌃' : '⌄'}</span>
-        </button>
-      )}
-
-      {(!collapsible || expanded) && <div className="series-card__expanded" id={`${series.slug}-expanded`}>
-
+  return (
+    <CompactMetricCardLayout
+      cardId={series.slug}
+      eyebrow={presentation.topicLabel}
+      question={series.question}
+      measureLabel={series.title}
+      latestValue={latestValueContent}
+      compactVisual={compactVisual}
+      collapsible={collapsible}
+      expandedContent={(
+        <>
       <TimeRangeControl
         selectedRange={selectedRange}
         onRangeChange={zoom.selectPreset}
@@ -596,7 +589,8 @@ export function EconomicSeriesSummary({
           )}
         </details>
       </footer>
-      </div>}
-    </article>
+        </>
+      )}
+    />
   )
 }

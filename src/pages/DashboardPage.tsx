@@ -91,6 +91,7 @@ export function DashboardPage() {
           onSeriesLoaded={handleSeriesLoaded}
         />
         <EconomicSeriesCard
+          collapsible
           slug="real-gdp-per-capita-growth"
           label="real GDP per capita"
           onSeriesLoaded={handleSeriesLoaded}

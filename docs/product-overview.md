@@ -17,7 +17,7 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 | Card | Displayed measure and chart | Why it is here |
 |---|---|---|
 | Is the U.S. economy growing? | Quarterly real GDP, year-over-year percent change. The collapsed headline pairs the latest value with a labelled 20-quarter (five-year) compact line, historical 25th–75th and 10th–90th percentile bands, a zero reference, and on-demand band help; More opens the complete chart and research detail. | Shows whether inflation-adjusted total output is expanding or contracting while testing compact historical context and progressive disclosure before any wider rollout. |
-| Is economic output growing faster than the population? | Quarterly real GDP per person, year-over-year percent change. | Separates aggregate growth from growth in average output per resident. |
+| Is economic output growing faster than the population? | Quarterly real GDP per capita, year-over-year percent change. The default compact view pairs the latest value with a 20-quarter line, a trailing 25-year historical comparison using middle-50% and middle-80% bands, a zero reference, and on-demand help; More preserves the complete research chart and controls. | Distinguishes growth in total output from growth available per person and gives neutral historical context without labeling higher readings as inherently better. |
 | How much more productive is the economy than in the past? | Quarterly nonfarm-business output per hour, indexed to 100 at the selected range’s first observation. | Shows cumulative productivity improvement without confusing the level with its growth rate. |
 | Are productivity gains revving up or slowing down? | Quarterly output per hour, year-over-year percent change, with momentum versus four quarters earlier. | Shows the pace of productivity gains and whether that pace is accelerating or slowing. |
 
@@ -87,7 +87,7 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 
 ## Shared interpretation rules
 
-The Real GDP growth card alone currently defaults to a compact collapsed state containing its question, measure, latest observation, and historical-band chart. At wide and laptop widths the latest callout and compact chart sit side by side; narrow layouts stack them. Its complete existing research card remains available under More while the compact chart stays visible. No other research card adopts this disclosure pattern yet.
+The Real GDP growth and Real GDP per capita growth cards default to a compact collapsed state containing the question, measure, latest observation, and historical-band chart. At wide and laptop widths the latest callout and compact chart sit side by side; narrow layouts stack them. Each complete research card remains available under More while its compact chart stays visible. Other research cards remain expanded by default.
 
 - The latest callout always refers to the latest committed observation, not the endpoint of a zoomed historical window.
 - Maximum shows each source’s full useful available history; cards do not share an arbitrary start date.

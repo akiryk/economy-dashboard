@@ -633,54 +633,55 @@ p {
 }
 
 .gdp-compact-preview h2,
-.gdp-compact-chart,
-.gdp-compact-chart__summary {
+.historical-band-chart,
+.historical-band-chart__summary {
   margin: 0;
 }
 
-.gdp-compact-chart {
+.historical-band-chart {
   position: relative;
   display: grid;
   min-width: 0;
   gap: var(--space-3);
 }
 
-.gdp-compact-chart__canvas {
+.historical-band-chart__canvas {
   width: 100%;
   min-width: 0;
-  height: 12rem;
+  height: var(--compact-chart-height);
 }
 
-.gdp-compact-chart__summary {
+.historical-band-chart__summary {
   color: var(--color-text-muted);
   font-size: 0.875rem;
 }
 
-.gdp-compact-chart__title {
+.historical-band-chart__title {
   position: absolute;
+  right: calc(var(--compact-chart-help-size) + var(--space-2));
   bottom: -22px;
   left: 0;
   display: flex;
   align-items: center;
   min-height: 2rem;
   margin: 0;
-  color: var(--color-text-muted);
-  font-size: 0.8125rem;
+  color: var(--compact-chart-footer-color);
+  font-size: var(--compact-chart-footer-size);
   font-weight: 400;
   line-height: 1.25;
 }
 
-.gdp-compact-chart__help {
+.historical-band-chart__help {
   position: absolute;
   right: 0;
   bottom: -22px;
   z-index: 2;
 }
 
-.gdp-compact-chart__help-button {
+.historical-band-chart__help-button {
   display: grid;
-  width: 2rem;
-  height: 2rem;
+  width: var(--compact-chart-help-size);
+  height: var(--compact-chart-help-size);
   padding: 0;
   color: var(--color-text);
   background: color-mix(in srgb, var(--color-surface) 92%, transparent);
@@ -693,17 +694,17 @@ p {
   cursor: pointer;
 }
 
-.gdp-compact-chart__help-button:hover,
-.gdp-compact-chart__help-button[aria-expanded='true'] {
+.historical-band-chart__help-button:hover,
+.historical-band-chart__help-button[aria-expanded="true"] {
   background: var(--color-surface);
   border-color: var(--color-link);
 }
 
-.gdp-compact-chart__help-popover {
+.historical-band-chart__help-popover {
   position: absolute;
   right: 0;
   bottom: calc(100% + var(--space-2));
-  width: min(20rem, calc(100vw - 3rem));
+  width: min(var(--compact-chart-popover-width), calc(100vw - 3rem));
   padding: var(--space-3);
   color: var(--color-text);
   background: var(--color-surface);
@@ -714,11 +715,11 @@ p {
   line-height: 1.4;
 }
 
-.gdp-compact-chart__help-popover p {
+.historical-band-chart__help-popover p {
   margin: 0;
 }
 
-.gdp-compact-chart__help-popover p + p {
+.historical-band-chart__help-popover p + p {
   margin-top: var(--space-2);
 }
 
@@ -799,11 +800,11 @@ p {
 .series-card__headline {
   display: grid;
   min-width: 0;
-  gap: var(--space-6);
+  gap: var(--compact-card-gap);
 }
 
 @media (min-width: 48rem) {
-  .series-card__headline--with-chart {
+  .series-card__headline--with-compact-visual {
     grid-template-columns: minmax(15rem, 0.8fr) minmax(20rem, 1.2fr);
     align-items: center;
   }
@@ -843,7 +844,7 @@ p {
 }
 
 .series-card__header h3 {
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-size: var(--compact-card-question-size);
 }
 
 .series-card__eyebrow {
@@ -856,6 +857,7 @@ p {
 
 .series-card__title {
   color: var(--color-text-muted);
+  font-size: var(--compact-card-measure-size);
 }
 
 .series-current {
@@ -863,11 +865,11 @@ p {
   justify-items: start;
   gap: var(--space-1);
   padding-left: var(--space-4);
-  border-left: 0.2rem solid var(--color-text);
+  border-left: var(--compact-card-callout-border);
 }
 
 .series-current__value {
-  font-size: clamp(2.25rem, 7vw, 3.25rem);
+  font-size: var(--compact-card-value-size);
   font-weight: 750;
   line-height: 1;
   letter-spacing: -0.03em;

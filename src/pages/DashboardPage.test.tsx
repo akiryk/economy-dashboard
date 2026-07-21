@@ -5,7 +5,8 @@ import type {
   EconomicFrequency,
   EconomicObservation,
 } from '../features/economic-series/models/economicSeries'
-import type { CompactGdpHistoricalContextResult } from '../features/economic-series/utils/gdpCompactHistoricalContext'
+import type { CompactHistoricalMetricDefinition } from '../features/economic-series/utils/compactHistoricalMetrics'
+import type { HistoricalBandResult } from '../features/economic-series/utils/historicalBandContext'
 import { localEconomicSeriesRepository } from '../features/economic-series/repositories/localEconomicSeriesRepository'
 import { DashboardPage } from './DashboardPage'
 
@@ -29,9 +30,19 @@ vi.mock('../features/economic-series/charts/EconomicTimeSeriesChart', () => ({
   },
 }))
 
-vi.mock('../features/economic-series/charts/GdpCompactHistoricalChart', () => ({
-  GdpCompactHistoricalChart: ({ context }: { context: CompactGdpHistoricalContextResult }) =>
-    <figure data-testid="production-gdp-compact-chart" data-status={context.status} />,
+vi.mock('../features/economic-series/charts/CompactHistoricalMetricChart', () => ({
+  CompactHistoricalMetricChart: ({
+    model,
+    definition,
+  }: {
+    model: HistoricalBandResult
+    definition: CompactHistoricalMetricDefinition
+  }) =>
+    <figure
+      data-testid="production-compact-chart"
+      data-status={model.status}
+      data-series-label={definition.seriesLabel}
+    />,
 }))
 
 afterEach(() => {
@@ -41,6 +52,23 @@ afterEach(() => {
 })
 
 describe('DashboardPage economic series', () => {
+  it('loads each compact GDP series once for both compact and expanded views', async () => {
+    const getBySlug = vi.spyOn(localEconomicSeriesRepository, 'getBySlug')
+
+    render(<DashboardPage />)
+
+    await screen.findByRole('article', {
+      name: 'Is economic output growing faster than the population?',
+    })
+    await waitFor(() => {
+      for (const slug of ['real-gdp-growth', 'real-gdp-per-capita-growth']) {
+        expect(
+          getBySlug.mock.calls.filter(([requestedSlug]) => requestedSlug === slug),
+        ).toHaveLength(1)
+      }
+    })
+  })
+
   it('provides a collapsed navigation whose links target each full card', async () => {
     const user = userEvent.setup()
     render(<DashboardPage />)
@@ -110,12 +138,12 @@ describe('DashboardPage economic series', () => {
       name: 'How quickly are consumer prices rising?',
     })
 
-    expect(within(gdpCard).getByTestId('production-gdp-compact-chart')).toHaveAttribute(
+    expect(within(gdpCard).getByTestId('production-compact-chart')).toHaveAttribute(
       'data-status',
       'ready',
     )
     expect(
-      within(cpiCard).queryByTestId('production-gdp-compact-chart'),
+      within(cpiCard).queryByTestId('production-compact-chart'),
     ).not.toBeInTheDocument()
 
     await user.click(within(gdpCard).getByRole('button', { name: /More/ }))
@@ -337,10 +365,22 @@ describe('DashboardPage economic series', () => {
       within(perCapita).getByLabelText('Latest real GDP per capita growth'),
     ).toHaveTextContent('2.3%')
     expect(
+      within(perCapita).getByLabelText('Latest real GDP per capita growth'),
+    ).toHaveTextContent('2026 Q1')
+    expect(within(perCapita).getByTestId('production-compact-chart')).toHaveAttribute(
+      'data-series-label',
+      'Real GDP per capita growth',
+    )
+    expect(within(perCapita).getByRole('button', { name: /More/ })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    )
+    expect(
       within(productivity).getByLabelText('Productivity is higher than a year ago'),
     ).toHaveTextContent('2.8%')
-    expect(within(perCapita).getAllByText('2026 Q1')).not.toHaveLength(0)
     expect(within(productivity).getAllByText('2026 Q1')).not.toHaveLength(0)
+
+    await user.click(within(perCapita).getByRole('button', { name: /More/ }))
 
     for (const [card, label] of [
       [perCapita, 'Real GDP per capita'],
@@ -1161,7 +1201,9 @@ describe('DashboardPage economic series', () => {
       }),
     ).toBeVisible()
     expect(
-      within(screen.getByRole('region', { name: 'Growth' })).getByRole('alert'),
+      within(screen.getByRole('region', { name: 'Growth' })).getByText(
+        'The real GDP data could not be loaded.',
+      ),
     ).toHaveTextContent('The real GDP data could not be loaded.')
   })
 

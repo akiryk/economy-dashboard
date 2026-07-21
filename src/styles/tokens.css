@@ -22,4 +22,14 @@
   --space-12: 3rem;
   --radius-small: 0.25rem;
   --radius-medium: 0.5rem;
+  --compact-card-gap: var(--space-6);
+  --compact-card-question-size: clamp(1.5rem, 4vw, 2rem);
+  --compact-card-measure-size: 1rem;
+  --compact-card-value-size: clamp(2.25rem, 7vw, 3.25rem);
+  --compact-card-callout-border: 0.2rem solid var(--color-text);
+  --compact-chart-height: 12rem;
+  --compact-chart-footer-size: 0.8125rem;
+  --compact-chart-footer-color: #888;
+  --compact-chart-help-size: 2rem;
+  --compact-chart-popover-width: 20rem;
 }

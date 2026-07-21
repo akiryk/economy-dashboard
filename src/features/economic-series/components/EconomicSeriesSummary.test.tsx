@@ -2,8 +2,10 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import realGdpGrowthData from '../data/real-gdp-growth.json'
+import realGdpPerCapitaData from '../data/real-gdp-per-capita-growth.json'
 import type { EconomicObservation } from '../models/economicSeries'
-import type { CompactGdpHistoricalContextResult } from '../utils/gdpCompactHistoricalContext'
+import type { CompactHistoricalMetricDefinition } from '../utils/compactHistoricalMetrics'
+import type { HistoricalBandResult } from '../utils/historicalBandContext'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import { EconomicSeriesSummary } from './EconomicSeriesSummary'
 
@@ -21,14 +23,18 @@ vi.mock('../charts/EconomicTimeSeriesChart', () => ({
   },
 }))
 
-vi.mock('../charts/GdpCompactHistoricalChart', () => ({
-  GdpCompactHistoricalChart: (props: { context: CompactGdpHistoricalContextResult }) => {
+vi.mock('../charts/CompactHistoricalMetricChart', () => ({
+  CompactHistoricalMetricChart: (props: {
+    model: HistoricalBandResult
+    definition: CompactHistoricalMetricDefinition
+  }) => {
     compactChartPropsSpy(props)
-    return <figure data-testid="gdp-compact-chart"><figcaption>Compact GDP historical summary</figcaption></figure>
+    return <figure data-testid="compact-historical-chart"><figcaption>{props.definition.seriesLabel} compact historical summary</figcaption></figure>
   },
 }))
 
 const series = validateEconomicSeries(realGdpGrowthData)
+const perCapitaSeries = validateEconomicSeries(realGdpPerCapitaData)
 
 afterEach(() => {
   cleanup()
@@ -56,12 +62,12 @@ describe('EconomicSeriesSummary', () => {
     expect(screen.getByRole('heading', { name: 'Is the U.S. economy growing?' })).toBeVisible()
     expect(screen.getByText('Real Gross Domestic Product: Percent Change from Year Ago')).toBeVisible()
     expect(screen.getByLabelText('Latest real GDP growth')).toBeVisible()
-    expect(await screen.findByTestId('gdp-compact-chart')).toBeVisible()
+    expect(await screen.findByTestId('compact-historical-chart')).toBeVisible()
     const headline = container.querySelector('.series-card__headline')
     expect(headline?.children[0]).toHaveClass('series-current')
-    expect(headline?.children[1]).toBe(screen.getByTestId('gdp-compact-chart'))
+    expect(headline?.children[1]).toBe(screen.getByTestId('compact-historical-chart'))
     expect(compactChartPropsSpy).toHaveBeenCalledOnce()
-    expect(compactChartPropsSpy.mock.calls[0]?.[0].context).toMatchObject({
+    expect(compactChartPropsSpy.mock.calls[0]?.[0].model).toMatchObject({
       status: 'ready', latestObservation: { date: '2026-01-01', value: 2.68474 },
     })
     const more = screen.getByRole('button', { name: /More/ })
@@ -76,15 +82,40 @@ describe('EconomicSeriesSummary', () => {
     await user.keyboard('{Enter}')
     expect(screen.getByRole('button', { name: /Less/ })).toHaveAttribute('aria-expanded', 'true')
     expect(await screen.findByTestId('economic-chart')).toBeVisible()
-    expect(screen.getByTestId('gdp-compact-chart')).toBeVisible()
+    expect(screen.getByTestId('compact-historical-chart')).toBeVisible()
     expect(screen.getByRole('heading', { name: 'What this tells you' })).toBeVisible()
     expect(screen.getByText('U.S. Bureau of Economic Analysis via FRED')).toBeVisible()
     await user.click(screen.getByRole('button', { name: '5 years' }))
     await user.click(screen.getByRole('button', { name: /Less/ }))
     expect(screen.queryByRole('button', { name: '5 years' })).not.toBeInTheDocument()
-    expect(screen.getByTestId('gdp-compact-chart')).toBeVisible()
+    expect(screen.getByTestId('compact-historical-chart')).toBeVisible()
     await user.click(screen.getByRole('button', { name: /More/ }))
     expect(screen.getByRole('button', { name: '5 years' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('applies the shared compact treatment and metric definition to GDP per capita', async () => {
+    render(<EconomicSeriesSummary collapsible series={perCapitaSeries} />)
+
+    expect(screen.getByText('Growth per person')).toBeVisible()
+    expect(screen.getByLabelText('Latest real GDP per capita growth')).toHaveTextContent('2.3%')
+    expect(await screen.findByTestId('compact-historical-chart')).toBeVisible()
+    expect(compactChartPropsSpy).toHaveBeenCalledOnce()
+    expect(compactChartPropsSpy.mock.calls[0]?.[0]).toMatchObject({
+      model: {
+        status: 'ready',
+        latestObservation: { date: '2026-01-01', value: 2.3253453949752867 },
+        recentObservationCount: 20,
+      },
+      definition: {
+        seriesLabel: 'Real GDP per capita growth',
+        showZeroLine: true,
+      },
+    })
+    expect(screen.getByRole('button', { name: /More/ })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    )
+    expect(screen.queryByRole('button', { name: '5 years' })).not.toBeInTheDocument()
   })
 
   it('renders range controls with 20 years initially selected', () => {

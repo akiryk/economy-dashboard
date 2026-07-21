@@ -1,6 +1,6 @@
 # Compact card architecture decision
 
-Status: **Accepted for the next compact-card rollout**
+Status: **Implemented for Real GDP growth and Real GDP per capita growth**
 
 Decision date: July 21, 2026
 
@@ -8,40 +8,40 @@ Scope: research-dashboard cards, not briefing tiles
 
 ## Decision
 
-Do not refactor Card #1 in this investigation story. There is only one compact historical-band card, so a generic implementation cannot yet be tested against a second metric’s real semantics.
-
-When Card #2 is selected, extract three small composition boundaries in the same story and migrate Card #1 and Card #2 together:
+Story 38 validated the proposed boundary with a second concrete metric. The implementation now has three small composition boundaries shared by Card #1 and Card #2:
 
 1. a compact-card layout and disclosure component;
 2. a presentation-only historical-band chart that consumes an already-derived model;
 3. a pure configurable historical-band derivation utility.
 
-Keep metric wording, value formatting, statistical meaning, and exception layouts outside those shared pieces. Do not build a schema-driven universal dashboard card.
+Metric wording, value formatting, statistical meaning, and exception layouts remain outside those shared pieces. This is not a schema-driven universal dashboard card.
 
 ## Current state
 
-### Already shared
+### Shared implementation
 
 - `EconomicSeriesCard` owns asynchronous repository loading, validation outcomes, supporting-series loading, and routing to single-series or relationship-card presentations.
-- `EconomicSeriesSummary` owns the common article, header, latest-value callout, More/Less disclosure, full research chart, zoom controls, explanations, metadata, and tables for single-series cards.
-- `.series-card__*` and `.series-current__*` classes control the shared header, question, measure, latest-value callout, disclosure, spacing, and responsive shell.
+- `CompactMetricCardLayout` owns the common article, header, headline layout, native More/Less disclosure, and expanded-content slot while leaving data and research-chart state with `EconomicSeriesSummary`.
+- `HistoricalBandChart` owns the compact ECharts lifecycle, option rendering, accessible summary, footer, and help interaction.
+- `CompactHistoricalMetricChart` adapts a derived model and metric definition to that shared chart.
+- `deriveHistoricalBandContext` owns configurable, presentation-only window and percentile derivation.
+- `compactHistoricalMetrics.ts` contains explicit definitions and neutral wording for Real GDP growth and Real GDP per capita growth.
+- `.series-card__*`, `.series-current__*`, and `.historical-band-chart__*` classes control the shared shell and chart; compact values are centralized as CSS custom properties in `tokens.css`.
 - `EconomicTimeSeriesChart`, its option builders, and `useHistoricalZoom` provide the shared full-chart path.
 - `calculatePercentileValue`, observation sorting, and period/value formatters are pure utilities already usable outside React.
 - The compact GDP chart preserves lazy loading and uses the same committed observations already loaded for the research card.
 
-### GDP-specific today
+### Metric-specific today
 
-- `EconomicSeriesSummary` checks `series.slug === 'real-gdp-growth'`, derives GDP context, and inserts the compact chart.
-- `gdpCompactHistoricalContext.ts` fixes the 20-quarter recent window, 25-year comparison window, percentile boundaries, minimum history, missing-latest policy, and GDP position categories.
-- `gdpCompactHistoricalChartOptions.ts` fixes GDP labels, tooltip prose, accessible summary, y-domain policy, zero line, latest marker, line color, and band colors.
-- `GdpCompactHistoricalChart` owns the compact ECharts lifecycle, GDP footer title, help text, and help interaction.
-- The compact layout modifier and compact-chart CSS remain named around the first implementation rather than a demonstrated family.
+- Each metric definition explicitly chooses its recent and comparison windows, percentile boundaries, minimum history, missing-latest policy, zero line, marker, help copy, and historical-position language.
+- Real GDP growth and Real GDP per capita growth both currently use 20 recent quarters, a trailing 25-year comparison, 25th–75th and 10th–90th bands, and a last-observation policy. These are two explicit choices, not global defaults.
+- Formatting and source-series interpretation remain with the metric and existing research-card path.
 
-### Duplication risk
+### Avoided duplication
 
-Copying Card #1 would duplicate disclosure behavior, ECharts lifecycle and resize cleanup, help-button event handling, band construction, responsive footer placement, inaccessible-canvas handling, and statistical edge cases. Conversely, moving all slug-specific value formatting and every card variant into one configuration object would enlarge an already conditional `EconomicSeriesSummary` and erase meaningful differences among metrics.
+The shared pieces avoid duplicating disclosure behavior, ECharts lifecycle and resize cleanup, help-button event handling, band construction, responsive footer placement, decorative-canvas handling, and statistical edge cases. Slug-specific formatting and unrelated card variants have not been moved into a universal configuration object.
 
-## Recommended boundaries
+## Implemented boundaries
 
 ### Compact card composition
 
@@ -56,6 +56,7 @@ interface CompactMetricCardLayoutProps {
   latestValue: ReactNode
   compactVisual?: ReactNode
   expandedContent: ReactNode
+  collapsible?: boolean
   defaultExpanded?: boolean
 }
 ```
@@ -108,11 +109,9 @@ interface HistoricalBandChartProps {
   valueFormatter: (value: number | null) => string
   accessibleSummary: string
   helpText: HistoricalBandHelpText
-  appearance?: {
-    showZeroLine?: boolean
-    showLatestMarker?: boolean
-    height?: 'compact' | 'tall'
-  }
+  showZeroLine: boolean
+  showLatestMarker: boolean
+  caption: string
 }
 
 interface HistoricalBandHelpText {
@@ -132,7 +131,7 @@ The metric owns whether percentiles are meaningful; window and threshold choices
 
 DOM styles remain CSS custom properties in `tokens.css`; canvas colors should be centralized once in a small TypeScript chart-theme module because ECharts canvas rendering cannot reliably consume unresolved CSS variables.
 
-Proposed CSS tokens:
+Implemented CSS tokens include:
 
 ```css
 --compact-card-gap
@@ -146,7 +145,7 @@ Proposed CSS tokens:
 --compact-chart-popover-width
 ```
 
-Proposed ECharts theme values:
+The TypeScript ECharts theme centralizes:
 
 ```ts
 compactChartTheme.line
@@ -156,7 +155,7 @@ compactChartTheme.zeroLine
 compactChartTheme.latestMarker
 ```
 
-Introduce tokens only when extraction begins. Until then, `.series-card__*`, `.series-current__*`, and `.gdp-compact-chart__*` remain Card #1’s single control points.
+The shared selectors use `.historical-band-chart__*`; no GDP-named production chart or option module remains.
 
 ## Accessibility responsibilities
 
@@ -178,17 +177,14 @@ Compact collapse does not imply a historical-band chart. Escape hatches are comp
 
 Every rollout may choose the standard historical-band chart, another compact visual, a value-only collapsed card, or no collapsed treatment.
 
-## Migration strategy
+## Migration strategy for another card
 
-1. Choose Card #2 based on product value and semantic fit.
-2. Write its compact statistical and language rules before extracting code.
-3. Extract `CompactMetricCardLayout` from common GDP markup and prove it with GDP plus Card #2.
-4. If Card #2 uses percentile bands, extract pure derivation and chart view with explicit per-card definitions; otherwise keep the GDP chart dedicated.
-5. Extract the help primitive only when both cards use the same interaction.
-6. Move proven constants into shared CSS and chart-theme tokens.
-7. Migrate no other cards opportunistically.
-
-Recommendation before Card #2: **do not perform a standalone refactor**. Include the smallest extraction at the start of Card #2, then retain or revise each boundary based on two concrete consumers.
+1. Decide first whether a percentile band is truthful and useful for the metric.
+2. Write the statistical rules, zero meaning, formatter, and neutral position language explicitly.
+3. Add a metric definition only when the existing historical-band geometry fits; otherwise compose a different compact visual into `CompactMetricCardLayout`.
+4. Verify that compact and expanded views consume the same loaded observations and preserve expanded controls.
+5. Add derivation, adapter, accessibility, responsive-browser, and bundle coverage.
+6. Migrate no other cards opportunistically.
 
 ## Testing strategy
 
@@ -202,4 +198,4 @@ Recommendation before Card #2: **do not perform a standalone refactor**. Include
 
 ## Consequences
 
-The GDP conditional remains temporarily. That is cheaper than stabilizing an API against one example. Card #2 carries a modest extraction cost but provides evidence about what is truly shared. Future cards gain consistent layout and controls without inheriting GDP’s statistical interpretation.
+Two concrete consumers now prove the layout, derivation, chart, interaction, theme, and token boundaries. Future cards can gain consistent structure without inheriting either GDP metric’s interpretation. Cards whose meaning does not fit percentile bands should reuse only the layout or remain unchanged.
