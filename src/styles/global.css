@@ -639,6 +639,7 @@ p {
 }
 
 .gdp-compact-chart {
+  position: relative;
   display: grid;
   min-width: 0;
   gap: var(--space-3);
@@ -653,6 +654,58 @@ p {
 .gdp-compact-chart__summary {
   color: var(--color-text-muted);
   font-size: 0.875rem;
+}
+
+.gdp-compact-chart__help {
+  position: absolute;
+  right: var(--space-2);
+  bottom: var(--space-2);
+  z-index: 2;
+}
+
+.gdp-compact-chart__help-button {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  place-items: center;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.gdp-compact-chart__help-button:hover,
+.gdp-compact-chart__help-button[aria-expanded='true'] {
+  background: var(--color-surface);
+  border-color: var(--color-link);
+}
+
+.gdp-compact-chart__help-popover {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + var(--space-2));
+  width: min(20rem, calc(100vw - 3rem));
+  padding: var(--space-3);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  box-shadow: 0 0.35rem 1rem rgb(0 0 0 / 18%);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.gdp-compact-chart__help-popover p {
+  margin: 0;
+}
+
+.gdp-compact-chart__help-popover p + p {
+  margin-top: var(--space-2);
 }
 
 .chart-state {
