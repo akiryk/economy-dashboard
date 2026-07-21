@@ -97,12 +97,6 @@ export function DashboardPage() {
           onSeriesLoaded={handleSeriesLoaded}
         />
         <EconomicSeriesCard
-          slug="labor-productivity-level"
-          label="labor productivity level"
-          variant="productivity-level"
-          onSeriesLoaded={handleSeriesLoaded}
-        />
-        <EconomicSeriesCard
           slug="labor-productivity-growth"
           label="labor productivity"
           onSeriesLoaded={handleSeriesLoaded}

@@ -2,7 +2,7 @@
 
 An information-first web application for understanding the U.S. economy through objective, well-documented indicators and long historical context.
 
-Phase 1 is complete. The dashboard currently presents 28 cards in nine categories: growth, prices, employment and income, households, housing, business and manufacturing, financial conditions, government finances, and trade and tariffs.
+Phase 1 is complete. The dashboard currently presents 27 cards in nine categories: growth, prices, employment and income, households, housing, business and manufacturing, financial conditions, government finances, and trade and tariffs. A non-default `/secondary` route retains cards that are not currently part of the main dashboard for possible future review.
 
 A non-default `/briefing` preview now presents a compact, visual Labor Market summary driven by the Kansas City Fed LMCI Activity and Momentum indexes. The full research dashboard remains the default experience.
 

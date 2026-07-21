@@ -78,17 +78,16 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('28 cards in 9 categories')).toBeVisible()
+    expect(within(navigation).getByText('27 cards in 9 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(28)
+    expect(links).toHaveLength(27)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
-      'How much more productive is the economy than in the past?',
       'Are productivity gains revving up or slowing down?',
       'How quickly are consumer prices rising?',
       'Is inflation broad and persistent?',
@@ -201,7 +200,6 @@ describe('DashboardPage economic series', () => {
     expect(growthQuestions.map((heading) => heading.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
-      'How much more productive is the economy than in the past?',
       'Are productivity gains revving up or slowing down?',
     ])
     expect(
@@ -233,7 +231,7 @@ describe('DashboardPage economic series', () => {
       'Are layoffs beginning to rise?',
       'Are workers’ wages keeping up with prices?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(28)
+    expect(screen.getAllByRole('article')).toHaveLength(27)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'real-income-versus-spending-question',
       'personal-saving-rate-question',
@@ -433,30 +431,7 @@ describe('DashboardPage economic series', () => {
         frequency: 'quarterly',
         includeZero: true,
       })
-      expect(
-        chartProps['Productivity index, selected-range baseline = 100'],
-      ).toMatchObject({ frequency: 'quarterly', includeZero: false })
     })
-  })
-
-  it('normalizes productivity level independently for the selected range', async () => {
-    const user = userEvent.setup()
-    render(<DashboardPage />)
-    const card = await screen.findByRole('article', {
-      name: 'How much more productive is the economy than in the past?',
-    })
-    expect(within(card).getByLabelText('Cumulative productivity change')).toBeVisible()
-    expect(within(card).getByRole('group', {
-      name: 'Productivity over time displayed time range',
-    })).toBeVisible()
-    await user.click(within(card).getByRole('button', { name: '5 years' }))
-    expect(within(card).getByText(/start of the selected 5-year period/)).toBeVisible()
-    await user.click(within(card).getByText('Recent observations'))
-    const table = within(card).getByRole('table', {
-      name: 'Eight most recent normalized productivity-level observations',
-    })
-    expect(within(table).getAllByRole('row')).toHaveLength(9)
-    expect(within(table).getAllByRole('columnheader')).toHaveLength(3)
   })
 
   it('renders the wages-versus-inflation relationship after payroll', async () => {

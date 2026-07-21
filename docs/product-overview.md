@@ -6,7 +6,9 @@ The U.S. Economy Dashboard is a descriptive, historically grounded briefing on m
 
 The current product is intentionally broad and nonpartisan. It does not forecast markets, recommend investments, evaluate political actors, infer causation from timing, or collapse mixed evidence into one score. That purpose should remain the baseline unless a future phase explicitly adopts another objective.
 
-The dashboard contains 28 visible cards in nine sections. Most cards use nonsmoothed time-series line charts. Relationship cards use two aligned lines; the manufacturing comparison normalizes two differently scaled series to a common selected-range baseline.
+The dashboard contains 27 visible cards in nine sections. Most cards use nonsmoothed time-series line charts. Relationship cards use two aligned lines; the manufacturing comparison normalizes two differently scaled series to a common selected-range baseline.
+
+The non-default `/secondary` route retains indicators that are not currently part of the main dashboard for possible future review. It currently contains the productivity-level card, “How much more productive is the economy than in the past?” The route is intentionally omitted from the main dashboard navigation.
 
 The non-default `/briefing` preview currently adds one compact Labor tile. Its activity bar and momentum arrow show full-history percentile positions of the Kansas City Fed Labor Market Conditions Indicators; raw LMCI readings and the existing unemployment, payroll, prime-age employment, and claims measures appear only under More. The supporting measures cannot override the LMCI headline tiers.
 
@@ -18,7 +20,6 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 |---|---|---|
 | Is the U.S. economy growing? | Quarterly real GDP, year-over-year percent change. The collapsed headline pairs the latest value with a labelled 20-quarter (five-year) compact line, historical 25th–75th and 10th–90th percentile bands, a zero reference, and on-demand band help; More opens the complete chart and research detail. | Shows whether inflation-adjusted total output is expanding or contracting while testing compact historical context and progressive disclosure before any wider rollout. |
 | Is economic output growing faster than the population? | Quarterly real GDP per capita, year-over-year percent change. The default compact view pairs the latest value with a 20-quarter line, a trailing 25-year historical comparison using middle-50% and middle-80% bands, a zero reference, and on-demand help; More preserves the complete research chart and controls. | Distinguishes growth in total output from growth available per person and gives neutral historical context without labeling higher readings as inherently better. |
-| How much more productive is the economy than in the past? | Quarterly nonfarm-business output per hour, indexed to 100 at the selected range’s first observation. | Shows cumulative productivity improvement without confusing the level with its growth rate. |
 | Are productivity gains revving up or slowing down? | Quarterly output per hour, year-over-year percent change, with momentum versus four quarters earlier. | Shows the pace of productivity gains and whether that pace is accelerating or slowing. |
 
 ### Prices
@@ -108,7 +109,7 @@ Future work should begin by naming the user decision the dashboard is meant to s
 | Household welfare and distribution | Medians, distributions, demographic and geographic differences, and essential costs. | Real median income and wages, wealth and debt distributions, poverty, labor-force participation, rent burden, regional housing, and subgroup outcomes. |
 | Business operating environment | Demand, costs, financing, investment, inventories, and sector divergence. | New orders, inventories, profits, bankruptcies, lending standards, small-business conditions, and sector detail. |
 
-The current 28-card dashboard should be treated as a baseline inventory, not as a permanent requirement that every card remain. A future phase may add, reframe, combine, or remove measures when doing so better serves an explicitly chosen objective and preserves source transparency.
+The current 27-card dashboard should be treated as a baseline inventory, not as a permanent requirement that every card remain. A future phase may add, reframe, combine, or remove measures when doing so better serves an explicitly chosen objective and preserves source transparency.
 
 ## Related documentation
 

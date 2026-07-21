@@ -4,6 +4,7 @@ import { DashboardPage } from '../pages/DashboardPage'
 import { BriefingPage } from '../pages/BriefingPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { GdpCompactChartPreviewRoute } from '../pages/GdpCompactChartPreviewRoute'
+import { SecondaryPage } from '../pages/SecondaryPage'
 
 export const router = createBrowserRouter([
   {
@@ -12,6 +13,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <DashboardPage /> },
       { path: 'briefing', element: <BriefingPage /> },
+      { path: 'secondary', element: <SecondaryPage /> },
       {
         path: 'previews/gdp-compact-chart',
         element: <GdpCompactChartPreviewRoute />,
