@@ -23,6 +23,7 @@ type SeriesState =
   | { status: 'error' }
 
 interface EconomicSeriesCardProps {
+  collapsible?: boolean
   slug: string
   label: string
   onSeriesLoaded?: (slug: string, series: EconomicSeries | null) => void
@@ -40,6 +41,7 @@ interface EconomicSeriesCardProps {
 }
 
 export function EconomicSeriesCard({
+  collapsible = false,
   slug,
   label,
   onSeriesLoaded,
@@ -171,6 +173,7 @@ export function EconomicSeriesCard({
 
   return (
     <EconomicSeriesSummary
+      collapsible={collapsible}
       series={seriesState.series}
       supportingSeries={seriesState.supportingSeries[0]}
     />

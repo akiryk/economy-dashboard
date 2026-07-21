@@ -104,6 +104,7 @@ describe('DashboardPage economic series', () => {
       name: 'How quickly are consumer prices rising?',
     })
 
+    await user.click(within(gdpCard).getByRole('button', { name: /More/ }))
     await user.click(within(gdpCard).getByText('Series details'))
     await user.click(within(cpiCard).getByText('Series details'))
     expect(within(gdpCard).getByText('Quarterly')).toBeVisible()
@@ -531,12 +532,12 @@ describe('DashboardPage economic series', () => {
         }),
       )
       expect(zeroPolicies).toMatchObject({
-        'Real GDP growth': true,
         'CPI inflation': true,
         Unemployment: false,
         'Prime-age employment': false,
         'Payroll growth': true,
       })
+      expect(zeroPolicies).not.toHaveProperty('Real GDP growth')
     })
 
     await user.click(within(unemployment).getByText('Recent observations'))
@@ -560,6 +561,7 @@ describe('DashboardPage economic series', () => {
   })
 
   it('shows one current callout and plain related indicators per card', async () => {
+    const user = userEvent.setup()
     render(<DashboardPage />)
     const gdpCard = await screen.findByRole('article', {
       name: 'Is the U.S. economy growing?',
@@ -570,6 +572,8 @@ describe('DashboardPage economic series', () => {
 
     expect(within(gdpCard).getByLabelText('Latest real GDP growth')).toBeVisible()
     expect(within(cpiCard).getByLabelText('Latest CPI inflation')).toBeVisible()
+    expect(within(gdpCard).queryByText('Productivity')).not.toBeInTheDocument()
+    await user.click(within(gdpCard).getByRole('button', { name: /More/ }))
     for (const label of ['Productivity', 'Employment', 'Real income']) {
       const indicator = within(gdpCard).getByText(label)
       expect(indicator).toBeVisible()
@@ -591,6 +595,7 @@ describe('DashboardPage economic series', () => {
     const cpiCard = await screen.findByRole('article', {
       name: 'How quickly are consumer prices rising?',
     })
+    await user.click(within(gdpCard).getByRole('button', { name: /More/ }))
 
     await user.click(within(cpiCard).getByRole('button', { name: '5 years' }))
 
@@ -621,6 +626,7 @@ describe('DashboardPage economic series', () => {
     const gdpCard = await screen.findByRole('article', {
       name: 'Is the U.S. economy growing?',
     })
+    await user.click(within(gdpCard).getByRole('button', { name: /More/ }))
     const payrollCard = await screen.findByRole('article', {
       name: 'Are employers adding jobs?',
     })

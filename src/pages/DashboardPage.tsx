@@ -85,6 +85,7 @@ export function DashboardPage() {
         description="Growth measures how much the economy is producing, but not how evenly those gains are distributed or whether output per person is increasing."
       >
         <EconomicSeriesCard
+          collapsible
           slug="real-gdp-growth"
           label="real GDP"
           onSeriesLoaded={handleSeriesLoaded}

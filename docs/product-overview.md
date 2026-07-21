@@ -16,7 +16,7 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 
 | Card | Displayed measure and chart | Why it is here |
 |---|---|---|
-| Is the U.S. economy growing? | Quarterly real GDP, year-over-year percent change. | Shows whether inflation-adjusted total output is expanding or contracting. |
+| Is the U.S. economy growing? | Quarterly real GDP, year-over-year percent change. The card defaults to a compact headline and opens its complete chart and research detail under More. | Shows whether inflation-adjusted total output is expanding or contracting. It is the first research card used to test progressive disclosure before any wider rollout. |
 | Is economic output growing faster than the population? | Quarterly real GDP per person, year-over-year percent change. | Separates aggregate growth from growth in average output per resident. |
 | How much more productive is the economy than in the past? | Quarterly nonfarm-business output per hour, indexed to 100 at the selected range’s first observation. | Shows cumulative productivity improvement without confusing the level with its growth rate. |
 | Are productivity gains revving up or slowing down? | Quarterly output per hour, year-over-year percent change, with momentum versus four quarters earlier. | Shows the pace of productivity gains and whether that pace is accelerating or slowing. |
@@ -86,6 +86,8 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 | What share of imported goods is collected as customs duties? | Quarterly customs-duty receipts divided by goods imports. | Provides an average effective customs-duty burden while distinguishing it from statutory tariff schedules and economic incidence. |
 
 ## Shared interpretation rules
+
+The Real GDP growth card alone currently defaults to a compact collapsed state containing its question, measure, and latest observation. Its complete existing research card remains available under More. A compact historical-band chart is intentionally deferred to the next story; no other research card adopts this disclosure pattern yet.
 
 - The latest callout always refers to the latest committed observation, not the endpoint of a zoomed historical window.
 - Maximum shows each source’s full useful available history; cards do not share an arbitrary start date.

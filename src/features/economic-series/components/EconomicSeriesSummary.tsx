@@ -42,6 +42,7 @@ const EconomicTimeSeriesChart = lazy(
 )
 
 interface EconomicSeriesSummaryProps {
+  collapsible?: boolean
   series: EconomicSeries
   supportingSeries?: EconomicSeries | null
 }
@@ -79,9 +80,11 @@ function medianObservationValue(
 }
 
 export function EconomicSeriesSummary({
+  collapsible = false,
   series,
   supportingSeries,
 }: EconomicSeriesSummaryProps) {
+  const [expanded, setExpanded] = useState(!collapsible)
   const [selectedRange, setSelectedRange] = useState<TimeRange>('20y')
   const presentation = getEconomicSeriesPresentation(series.slug)
   const latestObservation = findLatestNonNullObservation(series.observations)
@@ -210,6 +213,20 @@ export function EconomicSeriesSummary({
             </p>
           )}
       </div>
+
+      {collapsible && (
+        <button
+          className="series-card__toggle"
+          type="button"
+          aria-expanded={expanded}
+          aria-controls={`${series.slug}-expanded`}
+          onClick={() => setExpanded((current) => !current)}
+        >
+          {expanded ? 'Less' : 'More'} <span aria-hidden="true">{expanded ? '⌃' : '⌄'}</span>
+        </button>
+      )}
+
+      {(!collapsible || expanded) && <div className="series-card__expanded" id={`${series.slug}-expanded`}>
 
       <TimeRangeControl
         selectedRange={selectedRange}
@@ -548,6 +565,7 @@ export function EconomicSeriesSummary({
           )}
         </details>
       </footer>
+      </div>}
     </article>
   )
 }

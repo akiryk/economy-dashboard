@@ -38,6 +38,35 @@ describe('EconomicSeriesSummary', () => {
     expect(await screen.findByTestId('economic-chart')).toBeVisible()
   })
 
+  it('progressively discloses the GDP research content and preserves its range state', async () => {
+    const user = userEvent.setup()
+    const { container } = render(<EconomicSeriesSummary collapsible series={series} />)
+
+    expect(screen.getByText('Economic growth')).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Is the U.S. economy growing?' })).toBeVisible()
+    expect(screen.getByText('Real Gross Domestic Product: Percent Change from Year Ago')).toBeVisible()
+    expect(screen.getByLabelText('Latest real GDP growth')).toBeVisible()
+    const more = screen.getByRole('button', { name: /More/ })
+    expect(more).toHaveAttribute('aria-expanded', 'false')
+    expect(container.querySelector('#real-gdp-growth-expanded')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('economic-chart')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '5 years' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'What this tells you' })).not.toBeInTheDocument()
+    expect(screen.queryByText('U.S. Bureau of Economic Analysis via FRED')).not.toBeInTheDocument()
+
+    more.focus()
+    await user.keyboard('{Enter}')
+    expect(screen.getByRole('button', { name: /Less/ })).toHaveAttribute('aria-expanded', 'true')
+    expect(await screen.findByTestId('economic-chart')).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'What this tells you' })).toBeVisible()
+    expect(screen.getByText('U.S. Bureau of Economic Analysis via FRED')).toBeVisible()
+    await user.click(screen.getByRole('button', { name: '5 years' }))
+    await user.click(screen.getByRole('button', { name: /Less/ }))
+    expect(screen.queryByRole('button', { name: '5 years' })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /More/ }))
+    expect(screen.getByRole('button', { name: '5 years' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
   it('renders range controls with 20 years initially selected', () => {
     render(<EconomicSeriesSummary series={series} />)
 
