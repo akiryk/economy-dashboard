@@ -52,7 +52,7 @@ afterEach(() => {
 })
 
 describe('DashboardPage economic series', () => {
-  it('loads each compact GDP series once for both compact and expanded views', async () => {
+  it('loads each compact Growth series once for both compact and expanded views', async () => {
     const getBySlug = vi.spyOn(localEconomicSeriesRepository, 'getBySlug')
 
     render(<DashboardPage />)
@@ -61,7 +61,11 @@ describe('DashboardPage economic series', () => {
       name: 'Is economic output growing faster than the population?',
     })
     await waitFor(() => {
-      for (const slug of ['real-gdp-growth', 'real-gdp-per-capita-growth']) {
+      for (const slug of [
+        'real-gdp-growth',
+        'real-gdp-per-capita-growth',
+        'labor-productivity-growth',
+      ]) {
         expect(
           getBySlug.mock.calls.filter(([requestedSlug]) => requestedSlug === slug),
         ).toHaveLength(1)
@@ -376,9 +380,26 @@ describe('DashboardPage economic series', () => {
     expect(
       within(productivity).getByLabelText('Productivity is higher than a year ago'),
     ).toHaveTextContent('2.8%')
-    expect(within(productivity).getAllByText('2026 Q1')).not.toHaveLength(0)
+    expect(
+      within(productivity).getByLabelText('Productivity is higher than a year ago'),
+    ).toHaveTextContent('2026 Q1')
+    expect(within(productivity).getByText(
+      'Real labor productivity: percent change from year ago',
+    )).toBeVisible()
+    expect(within(productivity).getByTestId('production-compact-chart')).toHaveAttribute(
+      'data-series-label',
+      'Productivity growth',
+    )
+    expect(within(productivity).getByRole('button', { name: /More/ })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    )
+    expect(within(productivity).queryByRole('group', {
+      name: 'Productivity momentum displayed time range',
+    })).not.toBeInTheDocument()
 
     await user.click(within(perCapita).getByRole('button', { name: /More/ }))
+    await user.click(within(productivity).getByRole('button', { name: /More/ }))
 
     for (const [card, label] of [
       [perCapita, 'Real GDP per capita'],

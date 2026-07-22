@@ -1,6 +1,6 @@
 # Compact card architecture decision
 
-Status: **Implemented for Real GDP growth and Real GDP per capita growth**
+Status: **Implemented for Real GDP growth, Real GDP per capita growth, and labor-productivity growth**
 
 Decision date: July 21, 2026
 
@@ -8,7 +8,7 @@ Scope: research-dashboard cards, not briefing tiles
 
 ## Decision
 
-Story 38 validated the proposed boundary with a second concrete metric. The implementation now has three small composition boundaries shared by Card #1 and Card #2:
+Story 38 validated the proposed boundary with a second concrete metric, and Story 39 reused it for labor-productivity growth. The implementation now has three small composition boundaries shared by the first three Growth cards:
 
 1. a compact-card layout and disclosure component;
 2. a presentation-only historical-band chart that consumes an already-derived model;
@@ -25,7 +25,7 @@ Metric wording, value formatting, statistical meaning, and exception layouts rem
 - `HistoricalBandChart` owns the compact ECharts lifecycle, option rendering, accessible summary, footer, and help interaction.
 - `CompactHistoricalMetricChart` adapts a derived model and metric definition to that shared chart.
 - `deriveHistoricalBandContext` owns configurable, presentation-only window and percentile derivation.
-- `compactHistoricalMetrics.ts` contains explicit definitions and neutral wording for Real GDP growth and Real GDP per capita growth.
+- `compactHistoricalMetrics.ts` contains explicit definitions and neutral wording for Real GDP growth, Real GDP per capita growth, and labor-productivity growth.
 - `.series-card__*`, `.series-current__*`, and `.historical-band-chart__*` classes control the shared shell and chart; compact values are centralized as CSS custom properties in `tokens.css`.
 - `EconomicTimeSeriesChart`, its option builders, and `useHistoricalZoom` provide the shared full-chart path.
 - `calculatePercentileValue`, observation sorting, and period/value formatters are pure utilities already usable outside React.
@@ -34,7 +34,7 @@ Metric wording, value formatting, statistical meaning, and exception layouts rem
 ### Metric-specific today
 
 - Each metric definition explicitly chooses its recent and comparison windows, percentile boundaries, minimum history, missing-latest policy, zero line, marker, help copy, and historical-position language.
-- Real GDP growth and Real GDP per capita growth both currently use 20 recent quarters, a trailing 25-year comparison, 25th–75th and 10th–90th bands, and a last-observation policy. These are two explicit choices, not global defaults.
+- Real GDP growth, Real GDP per capita growth, and labor-productivity growth each currently use 20 recent quarters, a trailing 25-year comparison, 25th–75th and 10th–90th bands, and a last-observation policy. These remain explicit per-metric choices, not global defaults.
 - Formatting and source-series interpretation remain with the metric and existing research-card path.
 
 ### Avoided duplication
@@ -198,4 +198,4 @@ Every rollout may choose the standard historical-band chart, another compact vis
 
 ## Consequences
 
-Two concrete consumers now prove the layout, derivation, chart, interaction, theme, and token boundaries. Future cards can gain consistent structure without inheriting either GDP metric’s interpretation. Cards whose meaning does not fit percentile bands should reuse only the layout or remain unchanged.
+Three concrete consumers now use the layout, derivation, chart, interaction, theme, and token boundaries. Future cards can gain consistent structure without inheriting any current metric’s interpretation. Cards whose meaning does not fit percentile bands should reuse only the layout or remain unchanged.

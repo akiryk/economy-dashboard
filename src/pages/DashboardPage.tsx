@@ -97,6 +97,7 @@ export function DashboardPage() {
           onSeriesLoaded={handleSeriesLoaded}
         />
         <EconomicSeriesCard
+          collapsible
           slug="labor-productivity-growth"
           label="labor productivity"
           onSeriesLoaded={handleSeriesLoaded}

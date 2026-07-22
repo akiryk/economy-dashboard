@@ -3,7 +3,7 @@
   "slug": "labor-productivity-growth",
   "provider": "Federal Reserve Bank of St. Louis",
   "providerSeriesId": "OPHNFB",
-  "title": "Productivity Growth Momentum",
+  "title": "Real labor productivity: percent change from year ago",
   "shortTitle": "Productivity momentum",
   "description": "Year-over-year growth in nonfarm business sector output per hour for all workers, calculated from the published productivity index.",
   "question": "Are productivity gains revving up or slowing down?",

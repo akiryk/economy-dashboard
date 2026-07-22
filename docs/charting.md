@@ -63,6 +63,8 @@ Wide, 900px laptop, and 360px integration review found no horizontal overflow. C
 
 Story 37 audits that experiment and records the accepted reuse boundary in [`compact-card-architecture.md`](compact-card-architecture.md). Story 38 validates the boundary with Real GDP per capita growth: both GDP cards now use `CompactMetricCardLayout`, `HistoricalBandChart`, configurable `deriveHistoricalBandContext`, explicit metric adapters, shared CSS tokens, and a TypeScript canvas theme. Both use 20 recent quarters and trailing 25-year 25th–75th and 10th–90th bands, while their wording and definitions remain metric-owned. The same loaded observations feed compact and expanded views, and only these two research cards are collapsed by default.
 
+Story 39 applies that shared treatment to labor-productivity growth. Its compact line uses the latest 20 quarterly year-over-year OPHNFB growth observations; its comparison bands use finite observations in the trailing 25 years, and zero distinguishes productivity above from productivity below its year-earlier level. The help text identifies the line as year-over-year growth in output per hour. The latest callout retains the existing exact four-quarter momentum comparison, while More reveals the unchanged complete productivity-growth chart, controls, narrative, provenance, and semantic table. The separate long-run productivity-level card remains on Secondary indicators and is not composed into this card.
+
 Maximum passes every generated observation to the chart boundary. It is series-specific and does not imply a common starting year. The 5-year, 10-year, and 20-year filters remain anchored to each series' latest observation date, and the default remains 20 years.
 
 ## Presets and historical zoom

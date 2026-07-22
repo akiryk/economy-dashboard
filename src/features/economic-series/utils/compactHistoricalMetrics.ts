@@ -50,6 +50,14 @@ const perCapitaPositionDescriptions: CompactHistoricalMetricDefinition['position
   aboveOuterBand: 'above the historical 90th percentile',
 }
 
+const productivityPositionDescriptions: CompactHistoricalMetricDefinition['positionDescriptions'] = {
+  belowOuterBand: 'below the historical 10th percentile',
+  betweenOuterAndInnerLow: 'between the historical 10th and 25th percentiles',
+  insideInnerBand: 'within the historical middle 50%',
+  betweenInnerAndOuterHigh: 'between the historical 75th and 90th percentiles',
+  aboveOuterBand: 'above the historical 90th percentile',
+}
+
 export const realGdpCompactDefinition: CompactHistoricalMetricDefinition = {
   seriesLabel: 'Real GDP growth',
   frequency: 'quarterly',
@@ -85,11 +93,33 @@ export const realGdpPerCapitaCompactDefinition: CompactHistoricalMetricDefinitio
   positionDescriptions: perCapitaPositionDescriptions,
 }
 
+export const laborProductivityGrowthCompactDefinition: CompactHistoricalMetricDefinition = {
+  seriesLabel: 'Productivity growth',
+  frequency: 'quarterly',
+  historicalBands: {
+    recentObservationCount: 20,
+    comparisonWindow: { kind: 'trailing-years', years: 25 },
+    innerPercentiles: [25, 75], outerPercentiles: [10, 90],
+    minimumFiniteObservations: 20,
+    latestObservationPolicy: 'last-observation',
+  },
+  showZeroLine: true,
+  showLatestMarker: true,
+  helpText: {
+    ...sharedBandHelp,
+    description: `${sharedBandHelp.description} The line shows year-over-year growth in output per hour.`,
+  },
+  zeroLineMeaning:
+    'Zero separates higher from lower productivity than one year earlier.',
+  positionDescriptions: productivityPositionDescriptions,
+}
+
 const compactDefinitions: Readonly<
   Partial<Record<string, CompactHistoricalMetricDefinition>>
 > = {
   'real-gdp-growth': realGdpCompactDefinition,
   'real-gdp-per-capita-growth': realGdpPerCapitaCompactDefinition,
+  'labor-productivity-growth': laborProductivityGrowthCompactDefinition,
 }
 
 export function getCompactHistoricalMetricDefinition(

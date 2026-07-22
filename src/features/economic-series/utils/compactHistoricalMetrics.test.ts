@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import gdpData from '../data/real-gdp-growth.json'
 import perCapitaData from '../data/real-gdp-per-capita-growth.json'
+import productivityData from '../data/labor-productivity-growth.json'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import { deriveHistoricalBandContext } from './historicalBandContext'
 import {
   createCompactHistoricalAccessibleSummary,
   describeCompactHistoricalPosition,
+  laborProductivityGrowthCompactDefinition,
   realGdpCompactDefinition,
   realGdpPerCapitaCompactDefinition,
 } from './compactHistoricalMetrics'
@@ -14,6 +16,7 @@ describe('compact historical metric definitions', () => {
   it.each([
     ['GDP', gdpData, realGdpCompactDefinition, 2.68474],
     ['GDP per capita', perCapitaData, realGdpPerCapitaCompactDefinition, 2.3253453949752867],
+    ['labor productivity growth', productivityData, laborProductivityGrowthCompactDefinition, 2.7972148347061188],
   ] as const)('uses an explicit approved configuration for %s', (_label, data, definition, latest) => {
     expect(definition.historicalBands).toEqual({
       recentObservationCount: 20,
@@ -33,6 +36,32 @@ describe('compact historical metric definitions', () => {
     expect(model.recentObservations).toHaveLength(20)
     expect(model.comparisonStart).toBe('2001-01-01')
     expect(model.comparisonEnd).toBe('2026-01-01')
+  })
+
+  it('keeps productivity interpretation factual and explains the growth line', () => {
+    const series = validateEconomicSeries(productivityData)
+    const model = deriveHistoricalBandContext(
+      series.observations,
+      laborProductivityGrowthCompactDefinition.historicalBands,
+    )
+    expect(model.status).toBe('ready')
+    if (model.status !== 'ready') return
+    const summary = createCompactHistoricalAccessibleSummary(
+      model,
+      laborProductivityGrowthCompactDefinition,
+    )
+    expect(summary).toContain('Productivity growth was 2.8% in 2026 Q1.')
+    expect(summary).toContain('latest 20 quarters')
+    expect(summary).toContain('from 2001 Q1 through 2026 Q1')
+    expect(summary).toContain(
+      'Zero separates higher from lower productivity than one year earlier.',
+    )
+    expect(laborProductivityGrowthCompactDefinition.helpText.description)
+      .toContain('The line shows year-over-year growth in output per hour.')
+    expect(describeCompactHistoricalPosition(
+      model,
+      laborProductivityGrowthCompactDefinition,
+    )).toBe('within the historical middle 50%')
   })
 
   it('keeps per-capita interpretation factual and distribution-neutral', () => {
