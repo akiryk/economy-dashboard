@@ -207,11 +207,11 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     historyPolicy: { type: 'full' },
     localDerivation: 'year-over-year-quarterly-growth',
     minimumUsableObservations: 80,
-    title: 'Productivity Growth Momentum',
+    title: 'Real labor productivity: percent change from year ago',
     shortTitle: 'Productivity momentum',
     description:
       'Year-over-year growth in nonfarm business sector output per hour for all workers, calculated from the published productivity index.',
-    question: 'Are productivity gains revving up or slowing down?',
+    question: 'Is the economy producing more per hour worked?',
     units: 'Percent',
     seasonalAdjustment:
       'Seasonally adjusted (underlying labor productivity index)',

@@ -9,7 +9,7 @@ const navigationGroups = [
       },
       {
         id: 'labor-productivity-growth-card',
-        title: 'Are productivity gains revving up or slowing down?',
+        title: 'Is the economy producing more per hour worked?',
       },
     ],
   },

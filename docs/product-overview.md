@@ -20,7 +20,7 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 |---|---|---|
 | Is the U.S. economy growing? | Quarterly real GDP, year-over-year percent change. The collapsed headline pairs the latest value with a labelled 20-quarter (five-year) compact line, historical 25th–75th and 10th–90th percentile bands, a zero reference, and on-demand band help; More opens the complete chart and research detail. | Shows whether inflation-adjusted total output is expanding or contracting while testing compact historical context and progressive disclosure before any wider rollout. |
 | Is economic output growing faster than the population? | Quarterly real GDP per capita, year-over-year percent change. The default compact view pairs the latest value with a 20-quarter line, a trailing 25-year historical comparison using middle-50% and middle-80% bands, a zero reference, and on-demand help; More preserves the complete research chart and controls. | Distinguishes growth in total output from growth available per person and gives neutral historical context without labeling higher readings as inherently better. |
-| Are productivity gains revving up or slowing down? | Quarterly output per hour, year-over-year percent change, with momentum versus four quarters earlier. The default compact view pairs the latest value with a 20-quarter line, trailing 25-year middle-50% and middle-80% bands, a zero reference, and on-demand help; More preserves the complete growth chart and research detail. | Shows the pace of productivity gains and whether that pace is accelerating or slowing without treating a positive rate or a high historical position as a distributional verdict. |
+| Is the economy producing more per hour worked? | Quarterly real output per hour, year-over-year percent change. The compact callout translates the latest unrounded value into Yes at or above +0.5%, Not really between −0.5% and +0.5%, or No at or below −0.5%. Momentum versus four quarters earlier remains supporting context. The 20-quarter line, trailing 25-year bands, zero reference, help, and complete research view under More are unchanged. | Distinguishes labor productivity from GDP per capita and answers whether output per hour changed meaningfully from a year earlier without treating the answer as a welfare or distributional verdict. |
 
 ### Prices
 
@@ -94,6 +94,7 @@ The Real GDP growth, Real GDP per capita growth, and labor-productivity growth c
 - Maximum shows each source’s full useful available history; cards do not share an arbitrary start date.
 - Missing observations remain gaps and are never converted to zero or visually smoothed over.
 - A positive growth rate that falls is described as slower growth, not as a falling level.
+- The productivity card’s Yes/Not really/No wording is a metric-specific plain-language experiment. Its neutral zone prevents changes smaller than 0.5% in either direction from receiving a categorical Yes or No; the classification uses unrounded values.
 - National aggregates do not claim to describe every household, worker, firm, industry, or region.
 - Source, identifier, frequency, units, seasonal adjustment, transformation, retrieval date, coverage, limitations, and recent observations remain available on every card.
 

@@ -1,5 +1,92 @@
 import type { EconomicObservation } from '../models/economicSeries'
 
+export type ProductivityAnswerState =
+  | 'yes'
+  | 'about-the-same'
+  | 'no'
+  | 'unavailable'
+
+export function classifyProductivityAnswer(
+  value: number | null,
+): ProductivityAnswerState {
+  if (value === null || !Number.isFinite(value)) return 'unavailable'
+  if (value >= 0.5) return 'yes'
+  if (value <= -0.5) return 'no'
+  return 'about-the-same'
+}
+
+export function formatProductivityAnswer(
+  state: ProductivityAnswerState,
+): string {
+  switch (state) {
+    case 'yes':
+      return 'Yes, productivity is higher than a year ago.'
+    case 'about-the-same':
+      return 'Not really—productivity is about the same as a year ago.'
+    case 'no':
+      return 'No, productivity is lower than a year ago.'
+    case 'unavailable':
+      return 'Productivity change from a year ago is unavailable.'
+  }
+}
+
+export function formatProductivityAccessibleAnswer(
+  state: ProductivityAnswerState,
+): string {
+  switch (state) {
+    case 'yes':
+      return 'Yes, the economy is producing more per hour worked.'
+    case 'about-the-same':
+      return 'Not really, the economy is producing about the same per hour worked.'
+    case 'no':
+      return 'No, the economy is producing less per hour worked.'
+    case 'unavailable':
+      return 'Whether the economy is producing more per hour worked is unavailable.'
+  }
+}
+
+interface ProductivityAccessibleSummaryInput {
+  value: number | null
+  formattedValue: string
+  period: string
+  state: ProductivityAnswerState
+  momentum: string | null
+}
+
+export function formatProductivityAccessibleSummary({
+  value,
+  formattedValue,
+  period,
+  state,
+  momentum,
+}: ProductivityAccessibleSummaryInput): string {
+  const comparison = value === null || !Number.isFinite(value)
+    ? 'Productivity growth is unavailable.'
+    : value === 0
+      ? `Productivity was unchanged from a year ago in ${period}.`
+      : `Productivity was ${formattedValue} ${value < 0 ? 'lower' : 'higher'} than a year ago in ${period}.`
+  return `${comparison} ${formatProductivityAccessibleAnswer(state)}${momentum ? ` ${momentum}` : ''}`
+}
+
+function formatPercentagePointMagnitude(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 1,
+  }).format(Math.abs(value))
+}
+
+export function formatProductivityMomentum(
+  change: number | null,
+): string | null {
+  if (change === null || !Number.isFinite(change)) return null
+  const roundedMagnitude = Number(Math.abs(change).toFixed(1))
+  if (roundedMagnitude === 0) {
+    return 'The pace of productivity growth is about the same as a year earlier.'
+  }
+  const unit = roundedMagnitude <= 1 ? 'percentage point' : 'percentage points'
+  return `The pace of productivity growth has ${change > 0 ? 'accelerated' : 'slowed'} by ${formatPercentagePointMagnitude(change)} ${unit} from a year earlier.`
+}
+
 export interface NormalizedProductivityObservation extends EconomicObservation {
   changeFromBaseline: number | null
 }

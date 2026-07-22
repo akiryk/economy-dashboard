@@ -24,7 +24,13 @@ import { TimeRangeControl } from './TimeRangeControl'
 import { getEconomicSeriesPresentation } from './seriesPresentation'
 import { SavingRateTable } from './SavingRateTable'
 import { savingRateChanges } from '../utils/savingRateData'
-import { calculateProductivityMomentum } from '../utils/productivityData'
+import {
+  calculateProductivityMomentum,
+  classifyProductivityAnswer,
+  formatProductivityAccessibleSummary,
+  formatProductivityAnswer,
+  formatProductivityMomentum,
+} from '../utils/productivityData'
 import { ProductivityMomentumTable } from './ProductivityMomentumTable'
 import { HistoricalZoomControls } from './HistoricalZoomControls'
 import { useHistoricalZoom } from './useHistoricalZoom'
@@ -154,9 +160,33 @@ export function EconomicSeriesSummary({
           (item) => item.date === latestObservation?.date,
         )?.momentumChange ?? null
       : null
+  const productivityAnswer = series.slug === 'labor-productivity-growth'
+    ? classifyProductivityAnswer(latestObservation?.value ?? null)
+    : null
+  const productivityMomentumText = series.slug === 'labor-productivity-growth'
+    ? formatProductivityMomentum(productivityMomentum)
+    : null
+  const productivityAccessibleLabel = series.slug === 'labor-productivity-growth'
+    ? formatProductivityAccessibleSummary({
+        value: latestObservation?.value ?? null,
+        formattedValue: formatPercentage(
+          latestObservation?.value === null || latestObservation?.value === undefined
+            ? null
+            : Math.abs(latestObservation.value),
+        ),
+        period: latestObservation
+          ? formatObservationPeriod(latestObservation.date, series.frequency)
+          : 'Observation period unavailable',
+        state: productivityAnswer!,
+        momentum: productivityMomentumText,
+      })
+    : null
 
   const latestValueContent = (
-    <div className="series-current" aria-label={presentation.latestValueLabel}>
+    <div
+      className="series-current"
+      aria-label={productivityAccessibleLabel ?? presentation.latestValueLabel}
+    >
         <p className="series-current__value">
           <span
             aria-label={
@@ -190,13 +220,7 @@ export function EconomicSeriesSummary({
             : series.slug === 'corporate-profit-share' && latestObservation
             ? `After-tax corporate profit share, ${formatObservationPeriod(latestObservation.date, series.frequency)}`
             : series.slug === 'labor-productivity-growth'
-            ? latestObservation?.value === null || latestObservation?.value === undefined
-              ? 'Productivity change from a year ago is unavailable'
-              : latestObservation.value < 0
-                ? 'Productivity is lower than a year ago'
-                : latestObservation.value === 0
-                  ? 'Productivity is unchanged from a year ago'
-                  : 'Productivity is higher than a year ago'
+            ? formatProductivityAnswer(productivityAnswer!)
             : presentation.latestValueLabel}
         </p>
         <p className="series-current__period">
@@ -207,20 +231,14 @@ export function EconomicSeriesSummary({
               )
             : 'Observation period unavailable'}
           {' · '}
-          {series.units}
+          {series.slug === 'labor-productivity-growth'
+            ? 'Percent change from year ago'
+            : series.units}
         </p>
         {series.slug === 'labor-productivity-growth' &&
-          productivityMomentum !== null && (
+          productivityMomentumText && (
             <p className="series-current__comparison">
-              The pace of productivity growth has{' '}
-              {productivityMomentum > 0
-                ? 'accelerated'
-                : productivityMomentum < 0
-                  ? 'slowed'
-                  : 'remained unchanged'}{' '}
-              {productivityMomentum === 0
-                ? 'from a year earlier.'
-                : `by ${formatPercentage(Math.abs(productivityMomentum))} percentage points from a year earlier.`}
+              {productivityMomentumText}
             </p>
           )}
     </div>
@@ -447,8 +465,8 @@ export function EconomicSeriesSummary({
                 <> The change from 12 months earlier was {formatSignedPercentage(savingRateChange)} percentage points.</>
               )}
               {series.slug === 'labor-productivity-growth' &&
-                productivityMomentum !== null && (
-                  <> The growth rate {productivityMomentum > 0 ? 'accelerated' : productivityMomentum < 0 ? 'slowed' : 'was unchanged'} by {formatPercentage(Math.abs(productivityMomentum))} percentage points compared with four quarters earlier.</>
+                productivityMomentumText && (
+                  <> {productivityMomentumText}</>
                 )}
             </p>
           )}

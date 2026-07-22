@@ -92,7 +92,7 @@ describe('DashboardPage economic series', () => {
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
-      'Are productivity gains revving up or slowing down?',
+      'Is the economy producing more per hour worked?',
       'How quickly are consumer prices rising?',
       'Is inflation broad and persistent?',
       'Is inflation currently accelerating or slowing?',
@@ -204,7 +204,7 @@ describe('DashboardPage economic series', () => {
     expect(growthQuestions.map((heading) => heading.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
-      'Are productivity gains revving up or slowing down?',
+      'Is the economy producing more per hour worked?',
     ])
     expect(
       await within(prices).findByRole('heading', {
@@ -360,7 +360,7 @@ describe('DashboardPage economic series', () => {
       name: 'Is economic output growing faster than the population?',
     })
     const productivity = await screen.findByRole('article', {
-      name: 'Are productivity gains revving up or slowing down?',
+      name: 'Is the economy producing more per hour worked?',
     })
 
     expect(
@@ -377,12 +377,22 @@ describe('DashboardPage economic series', () => {
       'aria-expanded',
       'false',
     )
-    expect(
-      within(productivity).getByLabelText('Productivity is higher than a year ago'),
-    ).toHaveTextContent('2.8%')
-    expect(
-      within(productivity).getByLabelText('Productivity is higher than a year ago'),
-    ).toHaveTextContent('2026 Q1')
+    const productivityCallout = within(productivity).getByLabelText(
+      /Productivity was 2.8% higher than a year ago in 2026 Q1/,
+    )
+    expect(productivityCallout).toHaveTextContent('2.8%')
+    expect(productivityCallout).toHaveTextContent(
+      'Yes, productivity is higher than a year ago.',
+    )
+    expect(productivityCallout).toHaveTextContent(
+      '2026 Q1 · Percent change from year ago',
+    )
+    expect(productivityCallout).toHaveTextContent(
+      'The pace of productivity growth has accelerated by 0.8 percentage point from a year earlier.',
+    )
+    expect(productivityCallout).toHaveAccessibleName(
+      'Productivity was 2.8% higher than a year ago in 2026 Q1. Yes, the economy is producing more per hour worked. The pace of productivity growth has accelerated by 0.8 percentage point from a year earlier.',
+    )
     expect(within(productivity).getByText(
       'Real labor productivity: percent change from year ago',
     )).toBeVisible()
@@ -1462,7 +1472,7 @@ describe('DashboardPage economic series', () => {
   it.each([
     [
       'real-gdp-per-capita-growth',
-      'Are productivity gains revving up or slowing down?',
+      'Is the economy producing more per hour worked?',
       'The real GDP per capita data could not be loaded.',
     ],
     [
