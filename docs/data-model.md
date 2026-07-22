@@ -62,7 +62,7 @@ The derivation compares a quarterly level only with the observation at the exact
 
 The canonical OPHNFB level remains a provider-published `EconomicSeries`. Selected-range normalization to 100 and cumulative change are presentation values and are not persisted. Productivity momentum is the exact-quarter percentage-point difference between year-over-year growth rates four quarters apart.
 
-The compact productivity answer is presentation-only and does not alter the stored series. It classifies the unrounded year-over-year value as `yes` at or above +0.5%, `no` at or below −0.5%, `about-the-same` strictly between those thresholds, or `unavailable` for a missing/non-finite value. Visible and accessible wording are formatted separately from that state. Momentum wording is also separate: changes that round to 0.0 percentage point are described as about the same, while other changes use accelerated/slowed and singular or plural percentage-point grammar without a percent sign.
+The compact productivity answer is presentation-only and does not alter the stored series. It classifies the unrounded year-over-year value as `yes` at or above +0.5%, `no` at or below −0.5%, `about-the-same` strictly between those thresholds, or `unavailable` for a missing/non-finite value. Visible and accessible wording are formatted separately from that state. Momentum wording is also separate: changes that round to 0.0 percentage points are described as about the same, exactly 1 uses singular “percentage point,” and every other nonzero displayed magnitude uses plural “percentage points,” always without a percent sign.
 
 ## Multi-source wage provenance
 

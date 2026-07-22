@@ -65,10 +65,11 @@ describe('productivity presentation data', () => {
   })
 
   it.each([
-    [0.8, 'The pace of productivity growth has accelerated by 0.8 percentage point from a year earlier.'],
+    [0.8, 'The pace of productivity growth has accelerated by 0.8 percentage points from a year earlier.'],
+    [0.5, 'The pace of productivity growth has accelerated by 0.5 percentage points from a year earlier.'],
     [1, 'The pace of productivity growth has accelerated by 1 percentage point from a year earlier.'],
     [1.4, 'The pace of productivity growth has accelerated by 1.4 percentage points from a year earlier.'],
-    [-0.6, 'The pace of productivity growth has slowed by 0.6 percentage point from a year earlier.'],
+    [-0.6, 'The pace of productivity growth has slowed by 0.6 percentage points from a year earlier.'],
     [0.04, 'The pace of productivity growth is about the same as a year earlier.'],
     [null, null],
   ] as const)('formats momentum %s with percentage-point grammar', (change, expected) => {

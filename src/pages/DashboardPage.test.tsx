@@ -388,10 +388,10 @@ describe('DashboardPage economic series', () => {
       '2026 Q1 · Percent change from year ago',
     )
     expect(productivityCallout).toHaveTextContent(
-      'The pace of productivity growth has accelerated by 0.8 percentage point from a year earlier.',
+      'The pace of productivity growth has accelerated by 0.8 percentage points from a year earlier.',
     )
     expect(productivityCallout).toHaveAccessibleName(
-      'Productivity was 2.8% higher than a year ago in 2026 Q1. Yes, the economy is producing more per hour worked. The pace of productivity growth has accelerated by 0.8 percentage point from a year earlier.',
+      'Productivity was 2.8% higher than a year ago in 2026 Q1. Yes, the economy is producing more per hour worked. The pace of productivity growth has accelerated by 0.8 percentage points from a year earlier.',
     )
     expect(within(productivity).getByText(
       'Real labor productivity: percent change from year ago',

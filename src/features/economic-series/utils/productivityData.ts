@@ -83,7 +83,7 @@ export function formatProductivityMomentum(
   if (roundedMagnitude === 0) {
     return 'The pace of productivity growth is about the same as a year earlier.'
   }
-  const unit = roundedMagnitude <= 1 ? 'percentage point' : 'percentage points'
+  const unit = roundedMagnitude === 1 ? 'percentage point' : 'percentage points'
   return `The pace of productivity growth has ${change > 0 ? 'accelerated' : 'slowed'} by ${formatPercentagePointMagnitude(change)} ${unit} from a year earlier.`
 }
 
