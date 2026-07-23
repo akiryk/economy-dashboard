@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   buildInflationContributionCategories,
   contributionResidual,
+  deriveCompactInflationDriversModel,
   formatContributionChange,
   summarizeInflationDrivers,
   type InflationContributionCategory,
@@ -56,8 +57,8 @@ describe('inflation contributions', () => {
   })
 
   it.each([
-    [[2.1, 0.8, 0.2, 0.1, 0.1], 'Shelter is the dominant driver.'],
-    [[1.4, 1.3, 0.4, 0.1, 0.1], 'Shelter and other services are the main drivers.'],
+    [[2.1, 0.8, 0.2, 0.1, 0.1], 'Shelter contributed most of the latest increase.'],
+    [[1.4, 1.3, 0.4, 0.1, 0.1], 'Shelter and other services contributed most of the latest increase.'],
     [[0.8, 0.7, 0.6, 0.5, 0.4], 'Inflation is broad across several categories.'],
     [[0.25, 0.2, 0.099, 0.099, 0.099], 'Several categories are contributing to inflation.'],
   ])('applies positive-inflation summary rules', (contributions, expected) => {
@@ -78,6 +79,79 @@ describe('inflation contributions', () => {
     )
     expect(summarizeInflationDrivers(-0.2, categories))
       .toBe('Energy is exerting the largest downward pull.')
+  })
+
+  it('prioritizes substantial positive and negative offsets', () => {
+    const categories = buildInflationContributionCategories(
+      observation({ ...values, energy: -0.8 }, 1.8),
+      null,
+    )
+    expect(summarizeInflationDrivers(1.8, categories))
+      .toBe('Positive and negative category contributions substantially offset one another.')
+  })
+
+  it('selects four categories by absolute magnitude and nets every omission', () => {
+    const categories = buildInflationContributionCategories(
+      observation({ ...values, energy: -1.4 }),
+      null,
+    )
+    const model = deriveCompactInflationDriversModel({
+      headlineInflation: 1.08,
+      headlinePeriod: '2026-06-01',
+      categories,
+    })
+    expect(model?.displayedContributions.map(({ id }) => id)).toEqual([
+      'shelter',
+      'other-services',
+      'food',
+      'everything-else',
+      'energy',
+    ])
+    expect(model?.remainderContribution).toBeCloseTo(0.158, 12)
+    expect(model?.displayedContributions.at(-1)).toMatchObject({
+      id: 'energy',
+      contribution: -1.4,
+    })
+  })
+
+  it('uses the documented reconciliation tolerance without changing arithmetic', () => {
+    const categories = buildInflationContributionCategories(observation(values), null)
+    const exactTotal = categories.reduce(
+      (total, { contribution }) => total + contribution,
+      0,
+    )
+    expect(deriveCompactInflationDriversModel({
+      headlineInflation: exactTotal + 0.05,
+      headlinePeriod: '2026-06-01',
+      categories,
+    })?.reconciliationStatus).toBe('reconciled')
+    const unreconciled = deriveCompactInflationDriversModel({
+      headlineInflation: exactTotal + 0.051,
+      headlinePeriod: '2026-06-01',
+      categories,
+    })
+    expect(unreconciled?.reconciliationStatus).toBe('unreconciled')
+    expect(unreconciled?.reconciliationDifference).toBeCloseTo(0.051, 12)
+    expect(unreconciled?.summary).toContain('do not fully reconcile')
+  })
+
+  it('rejects missing, duplicate, unknown, and nonfinite category data', () => {
+    const categories = buildInflationContributionCategories(observation(values), null)
+    const derive = (input: InflationContributionCategory[]) =>
+      deriveCompactInflationDriversModel({
+        headlineInflation: 3.5,
+        headlinePeriod: '2026-06-01',
+        categories: input,
+      })
+    expect(derive(categories.slice(0, 1))).toBeNull()
+    expect(derive([...categories, categories[0]!])).toBeNull()
+    expect(derive([...categories, {
+      ...categories[0]!,
+      id: 'unknown-category',
+    }])).toBeNull()
+    expect(derive(categories.map((category, index) =>
+      index === 0 ? { ...category, contribution: Number.NaN } : category)))
+      .toBeNull()
   })
 
   it('formats zero, singular, plural, and unavailable changes', () => {

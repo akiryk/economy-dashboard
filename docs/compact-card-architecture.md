@@ -16,6 +16,12 @@ Story 38 validated the proposed boundary with a second concrete metric, Story 39
 
 Metric wording, value formatting, statistical meaning, and exception layouts remain outside those shared pieces. This is not a schema-driven universal dashboard card.
 
+Story 44 confirms the exception boundary for inflation drivers: the shared
+layout and help interaction contain a metric-specific zero-centered
+contribution chart and pure grouping model. It does not adopt historical bands,
+and the contribution schema is not generalized for cards without a proven
+composition use case.
+
 Story 42 confirms that the shared shell does not require every compact visual to
 use historical bands. Inflation drivers composes its own horizontal contribution
 visual into `CompactMetricCardLayout` while reusing the extracted

@@ -8,8 +8,8 @@ import {
 import {
   buildInflationContributionCategories,
   contributionResidual,
+  deriveCompactInflationDriversModel,
   formatContributionChange,
-  summarizeInflationDrivers,
   type InflationContributionObservation,
 } from '../utils/inflationContributions'
 import { CompactChartHelp } from './CompactChartHelp'
@@ -28,10 +28,18 @@ export function InflationDriversSummary({
   headline,
 }: InflationDriversSummaryProps) {
   const categories = buildInflationContributionCategories(current, prior)
-  const summary = summarizeInflationDrivers(current.headline, categories)
+  const model = deriveCompactInflationDriversModel({
+    headlineInflation: current.headline,
+    headlinePeriod: current.date,
+    categories,
+  })
+  const summary = model?.summary ??
+    'Inflation contribution data are unavailable.'
   const residual = contributionResidual(current.headline, categories)
   const maxMagnitude = Math.max(
-    ...categories.map(({ contribution }) => Math.abs(contribution)),
+    0.01,
+    ...(model?.displayedContributions ?? [])
+      .map(({ contribution }) => Math.abs(contribution)),
   )
 
   const bars = (
@@ -40,7 +48,7 @@ export function InflationDriversSummary({
       aria-labelledby="inflation-contributions-summary"
     >
       <div className="inflation-contributions__plot" aria-hidden="true">
-        {categories.map((category) => {
+        {model?.displayedContributions.map((category) => {
           const width = `${Math.abs(category.contribution) / maxMagnitude * 50}%`
           return (
             <div className="inflation-contributions__row" key={category.id}>
@@ -58,16 +66,13 @@ export function InflationDriversSummary({
               <span className="inflation-contributions__value">
                 {formatSignedPercentagePoints(category.contribution)} pp
               </span>
-              <span className="inflation-contributions__change">
-                {formatContributionChange(category.change)}
-              </span>
             </div>
           )
         })}
       </div>
       <p className="inflation-contributions__caption">
-        Contribution to 12-month CPI inflation ·{' '}
-        {formatObservationPeriod(current.date, 'monthly')}
+        Percentage points added to or subtracted from the latest{' '}
+        {formatPercentage(current.headline)} CPI increase
       </p>
       <CompactChartHelp
         buttonLabel="Explain inflation contributions"
@@ -76,22 +81,26 @@ export function InflationDriversSummary({
       >
         <p>
           Each bar shows how many percentage points a category contributed to
-          the current 12-month CPI inflation rate. Larger spending categories
-          can have a large effect even when their own price increases are
-          moderate. Contributions may be negative and should approximately add
-          up to headline CPI, subject to published rounding.
+          the current 12-month headline CPI inflation rate. Positive values add
+          to headline inflation; negative values reduce it. These are not the
+          categories’ own inflation rates.
         </p>
         <p>
-          The bars show contributions to overall inflation, not each
-          category’s own inflation rate.
+          The four categories with the largest absolute current contributions
+          are shown separately. Everything else is the net sum of all other
+          categories. The complete contribution set should approximately add
+          up to headline CPI, subject to published rounding.
         </p>
       </CompactChartHelp>
       <figcaption className="visually-hidden" id="inflation-contributions-summary">
         {formatPercentage(current.headline)} headline CPI inflation in{' '}
         {formatObservationPeriod(current.date, 'monthly')}. {summary}{' '}
-        {categories.map((category) =>
-          `${category.label} contributed ${formatSignedPercentagePoints(category.contribution)} percentage points and was ${formatContributionChange(category.change)}.`,
-        ).join(' ')}
+        {model?.displayedContributions.map((category) =>
+          `${category.label} contributed ${formatSignedPercentagePoints(category.contribution)} percentage points.`,
+        ).join(' ')} The complete contribution set{' '}
+        {model?.reconciliationStatus === 'reconciled'
+          ? `reconciles to headline CPI within 0.05 percentage point; the difference is ${formatSignedPercentagePoints(model.reconciliationDifference)} percentage points.`
+          : 'does not reconcile to headline CPI within 0.05 percentage point.'}
       </figcaption>
     </figure>
   )
@@ -104,12 +113,15 @@ export function InflationDriversSummary({
       measureLabel="Category contributions to headline CPI inflation"
       collapsible
       latestValue={(
-        <div className="series-current" aria-label={`${formatPercentage(current.headline)} headline CPI inflation. ${summary}`}>
-          <p className="series-current__value">{formatPercentage(current.headline)}</p>
-          <p className="series-current__label">{summary}</p>
+        <div className="inflation-contributions__intro">
+          <p className="inflation-contributions__answer">{summary}</p>
+          <p>
+            Positive contributions add to headline inflation; negative
+            contributions subtract from it.
+          </p>
           <p className="series-current__period">
-            {formatObservationPeriod(current.date, 'monthly')} · Headline CPI,
-            percent change from year ago
+            {formatObservationPeriod(current.date, 'monthly')} · Contributions
+            to year-over-year headline CPI
           </p>
         </div>
       )}

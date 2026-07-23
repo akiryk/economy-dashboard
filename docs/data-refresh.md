@@ -58,6 +58,12 @@ carried forward. BLS calculates effects from unrounded index changes and weights
 the committed snapshot should be replaced when the source release is updated,
 including any revisions.
 
+The compact presentation selects four categories only after loading the
+complete snapshot and calculates `Everything else` from every omission. This
+selection is by absolute current contribution so a large negative effect is not
+hidden. The source snapshot and expanded current-versus-prior table are
+unchanged by the compact grouping.
+
 This is a small configuration boundary, not dynamic discovery or a plugin system.
 
 `NFCICREDIT` is the approved broad-credit-stress measure. It provides a long, redistributable Chicago Fed history focused on credit conditions. It replaces the Epic's contemplated corporate credit spread because current ICE BofA FRED exposure is short and licensed, Moody's terms restrict redistribution and storage, and a high-yield-only spread would cover only speculative-grade borrowers. The overall NFCI is not used because the separate rate card already covers interest-rate conditions.

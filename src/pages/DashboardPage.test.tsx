@@ -379,14 +379,17 @@ describe('DashboardPage economic series', () => {
 
     expect(within(drivers).getByText('Category contributions to headline CPI inflation'))
       .toBeVisible()
-    expect(within(drivers).getByLabelText(
-      '3.5% headline CPI inflation. Inflation is broad across several categories.',
-    ))
-      .toHaveTextContent('Inflation is broad across several categories.')
+    expect(within(drivers).getByText('Inflation is broad across several categories.'))
+      .toBeVisible()
+    expect(within(drivers).queryByText('3.5%', {
+      selector: '.series-current__value',
+    })).not.toBeInTheDocument()
+    expect(within(drivers).getByText(
+      /Percentage points added to or subtracted from the latest 3.5% CPI increase/,
+    )).toBeVisible()
     expect(within(drivers).getByText('Energy')).toBeVisible()
     expect(within(drivers).getByText('+1.1 pp')).toBeVisible()
-    expect(within(drivers).getByText('up 1.1 percentage points from a year ago'))
-      .toBeVisible()
+    expect(within(drivers).getByText('Everything else')).toBeVisible()
     expect(within(momentum).getByLabelText(
       'Latest three-month annualized core inflation',
     )).toHaveTextContent('+2.3%')
@@ -398,6 +401,13 @@ describe('DashboardPage economic series', () => {
     expect(within(momentum).getByRole('group', {
       name: 'Recent Inflation Momentum displayed time range',
     })).toBeVisible()
+
+    await user.click(within(drivers).getByRole('button', {
+      name: 'Explain inflation contributions',
+    }))
+    expect(within(drivers).getByRole('dialog', {
+      name: 'Inflation contribution explanation',
+    })).toHaveTextContent('not the categories’ own inflation rates')
 
     await user.click(within(drivers).getByRole('button', { name: /More/ }))
     await user.click(within(momentum).getByText('Recent observations'))

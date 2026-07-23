@@ -69,6 +69,8 @@ Story 41 applies the compact treatment to headline CPI. The collapsed card uses 
 
 Story 43 organizes More into two vertically stacked comparison panels ahead of the unchanged complete CPI research view. The first uses solid headline CPI and lighter dashed core CPI on one percentage axis to show the effect of excluding food and energy; an absolute latest gap below 0.1 percentage point is described as close. It explicitly treats core as a diagnostic and links to the inflation-drivers card for category contributions. The second uses primary headline CPI and thinner dashed headline PCE on a separate shared percentage axis marked with the “2% Fed target for PCE.” Both panels preserve gaps and actual observation months, share the CPI range and zoom state, stack naturally at narrow widths, and avoid dual axes or a four-line plot.
 
+Story 44 makes the inflation-drivers compact visual self-explanatory without changing its expanded research content. The redundant large headline value is removed. The zero-centered horizontal chart shows the four largest absolute current contributions plus the net `Everything else` remainder, orders positive values before negative values, and labels values in percentage points. Selection and reconciliation use unrounded inputs; a complete-set difference above 0.05 percentage point produces qualified unreconciled wording. Help and the single nonvisual figure summary explain that these are contributions to headline CPI, not category inflation rates.
+
 Story 42 replaces the standalone headline-versus-core primary card with a
 dedicated contribution visual. Its diverging horizontal bars share a zero
 baseline and show BLS percentage-point effects rather than category inflation

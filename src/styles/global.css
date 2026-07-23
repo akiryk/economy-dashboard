@@ -729,6 +729,22 @@ p {
   margin: 0 0 var(--space-4);
 }
 
+.inflation-contributions__intro {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+}
+
+.inflation-contributions__intro p {
+  margin: 0;
+}
+
+.inflation-contributions__answer {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
 .inflation-contributions__plot {
   display: grid;
   gap: var(--space-3);
@@ -785,13 +801,6 @@ p {
   border-radius: var(--radius-small) 0 0 var(--radius-small);
 }
 
-.inflation-contributions__change {
-  grid-column: 2 / -1;
-  margin-top: calc(-1 * var(--space-2));
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
-}
-
 .inflation-contributions__caption {
   margin: var(--space-3) calc(var(--compact-chart-help-size) + var(--space-2)) 0 0;
   color: var(--compact-chart-footer-color);
@@ -827,11 +836,6 @@ p {
     grid-row: 1;
   }
 
-  .inflation-contributions__change {
-    grid-column: 1 / -1;
-    grid-row: 3;
-    margin-top: calc(-1 * var(--space-1));
-  }
 }
 
 .chart-state {

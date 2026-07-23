@@ -74,10 +74,14 @@ The headline CPI card also loads core CPI and a separate headline PCE series for
 
 Inflation contributions are a small metric-specific snapshot rather than
 `EconomicSeries` values: each observation contains a headline CPI orientation
-rate and a complete record of five percentage-point effects. Pure utilities
-order the categories, calculate exact one-year changes from matching June
-observations, measure the published rounding residual, and generate the driver
-sentence. The “material” breadth threshold is 0.1 percentage point. Category
+rate and a complete record of five percentage-point effects. The compact model
+selects four categories by absolute current magnitude, nets every omitted
+category into `Everything else`, orders the result from positive to negative,
+and exposes the full-set reconciliation difference and status. Reconciliation
+uses unrounded model inputs and a 0.05-percentage-point tolerance appropriate to
+the published headline and effect precision; displayed rounding never changes
+the arithmetic. Pure utilities also calculate exact one-year changes for the
+unchanged expanded table and generate the finite-rule driver sentence. Category
 rates are not stored as contributions, and a missing prior observation remains
 unavailable.
 
