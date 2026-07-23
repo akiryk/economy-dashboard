@@ -272,15 +272,16 @@ The code should leave the repository slightly better than it was found.
 # Story Completion
 
 A story is complete when the requested implementation and documentation have been
-verified. Committing and pushing are separate follow-up actions that require the
-user's confirmation.
+verified and committed locally. Pushing is a separate follow-up action that
+requires the user's confirmation.
 
-Uncommitted or unpushed work must never block starting the next story. At the
+Committed but unpushed work must never block starting the next story. At the
 start of a new story, inspect the working tree, preserve unrelated changes, and
-continue with the new work using the smallest safe scope. If earlier story work
-is still local, immediately show this commentary cue and then keep working:
+continue with the new work using the smallest safe scope. If earlier story
+commits have not been pushed, immediately show this commentary cue and then keep
+working:
 
-`ℹ️ PRIOR STORY WORK IS STILL LOCAL; STARTING THIS STORY WITHOUT PUSHING IT.`
+`ℹ️ PRIOR STORY COMMITS HAVE NOT BEEN PUSHED; STARTING THIS STORY LOCALLY.`
 
 Before completing a story:
 
@@ -298,6 +299,10 @@ Before completing a story:
 7. Inspect `git status` and the staged diff.
 8. Confirm that no secrets, `.env` files, generated temporary files, debug output, or unrelated changes are included.
 9. Update relevant documentation so it reflects the completed implementation.
+10. Create one focused conventional-style commit containing only the story
+    changes.
+11. Confirm the story commit exists locally and that unrelated working-tree
+    changes remain untouched.
 
 Do not:
 
@@ -311,18 +316,16 @@ Do not:
 When the story implementation is verified:
 
 1. Mark it clearly with `ALL DONE WITH USER STORY [NUMBER]`.
-2. If the story changes are not both committed and pushed, display this prominent
-   cue near the start of the completion response:
+2. Report the local commit hash and message.
+3. Do not push unless the user explicitly asks.
+4. End with this compact, single-line cue so it remains visible in a small Codex
+   panel:
 
-   `⚠️ STORY CHANGES ARE LOCAL — NOT COMMITTED AND PUSHED`
+   `⚠️ STORY [NUMBER] DONE AND COMMITTED LOCALLY — NOT PUSHED. PUSH NOW?`
 
-3. Ask: `Would you like me to commit and push this story now?`
-4. Do not commit or push unless the user confirms.
-5. If the user confirms, create one focused conventional-style commit containing
-   only the story changes, push it to the configured GitHub remote, and report
-   the result.
-6. If the user instead starts another story, begin it immediately. Preserve and
-   distinguish the earlier local changes; do not stop to request a commit or push.
+5. If the user starts another story instead, begin it immediately. Preserve and
+   distinguish earlier local commits and unrelated working-tree changes; do not
+   stop to request a push.
 
 If pushing fails after the user requested it because of authentication,
 permissions, branch protection, a non-fast-forward update, or another remote issue:
@@ -338,10 +341,10 @@ The completion response must report:
 - Important decisions or deviations
 - Quality checks and verification results
 - Branch name
-- Whether the story changes are uncommitted, committed locally, or pushed
-- Commit hash and message, GitHub remote, and push result when applicable
+- Commit hash and message
+- GitHub remote and push result when applicable
 - Final working-tree status
 - Any known limitations or concerns for the next story
-- The commit-and-push question whenever those actions remain outstanding
+- The compact push cue whenever the story commit has not been pushed
 - Finally, make it clear to the human reader that the story is done. Do this by
   printing `ALL DONE WITH USER STORY [NUMBER]` in all caps so it stands out.
