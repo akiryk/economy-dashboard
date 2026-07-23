@@ -72,6 +72,15 @@ The two inflation relationship cards compose separate headline and core `Economi
 
 The headline CPI card also loads a separate headline PCE series for expanded policy context. PCE year-over-year growth is persisted as its own `EconomicSeries`; a pure presentation model aligns the union of CPI and PCE dates without carrying either value forward. The compact CPI assessment is derived from the unrounded latest CPI rate with explicit threshold states, and the displayed 2% CPI comparison is called a policy reference. The expanded comparison reserves “Federal Reserve target” for headline PCE and reports each series’ actual latest observation month.
 
+Inflation contributions are a small metric-specific snapshot rather than
+`EconomicSeries` values: each observation contains a headline CPI orientation
+rate and a complete record of five percentage-point effects. Pure utilities
+order the categories, calculate exact one-year changes from matching June
+observations, measure the published rounding residual, and generate the driver
+sentence. The “material” breadth threshold is 0.1 percentage point. Category
+rates are not stored as contributions, and a missing prior observation remains
+unavailable.
+
 ## Household relationship and percent levels
 
 The income-versus-spending card composes quarterly real per-capita income and spending growth series and aligns them by exact quarter. Each retains its source-level FRED identifier while transformation metadata states that exact-quarter year-over-year growth is calculated locally. Spending minus income is a percentage-point relationship calculated from aligned full-precision rates and is not persisted. The previous monthly pair was removed because income was per capita while spending was an aggregate total.

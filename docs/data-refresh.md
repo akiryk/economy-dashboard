@@ -45,6 +45,19 @@ The generated JSON is committed with the application, so the dashboard remains u
 
 The narrow `scripts/atlantaFed/hoamWorkbook.ts` path downloads the official national HOAM workbook and writes `home-ownership-cost-share.json`; it is intentionally separate from the FRED configuration list.
 
+The inflation-contribution snapshot is also outside the FRED list. It records the
+unadjusted 12-month “effect on All Items” values published directly in BLS CPI-U
+news-release Table 7 for June 2025 and June 2026. The five displayed groups are
+food, energy, shelter, commodities less food and energy, and other services.
+Other services is calculated as the published services-less-energy-services
+effect minus the published shelter effect, making the five groups mutually
+exclusive. The current effects sum to 3.531 percentage points versus published
+headline CPI of 3.5%, a −0.031-point residual caused by summing effects that BLS
+publishes to three decimals. Missing source values are not interpolated or
+carried forward. BLS calculates effects from unrounded index changes and weights;
+the committed snapshot should be replaced when the source release is updated,
+including any revisions.
+
 This is a small configuration boundary, not dynamic discovery or a plugin system.
 
 `NFCICREDIT` is the approved broad-credit-stress measure. It provides a long, redistributable Chicago Fed history focused on credit conditions. It replaces the Epic's contemplated corporate credit spread because current ICE BofA FRED exposure is short and licensed, Moody's terms restrict redistribution and storage, and a high-yield-only spread would cover only speculative-grade borrowers. The overall NFCI is not used because the separate rate card already covers interest-rate conditions.

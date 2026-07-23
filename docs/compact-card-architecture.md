@@ -1,6 +1,6 @@
 # Compact card architecture decision
 
-Status: **Implemented for Real GDP growth, Real GDP per capita growth, labor-productivity growth, and headline CPI inflation**
+Status: **Implemented for Real GDP growth, Real GDP per capita growth, labor-productivity growth, headline CPI inflation, and inflation drivers**
 
 Decision date: July 21, 2026
 
@@ -15,6 +15,12 @@ Story 38 validated the proposed boundary with a second concrete metric, Story 39
 3. a pure configurable historical-band derivation utility.
 
 Metric wording, value formatting, statistical meaning, and exception layouts remain outside those shared pieces. This is not a schema-driven universal dashboard card.
+
+Story 42 confirms that the shared shell does not require every compact visual to
+use historical bands. Inflation drivers composes its own horizontal contribution
+visual into `CompactMetricCardLayout` while reusing the extracted
+`CompactChartHelp` interaction. Its contribution grouping, zero-centered bars,
+summary thresholds, and reconciliation logic remain metric-specific.
 
 ## Current state
 

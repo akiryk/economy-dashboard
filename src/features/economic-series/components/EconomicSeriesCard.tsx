@@ -9,6 +9,7 @@ import { ProductivityLevelSummary } from './ProductivityLevelSummary'
 import { ManufacturingComparisonSummary } from './ManufacturingComparisonSummary'
 import { RateComparisonSummary } from './RateComparisonSummary'
 import { ClaimsComparisonSummary } from './ClaimsComparisonSummary'
+import { InflationDriversSummary } from './InflationDriversSummary'
 
 const noSupportingSlugs: readonly string[] = []
 
@@ -36,6 +37,7 @@ interface EconomicSeriesCardProps {
     | 'rate-comparison'
     | 'claims-comparison'
     | 'headline-core-comparison'
+    | 'inflation-drivers'
     | 'single'
     | 'wages-comparison'
 }
@@ -169,6 +171,10 @@ export function EconomicSeriesCard({
         }
       />
     )
+  }
+
+  if (variant === 'inflation-drivers') {
+    return <InflationDriversSummary headline={seriesState.series} />
   }
 
   return (

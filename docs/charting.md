@@ -67,6 +67,19 @@ Story 39 applies that shared treatment to labor-productivity growth. Its compact
 
 Story 41 applies the compact treatment to headline CPI. The collapsed card uses 61 monthly endpoints for an exact five-year line, trailing 25-year middle-50% and middle-80% bands, zero, and a solid 2% policy-reference line. Its plain-English assessment and comparison are calculated from the unrounded latest CPI rate; help text makes clear that the Fed formally targets PCE rather than CPI. More adds a CPI/PCE chart ahead of the unchanged complete CPI research view. Headline CPI is primary, headline PCE is a thinner dashed line, and the shared percentage axis marks the “2% Fed target for PCE.” The comparison preserves actual observation months and does not carry a lagging PCE value into a newer CPI month.
 
+Story 42 replaces the standalone headline-versus-core primary card with a
+dedicated contribution visual. Its diverging horizontal bars share a zero
+baseline and show BLS percentage-point effects rather than category inflation
+rates; positive effects extend right and negative effects left. It deliberately
+does not use historical percentile bands because the question concerns the
+composition of one headline rate, not whether a single series is historically
+high or low. The compact view includes exact-year change annotations and a
+nonvisual category summary. More exposes a semantic current/prior table,
+reconciliation, source, grouping, and revision methodology. The full-history
+preference is deferred because the official committed source currently contains
+the latest and exact prior-year analysis snapshots rather than a fabricated or
+partially reconstructed monthly series.
+
 Story 40 changes only the productivity card’s question and callout interpretation. “Is the economy producing more per hour worked?” is intentionally about labor productivity rather than output per person. A metric-owned pure classifier uses the unrounded year-over-year value and a ±0.5% neutral zone to produce Yes, Not really, No, or unavailable wording. The current 2.7972% reading renders “Yes, productivity is higher than a year ago.” Momentum remains a separate exact-quarter comparison and now renders 0.8 as “0.8 percentage points,” without a percent sign. Only an absolute displayed value of exactly 1 uses singular “percentage point.” This is the first plain-English answer-state experiment; no shared Yes/No framework or chart behavior changed.
 
 Maximum passes every generated observation to the chart boundary. It is series-specific and does not imply a common starting year. The 5-year, 10-year, and 20-year filters remain anchored to each series' latest observation date, and the default remains 20 years.

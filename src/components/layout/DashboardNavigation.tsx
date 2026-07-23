@@ -21,8 +21,8 @@ const navigationGroups = [
         title: 'How quickly are consumer prices rising?',
       },
       {
-        id: 'headline-versus-core-inflation-card',
-        title: 'Is inflation broad and persistent?',
+        id: 'inflation-drivers-card',
+        title: 'What is driving inflation?',
       },
       {
         id: 'recent-inflation-momentum-card',

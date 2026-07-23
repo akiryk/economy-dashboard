@@ -13,6 +13,7 @@ import type { EconomicFrequency } from '../models/economicSeries'
 import type { HistoricalBandHelpText } from '../utils/compactHistoricalMetrics'
 import type { HistoricalBandResult } from '../utils/historicalBandContext'
 import { createHistoricalBandChartOptions } from './historicalBandChartOptions'
+import { CompactChartHelp } from '../components/CompactChartHelp'
 
 echarts.use([
   GridComponent,
@@ -39,8 +40,6 @@ interface HistoricalBandChartProps {
   visuallyHideSummary?: boolean
 }
 
-type HelpState = 'closed' | 'hover' | 'pinned'
-
 export function HistoricalBandChart({
   model,
   seriesLabel,
@@ -56,14 +55,9 @@ export function HistoricalBandChart({
   visuallyHideSummary = false,
 }: HistoricalBandChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const helpButtonRef = useRef<HTMLButtonElement>(null)
-  const figureRef = useRef<HTMLElement>(null)
   const [chartError, setChartError] = useState(false)
-  const [helpState, setHelpState] = useState<HelpState>('closed')
   const id = useId()
   const summaryId = `${id}-summary`
-  const helpId = `${id}-help`
-  const helpOpen = helpState !== 'closed'
   const options = useMemo(
     () => model.status === 'ready' && latestPositionDescription
       ? createHistoricalBandChartOptions({
@@ -77,26 +71,6 @@ export function HistoricalBandChart({
       referenceLines, showLatestMarker, showZeroLine, valueFormatter,
     ],
   )
-
-  useEffect(() => {
-    if (!helpOpen) return
-    const dismissOnOutsidePointer = (event: PointerEvent) => {
-      if (!figureRef.current?.contains(event.target as Node)) {
-        setHelpState('closed')
-      }
-    }
-    const dismissOnEscape = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      setHelpState('closed')
-      helpButtonRef.current?.focus()
-    }
-    document.addEventListener('pointerdown', dismissOnOutsidePointer)
-    document.addEventListener('keydown', dismissOnEscape)
-    return () => {
-      document.removeEventListener('pointerdown', dismissOnOutsidePointer)
-      document.removeEventListener('keydown', dismissOnEscape)
-    }
-  }, [helpOpen])
 
   useEffect(() => {
     const container = containerRef.current
@@ -138,7 +112,6 @@ export function HistoricalBandChart({
 
   return (
     <figure
-      ref={figureRef}
       className="historical-band-chart"
       aria-labelledby={summaryId}
     >
@@ -148,37 +121,13 @@ export function HistoricalBandChart({
         aria-hidden="true"
       />
       <p className="historical-band-chart__title">{caption}</p>
-      <div
-        className="historical-band-chart__help"
-        onMouseEnter={() => setHelpState((current) =>
-          current === 'closed' ? 'hover' : current)}
-        onMouseLeave={() => setHelpState((current) =>
-          current === 'hover' ? 'closed' : current)}
+      <CompactChartHelp
+        buttonLabel="Explain the historical bands"
+        dialogLabel="Historical band explanation"
+        heading={helpText.heading}
       >
-        <button
-          ref={helpButtonRef}
-          className="historical-band-chart__help-button"
-          type="button"
-          aria-label="Explain the historical bands"
-          aria-expanded={helpOpen}
-          aria-controls={helpId}
-          onClick={() => setHelpState((current) =>
-            current === 'pinned' ? 'closed' : 'pinned')}
-        >
-          ?
-        </button>
-        {helpOpen && (
-          <div
-            className="historical-band-chart__help-popover"
-            id={helpId}
-            role="dialog"
-            aria-label="Historical band explanation"
-          >
-            <p><strong>{helpText.heading}</strong></p>
-            <p>{helpText.description}</p>
-          </div>
-        )}
-      </div>
+        <p>{helpText.description}</p>
+      </CompactChartHelp>
       <figcaption
         className={visuallyHideSummary
           ? 'visually-hidden'

@@ -94,7 +94,7 @@ describe('DashboardPage economic series', () => {
       'Is economic output growing faster than the population?',
       'Is the economy producing more per hour worked?',
       'How quickly are consumer prices rising?',
-      'Is inflation broad and persistent?',
+      'What is driving inflation?',
       'Is inflation currently accelerating or slowing?',
       'How difficult is it for people who want work to find it?',
       'What share of prime-age adults are employed?',
@@ -299,7 +299,7 @@ describe('DashboardPage economic series', () => {
     })
     expect(priceQuestions.map((heading) => heading.textContent)).toEqual([
       'How quickly are consumer prices rising?',
-      'Is inflation broad and persistent?',
+      'What is driving inflation?',
       'Is inflation currently accelerating or slowing?',
     ])
     expect(
@@ -340,48 +340,51 @@ describe('DashboardPage economic series', () => {
     ).toBeVisible()
   })
 
-  it('renders both aligned inflation comparisons with accessible values and tables', async () => {
+  it('renders inflation drivers and the remaining aligned momentum comparison', async () => {
     const user = userEvent.setup()
     render(<DashboardPage />)
 
-    const yearOverYear = await screen.findByRole('article', {
-      name: 'Is inflation broad and persistent?',
+    const drivers = await screen.findByRole('article', {
+      name: 'What is driving inflation?',
     })
     const momentum = await screen.findByRole('article', {
       name: 'Is inflation currently accelerating or slowing?',
     })
 
-    expect(within(yearOverYear).getByLabelText('Latest core CPI inflation'))
-      .toHaveTextContent('+2.6%')
-    expect(within(yearOverYear).getByText(/Corresponding headline rate/))
-      .toHaveTextContent('+3.5%')
+    expect(within(drivers).getByText('Category contributions to headline CPI inflation'))
+      .toBeVisible()
+    expect(within(drivers).getByLabelText(
+      '3.5% headline CPI inflation. Inflation is broad across several categories.',
+    ))
+      .toHaveTextContent('Inflation is broad across several categories.')
+    expect(within(drivers).getByText('Energy')).toBeVisible()
+    expect(within(drivers).getByText('+1.1 pp')).toBeVisible()
+    expect(within(drivers).getByText('up 1.1 percentage points from a year ago'))
+      .toBeVisible()
     expect(within(momentum).getByLabelText(
       'Latest three-month annualized core inflation',
     )).toHaveTextContent('+2.3%')
     expect(within(momentum).getByText(/Corresponding headline rate/))
       .toHaveTextContent('+2.8%')
-    expect(within(yearOverYear).getByRole('group', {
-      name: 'Headline Versus Core CPI displayed time range',
-    })).toBeVisible()
+    expect(within(drivers).queryByRole('group', {
+      name: /displayed time range/,
+    })).not.toBeInTheDocument()
     expect(within(momentum).getByRole('group', {
       name: 'Recent Inflation Momentum displayed time range',
     })).toBeVisible()
 
-    await user.click(within(yearOverYear).getByText('Recent observations'))
+    await user.click(within(drivers).getByRole('button', { name: /More/ }))
     await user.click(within(momentum).getByText('Recent observations'))
-    const yearOverYearTable = within(yearOverYear).getByRole('table', {
-      name: 'Twelve most recent aligned headline and core CPI observations',
+    const driverTable = within(drivers).getByRole('table', {
+      name: 'CPI category contributions in June 2026 and June 2025',
     })
     const momentumTable = within(momentum).getByRole('table', {
       name: 'Twelve most recent aligned inflation momentum observations',
     })
-    expect(within(yearOverYearTable).getAllByRole('row')).toHaveLength(13)
+    expect(within(driverTable).getAllByRole('row')).toHaveLength(6)
     expect(within(momentumTable).getAllByRole('row')).toHaveLength(13)
-    expect(within(yearOverYearTable).getAllByRole('row')[1])
-      .toHaveTextContent('June 20263.5%2.6%−0.9% pp')
-    expect(within(yearOverYearTable).getByLabelText(
-      '−0.9% percentage points',
-    )).toBeVisible()
+    expect(within(driverTable).getAllByRole('row')[1])
+      .toHaveTextContent('Shelter+1.2 pp+1.4 ppdown 0.2 percentage points')
 
     await waitFor(() => {
       const comparisonCalls = chartPropsSpy.mock.calls
@@ -392,8 +395,8 @@ describe('DashboardPage economic series', () => {
           coreObservations?: EconomicObservation[]
         })
         .filter((props) => props.kind === 'inflation-comparison')
-      expect([...new Set(comparisonCalls.map((props) => props.variant))].sort())
-        .toEqual(['momentum', 'year-over-year'])
+      expect([...new Set(comparisonCalls.map((props) => props.variant))])
+        .toEqual(['momentum'])
       expect(comparisonCalls.every((props) =>
         props.headlineObservations?.length === props.coreObservations?.length,
       )).toBe(true)
@@ -1220,34 +1223,7 @@ describe('DashboardPage economic series', () => {
     })).toBeVisible()
   })
 
-  it('isolates a headline-versus-core failure from other cards and sections', async () => {
-    const originalGetBySlug =
-      localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
-    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(
-      async (slug) => {
-        if (slug === 'core-cpi-inflation') throw new Error('Invalid core CPI fixture')
-        return originalGetBySlug(slug)
-      },
-    )
-    vi.spyOn(console, 'error').mockImplementation(() => undefined)
-
-    render(<DashboardPage />)
-
-    expect(await screen.findByText(
-      'The headline versus core CPI data could not be loaded.',
-    )).toBeVisible()
-    expect(await screen.findByRole('article', {
-      name: 'How quickly are consumer prices rising?',
-    })).toBeVisible()
-    expect(await screen.findByRole('article', {
-      name: 'Is inflation currently accelerating or slowing?',
-    })).toBeVisible()
-    expect(await screen.findByRole('article', {
-      name: 'How difficult is it for people who want work to find it?',
-    })).toBeVisible()
-  })
-
-  it('isolates an inflation-momentum failure from the stable comparison', async () => {
+  it('isolates an inflation-momentum failure from the stable drivers card', async () => {
     const originalGetBySlug =
       localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
     vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(
@@ -1269,7 +1245,7 @@ describe('DashboardPage economic series', () => {
       name: 'How quickly are consumer prices rising?',
     })).toBeVisible()
     expect(await screen.findByRole('article', {
-      name: 'Is inflation broad and persistent?',
+      name: 'What is driving inflation?',
     })).toBeVisible()
     expect(await screen.findByRole('article', {
       name: 'Is the U.S. economy growing?',
