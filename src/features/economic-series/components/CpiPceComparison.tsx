@@ -42,7 +42,7 @@ export function CpiPceComparison({
 
   return (
     <section
-      className="cpi-pce-comparison"
+      className="cpi-expanded-comparison"
       aria-labelledby="cpi-pce-comparison-heading"
     >
       <h4 id="cpi-pce-comparison-heading">

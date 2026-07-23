@@ -53,6 +53,7 @@ import {
   formatCpiPolicyReference,
 } from '../utils/cpiData'
 import { CpiPceComparison } from './CpiPceComparison'
+import { CpiCoreComparison } from './CpiCoreComparison'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -67,7 +68,7 @@ const CompactHistoricalMetricChart = lazy(() =>
 interface EconomicSeriesSummaryProps {
   collapsible?: boolean
   series: EconomicSeries
-  supportingSeries?: EconomicSeries | null
+  supportingSeries?: readonly EconomicSeries[]
 }
 
 function describeInvestmentDirection(
@@ -121,20 +122,28 @@ export function EconomicSeriesSummary({
   )
   const zoom = useHistoricalZoom(presetObservations, selectedRange, series.frequency, setSelectedRange)
   const visibleObservations = zoom.visibleItems
+  const pceSeries = supportingSeries?.find(
+    ({ slug }) => slug === 'headline-pce-inflation',
+  )
+  const coreCpiSeries = supportingSeries?.find(
+    ({ slug }) => slug === 'core-cpi-inflation',
+  )
   const pcePresetObservations = useMemo(() => {
-    if (
-      series.slug !== 'headline-cpi-inflation' ||
-      !supportingSeries ||
-      presetObservations.length === 0
-    ) {
-      return []
-    }
+    if (!pceSeries || presetObservations.length === 0) return []
     const start = presetObservations[0]!.date
     const end = presetObservations.at(-1)!.date
-    return supportingSeries.observations.filter(
+    return pceSeries.observations.filter(
       ({ date }) => date >= start && date <= end,
     )
-  }, [presetObservations, series.slug, supportingSeries])
+  }, [pceSeries, presetObservations])
+  const coreCpiPresetObservations = useMemo(() => {
+    if (!coreCpiSeries || presetObservations.length === 0) return []
+    const start = presetObservations[0]!.date
+    const end = presetObservations.at(-1)!.date
+    return coreCpiSeries.observations.filter(
+      ({ date }) => date >= start && date <= end,
+    )
+  }, [coreCpiSeries, presetObservations])
   const recentObservations = selectMostRecentObservations(
     visibleObservations,
     presentation.recentObservationCount,
@@ -321,10 +330,22 @@ export function EconomicSeriesSummary({
 
       <HistoricalZoomControls active={zoom.active} visiblePeriod={zoom.visiblePeriod} onMove={zoom.move} onResize={zoom.resize} onReset={zoom.reset} />
 
-      {series.slug === 'headline-cpi-inflation' && supportingSeries && (
+      {series.slug === 'headline-cpi-inflation' && coreCpiSeries && (
+        <CpiCoreComparison
+          cpi={series}
+          core={coreCpiSeries}
+          cpiObservations={presetObservations}
+          coreObservations={coreCpiPresetObservations}
+          zoomStartDate={visibleObservations[0]?.date ?? ''}
+          zoomEndDate={visibleObservations.at(-1)?.date ?? ''}
+          onZoomChange={zoom.onChartZoom}
+        />
+      )}
+
+      {series.slug === 'headline-cpi-inflation' && pceSeries && (
         <CpiPceComparison
           cpi={series}
-          pce={supportingSeries}
+          pce={pceSeries}
           cpiObservations={presetObservations}
           pceObservations={pcePresetObservations}
           zoomStartDate={visibleObservations[0]?.date ?? ''}
@@ -644,10 +665,10 @@ export function EconomicSeriesSummary({
             <BudgetBalanceTable observations={recentObservations} />
           ) : series.slug === 'trade-balance-share-of-gdp' ? (
             <TradeBalanceTable observations={recentObservations} />
-          ) : presentation.recentTable === 'payroll-changes' && supportingSeries ? (
+          ) : presentation.recentTable === 'payroll-changes' && supportingSeries?.[0] ? (
             <PayrollObservationsTable
               averages={visibleObservations}
-              monthlyChanges={supportingSeries.observations.filter((item) => visibleObservations.some((visible) => visible.date === item.date))}
+              monthlyChanges={supportingSeries[0].observations.filter((item) => visibleObservations.some((visible) => visible.date === item.date))}
               caption={presentation.recentObservationsCaption}
               count={presentation.recentObservationCount}
             />

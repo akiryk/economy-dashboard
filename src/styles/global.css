@@ -1097,6 +1097,19 @@ p {
   padding-bottom: var(--space-4);
 }
 
+.cpi-expanded-comparison {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-6) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.cpi-expanded-comparison h4,
+.cpi-expanded-comparison p {
+  margin: 0;
+}
+
 .table-scroll {
   width: 100%;
   min-width: 0;

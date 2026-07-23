@@ -181,7 +181,7 @@ export function EconomicSeriesCard({
     <EconomicSeriesSummary
       collapsible={collapsible}
       series={seriesState.series}
-      supportingSeries={seriesState.supportingSeries[0]}
+      supportingSeries={seriesState.supportingSeries}
     />
   )
 }

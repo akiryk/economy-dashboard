@@ -4,6 +4,7 @@ import {
   classifyCpiAssessment,
   formatCpiAssessment,
   formatCpiPolicyReference,
+  formatHeadlineCoreComparison,
   formatPceTargetComparison,
 } from './cpiData'
 
@@ -53,6 +54,23 @@ describe('CPI compact interpretation', () => {
       'PCE inflation is at the Federal Reserve’s 2% target.',
     )
     expect(formatPceTargetComparison(1)).toContain('1 percentage point below')
+  })
+
+  it.each([
+    [3.5, 2.6, 'adding'],
+    [2.4, 2.6, 'reducing'],
+    [2.64, 2.6, 'currently close'],
+  ])('describes a headline value of %s versus core at %s', (
+    headline,
+    core,
+    expected,
+  ) => {
+    expect(formatHeadlineCoreComparison(headline, core)).toContain(expected)
+  })
+
+  it('treats unavailable headline or core values as unavailable', () => {
+    expect(formatHeadlineCoreComparison(null, 2.6)).toBeNull()
+    expect(formatHeadlineCoreComparison(3.5, null)).toBeNull()
   })
 })
 

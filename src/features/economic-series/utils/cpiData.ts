@@ -69,6 +69,29 @@ export function formatPceTargetComparison(value: number | null): string | null {
   return `PCE inflation is ${formatPointMagnitude(difference)} ${pointUnit(difference)} ${difference > 0 ? 'above' : 'below'} the Federal Reserve’s 2% target.`
 }
 
+export const CPI_CLOSE_TOLERANCE_PERCENTAGE_POINTS = 0.1
+
+export function formatHeadlineCoreComparison(
+  headline: number | null,
+  core: number | null,
+): string | null {
+  if (
+    headline === null ||
+    core === null ||
+    !Number.isFinite(headline) ||
+    !Number.isFinite(core)
+  ) {
+    return null
+  }
+  const gap = headline - core
+  if (Math.abs(gap) < CPI_CLOSE_TOLERANCE_PERCENTAGE_POINTS) {
+    return 'Headline and core CPI are currently close.'
+  }
+  return gap > 0
+    ? 'Food and energy are currently adding to headline inflation relative to core.'
+    : 'Food and energy are currently reducing headline inflation relative to core.'
+}
+
 export interface CpiPceObservation {
   date: string
   cpi: number | null

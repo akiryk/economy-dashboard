@@ -174,7 +174,7 @@ describe('DashboardPage economic series', () => {
     ).toBeVisible()
   }, 10_000)
 
-  it('renders compact CPI interpretation and expands to a truthful CPI/PCE comparison', async () => {
+  it('renders compact CPI interpretation and expands to distinct core and PCE comparisons', async () => {
     const user = userEvent.setup()
     const getBySlug = vi.spyOn(localEconomicSeriesRepository, 'getBySlug')
     render(<DashboardPage />)
@@ -212,7 +212,11 @@ describe('DashboardPage economic series', () => {
       ).toBe(true)
     })
     const loadsBeforeExpansion = new Map(
-      ['headline-cpi-inflation', 'headline-pce-inflation'].map((slug) => [
+      [
+        'headline-cpi-inflation',
+        'headline-pce-inflation',
+        'core-cpi-inflation',
+      ].map((slug) => [
         slug,
         getBySlug.mock.calls.filter(([requested]) => requested === slug).length,
       ]),
@@ -224,6 +228,17 @@ describe('DashboardPage economic series', () => {
         getBySlug.mock.calls.filter(([requested]) => requested === slug),
       ).toHaveLength(loadCount)
     }
+    expect(within(card).getByRole('heading', {
+      level: 4,
+      name: 'What is the underlying inflation trend?',
+    })).toBeVisible()
+    expect(within(card).getByText(/Core CPI was 2.6% in June 2026/))
+      .toHaveTextContent('The headline-core gap was +0.9 percentage points.')
+    expect(within(card).getByText(/Food and energy are currently adding/))
+      .toBeVisible()
+    expect(within(card).getByRole('link', {
+      name: 'What is driving inflation?',
+    })).toHaveAttribute('href', '#inflation-drivers-card')
     expect(within(card).getByRole('heading', {
       level: 4,
       name: 'How does CPI compare with the Fed’s preferred inflation measure?',
@@ -248,6 +263,17 @@ describe('DashboardPage economic series', () => {
         .find(({ variant }) => variant === 'cpi-pce')
       expect(comparison?.headlineObservations?.at(-1)?.date).toBe('2026-06-01')
       expect(comparison?.coreObservations?.at(-1)?.date).toBe('2026-05-01')
+    })
+    await waitFor(() => {
+      const comparison = chartPropsSpy.mock.calls
+        .map((call) => call[0] as {
+          variant?: string
+          headlineObservations?: EconomicObservation[]
+          coreObservations?: EconomicObservation[]
+        })
+        .find(({ variant }) => variant === 'year-over-year')
+      expect(comparison?.headlineObservations?.at(-1)?.date).toBe('2026-06-01')
+      expect(comparison?.coreObservations?.at(-1)?.date).toBe('2026-06-01')
     })
 
     await user.click(within(card).getByRole('button', { name: /Less/ }))

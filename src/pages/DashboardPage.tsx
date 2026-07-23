@@ -14,7 +14,10 @@ const wageComparisonSupportingSlugs = [
   'nominal-wage-growth',
   'headline-cpi-inflation',
 ] as const
-const pceInflationSupportingSlugs = ['headline-pce-inflation'] as const
+const cpiSupportingSlugs = [
+  'headline-pce-inflation',
+  'core-cpi-inflation',
+] as const
 const headlineMomentumSupportingSlugs = [
   'headline-cpi-three-month-annualized',
 ] as const
@@ -112,7 +115,7 @@ export function DashboardPage() {
         <EconomicSeriesCard
           collapsible
           slug="headline-cpi-inflation"
-          supportingSlugs={pceInflationSupportingSlugs}
+          supportingSlugs={cpiSupportingSlugs}
           label="headline CPI inflation"
           onSeriesLoaded={handleSeriesLoaded}
         />

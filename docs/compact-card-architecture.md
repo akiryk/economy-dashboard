@@ -41,7 +41,7 @@ summary thresholds, and reconciliation logic remain metric-specific.
 
 - Each metric definition explicitly chooses its recent and comparison windows, percentile boundaries, minimum history, missing-latest policy, zero line, optional reference lines, marker, help copy, and historical-position language.
 - Real GDP growth, Real GDP per capita growth, and labor-productivity growth each currently use 20 recent quarters, a trailing 25-year comparison, 25th–75th and 10th–90th bands, and a last-observation policy. These remain explicit per-metric choices, not global defaults.
-- Headline CPI uses 61 monthly endpoints to show a five-year line, the same trailing 25-year percentile definitions, zero, and a 2% policy-reference line. Its help copy states that the Federal Reserve formally targets PCE inflation rather than CPI.
+- Headline CPI uses 61 monthly endpoints to show a five-year line, the same trailing 25-year percentile definitions, zero, and a 2% policy-reference line. Its help copy states that the Federal Reserve formally targets PCE inflation rather than CPI. Its expanded content composes separate headline-core and CPI-PCE panels before the full single-series research chart; the compact layout remains unchanged.
 - Formatting and source-series interpretation remain with the metric and existing research-card path.
 
 ### Avoided duplication
