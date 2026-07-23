@@ -26,7 +26,7 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 
 | Card | Displayed measure and chart | Why it is here |
 |---|---|---|
-| How quickly are consumer prices rising? | Monthly headline CPI, year-over-year percent change. | Provides the broad, familiar measure of consumer-price inflation. |
+| How quickly are consumer prices rising? | Monthly headline CPI, year-over-year percent change. The default compact view gives a plain-English assessment, compares CPI with a 2% policy reference, and plots five years against trailing 25-year bands. More retains the complete CPI research view and adds headline PCE inflation on actual published months with the Federal Reserve’s 2% PCE target. | Provides the broad, familiar consumer-price measure while clearly distinguishing the CPI policy reference from the Fed’s preferred PCE measure and target. |
 | Is inflation broad and persistent? | Monthly headline and core CPI, year-over-year percent change, aligned on exact months. | Compares total inflation with a measure excluding food and energy to add persistence context. |
 | Is inflation currently accelerating or slowing? | Monthly headline and core CPI, exact three-month annualized rates. | Gives a more responsive, though noisier, view of recent inflation momentum. |
 
@@ -88,13 +88,15 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 
 ## Shared interpretation rules
 
-The Real GDP growth, Real GDP per capita growth, and labor-productivity growth cards default to a compact collapsed state containing the question, measure, latest observation, and historical-band chart. At wide and laptop widths the latest callout and compact chart sit side by side; narrow layouts stack them. Each complete research card remains available under More while its compact chart stays visible. Other research cards remain expanded by default.
+The Real GDP growth, Real GDP per capita growth, labor-productivity growth, and headline CPI inflation cards default to a compact collapsed state containing the question, measure, latest observation, and historical-band chart. At wide and laptop widths the latest callout and compact chart sit side by side; narrow layouts stack them. Each complete research card remains available under More while its compact chart stays visible. Other research cards remain expanded by default.
 
 - The latest callout always refers to the latest committed observation, not the endpoint of a zoomed historical window.
 - Maximum shows each source’s full useful available history; cards do not share an arbitrary start date.
 - Missing observations remain gaps and are never converted to zero or visually smoothed over.
 - A positive growth rate that falls is described as slower growth, not as a falling level.
 - The productivity card’s Yes/Not really/No wording is a metric-specific plain-language experiment. Its neutral zone prevents changes smaller than 0.5% in either direction from receiving a categorical Yes or No; the classification uses unrounded values.
+- The CPI card classifies the unrounded latest rate as prices falling below 0%, rising very slowly from 0% to below 1%, rising near 2% from 1% through 2.5%, rising somewhat quickly above 2.5% through 4%, or rising quickly above 4%. Its 2% CPI comparison is explicitly a policy reference, not the Federal Reserve’s formal target.
+- The expanded CPI/PCE comparison uses headline PCE, not core PCE. CPI and PCE retain their actual publication months; a missing or later month is never filled from the other series.
 - National aggregates do not claim to describe every household, worker, firm, industry, or region.
 - Source, identifier, frequency, units, seasonal adjustment, transformation, retrieval date, coverage, limitations, and recent observations remain available on every card.
 

@@ -40,7 +40,7 @@ The domain model remains independent of Apache ECharts. A chart adapter creates 
 
 Provider identity, series identity, units, frequency, transformations, dates, and observations belong to the economic-series domain data. Human explanations, related concepts, latest-value labels, and table captions belong to the explicit series presentation registry. Product copy is therefore reusable by the shared card without becoming provider metadata or chart configuration.
 
-The card structure has an intentional extension point between the primary current-value callout and supporting details for future compact historical-context visuals. No empty placeholder, median comparison, percentile, or forecast view is currently rendered.
+The card structure supports a compact historical-context visual between the primary current-value callout and expanded research detail. The Growth compact cards and headline CPI use that extension; no empty placeholder or forecast view is rendered.
 
 ## Percent levels and growth rates
 
@@ -69,6 +69,8 @@ The compact productivity answer is presentation-only and does not alter the stor
 `EconomicSeries` optionally carries a validated `sources` list for multi-source derivations. Existing single-source metadata remains valid. Real wage growth identifies AHETPI as the wage measure and CPIAUCSL as the inflation deflator; it does not imply that FRED directly publishes the combined result. The relationship card loads real wage growth, nominal wage growth, and the existing CPI inflation series as one card-level unit and aligns them by exact calendar month.
 
 The two inflation relationship cards compose separate headline and core `EconomicSeries` values at the presentation boundary. Alignment precomputes exact-month pairs and core-minus-headline percentage-point differences before rendering; the table does not perform economic calculations. Annualized outputs remain ordinary percent-valued monthly series whose transformation metadata explicitly identifies the three-month annualized calculation.
+
+The headline CPI card also loads a separate headline PCE series for expanded policy context. PCE year-over-year growth is persisted as its own `EconomicSeries`; a pure presentation model aligns the union of CPI and PCE dates without carrying either value forward. The compact CPI assessment is derived from the unrounded latest CPI rate with explicit threshold states, and the displayed 2% CPI comparison is called a policy reference. The expanded comparison reserves “Federal Reserve target” for headline PCE and reports each series’ actual latest observation month.
 
 ## Household relationship and percent levels
 

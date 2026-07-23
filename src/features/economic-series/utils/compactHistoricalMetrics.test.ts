@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest'
 import gdpData from '../data/real-gdp-growth.json'
 import perCapitaData from '../data/real-gdp-per-capita-growth.json'
 import productivityData from '../data/labor-productivity-growth.json'
+import cpiData from '../data/headline-cpi-inflation.json'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import { deriveHistoricalBandContext } from './historicalBandContext'
 import {
   createCompactHistoricalAccessibleSummary,
   describeCompactHistoricalPosition,
+  headlineCpiCompactDefinition,
   laborProductivityGrowthCompactDefinition,
   realGdpCompactDefinition,
   realGdpPerCapitaCompactDefinition,
@@ -62,6 +64,31 @@ describe('compact historical metric definitions', () => {
       model,
       laborProductivityGrowthCompactDefinition,
     )).toBe('within the historical middle 50%')
+  })
+
+  it('configures CPI with five years, policy-reference semantics, and monthly wording', () => {
+    const series = validateEconomicSeries(cpiData)
+    const model = deriveHistoricalBandContext(
+      series.observations,
+      headlineCpiCompactDefinition.historicalBands,
+    )
+    expect(model.status).toBe('ready')
+    if (model.status !== 'ready') return
+    expect(model.recentObservations).toHaveLength(61)
+    expect(model.comparisonStart).toBe('2001-06-01')
+    expect(model.comparisonEnd).toBe('2026-06-01')
+    expect(headlineCpiCompactDefinition.referenceLines).toEqual([
+      { value: 2, label: '2% policy reference' },
+    ])
+    expect(headlineCpiCompactDefinition.helpText.description).toContain(
+      'formal 2% inflation target applies to PCE inflation, not CPI',
+    )
+    const summary = createCompactHistoricalAccessibleSummary(
+      model,
+      headlineCpiCompactDefinition,
+    )
+    expect(summary).toContain('latest 61 months')
+    expect(summary).toContain('Federal Reserve formally targets PCE inflation')
   })
 
   it('keeps per-capita interpretation factual and distribution-neutral', () => {

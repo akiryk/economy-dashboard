@@ -175,6 +175,7 @@ describe('refreshEconomicData', () => {
       .toEqual(['provider-transformed', 'locally-derived'])
     expect(fredSeriesConfigurations.slice(2).map((config) => config.dataHandling))
       .toEqual([
+        'locally-derived',
         'provider-level',
         'provider-level',
         'provider-level',
@@ -714,7 +715,7 @@ describe('refreshEconomicData', () => {
     expect(await readFile(cpiPath, 'utf8')).toBe(existingCpi)
   })
 
-  it('refreshes all fifteen direct sources once and omits provider transformations for local derivations', async () => {
+  it('refreshes all direct sources once and omits provider transformations for local derivations', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
     temporaryDirectories.push(directory)
     const configurations = fredSeriesConfigurations.map((config) => ({
@@ -728,7 +729,7 @@ describe('refreshEconomicData', () => {
       requestedUrls.push(url)
       const seriesId = url.searchParams.get('series_id')
       const locallyDerived = ['A939RX0Q048SBEA', 'OPHNFB', 'PNFIC1'].includes(seriesId ?? '')
-      const cpiLevels = seriesId === 'CPIAUCSL'
+      const monthlyPriceLevels = ['CPIAUCSL', 'PCEPI'].includes(seriesId ?? '')
         ? [
             ...Array.from({ length: 14 }, (_, index) => ({
               date: new Date(Date.UTC(2024, index, 1)).toISOString().slice(0, 10),
@@ -739,7 +740,7 @@ describe('refreshEconomicData', () => {
         : null
       return new Response(
         JSON.stringify({
-          observations: cpiLevels ?? (locallyDerived
+          observations: monthlyPriceLevels ?? (locallyDerived
             ? [
                 { date: '2024-01-01', value: '100' },
                 { date: '2024-04-01', value: '101' },
@@ -765,16 +766,17 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(23)
+    expect(outcomes).toHaveLength(24)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 15, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
+    ).toEqual([3, 15, 15, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
+      'PCEPI',
       'UNRATE',
       'LNS12300060',
       'ICSA',
@@ -799,7 +801,7 @@ describe('refreshEconomicData', () => {
     ])
     expect(requestedUrls[0]?.searchParams.get('units')).toBe('pc1')
     expect(requestedUrls.slice(1).map((url) => url.searchParams.has('units')))
-      .toEqual([false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false])
+      .toEqual([false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false])
     expect(
       requestedUrls.every((url) => !url.searchParams.has('observation_start')),
     ).toBe(true)
@@ -808,7 +810,7 @@ describe('refreshEconomicData', () => {
       const series = validateEconomicSeries(
         JSON.parse(await readFile(config.outputFile, 'utf8')),
       )
-      const expectedDate = config.providerSeriesId === 'CPIAUCSL'
+      const expectedDate = ['CPIAUCSL', 'PCEPI'].includes(config.providerSeriesId)
         ? '2025-02-01'
         : ['A939RX0Q048SBEA', 'OPHNFB', 'PNFIC1'].includes(config.providerSeriesId)
           ? '2025-01-01'
@@ -822,8 +824,8 @@ describe('refreshEconomicData', () => {
     temporaryDirectories.push(directory)
     const configurations = [
       fredSeriesConfigurations[0]!,
-      fredSeriesConfigurations[2]!,
-      fredSeriesConfigurations[3]!,
+      fredSeriesConfigurations.find(({ providerSeriesId }) => providerSeriesId === 'UNRATE')!,
+      fredSeriesConfigurations.find(({ providerSeriesId }) => providerSeriesId === 'LNS12300060')!,
     ].map((config) => ({
       ...config,
       outputFile: path.join(directory, `${config.slug}.json`),
@@ -867,7 +869,9 @@ describe('refreshEconomicData', () => {
   it('preserves one claims series without blocking the other', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
     temporaryDirectories.push(directory)
-    const configurations = fredSeriesConfigurations.slice(4, 6).map((config) => ({
+    const configurations = ['ICSA', 'IC4WSA'].map((providerSeriesId) => fredSeriesConfigurations.find(
+      (config) => config.providerSeriesId === providerSeriesId,
+    )!).map((config) => ({
       ...config,
       outputFile: path.join(directory, `${config.slug}.json`),
       minimumUsableObservations: 2,

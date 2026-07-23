@@ -20,6 +20,7 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Real GDP per capita growth (`A939RX0Q048SBEA`, quarterly source level), derived into `real-gdp-per-capita-growth.json`.
 - Labor productivity (`OPHNFB`, quarterly source index), fetched once and written as the published level plus locally derived year-over-year growth.
 - Headline and core CPI (`CPIAUCSL` and `CPILFESL`, monthly index levels), derived into year-over-year and three-month annualized outputs.
+- Headline PCE inflation (`PCEPI`, monthly index level), derived into exact 12-month year-over-year growth for the expanded CPI policy comparison.
 - Unemployment rate (`UNRATE`, monthly), written to `unemployment-rate.json`.
 - Prime-age employment-to-population ratio (`LNS12300060`, monthly), written to `prime-age-employment-ratio.json`.
 - Initial unemployment claims and the official four-week average (`ICSA` and `IC4WSA`, weekly), written as separate provider-published levels and aligned only for presentation.
@@ -67,6 +68,7 @@ The series-specific requests are:
 - GDP: `series_id=GDPC1`, `frequency=q`, and `units=pc1`.
 - Headline CPI: `series_id=CPIAUCSL` and `frequency=m`, with no `units` or `observation_start` parameter.
 - Core CPI: `series_id=CPILFESL` and `frequency=m`, with no `units` or `observation_start` parameter.
+- Headline PCE: `series_id=PCEPI` and `frequency=m`, with no `units` or `observation_start` parameter.
 - Unemployment: `series_id=UNRATE` and `frequency=m`, with no `units` parameter.
 - Prime-age employment: `series_id=LNS12300060` and `frequency=m`, with no `units` parameter.
 - Initial unemployment claims: `series_id=ICSA` and `frequency=w`, with no `units` parameter.
@@ -98,7 +100,7 @@ The series-specific requests are:
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
-The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, unemployment, prime-age employment, LMCI, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, personal saving, household debt service, housing starts, manufacturing output, manufacturing employment, real business investment, and industrial capacity utilization. Domain transformation metadata separately records provider values and local calculations.
+The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, PCE, unemployment, prime-age employment, LMCI, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, personal saving, household debt service, housing starts, manufacturing output, manufacturing employment, real business investment, and industrial capacity utilization. Domain transformation metadata separately records provider values and local calculations.
 
 The two LMCI outputs contain 414 monthly observations from January 1992 through June 2026 and were retrieved July 20, 2026. They remain raw standardized, seasonally adjusted indexes; percentile ranks are derived at briefing interpretation time from each output's full committed finite history. Source: Federal Reserve Bank of Kansas City, Labor Market Conditions Indicators. Required citation: Hakkio, Craig S., and Jonathan L. Willis. 2014. “Kansas City Fed’s Labor Market Conditions Indicators (LMCI).” Federal Reserve Bank of Kansas City, *The Macro Bulletin*, August 28. FRED series pages: [`FRBKCLMCILA`](https://fred.stlouisfed.org/series/FRBKCLMCILA) and [`FRBKCLMCIM`](https://fred.stlouisfed.org/series/FRBKCLMCIM).
 
@@ -107,6 +109,8 @@ The two LMCI outputs contain 414 monthly observations from January 1992 through 
 `CPIAUCSL` and `CPILFESL` are each fetched exactly once as seasonally adjusted monthly index levels. For each source, year-over-year inflation is `((P_t / P_t-12) - 1) × 100`, and three-month annualized inflation is `((P_t / P_t-3)^4 - 1) × 100`. The latter is an exact ratio calculation, not a three-month change multiplied by four. Both calculations look up exact calendar dates. A missing endpoint, null value, or internal month in the four-month momentum window produces `null`; gaps are not bridged and no result is rounded before serialization.
 
 One grouped derivation produces `headline-cpi-inflation.json`, `core-cpi-inflation.json`, `headline-cpi-three-month-annualized.json`, and `core-cpi-three-month-annualized.json`. All four validate before replacement and use rollback-protected grouped writes, so a failed source, derivation, validation, or replacement preserves every prior CPI file. After the group succeeds, the in-memory headline year-over-year result is reused for real-wage derivation without another `CPIAUCSL` request. Refresh reporting identifies both source counts, all four generated ranges, and all grouped output paths.
+
+Headline PCE uses the shared exact-month year-over-year derivation independently: `((P_t / P_t-12) - 1) × 100`. It does not use array position, bridge missing months, carry CPI or PCE observations forward, or round before serialization. The committed PCE output contains 797 observations from January 1960 through May 2026 and was retrieved July 23, 2026. Its latest unrounded value is 4.072638075644863%. The expanded comparison aligns CPI and PCE only at presentation time and preserves each series’ actual latest month.
 
 The real-GDP-per-capita, productivity-growth, and real-business-investment configurations use the explicit `year-over-year-quarterly-growth` local derivation. For each source level at quarter `t`, the application looks up the exact calendar date one year earlier and calculates `((level_t / level_t-4 quarters) - 1) × 100`. It never substitutes by array position. Missing current or prior levels and missing calendar quarters yield `null`; leading unavailable results are omitted and internal gaps are retained. OPHNFB is fetched once; its published level and derived growth validate and replace as one rollback-protected group. Range normalization is presentation-only and is never persisted.
 

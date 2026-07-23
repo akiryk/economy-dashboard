@@ -12,6 +12,7 @@ export interface HistoricalBandChartOptionsInput {
   latestPositionDescription: string
   showZeroLine: boolean
   showLatestMarker: boolean
+  referenceLines?: readonly { value: number; label: string }[]
 }
 
 export function calculateHistoricalBandYDomain(
@@ -20,11 +21,17 @@ export function calculateHistoricalBandYDomain(
     'recentObservations' | 'outerLower' | 'outerUpper'
   >,
   includeZero: boolean,
+  referenceValues: readonly number[] = [],
 ): { min: number; max: number } {
   const values = model.recentObservations.flatMap(({ value }) =>
     value === null ? [] : [value],
   )
-  const anchors = [model.outerLower, model.outerUpper, ...values]
+  const anchors = [
+    model.outerLower,
+    model.outerUpper,
+    ...values,
+    ...referenceValues,
+  ]
   if (includeZero) anchors.push(0)
   const minimum = Math.min(...anchors)
   const maximum = Math.max(...anchors)
@@ -41,8 +48,13 @@ export function createHistoricalBandChartOptions({
   latestPositionDescription,
   showZeroLine,
   showLatestMarker,
+  referenceLines = [],
 }: HistoricalBandChartOptionsInput): EChartsCoreOption {
-  const domain = calculateHistoricalBandYDomain(model, showZeroLine)
+  const domain = calculateHistoricalBandYDomain(
+    model,
+    showZeroLine,
+    referenceLines.map(({ value }) => value),
+  )
   return {
     animation: false,
     grid: { left: 2, right: 2, top: 4, bottom: 4, containLabel: false },
@@ -108,10 +120,28 @@ export function createHistoricalBandChartOptions({
           ],
         ],
       },
-      markLine: showZeroLine ? {
+      markLine: showZeroLine || referenceLines.length > 0 ? {
         silent: true, symbol: 'none', label: { show: false },
-        lineStyle: { color: compactChartTheme.zeroLine, width: 1.25, type: 'dashed' },
-        data: [{ yAxis: 0 }],
+        data: [
+          ...(showZeroLine ? [{
+            name: 'Zero',
+            yAxis: 0,
+            lineStyle: {
+              color: compactChartTheme.zeroLine,
+              width: 1.25,
+              type: 'dashed' as const,
+            },
+          }] : []),
+          ...referenceLines.map(({ value, label }) => ({
+            name: label,
+            yAxis: value,
+            lineStyle: {
+              color: compactChartTheme.policyReference,
+              width: 1,
+              type: 'solid' as const,
+            },
+          })),
+        ],
       } : undefined,
       markPoint: showLatestMarker ? {
         silent: true, label: { show: false }, symbol: 'circle', symbolSize: 8,

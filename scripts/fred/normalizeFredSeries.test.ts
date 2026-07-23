@@ -9,8 +9,8 @@ import { fredSeriesConfigurations } from './seriesConfigurations'
 
 const gdpConfig = fredSeriesConfigurations[0]!
 const cpiConfig = fredSeriesConfigurations[1]!
-const unemploymentConfig = fredSeriesConfigurations[2]!
-const primeAgeEmploymentConfig = fredSeriesConfigurations[3]!
+const unemploymentConfig = fredSeriesConfigurations.find(({ providerSeriesId }) => providerSeriesId === 'UNRATE')!
+const primeAgeEmploymentConfig = fredSeriesConfigurations.find(({ providerSeriesId }) => providerSeriesId === 'LNS12300060')!
 const lmciActivityConfig = fredSeriesConfigurations.find(({ providerSeriesId }) => providerSeriesId === 'FRBKCLMCILA')!
 const lmciMomentumConfig = fredSeriesConfigurations.find(({ providerSeriesId }) => providerSeriesId === 'FRBKCLMCIM')!
 

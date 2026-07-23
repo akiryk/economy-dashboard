@@ -1,6 +1,6 @@
 # Compact card architecture decision
 
-Status: **Implemented for Real GDP growth, Real GDP per capita growth, and labor-productivity growth**
+Status: **Implemented for Real GDP growth, Real GDP per capita growth, labor-productivity growth, and headline CPI inflation**
 
 Decision date: July 21, 2026
 
@@ -8,7 +8,7 @@ Scope: research-dashboard cards, not briefing tiles
 
 ## Decision
 
-Story 38 validated the proposed boundary with a second concrete metric, and Story 39 reused it for labor-productivity growth. The implementation now has three small composition boundaries shared by the first three Growth cards:
+Story 38 validated the proposed boundary with a second concrete metric, Story 39 reused it for labor-productivity growth, and Story 41 applied it to headline CPI with a metric-specific policy reference. The implementation has three small composition boundaries shared by these four cards:
 
 1. a compact-card layout and disclosure component;
 2. a presentation-only historical-band chart that consumes an already-derived model;
@@ -25,7 +25,7 @@ Metric wording, value formatting, statistical meaning, and exception layouts rem
 - `HistoricalBandChart` owns the compact ECharts lifecycle, option rendering, accessible summary, footer, and help interaction.
 - `CompactHistoricalMetricChart` adapts a derived model and metric definition to that shared chart.
 - `deriveHistoricalBandContext` owns configurable, presentation-only window and percentile derivation.
-- `compactHistoricalMetrics.ts` contains explicit definitions and neutral wording for Real GDP growth, Real GDP per capita growth, and labor-productivity growth.
+- `compactHistoricalMetrics.ts` contains explicit definitions and neutral wording for Real GDP growth, Real GDP per capita growth, labor-productivity growth, and headline CPI inflation.
 - `.series-card__*`, `.series-current__*`, and `.historical-band-chart__*` classes control the shared shell and chart; compact values are centralized as CSS custom properties in `tokens.css`.
 - `EconomicTimeSeriesChart`, its option builders, and `useHistoricalZoom` provide the shared full-chart path.
 - `calculatePercentileValue`, observation sorting, and period/value formatters are pure utilities already usable outside React.
@@ -33,8 +33,9 @@ Metric wording, value formatting, statistical meaning, and exception layouts rem
 
 ### Metric-specific today
 
-- Each metric definition explicitly chooses its recent and comparison windows, percentile boundaries, minimum history, missing-latest policy, zero line, marker, help copy, and historical-position language.
+- Each metric definition explicitly chooses its recent and comparison windows, percentile boundaries, minimum history, missing-latest policy, zero line, optional reference lines, marker, help copy, and historical-position language.
 - Real GDP growth, Real GDP per capita growth, and labor-productivity growth each currently use 20 recent quarters, a trailing 25-year comparison, 25th–75th and 10th–90th bands, and a last-observation policy. These remain explicit per-metric choices, not global defaults.
+- Headline CPI uses 61 monthly endpoints to show a five-year line, the same trailing 25-year percentile definitions, zero, and a 2% policy-reference line. Its help copy states that the Federal Reserve formally targets PCE inflation rather than CPI.
 - Formatting and source-series interpretation remain with the metric and existing research-card path.
 
 ### Avoided duplication

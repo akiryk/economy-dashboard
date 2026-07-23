@@ -64,7 +64,7 @@ interface InflationComparisonChartProps extends SharedZoomProps {
   headlineObservations: readonly EconomicObservation[]
   coreObservations: readonly EconomicObservation[]
   frequency: EconomicFrequency
-  variant: 'momentum' | 'year-over-year'
+  variant: 'cpi-pce' | 'momentum' | 'year-over-year'
 }
 
 interface HouseholdComparisonChartProps extends SharedZoomProps {
@@ -298,6 +298,8 @@ export default function EconomicTimeSeriesChart(
                 ? 'Effective federal funds rate and 10-year Treasury yield comparison chart'
               : props.kind === 'claims-comparison'
                 ? 'Official four-week average and weekly initial unemployment claims comparison chart'
+              : props.variant === 'cpi-pce'
+              ? 'CPI consumer-facing inflation and PCE Federal Reserve preferred inflation measure comparison chart with 2% Fed target for PCE'
               : props.variant === 'momentum'
               ? 'Headline and core CPI three-month annualized inflation comparison chart'
               : 'Headline and core CPI year-over-year inflation comparison chart'

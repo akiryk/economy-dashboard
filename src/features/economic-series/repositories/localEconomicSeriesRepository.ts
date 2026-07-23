@@ -13,6 +13,8 @@ const localSeriesLoaders: Readonly<
     import('../data/labor-productivity-level.json'),
   'headline-cpi-inflation': () =>
     import('../data/headline-cpi-inflation.json'),
+  'headline-pce-inflation': () =>
+    import('../data/headline-pce-inflation.json'),
   'core-cpi-inflation': () => import('../data/core-cpi-inflation.json'),
   'headline-cpi-three-month-annualized': () =>
     import('../data/headline-cpi-three-month-annualized.json'),

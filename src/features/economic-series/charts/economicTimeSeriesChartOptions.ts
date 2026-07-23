@@ -36,7 +36,13 @@ interface InflationComparisonChartOptionsInput {
   headlineData: ChartDataPoint[]
   coreData: ChartDataPoint[]
   frequency: EconomicFrequency
-  variant: 'claims' | 'household' | 'momentum' | 'rates' | 'year-over-year'
+  variant:
+    | 'claims'
+    | 'cpi-pce'
+    | 'household'
+    | 'momentum'
+    | 'rates'
+    | 'year-over-year'
   zoom?: HistoricalZoomChartConfig
 }
 
@@ -357,12 +363,15 @@ export function createInflationComparisonChartOptions({
   const household = variant === 'household'
   const rates = variant === 'rates'
   const claims = variant === 'claims'
+  const cpiPce = variant === 'cpi-pce'
   const headlineName = claims
     ? 'Four-week average'
     : rates
     ? 'Effective federal funds rate'
     : household
     ? 'Real disposable income per person growth'
+    : cpiPce
+    ? 'CPI — consumer-facing inflation'
     : momentum
     ? 'Headline CPI, 3-month annualized'
     : 'Headline CPI inflation'
@@ -372,6 +381,8 @@ export function createInflationComparisonChartOptions({
     ? '10-year Treasury yield'
     : household
     ? 'Real consumer spending per person growth'
+    : cpiPce
+    ? 'PCE — Fed’s preferred inflation measure'
     : momentum
     ? 'Core CPI, 3-month annualized'
     : 'Core CPI inflation'
@@ -417,7 +428,7 @@ export function createInflationComparisonChartOptions({
           `${headlineName}: ${claims ? headline === null ? 'Not available' : Math.round(headline).toLocaleString('en-US') : household ? `${formatSignedPercentage(headline)} from a year earlier` : formatPercentage(headline)}`,
           `${coreName}: ${claims ? core === null ? 'Not available' : Math.round(core).toLocaleString('en-US') : household ? `${formatSignedPercentage(core)} from a year earlier` : formatPercentage(core)}`,
         ]
-        if (!momentum && !claims) {
+        if (!momentum && !claims && !cpiPce) {
           const difference =
             headline !== null && core !== null ? core - headline : null
           lines.push(
@@ -463,13 +474,23 @@ export function createInflationComparisonChartOptions({
         showSymbol: false,
         lineStyle: { color: '#245d72', width: 2.5, type: 'solid' },
         itemStyle: { color: '#245d72' },
-        ...(claims ? {} : { markLine: {
-          silent: true,
-          symbol: 'none',
-          label: { show: false },
-          lineStyle: { color: '#56616d', width: 1.5, type: 'solid' },
-          data: [{ yAxis: 0 }],
-        } }),
+          ...(claims ? {} : { markLine: {
+            silent: true,
+            symbol: 'none',
+            label: { show: false },
+            data: [
+              {
+                name: 'Zero',
+                yAxis: 0,
+                lineStyle: { color: '#56616d', width: 1.5, type: 'solid' },
+              },
+              ...(cpiPce ? [{
+                name: '2% Fed target for PCE',
+                yAxis: 2,
+                lineStyle: { color: '#7b4f9d', width: 1, type: 'dashed' },
+              }] : []),
+            ],
+          } }),
       },
       {
         name: coreName,
@@ -478,7 +499,11 @@ export function createInflationComparisonChartOptions({
         connectNulls: false,
         smooth: false,
         showSymbol: false,
-        lineStyle: { color: '#8a4f2d', width: claims ? 1.5 : 2.5, type: 'dashed' },
+        lineStyle: {
+          color: '#8a4f2d',
+          width: claims || cpiPce ? 1.5 : 2.5,
+          type: 'dashed',
+        },
         itemStyle: { color: '#8a4f2d' },
       },
     ],

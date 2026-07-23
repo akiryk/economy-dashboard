@@ -47,6 +47,12 @@ import {
 } from '../utils/compactHistoricalMetrics'
 import { deriveHistoricalBandContext } from '../utils/historicalBandContext'
 import { CompactMetricCardLayout } from './CompactMetricCardLayout'
+import {
+  classifyCpiAssessment,
+  formatCpiAssessment,
+  formatCpiPolicyReference,
+} from '../utils/cpiData'
+import { CpiPceComparison } from './CpiPceComparison'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -115,6 +121,20 @@ export function EconomicSeriesSummary({
   )
   const zoom = useHistoricalZoom(presetObservations, selectedRange, series.frequency, setSelectedRange)
   const visibleObservations = zoom.visibleItems
+  const pcePresetObservations = useMemo(() => {
+    if (
+      series.slug !== 'headline-cpi-inflation' ||
+      !supportingSeries ||
+      presetObservations.length === 0
+    ) {
+      return []
+    }
+    const start = presetObservations[0]!.date
+    const end = presetObservations.at(-1)!.date
+    return supportingSeries.observations.filter(
+      ({ date }) => date >= start && date <= end,
+    )
+  }, [presetObservations, series.slug, supportingSeries])
   const recentObservations = selectMostRecentObservations(
     visibleObservations,
     presentation.recentObservationCount,
@@ -181,11 +201,26 @@ export function EconomicSeriesSummary({
         momentum: productivityMomentumText,
       })
     : null
+  const cpiAssessment = series.slug === 'headline-cpi-inflation'
+    ? formatCpiAssessment(
+        classifyCpiAssessment(latestObservation?.value ?? null),
+      )
+    : null
+  const cpiReferenceComparison = series.slug === 'headline-cpi-inflation'
+    ? formatCpiPolicyReference(latestObservation?.value ?? null)
+    : null
+  const cpiAccessibleLabel = series.slug === 'headline-cpi-inflation'
+    ? `CPI inflation was ${formatPercentage(latestObservation?.value ?? null)} in ${latestObservation ? formatObservationPeriod(latestObservation.date, series.frequency) : 'an unavailable month'}. ${cpiAssessment}${cpiReferenceComparison ? ` ${cpiReferenceComparison}` : ''}`
+    : null
 
   const latestValueContent = (
     <div
       className="series-current"
-      aria-label={productivityAccessibleLabel ?? presentation.latestValueLabel}
+      aria-label={
+        productivityAccessibleLabel ??
+        cpiAccessibleLabel ??
+        presentation.latestValueLabel
+      }
     >
         <p className="series-current__value">
           <span
@@ -221,6 +256,8 @@ export function EconomicSeriesSummary({
             ? `After-tax corporate profit share, ${formatObservationPeriod(latestObservation.date, series.frequency)}`
             : series.slug === 'labor-productivity-growth'
             ? formatProductivityAnswer(productivityAnswer!)
+            : series.slug === 'headline-cpi-inflation'
+            ? cpiAssessment
             : presentation.latestValueLabel}
         </p>
         <p className="series-current__period">
@@ -239,6 +276,12 @@ export function EconomicSeriesSummary({
           productivityMomentumText && (
             <p className="series-current__comparison">
               {productivityMomentumText}
+            </p>
+          )}
+        {series.slug === 'headline-cpi-inflation' &&
+          cpiReferenceComparison && (
+            <p className="series-current__comparison">
+              {cpiReferenceComparison}
             </p>
           )}
     </div>
@@ -277,6 +320,18 @@ export function EconomicSeriesSummary({
       />
 
       <HistoricalZoomControls active={zoom.active} visiblePeriod={zoom.visiblePeriod} onMove={zoom.move} onResize={zoom.resize} onReset={zoom.reset} />
+
+      {series.slug === 'headline-cpi-inflation' && supportingSeries && (
+        <CpiPceComparison
+          cpi={series}
+          pce={supportingSeries}
+          cpiObservations={presetObservations}
+          pceObservations={pcePresetObservations}
+          zoomStartDate={visibleObservations[0]?.date ?? ''}
+          zoomEndDate={visibleObservations.at(-1)?.date ?? ''}
+          onZoomChange={zoom.onChartZoom}
+        />
+      )}
 
       {chartSummary.observationCount > 0 ? (
         <>

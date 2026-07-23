@@ -169,7 +169,7 @@ export function deriveCpiSeries(
       {
         id: 'headline-cpi-inflation',
         providerSeriesId: 'CPIAUCSL',
-        title: 'Consumer Price Inflation',
+        title: 'Consumer Price Index: Percent Change from Year Ago',
         shortTitle: 'CPI inflation',
         description:
           'The year-over-year percentage change in the Consumer Price Index for All Urban Consumers: All Items in U.S. City Average.',

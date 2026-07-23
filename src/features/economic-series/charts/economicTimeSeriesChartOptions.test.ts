@@ -234,6 +234,11 @@ describe('createInflationComparisonChartOptions', () => {
       'Headline CPI, 3-month annualized',
       'Core CPI, 3-month annualized',
     ],
+    [
+      'cpi-pce' as const,
+      'CPI — consumer-facing inflation',
+      'PCE — Fed’s preferred inflation measure',
+    ],
   ])('uses aligned distinguishable lines and one zero-inclusive axis for %s', (
     variant,
     headlineName,
@@ -273,6 +278,28 @@ describe('createInflationComparisonChartOptions', () => {
     expect(series[0]?.data[0]).toEqual(['2026-04-01', null])
     expect(series[0]?.markLine).toBeDefined()
     expect(options.legend).toMatchObject({ data: [headlineName, coreName] })
+  })
+
+  it('renders CPI as primary, PCE as secondary, and the target on one axis', () => {
+    const options = createInflationComparisonChartOptions({
+      headlineData: [['2026-05-01', 3.5]],
+      coreData: [['2026-05-01', 2.8]],
+      frequency: 'monthly',
+      variant: 'cpi-pce',
+    })
+    const series = options.series as unknown as Array<{
+      name: string
+      lineStyle: { width: number }
+      markLine?: { data: Array<{ name: string; yAxis: number }> }
+      yAxisIndex?: number
+    }>
+    expect(Array.isArray(options.yAxis)).toBe(false)
+    expect(series[0]?.lineStyle.width).toBeGreaterThan(series[1]!.lineStyle.width)
+    expect(series[0]?.markLine?.data).toContainEqual(expect.objectContaining({
+      name: '2% Fed target for PCE',
+      yAxis: 2,
+    }))
+    expect(series.every(({ yAxisIndex }) => yAxisIndex === undefined)).toBe(true)
   })
 
   it('reports percentage-point differences only for year-over-year inflation', () => {

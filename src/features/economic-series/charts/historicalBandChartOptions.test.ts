@@ -59,7 +59,15 @@ describe('historical band chart options', () => {
       markLine?: { data: unknown[] }
       markPoint?: { data: unknown[] }
     }>)[0]!
-    expect(enabled.markLine?.data).toEqual([{ yAxis: 0 }])
+    expect(enabled.markLine?.data).toEqual([{
+      name: 'Zero',
+      yAxis: 0,
+      lineStyle: {
+        color: compactChartTheme.zeroLine,
+        width: 1.25,
+        type: 'dashed',
+      },
+    }])
     expect(enabled.markPoint?.data).toEqual([{
       name: 'Latest observation', coord: ['2026-01-01', 3],
     }])
@@ -68,6 +76,19 @@ describe('historical band chart options', () => {
     }).series as Array<{ markLine?: unknown; markPoint?: unknown }>)[0]!
     expect(disabled.markLine).toBeUndefined()
     expect(disabled.markPoint).toBeUndefined()
+  })
+
+  it('renders an optional policy reference and includes it in the domain', () => {
+    const configured = (options({
+      referenceLines: [{ value: 5, label: 'Policy reference' }],
+    }).series as Array<{
+      markLine?: { data: Array<{ name: string; yAxis: number }> }
+    }>)[0]!
+    expect(configured.markLine?.data).toContainEqual(expect.objectContaining({
+      name: 'Policy reference',
+      yAxis: 5,
+    }))
+    expect(calculateHistoricalBandYDomain(model, true, [5]).max).toBeGreaterThan(5)
   })
 
   it('delegates value formatting and appends supplied latest-position language', () => {

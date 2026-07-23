@@ -146,10 +146,11 @@ describe('DashboardPage economic series', () => {
       'ready',
     )
     expect(
-      within(cpiCard).queryByTestId('production-compact-chart'),
-    ).not.toBeInTheDocument()
+      within(cpiCard).getByTestId('production-compact-chart'),
+    ).toHaveAttribute('data-series-label', 'CPI inflation')
 
     await user.click(within(gdpCard).getByRole('button', { name: /More/ }))
+    await user.click(within(cpiCard).getByRole('button', { name: /More/ }))
     await user.click(within(gdpCard).getByText('Series details'))
     await user.click(within(cpiCard).getByText('Series details'))
     expect(within(gdpCard).getByText('Quarterly')).toBeVisible()
@@ -172,6 +173,87 @@ describe('DashboardPage economic series', () => {
       }),
     ).toBeVisible()
   }, 10_000)
+
+  it('renders compact CPI interpretation and expands to a truthful CPI/PCE comparison', async () => {
+    const user = userEvent.setup()
+    const getBySlug = vi.spyOn(localEconomicSeriesRepository, 'getBySlug')
+    render(<DashboardPage />)
+
+    const card = await screen.findByRole('article', {
+      name: 'How quickly are consumer prices rising?',
+    })
+    expect(within(card).getByText(
+      'Consumer Price Index: Percent Change from Year Ago',
+    )).toBeVisible()
+    const callout = within(card).getByLabelText(
+      /CPI inflation was 3.5% in June 2026/,
+    )
+    expect(callout).toHaveTextContent('Consumer prices are rising somewhat quickly.')
+    expect(callout).toHaveTextContent(
+      'CPI inflation is 1.5 percentage points above the 2% policy reference.',
+    )
+    expect(within(card).getByTestId('production-compact-chart')).toHaveAttribute(
+      'data-series-label',
+      'CPI inflation',
+    )
+    expect(within(card).getByRole('button', { name: /More/ })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    )
+    expect(within(card).queryByRole('group', {
+      name: 'CPI inflation displayed time range',
+    })).not.toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(
+        getBySlug.mock.calls.some(
+          ([requested]) => requested === 'headline-pce-inflation',
+        ),
+      ).toBe(true)
+    })
+    const loadsBeforeExpansion = new Map(
+      ['headline-cpi-inflation', 'headline-pce-inflation'].map((slug) => [
+        slug,
+        getBySlug.mock.calls.filter(([requested]) => requested === slug).length,
+      ]),
+    )
+
+    await user.click(within(card).getByRole('button', { name: /More/ }))
+    for (const [slug, loadCount] of loadsBeforeExpansion) {
+      expect(
+        getBySlug.mock.calls.filter(([requested]) => requested === slug),
+      ).toHaveLength(loadCount)
+    }
+    expect(within(card).getByRole('heading', {
+      level: 4,
+      name: 'How does CPI compare with the Fed’s preferred inflation measure?',
+    })).toBeVisible()
+    expect(within(card).getByText(/PCE covers a broader range/)).toBeVisible()
+    expect(within(card).getByText(/PCE inflation was 4.1% in May 2026/))
+      .toHaveTextContent(
+        'PCE inflation is 2.1 percentage points above the Federal Reserve’s 2% target.',
+      )
+    expect(within(card).getByText(/No value is carried forward/)).toBeVisible()
+    expect(within(card).getByRole('link', {
+      name: /PCEPI.*Bureau of Economic Analysis via FRED/,
+    })).toHaveAttribute('href', 'https://fred.stlouisfed.org/series/PCEPI')
+
+    await waitFor(() => {
+      const comparison = chartPropsSpy.mock.calls
+        .map((call) => call[0] as {
+          variant?: string
+          headlineObservations?: EconomicObservation[]
+          coreObservations?: EconomicObservation[]
+        })
+        .find(({ variant }) => variant === 'cpi-pce')
+      expect(comparison?.headlineObservations?.at(-1)?.date).toBe('2026-06-01')
+      expect(comparison?.coreObservations?.at(-1)?.date).toBe('2026-05-01')
+    })
+
+    await user.click(within(card).getByRole('button', { name: /Less/ }))
+    expect(within(card).queryByText(/PCE covers a broader range/))
+      .not.toBeInTheDocument()
+  })
 
   it('organizes all indicators into visible semantic sections', async () => {
     render(<DashboardPage />)
@@ -571,6 +653,9 @@ describe('DashboardPage economic series', () => {
     const primeAge = await screen.findByRole('article', {
       name: 'What share of prime-age adults are employed?',
     })
+    const cpiCard = await screen.findByRole('article', {
+      name: 'How quickly are consumer prices rising?',
+    })
 
     expect(within(unemployment).getByLabelText('Latest unemployment rate'))
       .toHaveTextContent('4.2%')
@@ -584,6 +669,7 @@ describe('DashboardPage economic series', () => {
     expect(within(primeAge).getByText(/ranged from/)).not.toHaveTextContent(
       'below zero',
     )
+    await user.click(within(cpiCard).getByRole('button', { name: /More/ }))
     await waitFor(() => {
       const zeroPolicies = Object.fromEntries(
         chartPropsSpy.mock.calls.map((call) => {
@@ -631,9 +717,10 @@ describe('DashboardPage economic series', () => {
     })
 
     expect(within(gdpCard).getByLabelText('Latest real GDP growth')).toBeVisible()
-    expect(within(cpiCard).getByLabelText('Latest CPI inflation')).toBeVisible()
+    expect(within(cpiCard).getByLabelText(/CPI inflation was 3.5%/)).toBeVisible()
     expect(within(gdpCard).queryByText('Productivity')).not.toBeInTheDocument()
     await user.click(within(gdpCard).getByRole('button', { name: /More/ }))
+    await user.click(within(cpiCard).getByRole('button', { name: /More/ }))
     for (const label of ['Productivity', 'Employment', 'Real income']) {
       const indicator = within(gdpCard).getByText(label)
       expect(indicator).toBeVisible()
@@ -656,6 +743,7 @@ describe('DashboardPage economic series', () => {
       name: 'How quickly are consumer prices rising?',
     })
     await user.click(within(gdpCard).getByRole('button', { name: /More/ }))
+    await user.click(within(cpiCard).getByRole('button', { name: /More/ }))
 
     await user.click(within(cpiCard).getByRole('button', { name: '5 years' }))
 

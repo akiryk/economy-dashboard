@@ -15,6 +15,7 @@ const wageComparisonSupportingSlugs = [
   'headline-cpi-inflation',
 ] as const
 const headlineInflationSupportingSlugs = ['headline-cpi-inflation'] as const
+const pceInflationSupportingSlugs = ['headline-pce-inflation'] as const
 const headlineMomentumSupportingSlugs = [
   'headline-cpi-three-month-annualized',
 ] as const
@@ -110,7 +111,9 @@ export function DashboardPage() {
         description="Price measures describe how quickly the cost of goods and services is changing. Lower inflation generally means prices are rising more slowly, not necessarily becoming cheaper."
       >
         <EconomicSeriesCard
+          collapsible
           slug="headline-cpi-inflation"
+          supportingSlugs={pceInflationSupportingSlugs}
           label="headline CPI inflation"
           onSeriesLoaded={handleSeriesLoaded}
         />

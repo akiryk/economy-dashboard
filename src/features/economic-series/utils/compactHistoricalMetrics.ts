@@ -9,6 +9,7 @@ import {
   type HistoricalBandModel,
   type HistoricalBandPosition,
 } from './historicalBandContext'
+import { classifyCpiAssessment, formatCpiAssessment } from './cpiData'
 
 export interface HistoricalBandHelpText {
   heading: string
@@ -21,11 +22,13 @@ export interface CompactHistoricalMetricDefinition {
   historicalBands: HistoricalBandDefinition
   showZeroLine: boolean
   showLatestMarker: boolean
+  referenceLines?: readonly { value: number; label: string }[]
   helpText: HistoricalBandHelpText
   zeroLineMeaning: string
   positionDescriptions: Readonly<
     Record<Exclude<HistoricalBandPosition, 'unavailable'>, string>
   >
+  accessibleSummarySuffix?: (model: HistoricalBandModel) => string
 }
 
 const sharedBandHelp: HistoricalBandHelpText = {
@@ -51,6 +54,14 @@ const perCapitaPositionDescriptions: CompactHistoricalMetricDefinition['position
 }
 
 const productivityPositionDescriptions: CompactHistoricalMetricDefinition['positionDescriptions'] = {
+  belowOuterBand: 'below the historical 10th percentile',
+  betweenOuterAndInnerLow: 'between the historical 10th and 25th percentiles',
+  insideInnerBand: 'within the historical middle 50%',
+  betweenInnerAndOuterHigh: 'between the historical 75th and 90th percentiles',
+  aboveOuterBand: 'above the historical 90th percentile',
+}
+
+const cpiPositionDescriptions: CompactHistoricalMetricDefinition['positionDescriptions'] = {
   belowOuterBand: 'below the historical 10th percentile',
   betweenOuterAndInnerLow: 'between the historical 10th and 25th percentiles',
   insideInnerBand: 'within the historical middle 50%',
@@ -114,12 +125,37 @@ export const laborProductivityGrowthCompactDefinition: CompactHistoricalMetricDe
   positionDescriptions: productivityPositionDescriptions,
 }
 
+export const headlineCpiCompactDefinition: CompactHistoricalMetricDefinition = {
+  seriesLabel: 'CPI inflation',
+  frequency: 'monthly',
+  historicalBands: {
+    recentObservationCount: 61,
+    comparisonWindow: { kind: 'trailing-years', years: 25 },
+    innerPercentiles: [25, 75], outerPercentiles: [10, 90],
+    minimumFiniteObservations: 60,
+    latestObservationPolicy: 'last-observation',
+  },
+  showZeroLine: true,
+  showLatestMarker: true,
+  referenceLines: [{ value: 2, label: '2% policy reference' }],
+  helpText: {
+    heading: 'Recent historical comparison: past 25 years',
+    description:
+      'The dark band shows the middle 50% of CPI readings during this period. The lighter bands extend the range to the middle 80%. Readings outside the shaded area fall within the highest or lowest 10% of the comparison period. The thin 2% line is a policy reference. The Federal Reserve’s formal 2% inflation target applies to PCE inflation, not CPI.',
+  },
+  zeroLineMeaning: 'Zero separates rising from falling consumer prices.',
+  positionDescriptions: cpiPositionDescriptions,
+  accessibleSummarySuffix: (model) =>
+    `${formatCpiAssessment(classifyCpiAssessment(model.latestObservation.value))} The 2% line is a policy reference; the Federal Reserve formally targets PCE inflation.`,
+}
+
 const compactDefinitions: Readonly<
   Partial<Record<string, CompactHistoricalMetricDefinition>>
 > = {
   'real-gdp-growth': realGdpCompactDefinition,
   'real-gdp-per-capita-growth': realGdpPerCapitaCompactDefinition,
   'labor-productivity-growth': laborProductivityGrowthCompactDefinition,
+  'headline-cpi-inflation': headlineCpiCompactDefinition,
 }
 
 export function getCompactHistoricalMetricDefinition(
@@ -149,5 +185,7 @@ export function createCompactHistoricalAccessibleSummary(
   const recentPath = first?.value === null || first?.value === undefined
     ? 'No finite recent path is available.'
     : `The five-year line begins at ${formatPercentage(first.value)} in ${formatObservationPeriod(first.date, definition.frequency)} and ends at ${formatPercentage(model.latestObservation.value)}.`
-  return `${definition.seriesLabel} was ${formatPercentage(model.latestObservation.value)} in ${formatObservationPeriod(model.latestObservation.date, definition.frequency)}. The line shows the latest ${model.recentObservationCount} quarters. ${recentPath} The trailing comparison runs from ${formatObservationPeriod(model.comparisonStart, definition.frequency)} through ${formatObservationPeriod(model.comparisonEnd, definition.frequency)}. The dark band marks the middle 50% of historical readings, and the lighter bands extend the range to the middle 80%. ${definition.zeroLineMeaning} The latest reading is ${describeCompactHistoricalPosition(model, definition)}.`
+  const observationUnit = definition.frequency === 'monthly' ? 'months' : 'quarters'
+  const suffix = definition.accessibleSummarySuffix?.(model)
+  return `${definition.seriesLabel} was ${formatPercentage(model.latestObservation.value)} in ${formatObservationPeriod(model.latestObservation.date, definition.frequency)}. The line shows the latest ${model.recentObservationCount} ${observationUnit}. ${recentPath} The trailing comparison runs from ${formatObservationPeriod(model.comparisonStart, definition.frequency)} through ${formatObservationPeriod(model.comparisonEnd, definition.frequency)}. The dark band marks the middle 50% of historical readings, and the lighter bands extend the range to the middle 80%. ${definition.zeroLineMeaning} The latest reading is ${describeCompactHistoricalPosition(model, definition)}.${suffix ? ` ${suffix}` : ''}`
 }

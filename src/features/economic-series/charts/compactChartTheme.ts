@@ -3,6 +3,7 @@ export const compactChartTheme = {
   innerBandFill: 'rgba(184, 148, 54, 0.28)',
   outerBandFill: 'rgba(184, 148, 54, 0.14)',
   zeroLine: '#56616d',
+  policyReference: '#7b4f9d',
   latestMarker: '#245d72',
   markerBorder: '#ffffff',
 } as const

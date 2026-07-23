@@ -44,6 +44,7 @@ describe('localEconomicSeriesRepository', () => {
 
   it.each([
     ['headline-cpi-inflation', 'CPIAUCSL'],
+    ['headline-pce-inflation', 'PCEPI'],
     ['core-cpi-inflation', 'CPILFESL'],
     ['headline-cpi-three-month-annualized', 'CPIAUCSL'],
     ['core-cpi-three-month-annualized', 'CPILFESL'],

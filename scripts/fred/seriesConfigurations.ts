@@ -68,7 +68,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     historyPolicy: { type: 'full' },
     localDerivation: 'year-over-year-monthly-growth',
     minimumUsableObservations: 240,
-    title: 'Consumer Price Inflation',
+    title: 'Consumer Price Index: Percent Change from Year Ago',
     shortTitle: 'CPI inflation',
     description:
       'The year-over-year percentage change in the Consumer Price Index for All Urban Consumers: All Items in U.S. City Average.',
@@ -79,6 +79,30 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
       'Percent change from year ago, calculated by the application',
     sourceName: 'U.S. Bureau of Labor Statistics via FRED',
     sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCSL',
+  },
+  {
+    dataHandling: 'locally-derived',
+    id: 'headline-pce-inflation',
+    slug: 'headline-pce-inflation',
+    outputFile:
+      'src/features/economic-series/data/headline-pce-inflation.json',
+    providerSeriesId: 'PCEPI',
+    frequency: 'monthly',
+    fredFrequency: 'm',
+    historyPolicy: { type: 'full' },
+    localDerivation: 'year-over-year-monthly-growth',
+    minimumUsableObservations: 600,
+    title: 'Personal Consumption Expenditures Price Index: Percent Change from Year Ago',
+    shortTitle: 'PCE inflation',
+    description:
+      'The year-over-year percentage change in the headline Personal Consumption Expenditures price index.',
+    question: 'How does PCE inflation compare with the Federal Reserve’s 2% target?',
+    units: 'Percent change from year ago',
+    seasonalAdjustment: 'Seasonally adjusted (underlying PCE price index)',
+    transformation:
+      'Percent change from year ago, calculated by the application using exact 12-month matching',
+    sourceName: 'U.S. Bureau of Economic Analysis via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/PCEPI',
   },
   {
     dataHandling: 'provider-level',

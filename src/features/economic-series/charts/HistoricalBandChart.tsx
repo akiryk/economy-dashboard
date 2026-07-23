@@ -35,6 +35,7 @@ interface HistoricalBandChartProps {
   caption: string
   showZeroLine?: boolean
   showLatestMarker?: boolean
+  referenceLines?: readonly { value: number; label: string }[]
   visuallyHideSummary?: boolean
 }
 
@@ -51,6 +52,7 @@ export function HistoricalBandChart({
   caption,
   showZeroLine = false,
   showLatestMarker = true,
+  referenceLines = [],
   visuallyHideSummary = false,
 }: HistoricalBandChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -67,11 +69,12 @@ export function HistoricalBandChart({
       ? createHistoricalBandChartOptions({
           model, seriesLabel, frequency, valueFormatter,
           latestPositionDescription, showZeroLine, showLatestMarker,
+          referenceLines,
         })
       : null,
     [
       frequency, latestPositionDescription, model, seriesLabel,
-      showLatestMarker, showZeroLine, valueFormatter,
+      referenceLines, showLatestMarker, showZeroLine, valueFormatter,
     ],
   )
 
