@@ -269,6 +269,44 @@ Before considering work complete:
 
 The code should leave the repository slightly better than it was found.
 
+# Updating CPI inflation-contribution data
+
+The BLS files used for the inflation-contribution history cannot currently be
+downloaded automatically by Codex. After each new monthly CPI release:
+
+1. Visit the BLS **Archived Consumer Price Index Supplemental Files** page:
+
+   https://www.bls.gov/cpi/tables/supplemental-files/home.htm
+
+2. Find the section for the newly released month.
+
+3. Download the link named in this format:
+
+   **News Release Table 7, [Month] [Year] (XLSX)**
+
+   For example:
+
+   **News Release Table 7, February 2026 (XLSX)**
+
+4. Place the downloaded XLSX file in the workspace location requested by Codex,
+   or attach it directly to the Codex conversation.
+
+5. Tell Codex to ingest the new Table 7 workbook, validate it, update the
+   committed inflation-contribution dataset, run all repository checks, and
+   commit the update locally without pushing.
+
+Files for completed prior years may instead appear near the bottom of the page
+as annual archives named in this format:
+
+**2024 Supplemental Files (ZIP)**
+
+The annual ZIP files were needed for the original historical backfill. Under
+normal circumstances, ongoing updates require only the single new monthly
+**News Release Table 7** XLSX file.
+
+Do not substitute another CPI table or a category inflation-rate series. Table
+7 contains the percentage-point contribution effects required by the dashboard.
+
 # Story Completion
 
 A story is complete when the requested implementation and documentation have been
