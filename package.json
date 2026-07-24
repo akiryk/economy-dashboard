@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "data:ingest-inflation-contribution": "tsx scripts/bls/ingestInflationContributionRelease.ts",
     "data:refresh": "tsx scripts/refreshEconomicData.ts",
     "lint": "eslint .",
     "perf:measure": "tsx scripts/perf/measure.ts",

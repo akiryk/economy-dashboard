@@ -64,15 +64,20 @@ selection is by absolute current contribution so a large negative effect is not
 hidden. The source snapshot and expanded current-versus-prior table are
 unchanged by the compact grouping.
 
-Historical contribution effects remain a deferred data product. The official
-BLS archived Table 7 releases contain the required release-vintage values, but
-the repository does not yet have reliable automated archive access or a
-two-pass curated five-year snapshot. October 2025 has no release and must remain
-an explicit gap. See
+Historical contribution effects remain a deferred production data product, but
+their collection method is now established. Because direct archive requests
+remain unreliable, maintainers manually save an official BLS archived HTML
+release and run `npm run data:ingest-inflation-contribution`. The command
+structurally selects the Table 7 effect column, validates required categories
+and provenance, derives Other services without intermediate rounding,
+reconciles within 0.05 percentage point, and atomically emits a normalized
+release-vintage staging record. It does not write the current UI snapshot or
+merge production history. October 2025 has no release and the validator
+prohibits creating that period. See
 [`inflation-contribution-history-feasibility.md`](inflation-contribution-history-feasibility.md)
-for the source inventory, bounded proof of concept, validation contract, and
-recommended retrieval-enablement work. No category inflation-rate series may
-be used as a proxy for these effects.
+for the source inventory, command procedure, representative proof of concept,
+validation contract, and release-vintage policy. Story 47 may now collect the
+five-year history; no category inflation-rate series may be used as a proxy.
 
 This is a small configuration boundary, not dynamic discovery or a plugin system.
 
