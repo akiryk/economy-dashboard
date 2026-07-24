@@ -1,5 +1,6 @@
-import contributionData from '../data/inflation-contributions.json'
+import { lazy, Suspense } from 'react'
 import type { EconomicSeries } from '../models/economicSeries'
+import contributionData from '../data/inflation-contributions.json'
 import {
   formatObservationPeriod,
   formatPercentage,
@@ -12,20 +13,31 @@ import {
   formatContributionChange,
   type InflationContributionObservation,
 } from '../utils/inflationContributions'
+import {
+  createInflationCategoryTrendAccessibleSummary,
+  deriveInflationDriversSupportingTrends,
+} from '../utils/inflationCategoryTrends'
 import { CompactChartHelp } from './CompactChartHelp'
 import { CompactMetricCardLayout } from './CompactMetricCardLayout'
 
+const InflationCategoryTrendCharts = lazy(() =>
+  import('../charts/InflationCategoryTrendCharts').then((module) => ({
+    default: module.InflationCategoryTrendCharts,
+  })),
+)
+
 interface InflationDriversSummaryProps {
   headline: EconomicSeries
+  supportingSeries: readonly EconomicSeries[]
 }
 
 const observations =
   contributionData.observations as InflationContributionObservation[]
 const current = observations.at(-1)!
 const prior = observations.find(({ date }) => date === '2025-06-01') ?? null
-
 export function InflationDriversSummary({
   headline,
+  supportingSeries,
 }: InflationDriversSummaryProps) {
   const categories = buildInflationContributionCategories(current, prior)
   const model = deriveCompactInflationDriversModel({
@@ -36,6 +48,15 @@ export function InflationDriversSummary({
   const summary = model?.summary ??
     'Inflation contribution data are unavailable.'
   const residual = contributionResidual(current.headline, categories)
+  const trendModel = deriveInflationDriversSupportingTrends({
+    selectedContributions: model?.displayedContributions ?? [],
+    supportingSeries,
+  })
+  const trendSummary = createInflationCategoryTrendAccessibleSummary({
+    headlinePeriod: current.date,
+    selectedContributions: model?.displayedContributions ?? [],
+    model: trendModel,
+  })
   const maxMagnitude = Math.max(
     0.01,
     ...(model?.displayedContributions ?? [])
@@ -47,33 +68,53 @@ export function InflationDriversSummary({
       className="inflation-contributions"
       aria-labelledby="inflation-contributions-summary"
     >
-      <div className="inflation-contributions__plot" aria-hidden="true">
-        {model?.displayedContributions.map((category) => {
-          const width = `${Math.abs(category.contribution) / maxMagnitude * 50}%`
-          return (
-            <div className="inflation-contributions__row" key={category.id}>
-              <span className="inflation-contributions__label">{category.label}</span>
-              <span className="inflation-contributions__track">
-                <span className="inflation-contributions__zero" />
-                <span
-                  className={`inflation-contributions__bar inflation-contributions__bar--${category.contribution < 0 ? 'negative' : 'positive'}`}
-                  style={{
-                    width,
-                    [category.contribution < 0 ? 'right' : 'left']: '50%',
-                  }}
-                />
-              </span>
-              <span className="inflation-contributions__value">
-                {formatSignedPercentagePoints(category.contribution)} pp
-              </span>
-            </div>
-          )
-        })}
+      <div className="inflation-contributions__comparison">
+        <section className="inflation-contributions__section">
+          <h4>Current contribution</h4>
+          <div className="inflation-contributions__plot" aria-hidden="true">
+            {model?.displayedContributions.map((category) => {
+              const width = `${Math.abs(category.contribution) / maxMagnitude * 50}%`
+              return (
+                <div className="inflation-contributions__row" key={category.id}>
+                  <span className="inflation-contributions__label">{category.label}</span>
+                  <span className="inflation-contributions__track">
+                    <span className="inflation-contributions__zero" />
+                    <span
+                      className={`inflation-contributions__bar inflation-contributions__bar--${category.contribution < 0 ? 'negative' : 'positive'}`}
+                      style={{
+                        width,
+                        [category.contribution < 0 ? 'right' : 'left']: '50%',
+                      }}
+                    />
+                  </span>
+                  <span className="inflation-contributions__value">
+                    {formatSignedPercentagePoints(category.contribution)} pp
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+          <p className="inflation-contributions__caption">
+            Percentage points added to or subtracted from the latest{' '}
+            {formatPercentage(current.headline)} CPI increase
+          </p>
+        </section>
+        <section className="inflation-contributions__section">
+          <h4>Inflation rate over five years</h4>
+          <p className="inflation-category-trends__note">
+            Shown for current contributors with a directly comparable CPI series.
+          </p>
+          <Suspense
+            fallback={(
+              <p className="inflation-category-trends__unavailable" role="status">
+                Loading category inflation trends…
+              </p>
+            )}
+          >
+            <InflationCategoryTrendCharts model={trendModel} />
+          </Suspense>
+        </section>
       </div>
-      <p className="inflation-contributions__caption">
-        Percentage points added to or subtracted from the latest{' '}
-        {formatPercentage(current.headline)} CPI increase
-      </p>
       <CompactChartHelp
         buttonLabel="Explain inflation contributions"
         dialogLabel="Inflation contribution explanation"
@@ -91,6 +132,21 @@ export function InflationDriversSummary({
           categories. The complete contribution set should approximately add
           up to headline CPI, subject to published rounding.
         </p>
+        <p>
+          The left side uses percentage points to answer how much each
+          dynamically selected category contributed to headline CPI. The right
+          side uses percent changes to show five years of that category’s own
+          year-over-year inflation rate. Contribution depends on both price
+          movement and CPI weight, so a high category rate need not make an
+          equally large headline contribution.
+        </p>
+        <p>
+          Right-side mappings use exact category IDs and directly comparable
+          CPI series; they are not inferred from labels. Unsupported selected
+          categories are omitted and are not replaced merely to fill space.
+          Omission does not mean the category had no inflation. All displayed
+          rate lines share one scale including zero.
+        </p>
       </CompactChartHelp>
       <figcaption className="visually-hidden" id="inflation-contributions-summary">
         {formatPercentage(current.headline)} headline CPI inflation in{' '}
@@ -100,7 +156,8 @@ export function InflationDriversSummary({
         ).join(' ')} The complete contribution set{' '}
         {model?.reconciliationStatus === 'reconciled'
           ? `reconciles to headline CPI within 0.05 percentage point; the difference is ${formatSignedPercentagePoints(model.reconciliationDifference)} percentage points.`
-          : 'does not reconcile to headline CPI within 0.05 percentage point.'}
+          : 'does not reconcile to headline CPI within 0.05 percentage point.'}{' '}
+        {trendSummary}
       </figcaption>
     </figure>
   )

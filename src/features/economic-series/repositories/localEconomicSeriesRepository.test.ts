@@ -77,6 +77,26 @@ describe('localEconomicSeriesRepository', () => {
     }
   })
 
+  it.each([
+    ['shelter-cpi-inflation', 'CUUR0000SAH1'],
+    ['energy-cpi-inflation', 'CUUR0000SA0E'],
+    ['food-cpi-inflation', 'CUUR0000SAF1'],
+  ])('loads the BLS category rate %s', async (slug, providerSeriesId) => {
+    const series = await localEconomicSeriesRepository.getBySlug(slug)
+    expect(series).toMatchObject({
+      slug,
+      providerSeriesId,
+      frequency: 'monthly',
+      units: 'Percent change from year ago',
+      seasonalAdjustment: 'Not seasonally adjusted',
+    })
+    expect(series?.observations).toHaveLength(61)
+    expect(series?.observations[0]?.date).toBe('2021-06-01')
+    expect(series?.observations.at(-1)?.date).toBe('2026-06-01')
+    expect(series?.observations.find(({ date }) => date === '2025-10-01')?.value)
+      .toBeNull()
+  })
+
   it.each(['labor-market-activity-index', 'labor-market-momentum-index'])('loads valid complete %s history', async (slug) => {
     const series = await localEconomicSeriesRepository.getBySlug(slug)
     expect(series?.observations).toHaveLength(414)

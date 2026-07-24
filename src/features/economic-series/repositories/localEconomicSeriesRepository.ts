@@ -16,6 +16,12 @@ const localSeriesLoaders: Readonly<
   'headline-pce-inflation': () =>
     import('../data/headline-pce-inflation.json'),
   'core-cpi-inflation': () => import('../data/core-cpi-inflation.json'),
+  'shelter-cpi-inflation': () =>
+    import('../data/shelter-cpi-inflation.json'),
+  'energy-cpi-inflation': () =>
+    import('../data/energy-cpi-inflation.json'),
+  'food-cpi-inflation': () =>
+    import('../data/food-cpi-inflation.json'),
   'headline-cpi-three-month-annualized': () =>
     import('../data/headline-cpi-three-month-annualized.json'),
   'core-cpi-three-month-annualized': () =>

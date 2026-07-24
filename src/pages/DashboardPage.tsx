@@ -18,6 +18,11 @@ const cpiSupportingSlugs = [
   'headline-pce-inflation',
   'core-cpi-inflation',
 ] as const
+const inflationDriverSupportingSlugs = [
+  'shelter-cpi-inflation',
+  'energy-cpi-inflation',
+  'food-cpi-inflation',
+] as const
 const headlineMomentumSupportingSlugs = [
   'headline-cpi-three-month-annualized',
 ] as const
@@ -121,6 +126,7 @@ export function DashboardPage() {
         />
         <EconomicSeriesCard
           slug="headline-cpi-inflation"
+          supportingSlugs={inflationDriverSupportingSlugs}
           label="inflation drivers"
           variant="inflation-drivers"
           onSeriesLoaded={handleSeriesLoaded}

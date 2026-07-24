@@ -7,10 +7,12 @@ import type {
 } from '../features/economic-series/models/economicSeries'
 import type { CompactHistoricalMetricDefinition } from '../features/economic-series/utils/compactHistoricalMetrics'
 import type { HistoricalBandResult } from '../features/economic-series/utils/historicalBandContext'
+import type { InflationDriversSupportingTrendsModel } from '../features/economic-series/utils/inflationCategoryTrends'
 import { localEconomicSeriesRepository } from '../features/economic-series/repositories/localEconomicSeriesRepository'
 import { DashboardPage } from './DashboardPage'
 
 const chartPropsSpy = vi.hoisted(() => vi.fn())
+const categoryTrendPropsSpy = vi.hoisted(() => vi.fn())
 
 vi.mock('../features/economic-series/charts/EconomicTimeSeriesChart', () => ({
   default: (props: {
@@ -45,9 +47,30 @@ vi.mock('../features/economic-series/charts/CompactHistoricalMetricChart', () =>
     />,
 }))
 
+vi.mock('../features/economic-series/charts/InflationCategoryTrendCharts', () => ({
+  InflationCategoryTrendCharts: ({
+    model,
+  }: {
+    model: InflationDriversSupportingTrendsModel
+  }) => {
+    categoryTrendPropsSpy(model)
+    return (
+      <div data-testid="inflation-category-trends">
+        {model.trends.map((trend) => (
+          <div key={trend.contributionCategoryId}>
+            <span>{trend.label}</span>
+            <span>{trend.currentInflationRate.toFixed(1)}%</span>
+          </div>
+        ))}
+      </div>
+    )
+  },
+}))
+
 afterEach(() => {
   cleanup()
   chartPropsSpy.mockClear()
+  categoryTrendPropsSpy.mockClear()
   vi.restoreAllMocks()
 })
 
@@ -387,9 +410,14 @@ describe('DashboardPage economic series', () => {
     expect(within(drivers).getByText(
       /Percentage points added to or subtracted from the latest 3.5% CPI increase/,
     )).toBeVisible()
-    expect(within(drivers).getByText('Energy')).toBeVisible()
+    expect(within(drivers).getAllByText('Energy')).toHaveLength(2)
     expect(within(drivers).getByText('+1.1 pp')).toBeVisible()
     expect(within(drivers).getByText('Everything else')).toBeVisible()
+    expect(within(drivers).getByText('Current contribution')).toBeVisible()
+    expect(within(drivers).getByText('Inflation rate over five years')).toBeVisible()
+    expect(within(drivers).getByText(
+      'Shown for current contributors with a directly comparable CPI series.',
+    )).toBeVisible()
     expect(within(momentum).getByLabelText(
       'Latest three-month annualized core inflation',
     )).toHaveTextContent('+2.3%')
@@ -407,7 +435,46 @@ describe('DashboardPage economic series', () => {
     }))
     expect(within(drivers).getByRole('dialog', {
       name: 'Inflation contribution explanation',
-    })).toHaveTextContent('not the categories’ own inflation rates')
+    })).toHaveTextContent('left side uses percentage points')
+    expect(within(drivers).getByRole('dialog', {
+      name: 'Inflation contribution explanation',
+    })).toHaveTextContent('share one scale including zero')
+    await user.keyboard('{Escape}')
+    expect(within(drivers).queryByRole('dialog')).not.toBeInTheDocument()
+    expect(within(drivers).getByRole('button', {
+      name: 'Explain inflation contributions',
+    })).toHaveFocus()
+
+    await waitFor(() => expect(categoryTrendPropsSpy).toHaveBeenCalled())
+    const trendModel = categoryTrendPropsSpy.mock.calls.at(-1)?.[0] as
+      InflationDriversSupportingTrendsModel
+    expect(trendModel.trends.map(({ contributionCategoryId }) =>
+      contributionCategoryId)).toEqual([
+      'shelter', 'energy', 'food',
+    ])
+    expect(trendModel.unsupportedCategoryIds).toEqual(['other-services'])
+    expect(trendModel).toMatchObject({
+      windowStart: '2021-06-01',
+      windowEnd: '2026-06-01',
+    })
+    expect(trendModel.sharedDomain?.[0]).toBeLessThan(0)
+    expect(trendModel.sharedDomain?.[1]).toBeGreaterThan(40)
+    expect(trendModel.trends.every(({ observations }) =>
+      observations.some(({ date, value }) =>
+        date === '2025-10-01' && value === null))).toBe(true)
+    const accessibleSummary = within(drivers).getByText(
+      /Headline CPI contribution period: June 2026/,
+    )
+    expect(accessibleSummary).toHaveClass('visually-hidden')
+    expect(accessibleSummary).toHaveTextContent(
+      'Trend coverage runs from June 2021 through June 2026',
+    )
+    expect(accessibleSummary).toHaveTextContent(
+      'Selected categories omitted because no directly comparable CPI series exists: Other services',
+    )
+    expect(accessibleSummary).toHaveTextContent(
+      'Left-side values are percentage-point contributions; right-side values are year-over-year percent changes',
+    )
 
     await user.click(within(drivers).getByRole('button', { name: /More/ }))
     await user.click(within(momentum).getByText('Recent observations'))
@@ -421,6 +488,12 @@ describe('DashboardPage economic series', () => {
     expect(within(momentumTable).getAllByRole('row')).toHaveLength(13)
     expect(within(driverTable).getAllByRole('row')[1])
       .toHaveTextContent('Shelter+1.2 pp+1.4 ppdown 0.2 percentage points')
+    await user.click(within(drivers).getByRole('button', { name: /Less/ }))
+    expect(within(drivers).queryByRole('table', {
+      name: 'CPI category contributions in June 2026 and June 2025',
+    })).not.toBeInTheDocument()
+    expect(within(drivers).getByTestId('inflation-category-trends'))
+      .toBeVisible()
 
     await waitFor(() => {
       const comparisonCalls = chartPropsSpy.mock.calls

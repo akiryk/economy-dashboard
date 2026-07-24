@@ -60,14 +60,26 @@ export function EconomicSeriesCard({
     async function loadSeries() {
       try {
         const [series, ...supportingSeries] = await Promise.all(
-          [slug, ...supportingSlugs].map((seriesSlug) =>
-            localEconomicSeriesRepository.getBySlug(seriesSlug),
+          [slug, ...supportingSlugs].map((seriesSlug, index) =>
+            localEconomicSeriesRepository.getBySlug(seriesSlug).catch(
+              (error: unknown) => {
+                if (variant !== 'inflation-drivers' || index === 0) throw error
+                console.error(
+                  `Failed to load optional supporting series: ${seriesSlug}`,
+                  error,
+                )
+                return null
+              },
+            ),
           ),
         )
         if (!isActive) return
 
         setSeriesState(
-          series && supportingSeries.every((supporting) => supporting !== null)
+          series && (
+            variant === 'inflation-drivers' ||
+            supportingSeries.every((supporting) => supporting !== null)
+          )
             ? {
                 status: 'loaded',
                 series,
@@ -92,7 +104,7 @@ export function EconomicSeriesCard({
     return () => {
       isActive = false
     }
-  }, [onSeriesLoaded, slug, supportingSlugs])
+  }, [onSeriesLoaded, slug, supportingSlugs, variant])
 
   if (seriesState.status === 'loading') {
     return (
@@ -174,7 +186,12 @@ export function EconomicSeriesCard({
   }
 
   if (variant === 'inflation-drivers') {
-    return <InflationDriversSummary headline={seriesState.series} />
+    return (
+      <InflationDriversSummary
+        headline={seriesState.series}
+        supportingSeries={seriesState.supportingSeries}
+      />
+    )
   }
 
   return (
