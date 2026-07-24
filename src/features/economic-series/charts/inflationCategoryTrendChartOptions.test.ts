@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import type { CategoryInflationTrend } from '../utils/inflationCategoryTrends'
-import { createInflationCategoryTrendChartOptions } from './inflationCategoryTrendChartOptions'
+import {
+  createInflationCategoryTrendChartOptions,
+  formatCategoryInflationTooltip,
+} from './inflationCategoryTrendChartOptions'
 
 const trend: CategoryInflationTrend = {
   contributionCategoryId: 'energy',
@@ -15,11 +18,14 @@ const trend: CategoryInflationTrend = {
     { date: '2025-10-01', value: null },
     { date: '2026-06-01', value: -2 },
   ],
+  domain: { min: -5, max: 10, includesZero: true },
+  displayRangeLabel: '−5.0% to +10.0%',
 }
 
 describe('createInflationCategoryTrendChartOptions', () => {
-  it('uses the shared domain, zero line, null gap, nonsmoothed line, and latest endpoint', () => {
-    const options = createInflationCategoryTrendChartOptions(trend, [-5, 10])
+  it('uses the per-series domain, gap, nonsmoothed line, and active details', () => {
+    const active = trend.observations[0]!
+    const options = createInflationCategoryTrendChartOptions(trend, active)
     expect(options.yAxis).toMatchObject({ min: -5, max: 10 })
     const series = (options.series as Array<Record<string, unknown>>)[0]!
     expect(series).toMatchObject({
@@ -33,9 +39,30 @@ describe('createInflationCategoryTrendChartOptions', () => {
       ],
     })
     expect(series).not.toHaveProperty('areaStyle')
-    expect(series.markLine).toMatchObject({ data: [{ yAxis: 0 }] })
-    expect(series.markPoint).toMatchObject({
-      data: [{ coord: ['2026-06-01', -2] }],
+    expect(series.markLine).toMatchObject({
+      data: [{ yAxis: 0 }, { xAxis: '2021-06-01' }],
     })
+    expect(series.markPoint).toMatchObject({
+      data: [
+        { coord: ['2026-06-01', -2] },
+        { coord: ['2021-06-01', 3] },
+      ],
+    })
+  })
+
+  it('omits zero when it is outside the padded domain', () => {
+    const options = createInflationCategoryTrendChartOptions({
+      ...trend,
+      domain: { min: 1, max: 4, includesZero: false },
+    })
+    const series = (options.series as Array<Record<string, unknown>>)[0]!
+    expect(series.markLine).toMatchObject({ data: [] })
+  })
+
+  it('formats category inflation tooltip content in percent', () => {
+    const text = formatCategoryInflationTooltip(trend, trend.observations[0]!)
+    expect(text).toBe('Energy inflation\nJune 2021\n+3.0%')
+    expect(text).not.toContain('pp')
+    expect(text).not.toContain('contribution')
   })
 })

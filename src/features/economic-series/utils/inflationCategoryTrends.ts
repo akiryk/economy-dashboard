@@ -66,6 +66,14 @@ export interface CategoryInflationTrend {
   observations: readonly EconomicObservation[]
   startPeriod: string
   endPeriod: string
+  domain: MiniTrendDomain
+  displayRangeLabel: string
+}
+
+export interface MiniTrendDomain {
+  min: number
+  max: number
+  includesZero: boolean
 }
 
 export interface InflationDriversSupportingTrendsModel {
@@ -74,34 +82,43 @@ export interface InflationDriversSupportingTrendsModel {
   unsupportedLabels: readonly string[]
   unavailableCategoryIds: readonly InflationContributionCategoryId[]
   unavailableLabels: readonly string[]
-  sharedDomain: readonly [number, number] | null
   windowStart: string | null
   windowEnd: string | null
 }
 
 const FIVE_YEARS = 5
 const DOMAIN_PADDING = 0.08
-const MINIMUM_RANGE = 0.2
+const MINIMUM_PADDING = 0.1
 
 function fiveYearBoundary(period: string): string {
   return `${Number(period.slice(0, 4)) - FIVE_YEARS}${period.slice(4)}`
 }
 
-export function calculateCategoryInflationSharedDomain(
-  trends: readonly Pick<CategoryInflationTrend, 'observations'>[],
-): readonly [number, number] | null {
-  const values = trends.flatMap(({ observations }) =>
-    observations.flatMap(({ value }) =>
-      value === null || !Number.isFinite(value) ? [] : [value]))
+export function deriveCategoryInflationTrendDomain(
+  observations: readonly EconomicObservation[],
+): MiniTrendDomain | null {
+  const values = observations.flatMap(({ value }) =>
+    value === null || !Number.isFinite(value) ? [] : [value])
   if (values.length === 0) return null
-  const minimum = Math.min(0, ...values)
-  const maximum = Math.max(0, ...values)
-  if (minimum === maximum) return [-MINIMUM_RANGE / 2, MINIMUM_RANGE / 2]
+  const actualMinimum = Math.min(...values)
+  const actualMaximum = Math.max(...values)
   const padding = Math.max(
-    MINIMUM_RANGE / 2,
-    (maximum - minimum) * DOMAIN_PADDING,
+    MINIMUM_PADDING,
+    (actualMaximum - actualMinimum) * DOMAIN_PADDING,
   )
-  return [minimum - padding, maximum + padding]
+  const min = Math.floor((actualMinimum - padding) * 10) / 10
+  const max = Math.ceil((actualMaximum + padding) * 10) / 10
+  return {
+    min,
+    max,
+    includesZero: min <= 0 && max >= 0,
+  }
+}
+
+export function formatCategoryInflationRange(
+  domain: MiniTrendDomain,
+): string {
+  return `${formatSignedPercentage(domain.min)} to ${formatSignedPercentage(domain.max)}`
 }
 
 export function deriveInflationDriversSupportingTrends({
@@ -145,7 +162,8 @@ export function deriveInflationDriversSupportingTrends({
       .sort((left, right) => left.date.localeCompare(right.date))
       .map((observation) => ({ ...observation }))
     const firstFinite = observations.find(({ value }) => value !== null)
-    if (!firstFinite) {
+    const domain = deriveCategoryInflationTrendDomain(observations)
+    if (!firstFinite || !domain) {
       unavailableCategoryIds.push(id)
       return []
     }
@@ -158,6 +176,8 @@ export function deriveInflationDriversSupportingTrends({
       observations,
       startPeriod: firstFinite.date,
       endPeriod: latest.date,
+      domain,
+      displayRangeLabel: formatCategoryInflationRange(domain),
     }]
   })
   return {
@@ -167,7 +187,6 @@ export function deriveInflationDriversSupportingTrends({
     unavailableCategoryIds,
     unavailableLabels: unavailableCategoryIds.map((id) =>
       mappings.get(id)?.label ?? id),
-    sharedDomain: calculateCategoryInflationSharedDomain(trends),
     windowStart: trends.length
       ? trends.map(({ startPeriod }) => startPeriod).sort()[0]!
       : null,
@@ -207,5 +226,5 @@ export function createInflationCategoryTrendAccessibleSummary({
   return `Headline CPI contribution period: ${formatObservationPeriod(headlinePeriod, 'monthly')}. ` +
     `Current top-four contributions: ${selected}. ` +
     `${trends ? `Mapped category inflation rates: ${trends}. ` : ''}${omitted} ${unavailable} ${window} ` +
-    'Left-side values are percentage-point contributions; right-side values are year-over-year percent changes in category prices. All displayed rate trends use one shared scale that includes zero.'
+    'Left-side values are percentage-point contributions; right-side values are year-over-year percent changes in category prices. Each rate chart uses its own labeled vertical scale, so apparent line heights are not directly comparable. Exact monthly values are available by hovering, tapping, or focusing a chart. A zero line appears only when zero is inside that chart’s displayed range.'
 }

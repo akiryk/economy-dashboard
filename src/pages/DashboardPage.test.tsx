@@ -400,7 +400,7 @@ describe('DashboardPage economic series', () => {
       name: 'Is inflation currently accelerating or slowing?',
     })
 
-    expect(within(drivers).getByText('Category contributions to headline CPI inflation'))
+    expect(within(drivers).getByText('Category contributions to overall CPI inflation'))
       .toBeVisible()
     expect(within(drivers).getByText('Inflation is broad across several categories.'))
       .toBeVisible()
@@ -413,7 +413,21 @@ describe('DashboardPage economic series', () => {
     expect(within(drivers).getAllByText('Energy')).toHaveLength(2)
     expect(within(drivers).getByText('+1.1 pp')).toBeVisible()
     expect(within(drivers).getByText('Everything else')).toBeVisible()
-    expect(within(drivers).getByText('Current contribution')).toBeVisible()
+    expect(within(drivers).getByText(
+      'Contribution to inflation over the past 12 months',
+    )).toBeVisible()
+    await user.click(within(drivers).getByRole('button', {
+      name: 'Explain overall CPI inflation',
+    }))
+    expect(within(drivers).getByRole('dialog', {
+      name: 'Overall CPI inflation explanation',
+    })).toHaveTextContent(
+      'Overall, or “headline,” CPI inflation includes all consumer-price categories, including food and energy.',
+    )
+    expect(within(drivers).getByRole('dialog', {
+      name: 'Overall CPI inflation explanation',
+    })).toHaveTextContent('core CPI, which excludes food and energy')
+    await user.keyboard('{Escape}')
     expect(within(drivers).getByText('Inflation rate over five years')).toBeVisible()
     expect(within(drivers).getByText(
       'Shown for current contributors with a directly comparable CPI series.',
@@ -435,10 +449,10 @@ describe('DashboardPage economic series', () => {
     }))
     expect(within(drivers).getByRole('dialog', {
       name: 'Inflation contribution explanation',
-    })).toHaveTextContent('left side uses percentage points')
+    })).toHaveTextContent('Each mini-chart uses its own vertical scale')
     expect(within(drivers).getByRole('dialog', {
       name: 'Inflation contribution explanation',
-    })).toHaveTextContent('share one scale including zero')
+    })).toHaveTextContent('left and right arrow keys')
     await user.keyboard('{Escape}')
     expect(within(drivers).queryByRole('dialog')).not.toBeInTheDocument()
     expect(within(drivers).getByRole('button', {
@@ -457,8 +471,10 @@ describe('DashboardPage economic series', () => {
       windowStart: '2021-06-01',
       windowEnd: '2026-06-01',
     })
-    expect(trendModel.sharedDomain?.[0]).toBeLessThan(0)
-    expect(trendModel.sharedDomain?.[1]).toBeGreaterThan(40)
+    expect(trendModel.trends.every(({ domain }) => domain.min < domain.max))
+      .toBe(true)
+    expect(new Set(trendModel.trends.map(({ displayRangeLabel }) =>
+      displayRangeLabel)).size).toBe(3)
     expect(trendModel.trends.every(({ observations }) =>
       observations.some(({ date, value }) =>
         date === '2025-10-01' && value === null))).toBe(true)
@@ -474,6 +490,9 @@ describe('DashboardPage economic series', () => {
     )
     expect(accessibleSummary).toHaveTextContent(
       'Left-side values are percentage-point contributions; right-side values are year-over-year percent changes',
+    )
+    expect(accessibleSummary).toHaveTextContent(
+      'Each rate chart uses its own labeled vertical scale',
     )
 
     await user.click(within(drivers).getByRole('button', { name: /More/ }))

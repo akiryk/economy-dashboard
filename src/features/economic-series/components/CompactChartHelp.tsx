@@ -3,7 +3,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 interface CompactChartHelpProps {
   buttonLabel: string
   dialogLabel: string
-  heading: string
+  heading?: string
   children: ReactNode
 }
 
@@ -69,7 +69,7 @@ export function CompactChartHelp({
           role="dialog"
           aria-label={dialogLabel}
         >
-          <p><strong>{heading}</strong></p>
+          {heading && <p><strong>{heading}</strong></p>}
           <div>{children}</div>
         </div>
       )}

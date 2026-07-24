@@ -32,7 +32,7 @@ export function CompactMetricCardLayout({
       <header className="series-card__header">
         <p className="series-card__eyebrow">{eyebrow}</p>
         <h3 id={questionId}>{question}</h3>
-        <p className="series-card__title">{measureLabel}</p>
+        <div className="series-card__title">{measureLabel}</div>
       </header>
 
       <div

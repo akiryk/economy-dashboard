@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest'
 import type { EconomicSeries } from '../models/economicSeries'
 import type { CompactInflationContribution } from './inflationContributions'
 import {
-  calculateCategoryInflationSharedDomain,
   contributionInflationSeriesMappings,
+  deriveCategoryInflationTrendDomain,
   deriveInflationDriversSupportingTrends,
+  formatCategoryInflationRange,
 } from './inflationCategoryTrends'
 
 const selected: CompactInflationContribution[] = [
@@ -79,17 +80,36 @@ describe('deriveInflationDriversSupportingTrends', () => {
   })
 })
 
-describe('calculateCategoryInflationSharedDomain', () => {
+describe('deriveCategoryInflationTrendDomain', () => {
   it.each([
-    [[1, 2], [-0.16, 2.16]],
-    [[-2, 3], [-2.4, 3.4]],
-    [[0, 0], [-0.1, 0.1]],
-  ])('includes zero with deterministic padding for %j', (values, expected) => {
-    expect(calculateCategoryInflationSharedDomain([{
-      observations: values.map((value, index) => ({
-        date: `2026-0${index + 1}-01`,
-        value,
-      })),
-    }])).toEqual(expected)
+    [[1, 2], { min: 0.9, max: 2.1, includesZero: false }],
+    [[-3, -2], { min: -3.1, max: -1.9, includesZero: false }],
+    [[-2, 3], { min: -2.4, max: 3.4, includesZero: true }],
+    [[4, 4], { min: 3.9, max: 4.1, includesZero: false }],
+    [[0, 0], { min: -0.1, max: 0.1, includesZero: true }],
+    [[0.001, 0.002], { min: -0.1, max: 0.2, includesZero: true }],
+    [[7], { min: 6.9, max: 7.1, includesZero: false }],
+    [[-50, 100], { min: -62, max: 112, includesZero: true }],
+  ])('pads and rounds the actual values for %j', (values, expected) => {
+    const observations = values.map((value, index) => ({
+      date: `2026-0${index + 1}-01`,
+      value,
+    }))
+    expect(deriveCategoryInflationTrendDomain(observations)).toEqual(expected)
+    expect(observations.map(({ value }) => value)).toEqual(values)
+  })
+
+  it('ignores nulls and returns null without a finite value', () => {
+    expect(deriveCategoryInflationTrendDomain([
+      { date: '2026-01-01', value: null },
+    ])).toBeNull()
+  })
+
+  it('formats the rounded display bounds as percent', () => {
+    expect(formatCategoryInflationRange({
+      min: -2.4,
+      max: 3.4,
+      includesZero: true,
+    })).toBe('−2.4% to +3.4%')
   })
 })
