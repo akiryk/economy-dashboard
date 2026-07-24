@@ -64,6 +64,16 @@ selection is by absolute current contribution so a large negative effect is not
 hidden. The source snapshot and expanded current-versus-prior table are
 unchanged by the compact grouping.
 
+Historical contribution effects remain a deferred data product. The official
+BLS archived Table 7 releases contain the required release-vintage values, but
+the repository does not yet have reliable automated archive access or a
+two-pass curated five-year snapshot. October 2025 has no release and must remain
+an explicit gap. See
+[`inflation-contribution-history-feasibility.md`](inflation-contribution-history-feasibility.md)
+for the source inventory, bounded proof of concept, validation contract, and
+recommended retrieval-enablement work. No category inflation-rate series may
+be used as a proxy for these effects.
+
 This is a small configuration boundary, not dynamic discovery or a plugin system.
 
 `NFCICREDIT` is the approved broad-credit-stress measure. It provides a long, redistributable Chicago Fed history focused on credit conditions. It replaces the Epic's contemplated corporate credit spread because current ICE BofA FRED exposure is short and licensed, Moody's terms restrict redistribution and storage, and a high-yield-only spread would cover only speculative-grade borrowers. The overall NFCI is not used because the separate rate card already covers interest-rate conditions.

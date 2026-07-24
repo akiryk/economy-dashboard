@@ -1,5 +1,10 @@
 # U.S. Economy Dashboard — Inflation Drivers Compact-Card Redesign
 
+> **Status note:** Story 44 remains the implemented compact-card redesign.
+> The mini-trend story formerly numbered 45 below was deferred and superseded
+> by `story-45-inflation-contribution-history-data-foundation.md`. It is
+> retained here only as the original product proposal.
+
 These stories redesign the collapsed **What is driving inflation?** card. They intentionally leave the expanded research content unchanged until the compact design has been implemented and reviewed.
 
 The work is split into two stories so the first story solves the current interpretation problem and establishes the contribution model, while the second adds historical mini-trends without combining two distinct visualization changes into one review.
