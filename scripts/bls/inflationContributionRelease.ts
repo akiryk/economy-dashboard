@@ -1,8 +1,14 @@
 import { rename, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import ExcelJS from 'exceljs'
+import { unzipSync } from 'fflate'
 import {
   INFLATION_CONTRIBUTION_RECONCILIATION_TOLERANCE,
 } from '../../src/features/economic-series/utils/inflationContributions'
+
+export const BLS_SUPPLEMENTAL_FILES_URL =
+  'https://www.bls.gov/cpi/tables/supplemental-files/'
+export const OCTOBER_2025_GAP = '2025-10-01'
 
 export interface InflationContributionReleaseMetadata {
   period: string
@@ -28,6 +34,13 @@ export interface InflationContributionRelease {
   reconciliationStatus: 'reconciled'
 }
 
+export interface InflationContributionGap {
+  period: typeof OCTOBER_2025_GAP
+  status: 'unavailable'
+  reason: '2025 appropriations lapse'
+  sourceUrl: typeof BLS_SUPPLEMENTAL_FILES_URL
+}
+
 const categoryLabels = {
   food: 'Food',
   energy: 'Energy',
@@ -42,61 +55,78 @@ const monthNumbers = new Map([
   ['September', '09'], ['October', '10'], ['November', '11'], ['December', '12'],
 ])
 
-function textContent(value: string): string {
-  return value
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;|&#160;/gi, ' ')
-    .replace(/&minus;|&#8722;/gi, '−')
-    .replace(/&amp;/gi, '&')
+function normalizeText(value: unknown): string {
+  const text = value && typeof value === 'object' && 'richText' in value &&
+    Array.isArray(value.richText)
+    ? value.richText.map((part: unknown) =>
+      part && typeof part === 'object' && 'text' in part ? part.text : '').join('')
+    : String(value ?? '')
+  return text
+    .replace(/\u00a0/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
 }
 
-function extractCells(row: string): string[] {
-  return [...row.matchAll(/<(?:th|td)\b[^>]*>([\s\S]*?)<\/(?:th|td)>/gi)]
-    .map((match) => textContent(match[1]!))
+function normalizeLabel(value: unknown): string {
+  return normalizeText(value)
+    .replace(/\(\d+(?:,\s*\d+)*\)$/, '')
+    .replace(/\d+\/?$/, '')
+    .trim()
 }
 
-function parseNumber(value: string, description: string): number {
-  const normalized = value.replace(/−/g, '-').trim()
-  if (!/^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/.test(normalized)) {
-    throw new Error(`${description} is not a plain numeric value: "${value}"`)
+function parseNumber(value: unknown, description: string): number {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    throw new Error(`${description} is not a numeric workbook cell`)
   }
-  const parsed = Number(normalized)
-  if (!Number.isFinite(parsed)) {
-    throw new Error(`${description} is not finite`)
-  }
-  return parsed
+  return value
 }
 
 function removeFloatingPointNoise(value: number): number {
   return Number(value.toFixed(12))
 }
 
+function periodFromWorkbookName(sourceFile: string): string {
+  const match = path.basename(sourceFile).match(
+    /^news-release-table7-(\d{4})(0[1-9]|1[0-2])\.xlsx$/i,
+  )
+  if (!match) {
+    throw new Error(
+      'sourceFile must be named news-release-table7-YYYYMM.xlsx',
+    )
+  }
+  return `${match[1]}-${match[2]}-01`
+}
+
 function validateMetadata(metadata: InflationContributionReleaseMetadata): void {
   if (!/^\d{4}-(?:0[1-9]|1[0-2])-01$/.test(metadata.period)) {
     throw new Error('period must use YYYY-MM-01')
   }
-  if (metadata.period === '2025-10-01') {
-    throw new Error('October 2025 has no CPI release and must remain missing')
+  if (metadata.period === OCTOBER_2025_GAP) {
+    throw new Error('October 2025 is unavailable and must remain an explicit gap')
   }
   if (!/^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])$/.test(
     metadata.sourceReleaseDate,
   )) {
     throw new Error('sourceReleaseDate must use YYYY-MM-DD')
   }
-  const urlMatch = metadata.sourceUrl.match(
-    /^https:\/\/www\.bls\.gov\/news\.release\/archives\/cpi_(\d{2})(\d{2})(\d{4})\.htm$/,
+  if (metadata.sourceReleaseDate <= metadata.period) {
+    throw new Error('sourceReleaseDate must follow the measured month')
+  }
+  if (periodFromWorkbookName(metadata.sourceFile) !== metadata.period) {
+    throw new Error('source workbook name conflicts with the supplied period')
+  }
+  const individualUrl = new RegExp(
+    `^${BLS_SUPPLEMENTAL_FILES_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}` +
+    `news-release-table7-${metadata.period.slice(0, 7).replace('-', '')}\\.xlsx$`,
   )
-  if (!urlMatch) {
-    throw new Error('sourceUrl must identify an official archived BLS CPI HTML release')
-  }
-  const [, month, day, year] = urlMatch
-  if (`${year}-${month}-${day}` !== metadata.sourceReleaseDate) {
-    throw new Error('sourceReleaseDate does not match the archived release URL')
-  }
-  if (!metadata.sourceFile.trim()) {
-    throw new Error('sourceFile is required')
+  const annualUrl = new RegExp(
+    `^${BLS_SUPPLEMENTAL_FILES_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}` +
+    `archive-${metadata.period.slice(0, 4)}\\.zip$`,
+  )
+  if (!individualUrl.test(metadata.sourceUrl) && !annualUrl.test(metadata.sourceUrl)) {
+    throw new Error(
+      'sourceUrl must identify the matching official BLS workbook or annual archive',
+    )
   }
 }
 
@@ -107,76 +137,106 @@ function measuredPeriodFromTitle(title: string): string {
   if (!match) {
     throw new Error('Expected the CPI-U Table 7 12-month analysis heading')
   }
-  const canonicalMonth = `${match[1]![0]!.toUpperCase()}${match[1]!.slice(1).toLowerCase()}`
-  return `${match[2]}-${monthNumbers.get(canonicalMonth)}-01`
+  const month = `${match[1]![0]!.toUpperCase()}${match[1]!.slice(1).toLowerCase()}`
+  return `${match[2]}-${monthNumbers.get(month)}-01`
 }
 
-export function parseInflationContributionRelease(
-  html: string,
-  metadata: InflationContributionReleaseMetadata,
-): InflationContributionRelease {
-  validateMetadata(metadata)
-  if (/not available|not published|unavailable/i.test(html) && !/<table\b/i.test(html)) {
-    throw new Error('The source marks this release unavailable')
+async function workbookRows(contents: Uint8Array): Promise<unknown[][]> {
+  const workbook = new ExcelJS.Workbook()
+  try {
+    const workbookBytes = new Uint8Array(contents).buffer as ArrayBuffer
+    await workbook.xlsx.load(workbookBytes)
+  } catch (error: unknown) {
+    throw new Error(
+      `Could not read XLSX workbook: ${error instanceof Error ? error.message : error}`,
+      { cause: error },
+    )
   }
+  if (workbook.worksheets.length !== 1) {
+    throw new Error(`Expected exactly one Table 7 worksheet; found ${workbook.worksheets.length}`)
+  }
+  const sheet = workbook.worksheets[0]
+  if (!sheet) throw new Error('Table 7 worksheet is missing')
+  const rows: unknown[][] = []
+  sheet.eachRow((row) => {
+    const values: unknown[] = []
+    for (let column = 1; column <= sheet.columnCount; column += 1) {
+      values.push(row.getCell(column).value ?? '')
+    }
+    rows.push(values)
+  })
+  return rows
+}
 
-  const matchingTables = [...html.matchAll(/<table\b[\s\S]*?<\/table>/gi)]
-    .map((match) => match[0])
-    .filter((table) =>
-      /Table 7\./i.test(textContent(table)) &&
-      /12-month analysis table/i.test(textContent(table)))
-  if (matchingTables.length !== 1) {
-    throw new Error(`Expected exactly one CPI-U Table 7; found ${matchingTables.length}`)
-  }
-  const table = matchingTables[0]!
-  const period = measuredPeriodFromTitle(textContent(table))
+export async function parseInflationContributionWorkbook(
+  contents: Uint8Array,
+  metadata: InflationContributionReleaseMetadata,
+): Promise<InflationContributionRelease> {
+  validateMetadata(metadata)
+  const rows = await workbookRows(contents)
+  const workbookText = rows.flat().map(normalizeText).join(' ')
+  const period = measuredPeriodFromTitle(workbookText)
   if (period !== metadata.period) {
     throw new Error(`Source period ${period} conflicts with supplied period ${metadata.period}`)
   }
 
-  const rows = [...table.matchAll(/<tr\b[^>]*>[\s\S]*?<\/tr>/gi)]
-    .map((match) => extractCells(match[0]))
-  const header = rows.find((cells) => cells.includes('Expenditure category'))
-  const expectedHeader = [
-    'Expenditure category',
-    'Relative importance',
-    'Unadjusted percent change',
-    'Unadjusted effect on All Items',
-  ]
-  if (!header || expectedHeader.some((value, index) => header[index] !== value)) {
+  const headerIndex = rows.findIndex((row) =>
+    row.map(normalizeText).includes('Expenditure category'))
+  if (headerIndex < 0) throw new Error('Table 7 expenditure-category header is missing')
+  const headerWidth = Math.max(
+    ...rows.slice(headerIndex, headerIndex + 3).map((row) => row.length),
+  )
+  const header = Array.from({ length: headerWidth }, (_, column) =>
+    rows
+      .slice(headerIndex, headerIndex + 3)
+      .map((row) => normalizeText(row[column]))
+      .filter(Boolean)
+      .join(' '))
+  const categoryColumn = header.findIndex((value) =>
+    value.includes('Expenditure category'))
+  const effectColumns = header
+    .map((value, index) => ({ value, index }))
+    .filter(({ value }) => /Unadjusted effect on All Items/i.test(value))
+  const percentChangeColumns = header.filter((value) =>
+    /Unadjusted percent change/i.test(value))
+  if (categoryColumn < 0 || effectColumns.length !== 1 || percentChangeColumns.length !== 1) {
     throw new Error(
-      'Table 7 columns are missing, ambiguous, or reordered; refusing to guess the effect column',
+      'Table 7 columns are missing or ambiguous; refusing to guess the effect column',
     )
   }
+  const effectColumn = effectColumns[0]!.index
+  if (effectColumn === header.indexOf(percentChangeColumns[0]!)) {
+    throw new Error('The effect and percent-change columns must be distinct')
+  }
 
-  const dataRows = rows.filter((cells) => cells.length >= 4)
-  const findUnique = (label: string): string[] => {
-    const matches = dataRows.filter((cells) => cells[0] === label)
+  const dataRows = rows.slice(headerIndex + 1)
+  const findUnique = (label: string): unknown[] => {
+    const matches = dataRows.filter(
+      (row) => normalizeLabel(row[categoryColumn]) === label,
+    )
     if (matches.length !== 1) {
       throw new Error(`Expected exactly one "${label}" row; found ${matches.length}`)
     }
     return matches[0]!
   }
-
+  const allItemsRow = findUnique('All items')
+  const percentChangeColumn = header.indexOf(percentChangeColumns[0]!)
   const headlineCpiEffectTotal = parseNumber(
-    findUnique('All items')[2]!,
+    allItemsRow[percentChangeColumn],
     'All items 12-month percent change',
   )
   const effects = Object.fromEntries(
     Object.entries(categoryLabels).map(([key, label]) => [
       key,
-      parseNumber(findUnique(label)[3]!, `${label} effect on All Items`),
+      parseNumber(findUnique(label)[effectColumn], `${label} effect on All Items`),
     ]),
   ) as unknown as Record<keyof typeof categoryLabels, number>
   const otherServices = removeFloatingPointNoise(
     effects.servicesLessEnergyServices - effects.shelter,
   )
   const contributionSum =
-    effects.food +
-    effects.energy +
-    effects.commoditiesLessFoodAndEnergy +
-    effects.shelter +
-    otherServices
+    effects.food + effects.energy + effects.commoditiesLessFoodAndEnergy +
+    effects.shelter + otherServices
   const reconciliationResidual = removeFloatingPointNoise(
     headlineCpiEffectTotal - contributionSum,
   )
@@ -189,7 +249,6 @@ export function parseInflationContributionRelease(
       `${INFLATION_CONTRIBUTION_RECONCILIATION_TOLERANCE.toFixed(2)} percentage points`,
     )
   }
-
   return {
     ...metadata,
     headlineCpiEffectTotal,
@@ -201,31 +260,66 @@ export function parseInflationContributionRelease(
   }
 }
 
+export function table7WorkbooksFromArchive(
+  archive: Uint8Array,
+  year: number,
+): Map<string, Uint8Array> {
+  let files: Record<string, Uint8Array>
+  try {
+    files = unzipSync(archive)
+  } catch (error: unknown) {
+    throw new Error(
+      `Could not read annual ZIP archive: ${error instanceof Error ? error.message : error}`,
+      { cause: error },
+    )
+  }
+  const workbooks = new Map<string, Uint8Array>()
+  for (const [entryName, contents] of Object.entries(files)) {
+    const basename = path.posix.basename(entryName)
+    if (!new RegExp(`^news-release-table7-${year}(?:0[1-9]|1[0-2])\\.xlsx$`, 'i')
+      .test(basename)) continue
+    if (workbooks.has(basename)) {
+      throw new Error(`Duplicate Table 7 workbook in archive: ${basename}`)
+    }
+    workbooks.set(basename, contents)
+  }
+  if (workbooks.size !== 12) {
+    throw new Error(
+      `Expected 12 monthly Table 7 workbooks in archive-${year}.zip; found ${workbooks.size}`,
+    )
+  }
+  return workbooks
+}
+
 export function validateInflationContributionCollection(
-  releases: readonly InflationContributionRelease[],
+  observations: readonly (InflationContributionRelease | InflationContributionGap)[],
 ): void {
   const periods = new Set<string>()
   let priorPeriod: string | undefined
-  for (const release of releases) {
-    if (periods.has(release.period)) {
-      throw new Error(`Duplicate contribution period: ${release.period}`)
+  for (const observation of observations) {
+    if (periods.has(observation.period)) {
+      throw new Error(`Duplicate contribution period: ${observation.period}`)
     }
-    if (release.period === '2025-10-01') {
-      throw new Error('October 2025 has no CPI release and must remain missing')
+    if (observation.period === OCTOBER_2025_GAP) {
+      if (!('status' in observation) || observation.status !== 'unavailable') {
+        throw new Error('October 2025 must be represented only by the explicit gap')
+      }
+    } else if ('status' in observation) {
+      throw new Error(`Unexpected unavailable contribution period: ${observation.period}`)
     }
-    if (priorPeriod && release.period < priorPeriod) {
+    if (priorPeriod && observation.period < priorPeriod) {
       throw new Error('Contribution periods must be sorted in ascending order')
     }
-    periods.add(release.period)
-    priorPeriod = release.period
+    periods.add(observation.period)
+    priorPeriod = observation.period
   }
 }
 
-export async function writeInflationContributionReleaseAtomically(
+export async function writeJsonAtomically(
   outputPath: string,
-  release: InflationContributionRelease,
+  value: unknown,
 ): Promise<void> {
-  const serialized = `${JSON.stringify(release, null, 2)}\n`
+  const serialized = `${JSON.stringify(value, null, 2)}\n`
   JSON.parse(serialized)
   const temporaryPath = path.join(
     path.dirname(outputPath),

@@ -1,8 +1,9 @@
 import { readFile } from 'node:fs/promises'
+import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import {
-  parseInflationContributionRelease,
-  writeInflationContributionReleaseAtomically,
+  parseInflationContributionWorkbook,
+  writeJsonAtomically,
 } from './inflationContributionRelease'
 
 interface CliArguments {
@@ -39,15 +40,15 @@ export async function ingestInflationContributionRelease(
   arguments_: readonly string[],
 ): Promise<void> {
   const options = parseArguments(arguments_)
-  const html = await readFile(options.file, 'utf8')
-  const release = parseInflationContributionRelease(html, {
+  const contents = await readFile(options.file)
+  const release = await parseInflationContributionWorkbook(contents, {
     period: options.period,
     sourceReleaseDate: options.releaseDate,
     sourceUrl: options.sourceUrl,
-    sourceFile: options.file,
+    sourceFile: path.basename(options.file),
   })
   if (options.output) {
-    await writeInflationContributionReleaseAtomically(options.output, release)
+    await writeJsonAtomically(options.output, release)
     return
   }
   process.stdout.write(`${JSON.stringify(release, null, 2)}\n`)

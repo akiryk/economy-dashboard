@@ -64,20 +64,26 @@ selection is by absolute current contribution so a large negative effect is not
 hidden. The source snapshot and expanded current-versus-prior table are
 unchanged by the compact grouping.
 
-Historical contribution effects remain a deferred production data product, but
-their collection method is now established. Because direct archive requests
-remain unreliable, maintainers manually save an official BLS archived HTML
-release and run `npm run data:ingest-inflation-contribution`. The command
-structurally selects the Table 7 effect column, validates required categories
-and provenance, derives Other services without intermediate rounding,
-reconciles within 0.05 percentage point, and atomically emits a normalized
-release-vintage staging record. It does not write the current UI snapshot or
-merge production history. October 2025 has no release and the validator
-prohibits creating that period. See
+Historical contribution ingestion uses the official
+[BLS archived supplemental-files page](https://www.bls.gov/cpi/tables/supplemental-files/),
+not archived CPI HTML releases. Prior years are supplied as annual ZIPs and
+recent months as individual News Release Table 7 XLSX workbooks. The local
+commands validate workbook identity, measured month, exact category rows, the
+12-month effect column, numeric signs, provenance, derived Other services, and
+reconciliation within 0.05 percentage point before atomically writing output.
+October 2025 is emitted only as an explicit unavailable observation because BLS
+states that the tables are unavailable due to the 2025 appropriations lapse.
+The resulting `inflation-contribution-history.json` contains 60 validated
+release observations from June 2021 through June 2026 and the one explicit gap.
+Residuals caused by BLS source rounding range from −0.050 to +0.048 percentage
+point, within the declared 0.05-point tolerance. The existing two-observation UI
+snapshot remains unchanged; Story 47 adds production history but no chart or
+card behavior.
+See
 [`inflation-contribution-history-feasibility.md`](inflation-contribution-history-feasibility.md)
-for the source inventory, command procedure, representative proof of concept,
-validation contract, and release-vintage policy. Story 47 may now collect the
-five-year history; no category inflation-rate series may be used as a proxy.
+for the exact file inventory, commands, validation contract, and
+release-vintage policy. No category percent-change column or component
+inflation-rate series may be used as a proxy.
 
 This is a small configuration boundary, not dynamic discovery or a plugin system.
 
