@@ -18,7 +18,7 @@ export interface InflationMomentumComparisonItem {
   label: string
   value: number
   period: string
-  positionPercent: number
+  slopeYPercent: number
 }
 
 export interface RecentInflationMomentumModel {
@@ -31,8 +31,9 @@ export interface RecentInflationMomentumModel {
   threeMonthPeriod: string | null
   difference: number | null
   scale: readonly [number, number] | null
-  zeroPositionPercent: number | null
   items: readonly InflationMomentumComparisonItem[]
+  slopeDirection: 'up' | 'down' | 'level' | null
+  differenceLabel: string | null
 }
 
 export const inflationMomentumThresholds = {
@@ -110,6 +111,18 @@ export function deriveRecentInflationMomentumModel({
   const threeMonthAnnualizedRate = latestThreeMonthAtPeriod.value
   const difference = threeMonthAnnualizedRate - twelveMonthRate
   const classification = classifyInflationMomentumDifference(difference)
+  const slopeDirection = difference >= inflationMomentumThresholds.meaningful
+    ? 'up'
+    : difference <= -inflationMomentumThresholds.meaningful
+      ? 'down'
+      : 'level'
+  const differenceMagnitude = formatSignedPercentagePoints(Math.abs(difference))
+    .replace(/^\+/, '')
+  const differenceLabel = slopeDirection === 'up'
+    ? `${differenceMagnitude} percentage points faster`
+    : slopeDirection === 'down'
+      ? `${differenceMagnitude} percentage points slower`
+      : `About the same — ${differenceMagnitude} percentage points apart`
   const minimum = Math.min(0, twelveMonthRate, threeMonthAnnualizedRate)
   const maximum = Math.max(0, twelveMonthRate, threeMonthAnnualizedRate)
   const padding = Math.max(0.2, (maximum - minimum) * 0.08)
@@ -119,6 +132,10 @@ export function deriveRecentInflationMomentumModel({
   ]
   const position = (value: number) =>
     (value - scale[0]) / (scale[1] - scale[0]) * 100
+  const slopeY = (value: number) => 36 - position(value) * 0.32
+  const twelveMonthY = slopeY(twelveMonthRate)
+  const threeMonthY = slopeY(threeMonthAnnualizedRate)
+  const levelY = (twelveMonthY + threeMonthY) / 2
   return {
     status: 'available',
     ...classification,
@@ -128,21 +145,22 @@ export function deriveRecentInflationMomentumModel({
     threeMonthPeriod: latestThreeMonthAtPeriod.date,
     difference,
     scale,
-    zeroPositionPercent: position(0),
+    slopeDirection,
+    differenceLabel,
     items: [
       {
         id: 'twelve-month',
         label: 'Past 12 months',
         value: twelveMonthRate,
         period: latestTwelveMonth.date,
-        positionPercent: position(twelveMonthRate),
+        slopeYPercent: slopeDirection === 'level' ? levelY : twelveMonthY,
       },
       {
         id: 'three-month',
         label: 'Latest 3 months, annualized',
         value: threeMonthAnnualizedRate,
         period: latestThreeMonthAtPeriod.date,
-        positionPercent: position(threeMonthAnnualizedRate),
+        slopeYPercent: slopeDirection === 'level' ? levelY : threeMonthY,
       },
     ],
   }
@@ -161,8 +179,9 @@ function unavailableModel(
     threeMonthPeriod: null,
     difference: null,
     scale: null,
-    zeroPositionPercent: null,
     items: [],
+    slopeDirection: null,
+    differenceLabel: null,
   }
 }
 
@@ -172,16 +191,16 @@ export function createRecentInflationMomentumAccessibleSummary(
   if (model.status === 'unavailable') {
     return 'The required latest headline CPI observations are unavailable; core inflation was not substituted.'
   }
-  const direction = model.difference! > 0
-    ? 'higher'
-    : model.difference! < 0 ? 'lower' : 'equal'
+  const direction = model.slopeDirection === 'up'
+    ? 'faster'
+    : model.slopeDirection === 'down' ? 'slower' : 'about the same'
   return `${model.answer} Overall CPI inflation over the past 12 months was ` +
     `${formatSignedPercentage(model.twelveMonthRate)} in ` +
     `${formatObservationPeriod(model.twelveMonthPeriod!, 'monthly')}. ` +
     `The latest three-month annualized overall CPI pace was ` +
     `${formatSignedPercentage(model.threeMonthAnnualizedRate)} in ` +
-    `${formatObservationPeriod(model.threeMonthPeriod!, 'monthly')}, ` +
-    `which was ${direction}; the recent-minus-past-year difference was ` +
+    `${formatObservationPeriod(model.threeMonthPeriod!, 'monthly')}. ` +
+    `The recent pace was ${direction}; the recent-minus-past-year difference was ` +
     `${formatSignedPercentagePoints(model.difference)} percentage points. ` +
-    'The recent rate is annualized and describes an observed pace; it is not a forecast.'
+    'The graphic compares two measurement windows rather than consecutive observations. The recent rate is annualized and describes an observed pace; it is not a forecast.'
 }

@@ -440,8 +440,21 @@ describe('DashboardPage economic series', () => {
     expect(within(momentum).getByText('+3.5%')).toBeVisible()
     expect(within(momentum).getByText('+2.8%')).toBeVisible()
     expect(within(momentum).getByText(
-      /Recent pace minus past-year rate/,
-    )).toHaveTextContent('−0.7 percentage points')
+      '0.7 percentage points slower',
+    )).toBeVisible()
+    expect(momentum.querySelector(
+      '.recent-inflation-momentum__slope-plot[data-direction="down"]',
+    )).toBeInTheDocument()
+    expect(momentum.querySelector(
+      '.recent-inflation-momentum__track',
+    )).not.toBeInTheDocument()
+    expect(momentum.querySelector('svg area')).not.toBeInTheDocument()
+    expect(within(momentum).getByText(
+      /The graphic compares two measurement windows rather than consecutive observations/,
+    )).toHaveTextContent('the recent-minus-past-year difference was −0.7 percentage points')
+    expect(within(momentum).getByText(
+      /The graphic compares two measurement windows rather than consecutive observations/,
+    )).toHaveTextContent('it is not a forecast')
     await user.click(within(momentum).getByRole('button', {
       name: 'Explain recent inflation momentum',
     }))

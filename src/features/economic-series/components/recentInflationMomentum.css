@@ -40,15 +40,25 @@
   overflow-y: auto;
 }
 
-.recent-inflation-momentum__rows {
+.recent-inflation-momentum__slope {
   display: grid;
+  gap: var(--space-2);
+}
+
+.recent-inflation-momentum__endpoints {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-4);
 }
 
-.recent-inflation-momentum__row {
+.recent-inflation-momentum__endpoint {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-1) var(--space-2);
+  gap: var(--space-1);
+}
+
+.recent-inflation-momentum__endpoint--three-month {
+  justify-items: end;
+  text-align: right;
 }
 
 .recent-inflation-momentum__label,
@@ -65,44 +75,35 @@
   font-size: 0.8125rem;
 }
 
-.recent-inflation-momentum__track {
-  position: relative;
-  grid-column: 1 / -1;
-  height: 0.75rem;
-  margin: var(--space-1) 0;
-  background: var(--color-page-background);
-  border-radius: var(--radius-small);
+.recent-inflation-momentum__slope-plot {
+  display: block;
+  width: 100%;
+  height: 4.5rem;
+  overflow: visible;
 }
 
-.recent-inflation-momentum__zero {
-  position: absolute;
-  top: -0.2rem;
-  bottom: -0.2rem;
-  width: 1px;
-  background: var(--color-text-muted);
+.recent-inflation-momentum__connector {
+  stroke: var(--color-link);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
 }
 
-.recent-inflation-momentum__marker {
-  position: absolute;
-  top: 50%;
-  width: 0.85rem;
-  height: 0.85rem;
-  border: 2px solid var(--color-surface);
-  border-radius: 50%;
-  background: var(--color-link);
-  box-shadow: 0 0 0 1px var(--color-link);
-  transform: translate(-50%, -50%);
+.recent-inflation-momentum__point {
+  stroke: var(--color-link);
+  stroke-linecap: round;
+  stroke-width: 8;
+  vector-effect: non-scaling-stroke;
 }
 
-.recent-inflation-momentum__marker--three-month {
-  background: var(--color-focus);
-  box-shadow: 0 0 0 1px var(--color-focus);
+.recent-inflation-momentum__point--recent {
+  stroke: var(--color-focus);
 }
 
 .recent-inflation-momentum__difference {
   margin: var(--space-3) 0 0;
   color: var(--color-text-muted);
   font-size: 0.875rem;
+  text-align: center;
 }
 
 .recent-inflation-momentum__expanded {

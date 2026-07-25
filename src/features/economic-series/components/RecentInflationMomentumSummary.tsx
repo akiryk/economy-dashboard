@@ -9,7 +9,6 @@ import {
   formatDate,
   formatObservationPeriod,
   formatSignedPercentage,
-  formatSignedPercentagePoints,
 } from '../utils/economicSeries'
 import {
   createRecentInflationMomentumAccessibleSummary,
@@ -106,42 +105,59 @@ export function RecentInflationMomentumSummary({
           </p>
         </CompactChartHelp>
       </div>
-      {model.status === 'available' && model.scale &&
-      model.zeroPositionPercent !== null ? (
+      {model.status === 'available' ? (
         <>
-          <div className="recent-inflation-momentum__rows">
-            {model.items.map((item) => (
-              <div className="recent-inflation-momentum__row" key={item.id}>
-                <span className="recent-inflation-momentum__label">
-                  {item.label}
-                </span>
-                <span className="recent-inflation-momentum__value">
-                  {formatSignedPercentage(item.value)}
-                </span>
-                <span className="recent-inflation-momentum__period">
-                  {formatObservationPeriod(item.period, 'monthly')}
-                </span>
-                <span
-                  className="recent-inflation-momentum__track"
-                  aria-hidden="true"
+          <div className="recent-inflation-momentum__slope">
+            <div className="recent-inflation-momentum__endpoints">
+              {model.items.map((item) => (
+                <div
+                  className={`recent-inflation-momentum__endpoint recent-inflation-momentum__endpoint--${item.id}`}
+                  key={item.id}
                 >
-                  <span
-                    className="recent-inflation-momentum__zero"
-                    style={{ left: `${model.zeroPositionPercent}%` }}
-                  />
-                  <span
-                    className={`recent-inflation-momentum__marker recent-inflation-momentum__marker--${item.id}`}
-                    style={{ left: `${item.positionPercent}%` }}
-                  />
-                </span>
-              </div>
-            ))}
+                  <span className="recent-inflation-momentum__label">
+                    {item.label}
+                  </span>
+                  <span className="recent-inflation-momentum__value">
+                    {formatSignedPercentage(item.value)}
+                  </span>
+                  <span className="recent-inflation-momentum__period">
+                    {formatObservationPeriod(item.period, 'monthly')}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <svg
+              className="recent-inflation-momentum__slope-plot"
+              viewBox="0 0 100 40"
+              preserveAspectRatio="none"
+              data-direction={model.slopeDirection}
+              aria-hidden="true"
+            >
+              <line
+                className="recent-inflation-momentum__connector"
+                x1="10"
+                y1={model.items[0]?.slopeYPercent}
+                x2="90"
+                y2={model.items[1]?.slopeYPercent}
+              />
+              <line
+                className="recent-inflation-momentum__point"
+                x1="10"
+                y1={model.items[0]?.slopeYPercent}
+                x2="10.001"
+                y2={model.items[0]?.slopeYPercent}
+              />
+              <line
+                className="recent-inflation-momentum__point recent-inflation-momentum__point--recent"
+                x1="90"
+                y1={model.items[1]?.slopeYPercent}
+                x2="90.001"
+                y2={model.items[1]?.slopeYPercent}
+              />
+            </svg>
           </div>
           <p className="recent-inflation-momentum__difference">
-            Recent pace minus past-year rate:{' '}
-            <strong>
-              {formatSignedPercentagePoints(model.difference)} percentage points
-            </strong>
+            <strong>{model.differenceLabel}</strong>
           </p>
         </>
       ) : (
