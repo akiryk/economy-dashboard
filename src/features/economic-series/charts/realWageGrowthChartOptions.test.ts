@@ -17,6 +17,7 @@ describe('createRealWageGrowthChartOptions', () => {
       domain: [-1.2, 0.7],
     })
     expect(options.yAxis).toMatchObject({ min: -1.2, max: 0.7 })
+    expect(options.xAxis).toMatchObject({ type: 'time', show: false })
     const series = (options.series as Array<Record<string, unknown>>)[0]!
     expect(series).toMatchObject({
       name: 'Real wage growth',

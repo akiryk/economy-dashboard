@@ -9,6 +9,7 @@ import {
 import * as echarts from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { RealWageGrowthModel } from '../utils/realWageGrowth'
+import { formatObservationPeriod } from '../utils/economicSeries'
 import {
   adjacentFiniteObservationIndex,
   nearestFiniteObservationIndex,
@@ -194,6 +195,15 @@ export function RealWageGrowthChart({
           </div>
         )}
       </div>
+      {model.visiblePeriod && (
+        <div
+          className="real-wage-growth-chart__periods"
+          aria-label="Visible real wage growth period"
+        >
+          <span>{formatObservationPeriod(model.visiblePeriod[0], 'monthly')}</span>
+          <span>{formatObservationPeriod(model.visiblePeriod[1], 'monthly')}</span>
+        </div>
+      )}
       <p className="real-wage-growth-chart__zero-label">
         Zero = wage growth matched inflation
       </p>

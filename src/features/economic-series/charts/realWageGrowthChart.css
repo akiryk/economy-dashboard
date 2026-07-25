@@ -28,6 +28,20 @@
   text-align: center;
 }
 
+.real-wage-growth-chart__periods {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.real-wage-growth-chart__periods span:last-child {
+  text-align: right;
+}
+
 .real-wage-growth-chart__tooltip {
   position: absolute;
   z-index: 2;

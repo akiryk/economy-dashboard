@@ -67,6 +67,22 @@ describe('deriveRealWageGrowthModel', () => {
     expect(model.status).toBe('unavailable')
   })
 
+  it('uses the available shorter history for its visible period', () => {
+    const model = deriveRealWageGrowthModel({
+      nominalWageGrowth: series('wages', [
+        ['2025-11-01', 3.5], ['2026-06-01', 3.6],
+      ]),
+      cpiInflation: series('cpi', [
+        ['2025-11-01', 3], ['2026-06-01', 3.2],
+      ]),
+      realWageGrowth: series('real', [
+        ['2025-11-01', 0.48], ['2026-06-01', 0.38],
+      ]),
+    })
+    expect(model.visiblePeriod).toEqual(['2025-11-01', '2026-06-01'])
+    expect(model.recentObservations).toHaveLength(2)
+  })
+
   it('is unavailable when the latest wage input is null', () => {
     const model = deriveRealWageGrowthModel({
       nominalWageGrowth: series('wages', [['2026-06-01', null]]),

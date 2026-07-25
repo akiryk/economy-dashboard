@@ -44,6 +44,9 @@ describe('RealWageGrowthChart', () => {
       <RealWageGrowthChart model={model} accessibleSummary="Complete summary" />,
     )
     expect(screen.getByRole('figure', { name: 'Complete summary' })).toBeVisible()
+    const periods = screen.getByLabelText('Visible real wage growth period')
+    expect(periods).toHaveTextContent('May 2026')
+    expect(periods).toHaveTextContent('June 2026')
     expect(screen.getByText('Zero = wage growth matched inflation')).toBeVisible()
     expect(container.querySelector('[aria-hidden="true"]')).toBeInTheDocument()
     unmount()
