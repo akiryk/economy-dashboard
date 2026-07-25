@@ -8,11 +8,13 @@ import type {
 import type { CompactHistoricalMetricDefinition } from '../features/economic-series/utils/compactHistoricalMetrics'
 import type { HistoricalBandResult } from '../features/economic-series/utils/historicalBandContext'
 import type { InflationDriversSupportingTrendsModel } from '../features/economic-series/utils/inflationCategoryTrends'
+import type { RealWageGrowthModel } from '../features/economic-series/utils/realWageGrowth'
 import { localEconomicSeriesRepository } from '../features/economic-series/repositories/localEconomicSeriesRepository'
 import { DashboardPage } from './DashboardPage'
 
 const chartPropsSpy = vi.hoisted(() => vi.fn())
 const categoryTrendPropsSpy = vi.hoisted(() => vi.fn())
+const realWageChartPropsSpy = vi.hoisted(() => vi.fn())
 
 vi.mock('../features/economic-series/charts/EconomicTimeSeriesChart', () => ({
   default: (props: {
@@ -67,10 +69,30 @@ vi.mock('../features/economic-series/charts/InflationCategoryTrendCharts', () =>
   },
 }))
 
+vi.mock('../features/economic-series/charts/RealWageGrowthChart', () => ({
+  RealWageGrowthChart: ({
+    model,
+    accessibleSummary,
+  }: {
+    model: RealWageGrowthModel
+    accessibleSummary: string
+  }) => {
+    realWageChartPropsSpy(model)
+    return (
+      <figure
+        data-testid="real-wage-growth-chart"
+        data-zero-baseline="true"
+        aria-label={accessibleSummary}
+      />
+    )
+  },
+}))
+
 afterEach(() => {
   cleanup()
   chartPropsSpy.mockClear()
   categoryTrendPropsSpy.mockClear()
+  realWageChartPropsSpy.mockClear()
   vi.restoreAllMocks()
 })
 
@@ -119,11 +141,11 @@ describe('DashboardPage economic series', () => {
       'How quickly are consumer prices rising?',
       'What is driving inflation?',
       'Has inflation picked up in recent months?',
+      'Are workers’ wages keeping up with prices?',
       'How difficult is it for people who want work to find it?',
       'What share of prime-age adults are employed?',
       'Are employers adding jobs?',
       'Are layoffs beginning to rise?',
-      'Are workers’ wages keeping up with prices?',
       'Are real household incomes and spending growing per person?',
       'Are households saving or drawing down more of their income?',
       'How much of household income is going toward required debt payments?',
@@ -350,6 +372,7 @@ describe('DashboardPage economic series', () => {
       'How quickly are consumer prices rising?',
       'What is driving inflation?',
       'Has inflation picked up in recent months?',
+      'Are workers’ wages keeping up with prices?',
     ])
     expect(
       within(employment).getByText(
@@ -364,7 +387,6 @@ describe('DashboardPage economic series', () => {
       'What share of prime-age adults are employed?',
       'Are employers adding jobs?',
       'Are layoffs beginning to rise?',
-      'Are workers’ wages keeping up with prices?',
     ])
     expect(screen.getAllByRole('article')).toHaveLength(27)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
@@ -740,25 +762,49 @@ describe('DashboardPage economic series', () => {
     })
   })
 
-  it('renders the wages-versus-inflation relationship after payroll', async () => {
+  it('renders a collapsed real-wage card last in Prices with research evidence under More', async () => {
     const user = userEvent.setup()
     render(<DashboardPage />)
+    const prices = screen.getByRole('region', { name: 'Prices' })
     const employment = screen.getByRole('region', { name: 'Employment and income' })
-    await within(employment).findByRole('article', {
+    const comparison = await within(prices).findByRole('article', {
       name: 'Are workers’ wages keeping up with prices?',
     })
-    const articles = within(employment).getAllByRole('article')
+    const articles = within(prices).getAllByRole('article')
     expect(articles.map((article) => within(article).getByRole('heading', { level: 3 }).textContent))
       .toEqual([
-        'How difficult is it for people who want work to find it?',
-        'What share of prime-age adults are employed?',
-      'Are employers adding jobs?',
-      'Are layoffs beginning to rise?',
-      'Are workers’ wages keeping up with prices?',
+        'How quickly are consumer prices rising?',
+        'What is driving inflation?',
+        'Has inflation picked up in recent months?',
+        'Are workers’ wages keeping up with prices?',
       ])
-    const comparison = articles[4]!
     expect(within(comparison).getByLabelText('Latest real wage growth'))
       .toHaveTextContent('−0.0%')
+    expect(within(comparison).getByText(
+      'About even — wages are roughly keeping pace with prices.',
+    )).toBeVisible()
+    expect(within(comparison).getByTestId('real-wage-growth-chart'))
+      .toHaveAttribute('data-zero-baseline', 'true')
+    expect(realWageChartPropsSpy.mock.calls.at(-1)?.[0]).toMatchObject({
+      status: 'available',
+      answerTier: 'about-even',
+    })
+    expect(realWageChartPropsSpy.mock.calls.at(-1)?.[0].recentObservations)
+      .toHaveLength(61)
+    expect(within(comparison).getByRole('figure')).toHaveAccessibleName(
+      /Zero means wage growth and consumer-price inflation were equal/,
+    )
+    expect(within(comparison).queryByRole('group', {
+      name: 'Wages versus inflation displayed time range',
+    })).not.toBeInTheDocument()
+    expect(within(employment).queryByRole('article', {
+      name: 'Are workers’ wages keeping up with prices?',
+    })).not.toBeInTheDocument()
+    expect(chartPropsSpy.mock.calls.some(
+      ([props]) => (props as { kind?: string }).kind === 'comparison',
+    )).toBe(false)
+
+    await user.click(within(comparison).getByRole('button', { name: /More/ }))
     expect(within(comparison).getByText(/nominal wages grew 3.4%/))
       .toHaveTextContent('consumer prices rose 3.5%')
     expect(within(comparison).getByText(/producing negative real wage growth/))
@@ -775,6 +821,17 @@ describe('DashboardPage economic series', () => {
       expect(call?.nominalObservations).toHaveLength(241)
       expect(call?.inflationObservations).toHaveLength(241)
     })
+    expect(within(comparison).getByRole('group', {
+      name: 'Wages versus inflation displayed time range',
+    })).toBeVisible()
+    await user.click(within(comparison).getByRole('button', { name: '5 years' }))
+    await user.click(within(comparison).getByRole('button', { name: /Less/ }))
+    expect(within(comparison).queryByRole('group', {
+      name: 'Wages versus inflation displayed time range',
+    })).not.toBeInTheDocument()
+    await user.click(within(comparison).getByRole('button', { name: /More/ }))
+    expect(within(comparison).getByRole('button', { name: '5 years' }))
+      .toHaveAttribute('aria-pressed', 'true')
     await user.click(within(comparison).getByText('Recent observations'))
     const table = within(comparison).getByRole('table', {
       name: 'Twelve most recent wages-versus-inflation observations',
@@ -1407,7 +1464,7 @@ describe('DashboardPage economic series', () => {
     ).toBeVisible()
     expect(
       within(screen.getByRole('region', { name: 'Prices' })).getAllByRole('alert'),
-    ).toHaveLength(3)
+    ).toHaveLength(4)
     expect(await screen.findByText(
       'The recent inflation momentum data could not be loaded.',
     )).toBeVisible()

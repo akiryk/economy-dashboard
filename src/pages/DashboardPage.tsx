@@ -140,6 +140,13 @@ export function DashboardPage() {
           variant="inflation-momentum"
           onSeriesLoaded={handleSeriesLoaded}
         />
+        <EconomicSeriesCard
+          slug="real-wage-growth"
+          supportingSlugs={wageComparisonSupportingSlugs}
+          label="wages versus inflation"
+          variant="wages-comparison"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
       </EconomicSection>
 
       <EconomicSection
@@ -168,13 +175,6 @@ export function DashboardPage() {
           supportingSlugs={weeklyClaimsSupportingSlugs}
           label="initial unemployment claims"
           variant="claims-comparison"
-          onSeriesLoaded={handleSeriesLoaded}
-        />
-        <EconomicSeriesCard
-          slug="real-wage-growth"
-          supportingSlugs={wageComparisonSupportingSlugs}
-          label="wages versus inflation"
-          variant="wages-comparison"
           onSeriesLoaded={handleSeriesLoaded}
         />
       </EconomicSection>

@@ -28,6 +28,10 @@ const navigationGroups = [
         id: 'recent-inflation-momentum-card',
         title: 'Has inflation picked up in recent months?',
       },
+      {
+        id: 'wages-versus-inflation-card',
+        title: 'Are workers’ wages keeping up with prices?',
+      },
     ],
   },
   {
@@ -45,10 +49,6 @@ const navigationGroups = [
       {
         id: 'initial-unemployment-claims-card',
         title: 'Are layoffs beginning to rise?',
-      },
-      {
-        id: 'wages-versus-inflation-card',
-        title: 'Are workers’ wages keeping up with prices?',
       },
     ],
   },

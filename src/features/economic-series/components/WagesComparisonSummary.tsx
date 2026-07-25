@@ -11,7 +11,12 @@ import {
   calculateWageComparisonSummary,
   filterWageComparisonByTimeRange,
 } from '../utils/comparisonData'
+import {
+  createRealWageGrowthAccessibleSummary,
+  deriveRealWageGrowthModel,
+} from '../utils/realWageGrowth'
 import type { TimeRange } from '../utils/chartData'
+import { CompactMetricCardLayout } from './CompactMetricCardLayout'
 import { TimeRangeControl } from './TimeRangeControl'
 import { WageComparisonTable } from './WageComparisonTable'
 import { HistoricalZoomControls } from './HistoricalZoomControls'
@@ -19,6 +24,11 @@ import { useHistoricalZoom } from './useHistoricalZoom'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
+)
+const RealWageGrowthChart = lazy(
+  () => import('../charts/RealWageGrowthChart').then(
+    ({ RealWageGrowthChart: Chart }) => ({ default: Chart }),
+  ),
 )
 
 interface WagesComparisonSummaryProps {
@@ -33,6 +43,15 @@ export function WagesComparisonSummary({
   cpiInflation,
 }: WagesComparisonSummaryProps) {
   const [selectedRange, setSelectedRange] = useState<TimeRange>('20y')
+  const compactModel = useMemo(
+    () => deriveRealWageGrowthModel({
+      realWageGrowth,
+      nominalWageGrowth,
+      cpiInflation,
+    }),
+    [cpiInflation, nominalWageGrowth, realWageGrowth],
+  )
+  const accessibleSummary = createRealWageGrowthAccessibleSummary(compactModel)
   const aligned = useMemo(
     () =>
       alignWageComparisonObservations(
@@ -55,9 +74,6 @@ export function WagesComparisonSummary({
   const latest = [...visible]
     .reverse()
     .find((item) => item.realWageGrowth !== null)
-  const latestAvailable = [...aligned]
-    .reverse()
-    .find((item) => item.realWageGrowth !== null)
   const coverageStart = aligned[0]
   const coverageEnd = aligned.at(-1)
   const direction =
@@ -69,45 +85,25 @@ export function WagesComparisonSummary({
           ? 'negative'
           : 'zero'
 
-  return (
-    <article
-      id="wages-versus-inflation-card"
-      className="series-card"
-      aria-labelledby="wages-versus-inflation-question"
-    >
-      <header className="series-card__header">
-        <p className="series-card__eyebrow">Labor market relationship</p>
-        <h3 id="wages-versus-inflation-question">
-          Are workers’ wages keeping up with prices?
-        </h3>
-        <p className="series-card__title">Wages Versus Inflation</p>
-      </header>
-
-      <div className="series-current" aria-label="Latest real wage growth">
-        <p className="series-current__value">
-          <span
-            aria-label={`${direction} real wage growth, ${formatPercentage(
-              latestAvailable?.realWageGrowth ?? null,
-            )}`}
-          >
-            {formatSignedPercentage(latestAvailable?.realWageGrowth ?? null)}
-          </span>
-        </p>
-        <p className="series-current__label">Latest real wage growth</p>
-        <p className="series-current__period">
-          {latestAvailable
-            ? formatObservationPeriod(latestAvailable.date, 'monthly')
-            : 'Observation period unavailable'}{' '}
-          · Percent change from year ago
-        </p>
-      </div>
-
+  const expandedContent = (
+    <>
+      <p>
+        Nominal wages are pay before adjusting for inflation. Real wage growth
+        adjusts that wage growth for consumer-price growth. The compact answer
+        is determined by the derived real-wage series.
+      </p>
       <TimeRangeControl
         selectedRange={selectedRange}
         onRangeChange={zoom.selectPreset}
         contextLabel="Wages versus inflation"
       />
-      <HistoricalZoomControls active={zoom.active} visiblePeriod={zoom.visiblePeriod} onMove={zoom.move} onResize={zoom.resize} onReset={zoom.reset} />
+      <HistoricalZoomControls
+        active={zoom.active}
+        visiblePeriod={zoom.visiblePeriod}
+        onMove={zoom.move}
+        onResize={zoom.resize}
+        onReset={zoom.reset}
+      />
 
       {summary.observationCount > 0 ? (
         <>
@@ -216,6 +212,45 @@ export function WagesComparisonSummary({
           <WageComparisonTable observations={visible} />
         </details>
       </footer>
-    </article>
+    </>
+  )
+
+  return (
+    <CompactMetricCardLayout
+      cardId="wages-versus-inflation"
+      eyebrow="Prices and purchasing power"
+      question="Are workers’ wages keeping up with prices?"
+      measureLabel="Real wage growth"
+      latestValue={(
+        <div className="series-current" aria-label="Latest real wage growth">
+          <p className="series-current__value">
+            {formatSignedPercentage(compactModel.latestObservation?.value ?? null)}
+          </p>
+          <p className="series-current__label">{compactModel.answer}</p>
+          <p className="series-current__period">
+            {compactModel.latestObservation
+              ? formatObservationPeriod(
+                  compactModel.latestObservation.date,
+                  'monthly',
+                )
+              : 'Observation period unavailable'}{' '}
+            · Percent change from year ago
+          </p>
+          <p className="chart-summary">
+            Positive values mean wages rose faster than consumer prices.
+            Negative values mean prices rose faster than wages.
+          </p>
+        </div>
+      )}
+      compactVisual={(
+        <Suspense fallback={<p className="chart-state">Loading chart visualization…</p>}>
+          <RealWageGrowthChart
+            model={compactModel}
+            accessibleSummary={accessibleSummary}
+          />
+        </Suspense>
+      )}
+      expandedContent={expandedContent}
+    />
   )
 }
