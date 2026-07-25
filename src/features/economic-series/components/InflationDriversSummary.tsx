@@ -128,8 +128,10 @@ export function InflationDriversSummary({
                 high category rate need not make an equally large headline
                 contribution. Each mini-chart uses its own vertical scale so
                 changes are visible. Compare the labeled values, not apparent
-                line heights. A zero line appears only when zero falls within
-                that chart’s displayed range.
+                line heights. Zero is included when the expanded displayed
+                range is no more than twice the natural padded range.
+                Otherwise, zero remains outside the displayed range so changes
+                do not become hard to see.
               </p>
               <p>
                 Hover or tap a chart for an exact month and rate. Keyboard users

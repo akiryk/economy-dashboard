@@ -82,8 +82,9 @@ describe('deriveInflationDriversSupportingTrends', () => {
 
 describe('deriveCategoryInflationTrendDomain', () => {
   it.each([
-    [[1, 2], { min: 0.9, max: 2.1, includesZero: false }],
-    [[-3, -2], { min: -3.1, max: -1.9, includesZero: false }],
+    [[1, 2], { min: 0, max: 2.1, includesZero: true }],
+    [[4, 5], { min: 3.9, max: 5.1, includesZero: false }],
+    [[-2, -1], { min: -2.1, max: 0, includesZero: true }],
     [[-2, 3], { min: -2.4, max: 3.4, includesZero: true }],
     [[4, 4], { min: 3.9, max: 4.1, includesZero: false }],
     [[0, 0], { min: -0.1, max: 0.1, includesZero: true }],
@@ -99,6 +100,13 @@ describe('deriveCategoryInflationTrendDomain', () => {
     expect(observations.map(({ value }) => value)).toEqual(values)
   })
 
+  it('includes zero at the exact two-times threshold boundary', () => {
+    expect(deriveCategoryInflationTrendDomain([
+      { date: '2026-01-01', value: 1.1 },
+      { date: '2026-02-01', value: 1.9 },
+    ])).toEqual({ min: 0, max: 2, includesZero: true })
+  })
+
   it('ignores nulls and returns null without a finite value', () => {
     expect(deriveCategoryInflationTrendDomain([
       { date: '2026-01-01', value: null },
@@ -111,5 +119,13 @@ describe('deriveCategoryInflationTrendDomain', () => {
       max: 3.4,
       includesZero: true,
     })).toBe('−2.4% to +3.4%')
+  })
+
+  it('updates the range label when zero is added', () => {
+    expect(formatCategoryInflationRange({
+      min: 0,
+      max: 8.7,
+      includesZero: true,
+    })).toBe('0.0% to +8.7%')
   })
 })

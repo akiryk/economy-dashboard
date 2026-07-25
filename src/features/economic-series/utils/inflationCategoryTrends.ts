@@ -89,6 +89,7 @@ export interface InflationDriversSupportingTrendsModel {
 const FIVE_YEARS = 5
 const DOMAIN_PADDING = 0.08
 const MINIMUM_PADDING = 0.1
+const MAXIMUM_ZERO_EXPANSION_RATIO = 2
 
 function fiveYearBoundary(period: string): string {
   return `${Number(period.slice(0, 4)) - FIVE_YEARS}${period.slice(4)}`
@@ -106,12 +107,20 @@ export function deriveCategoryInflationTrendDomain(
     MINIMUM_PADDING,
     (actualMaximum - actualMinimum) * DOMAIN_PADDING,
   )
-  const min = Math.floor((actualMinimum - padding) * 10) / 10
-  const max = Math.ceil((actualMaximum + padding) * 10) / 10
+  const naturalMin = Math.floor((actualMinimum - padding) * 10) / 10
+  const naturalMax = Math.ceil((actualMaximum + padding) * 10) / 10
+  const naturalRange = naturalMax - naturalMin
+  const zeroInclusiveMin = Math.min(0, naturalMin)
+  const zeroInclusiveMax = Math.max(0, naturalMax)
+  const zeroInclusiveRange = zeroInclusiveMax - zeroInclusiveMin
+  const includesZero = zeroInclusiveRange <=
+    naturalRange * MAXIMUM_ZERO_EXPANSION_RATIO + Number.EPSILON
+  const min = includesZero ? zeroInclusiveMin : naturalMin
+  const max = includesZero ? zeroInclusiveMax : naturalMax
   return {
     min,
     max,
-    includesZero: min <= 0 && max >= 0,
+    includesZero,
   }
 }
 
@@ -226,5 +235,5 @@ export function createInflationCategoryTrendAccessibleSummary({
   return `Headline CPI contribution period: ${formatObservationPeriod(headlinePeriod, 'monthly')}. ` +
     `Current top-four contributions: ${selected}. ` +
     `${trends ? `Mapped category inflation rates: ${trends}. ` : ''}${omitted} ${unavailable} ${window} ` +
-    'Left-side values are percentage-point contributions; right-side values are year-over-year percent changes in category prices. Each rate chart uses its own labeled vertical scale, so apparent line heights are not directly comparable. Exact monthly values are available by hovering, tapping, or focusing a chart. A zero line appears only when zero is inside that chart’s displayed range.'
+    'Left-side values are percentage-point contributions; right-side values are year-over-year percent changes in category prices. Each rate chart uses its own labeled vertical scale, so apparent line heights are not directly comparable. Exact monthly values are available by hovering, tapping, or focusing a chart. Zero is included when the expanded range is no more than twice the natural padded range; otherwise zero remains outside the displayed range so changes stay readable.'
 }

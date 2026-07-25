@@ -452,6 +452,11 @@ describe('DashboardPage economic series', () => {
     })).toHaveTextContent('Each mini-chart uses its own vertical scale')
     expect(within(drivers).getByRole('dialog', {
       name: 'Inflation contribution explanation',
+    })).toHaveTextContent(
+      'expanded displayed range is no more than twice the natural padded range',
+    )
+    expect(within(drivers).getByRole('dialog', {
+      name: 'Inflation contribution explanation',
     })).toHaveTextContent('left and right arrow keys')
     await user.keyboard('{Escape}')
     expect(within(drivers).queryByRole('dialog')).not.toBeInTheDocument()
@@ -475,6 +480,10 @@ describe('DashboardPage economic series', () => {
       .toBe(true)
     expect(new Set(trendModel.trends.map(({ displayRangeLabel }) =>
       displayRangeLabel)).size).toBe(3)
+    expect(trendModel.trends.every(({ domain, displayRangeLabel }) =>
+      domain.includesZero && displayRangeLabel.startsWith(
+        domain.min === 0 ? '0.0%' : '−',
+      ))).toBe(true)
     expect(trendModel.trends.every(({ observations }) =>
       observations.some(({ date, value }) =>
         date === '2025-10-01' && value === null))).toBe(true)

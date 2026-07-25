@@ -75,6 +75,8 @@ Story 49 superseded Story 48’s local, unpushed contribution-history mini-trend
 
 Story 50 replaces the shared rate domain with an individually derived domain for each mini-chart. Every domain pads its finite five-year minimum and maximum by 8% with a 0.1-point floor, rounds outward to tenths, and displays those actual bounds as a compact `Scale … to …` cue. Zero is neither forced nor normalized: a dashed zero line appears only when it falls inside the resulting domain. The differing scales are disclosed in help and the single nonvisual summary. Each focusable chart wrapper exposes exact published observations through pointer hover, touch pinning, and left/right arrow navigation, skipping nulls; its bounded real-text tooltip drives an active point and vertical guide. Escape dismisses details and retains focus. The help control now occupies reserved space beside the right-side heading rather than overlaying a plot.
 
+Story 51 conditionally expands each natural padded category-rate domain to zero when the zero-inclusive range is no more than twice the natural padded range. The explicit threshold retains local scaling while adding a meaningful dashed baseline where practical; otherwise the natural nonzero domain and its scale cue remain unchanged so variation is not materially flattened. Scale labels always reflect the final displayed domain. With the current production histories, Shelter, Energy, and Food all include zero.
+
 Story 42 replaces the standalone headline-versus-core primary card with a
 dedicated contribution visual. Its diverging horizontal bars share a zero
 baseline and show BLS percentage-point effects rather than category inflation
