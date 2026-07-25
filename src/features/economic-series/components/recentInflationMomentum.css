@@ -88,6 +88,10 @@
   vector-effect: non-scaling-stroke;
 }
 
+.recent-inflation-momentum__reference {
+  vector-effect: non-scaling-stroke;
+}
+
 .recent-inflation-momentum__point {
   stroke: var(--color-link);
   stroke-linecap: round;

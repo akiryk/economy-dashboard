@@ -136,6 +136,10 @@ export function deriveRecentInflationMomentumModel({
   const twelveMonthY = slopeY(twelveMonthRate)
   const threeMonthY = slopeY(threeMonthAnnualizedRate)
   const levelY = (twelveMonthY + threeMonthY) / 2
+  const slopeCenter = (twelveMonthY + threeMonthY) / 2
+  const emphasizedDifference = (threeMonthY - twelveMonthY) * 1.5
+  const emphasizedTwelveMonthY = slopeCenter - emphasizedDifference / 2
+  const emphasizedThreeMonthY = slopeCenter + emphasizedDifference / 2
   return {
     status: 'available',
     ...classification,
@@ -153,14 +157,18 @@ export function deriveRecentInflationMomentumModel({
         label: 'Past 12 months',
         value: twelveMonthRate,
         period: latestTwelveMonth.date,
-        slopeYPercent: slopeDirection === 'level' ? levelY : twelveMonthY,
+        slopeYPercent: slopeDirection === 'level'
+          ? levelY
+          : emphasizedTwelveMonthY,
       },
       {
         id: 'three-month',
         label: 'Latest 3 months, annualized',
         value: threeMonthAnnualizedRate,
         period: latestThreeMonthAtPeriod.date,
-        slopeYPercent: slopeDirection === 'level' ? levelY : threeMonthY,
+        slopeYPercent: slopeDirection === 'level'
+          ? levelY
+          : emphasizedThreeMonthY,
       },
     ],
   }

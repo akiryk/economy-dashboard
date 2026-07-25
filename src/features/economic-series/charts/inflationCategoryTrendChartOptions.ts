@@ -5,7 +5,10 @@ import {
   formatSignedPercentage,
 } from '../utils/economicSeries'
 import type { CategoryInflationTrend } from '../utils/inflationCategoryTrends'
-import { compactChartTheme } from './compactChartTheme'
+import {
+  compactChartTheme,
+  compactReferenceLineTheme,
+} from './compactChartTheme'
 
 export function createInflationCategoryTrendChartOptions(
   trend: CategoryInflationTrend,
@@ -47,9 +50,10 @@ export function createInflationCategoryTrendChartOptions(
             name: 'Zero percent',
             yAxis: 0,
             lineStyle: {
-              color: compactChartTheme.zeroLine,
-              width: 1,
-              type: 'dashed',
+              color: compactReferenceLineTheme.color,
+              width: compactReferenceLineTheme.width,
+              type: compactReferenceLineTheme.type,
+              opacity: compactReferenceLineTheme.opacity,
             },
           }] : []),
           ...(activeObservation ? [{

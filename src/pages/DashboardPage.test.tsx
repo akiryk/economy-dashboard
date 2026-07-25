@@ -468,6 +468,9 @@ describe('DashboardPage economic series', () => {
       '.recent-inflation-momentum__slope-plot[data-direction="down"]',
     )).toBeInTheDocument()
     expect(momentum.querySelector(
+      '.recent-inflation-momentum__reference',
+    )).toBeInTheDocument()
+    expect(momentum.querySelector(
       '.recent-inflation-momentum__track',
     )).not.toBeInTheDocument()
     expect(momentum.querySelector('svg area')).not.toBeInTheDocument()

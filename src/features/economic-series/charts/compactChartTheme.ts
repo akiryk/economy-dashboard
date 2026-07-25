@@ -7,3 +7,11 @@ export const compactChartTheme = {
   latestMarker: '#245d72',
   markerBorder: '#ffffff',
 } as const
+
+export const compactReferenceLineTheme = {
+  color: compactChartTheme.zeroLine,
+  width: 1,
+  type: 'dashed',
+  opacity: 0.65,
+  svgDashArray: '2 3',
+} as const

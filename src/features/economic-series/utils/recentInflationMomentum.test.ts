@@ -111,5 +111,8 @@ describe('deriveRecentInflationMomentumModel', () => {
       .toContain('compares two measurement windows rather than consecutive observations')
     expect(createRecentInflationMomentumAccessibleSummary(model))
       .toContain('it is not a forecast')
+    expect(
+      model.items[1]!.slopeYPercent - model.items[0]!.slopeYPercent,
+    ).toBeGreaterThan(8)
   })
 })

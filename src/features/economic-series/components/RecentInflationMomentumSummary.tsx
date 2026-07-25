@@ -14,6 +14,7 @@ import {
   createRecentInflationMomentumAccessibleSummary,
   deriveRecentInflationMomentumModel,
 } from '../utils/recentInflationMomentum'
+import { compactReferenceLineTheme } from '../charts/compactChartTheme'
 import { CompactChartHelp } from './CompactChartHelp'
 import { CompactMetricCardLayout } from './CompactMetricCardLayout'
 import { HistoricalZoomControls } from './HistoricalZoomControls'
@@ -133,6 +134,17 @@ export function RecentInflationMomentumSummary({
               data-direction={model.slopeDirection}
               aria-hidden="true"
             >
+              <line
+                className="recent-inflation-momentum__reference"
+                x1="4"
+                y1="34"
+                x2="96"
+                y2="34"
+                stroke={compactReferenceLineTheme.color}
+                strokeWidth={compactReferenceLineTheme.width}
+                strokeDasharray={compactReferenceLineTheme.svgDashArray}
+                opacity={compactReferenceLineTheme.opacity}
+              />
               <line
                 className="recent-inflation-momentum__connector"
                 x1="10"

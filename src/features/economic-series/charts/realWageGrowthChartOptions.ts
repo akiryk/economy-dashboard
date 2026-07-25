@@ -4,7 +4,10 @@ import {
   formatObservationPeriod,
   formatSignedPercentage,
 } from '../utils/economicSeries'
-import { compactChartTheme } from './compactChartTheme'
+import {
+  compactChartTheme,
+  compactReferenceLineTheme,
+} from './compactChartTheme'
 
 export function createRealWageGrowthChartOptions({
   observations,
@@ -46,9 +49,10 @@ export function createRealWageGrowthChartOptions({
             name: 'Equal wage and price growth',
             yAxis: 0,
             lineStyle: {
-              color: compactChartTheme.zeroLine,
-              width: 1,
-              type: 'dashed',
+              color: compactReferenceLineTheme.color,
+              width: compactReferenceLineTheme.width,
+              type: compactReferenceLineTheme.type,
+              opacity: compactReferenceLineTheme.opacity,
             },
           },
           ...(activeObservation ? [{
