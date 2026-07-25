@@ -26,7 +26,7 @@ const navigationGroups = [
       },
       {
         id: 'recent-inflation-momentum-card',
-        title: 'Is inflation currently accelerating or slowing?',
+        title: 'Has inflation picked up in recent months?',
       },
     ],
   },

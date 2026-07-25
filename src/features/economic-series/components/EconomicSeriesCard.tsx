@@ -10,6 +10,7 @@ import { ManufacturingComparisonSummary } from './ManufacturingComparisonSummary
 import { RateComparisonSummary } from './RateComparisonSummary'
 import { ClaimsComparisonSummary } from './ClaimsComparisonSummary'
 import { InflationDriversSummary } from './InflationDriversSummary'
+import { RecentInflationMomentumSummary } from './RecentInflationMomentumSummary'
 
 const noSupportingSlugs: readonly string[] = []
 
@@ -170,17 +171,23 @@ export function EconomicSeriesCard({
     )
   }
 
-  if (
-    variant === 'headline-core-comparison' ||
-    variant === 'inflation-momentum'
-  ) {
+  if (variant === 'inflation-momentum') {
+    return (
+      <RecentInflationMomentumSummary
+        threeMonthHeadline={seriesState.series}
+        twelveMonthHeadline={seriesState.supportingSeries[0]!}
+        twelveMonthCore={seriesState.supportingSeries[1]!}
+        threeMonthCore={seriesState.supportingSeries[2]!}
+      />
+    )
+  }
+
+  if (variant === 'headline-core-comparison') {
     return (
       <InflationComparisonSummary
         core={seriesState.series}
         headline={seriesState.supportingSeries[0]!}
-        variant={
-          variant === 'inflation-momentum' ? 'momentum' : 'year-over-year'
-        }
+        variant="year-over-year"
       />
     )
   }

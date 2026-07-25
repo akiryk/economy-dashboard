@@ -77,6 +77,8 @@ Story 50 replaces the shared rate domain with an individually derived domain for
 
 Story 51 conditionally expands each natural padded category-rate domain to zero when the zero-inclusive range is no more than twice the natural padded range. The explicit threshold retains local scaling while adding a meaningful dashed baseline where practical; otherwise the natural nonzero domain and its scale cue remain unchanged so variation is not materially flattened. Scale labels always reflect the final displayed domain. With the current production histories, Shelter, Energy, and Food all include zero.
 
+Story 52 reframes the compact recent-inflation-momentum card around an apples-to-apples headline comparison. Two real-text values and aligned markers share one zero-inclusive percentage scale: overall CPI over the latest 12 months and overall CPI over the latest three months, annualized. A pure classifier applies ±0.3-point meaningful and ±1.0-point substantial thresholds to the recent-minus-past-year difference, with missing same-period headline inputs producing an unavailable state rather than a core substitute. Help and the single nonvisual summary explain annualization, noise, periods, difference, and nonforecast status. More retains two shared-axis panels—12-month headline/core and three-month annualized headline/core—with common range/zoom controls, hover details, gaps, tables, sources, and explicit wording that core evidence does not override the headline classification.
+
 Story 42 replaces the standalone headline-versus-core primary card with a
 dedicated contribution visual. Its diverging horizontal bars share a zero
 baseline and show BLS percentage-point effects rather than category inflation

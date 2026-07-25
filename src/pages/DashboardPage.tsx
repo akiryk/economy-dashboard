@@ -24,7 +24,9 @@ const inflationDriverSupportingSlugs = [
   'food-cpi-inflation',
 ] as const
 const headlineMomentumSupportingSlugs = [
-  'headline-cpi-three-month-annualized',
+  'headline-cpi-inflation',
+  'core-cpi-inflation',
+  'core-cpi-three-month-annualized',
 ] as const
 const householdSpendingSupportingSlugs = [
   'quarterly-real-consumer-spending-per-capita-growth',
@@ -132,7 +134,7 @@ export function DashboardPage() {
           onSeriesLoaded={handleSeriesLoaded}
         />
         <EconomicSeriesCard
-          slug="core-cpi-three-month-annualized"
+          slug="headline-cpi-three-month-annualized"
           supportingSlugs={headlineMomentumSupportingSlugs}
           label="recent inflation momentum"
           variant="inflation-momentum"
