@@ -90,7 +90,9 @@ export function WagesComparisonSummary({
       <p>
         Nominal wages are pay before adjusting for inflation. Real wage growth
         adjusts that wage growth for consumer-price growth. The compact answer
-        is determined by the derived real-wage series.
+        is determined by the derived real-wage series. Positive values mean
+        wages rose faster than consumer prices. Negative values mean prices
+        rose faster than wages.
       </p>
       <TimeRangeControl
         selectedRange={selectedRange}
@@ -226,20 +228,18 @@ export function WagesComparisonSummary({
           <p className="series-current__value">
             {formatSignedPercentage(compactModel.latestObservation?.value ?? null)}
           </p>
-          <p className="series-current__label">{compactModel.answer}</p>
+          <p className="series-current__label">
+            Year-over-year wage growth after adjusting for inflation
+          </p>
           <p className="series-current__period">
             {compactModel.latestObservation
               ? formatObservationPeriod(
                   compactModel.latestObservation.date,
                   'monthly',
                 )
-              : 'Observation period unavailable'}{' '}
-            · Percent change from year ago
+              : 'Observation period unavailable'}
           </p>
-          <p className="chart-summary">
-            Positive values mean wages rose faster than consumer prices.
-            Negative values mean prices rose faster than wages.
-          </p>
+          <p className="series-current__answer">{compactModel.answer}</p>
         </div>
       )}
       compactVisual={(

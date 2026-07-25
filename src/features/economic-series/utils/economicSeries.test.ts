@@ -74,7 +74,9 @@ describe('payroll value formatting', () => {
   it.each([
     [1.24, '+1.2%'],
     [-0.584, '−0.6%'],
-    [0, '0.0%'],
+    [0.049, '0%'],
+    [-0.049, '0%'],
+    [0, '0%'],
     [null, 'Not available'],
   ] as const)('formats signed percentages', (value, expected) => {
     expect(formatSignedPercentage(value)).toBe(expected)

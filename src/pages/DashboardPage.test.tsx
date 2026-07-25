@@ -535,7 +535,7 @@ describe('DashboardPage economic series', () => {
       displayRangeLabel)).size).toBe(3)
     expect(trendModel.trends.every(({ domain, displayRangeLabel }) =>
       domain.includesZero && displayRangeLabel.startsWith(
-        domain.min === 0 ? '0.0%' : '−',
+        domain.min === 0 ? '0%' : '−',
       ))).toBe(true)
     expect(trendModel.trends.every(({ observations }) =>
       observations.some(({ date, value }) =>
@@ -781,11 +781,22 @@ describe('DashboardPage economic series', () => {
         'Has inflation picked up in recent months?',
         'Are workers’ wages keeping up with prices?',
       ])
-    expect(within(comparison).getByLabelText('Latest real wage growth'))
-      .toHaveTextContent('−0.0%')
+    const latestReading = within(comparison)
+      .getByLabelText('Latest real wage growth')
+    expect(latestReading).toHaveTextContent('0%')
+    expect([...latestReading.children].map(({ textContent }) => textContent))
+      .toEqual([
+        '0%',
+        'Year-over-year wage growth after adjusting for inflation',
+        'June 2026',
+        'About even — wages are roughly keeping pace with prices.',
+      ])
     expect(within(comparison).getByText(
       'About even — wages are roughly keeping pace with prices.',
     )).toBeVisible()
+    expect(within(comparison).queryByText(
+      /Positive values mean wages rose faster than consumer prices/,
+    )).not.toBeInTheDocument()
     expect(within(comparison).getByTestId('real-wage-growth-chart'))
       .toHaveAttribute('data-zero-baseline', 'true')
     expect(realWageChartPropsSpy.mock.calls.at(-1)?.[0]).toMatchObject({
@@ -808,6 +819,11 @@ describe('DashboardPage economic series', () => {
     )).toBe(false)
 
     await user.click(within(comparison).getByRole('button', { name: /More/ }))
+    expect(within(comparison).getByText(
+      /Positive values mean wages rose faster than consumer prices/,
+    )).toHaveTextContent(
+      'Negative values mean prices rose faster than wages.',
+    )
     expect(within(comparison).getByText(/nominal wages grew 3.4%/))
       .toHaveTextContent('consumer prices rose 3.5%')
     expect(within(comparison).getByText(/producing negative real wage growth/))

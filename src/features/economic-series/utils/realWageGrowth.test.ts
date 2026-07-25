@@ -126,4 +126,16 @@ describe('deriveRealWageGrowthModel', () => {
       'does not describe every worker',
     )
   })
+
+  it('normalizes rounded negative zero without changing its neutral answer', () => {
+    const model = deriveRealWageGrowthModel({
+      nominalWageGrowth: series('wages', [['2026-06-01', 3.4]]),
+      cpiInflation: series('cpi', [['2026-06-01', 3.45]]),
+      realWageGrowth: series('real', [['2026-06-01', -0.049]]),
+    })
+    expect(model.answerTier).toBe('about-even')
+    expect(createRealWageGrowthAccessibleSummary(model)).toContain(
+      'Real wage growth was 0% in June 2026',
+    )
+  })
 })

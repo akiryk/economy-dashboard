@@ -126,6 +126,6 @@ describe('deriveCategoryInflationTrendDomain', () => {
       min: 0,
       max: 8.7,
       includesZero: true,
-    })).toBe('0.0% to +8.7%')
+    })).toBe('0% to +8.7%')
   })
 })

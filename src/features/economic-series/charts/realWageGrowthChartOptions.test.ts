@@ -57,5 +57,9 @@ describe('createRealWageGrowthChartOptions', () => {
     expect(formatRealWageGrowthTooltip(observations[0]!)).toBe(
       'Real wage growth\nJune 2021\n−1.0%',
     )
+    expect(formatRealWageGrowthTooltip({
+      date: '2026-06-01',
+      value: -0.049,
+    })).toBe('Real wage growth\nJune 2026\n0%')
   })
 })

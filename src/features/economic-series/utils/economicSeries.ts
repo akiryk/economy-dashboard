@@ -101,11 +101,11 @@ export function formatPercentage(value: number | null): string {
 
 export function formatSignedPercentage(value: number | null): string {
   if (value === null) return 'Not available'
-  if (value === 0) return '0.0%'
   const formatted = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   }).format(Math.abs(value))
+  if (formatted === '0.0') return '0%'
   return value > 0 ? `+${formatted}%` : `−${formatted}%`
 }
 
