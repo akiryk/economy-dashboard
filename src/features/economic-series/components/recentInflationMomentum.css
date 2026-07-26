@@ -1,5 +1,29 @@
 .recent-inflation-momentum__answer p {
   margin: 0;
+}
+
+.recent-inflation-momentum__hero {
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.recent-inflation-momentum__answer .recent-inflation-momentum__hero-label {
+  margin-top: var(--space-2);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.recent-inflation-momentum__answer .recent-inflation-momentum__support {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+
+.recent-inflation-momentum__answer .recent-inflation-momentum__answer-text {
+  margin-top: var(--space-3);
   font-size: 1.125rem;
   font-weight: 700;
   line-height: 1.35;

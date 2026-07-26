@@ -100,6 +100,13 @@ export function RecentInflationMomentumSummary({
             predict what inflation will be next year.
           </p>
           <p>
+            When the past-year rate is at least 0.5% in absolute value, the hero
+            compares the difference with that past-year rate. Smaller
+            denominators use the percentage-point difference to avoid an
+            exaggerated relative percentage. The existing percentage-point
+            thresholds still determine the plain-language answer.
+          </p>
+          <p>
             Both compact values use overall, or headline, CPI including food
             and energy. Core CPI, which excludes food and energy, is supporting
             evidence under More and does not override the compact answer.
@@ -194,7 +201,20 @@ export function RecentInflationMomentumSummary({
       measureLabel="Recent inflation momentum"
       latestValue={(
         <div className="recent-inflation-momentum__answer">
-          <p>{model.answer}</p>
+          <p className="recent-inflation-momentum__hero">
+            {model.heroValue}
+          </p>
+          <p className="recent-inflation-momentum__hero-label">
+            {model.heroLabel}
+          </p>
+          {model.supportingComparison && (
+            <p className="recent-inflation-momentum__support">
+              {model.supportingComparison}
+            </p>
+          )}
+          <p className="recent-inflation-momentum__answer-text">
+            {model.answer}
+          </p>
         </div>
       )}
       compactVisual={comparison}

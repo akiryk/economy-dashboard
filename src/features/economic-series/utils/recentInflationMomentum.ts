@@ -30,6 +30,11 @@ export interface RecentInflationMomentumModel {
   threeMonthAnnualizedRate: number | null
   threeMonthPeriod: string | null
   difference: number | null
+  relativeDifference: number | null
+  showRelativeHero: boolean
+  heroValue: string
+  heroLabel: string
+  supportingComparison: string | null
   scale: readonly [number, number] | null
   items: readonly InflationMomentumComparisonItem[]
   slopeDirection: 'up' | 'down' | 'level' | null
@@ -40,7 +45,54 @@ export interface RecentInflationMomentumModel {
 export const inflationMomentumThresholds = {
   substantial: 1,
   meaningful: 0.3,
+  relativeDenominator: 0.5,
 } as const
+
+export function deriveInflationMomentumHero({
+  twelveMonthRate,
+  difference,
+  answerTier,
+}: {
+  twelveMonthRate: number
+  difference: number
+  answerTier: InflationMomentumAnswerTier
+}): Pick<
+  RecentInflationMomentumModel,
+  'relativeDifference' | 'showRelativeHero' | 'heroValue' | 'heroLabel'
+> {
+  const heroLabel =
+    'Recent annualized pace compared with the past-year inflation rate'
+  if (answerTier === 'close') {
+    return {
+      relativeDifference: null,
+      showRelativeHero: false,
+      heroValue: 'About the same',
+      heroLabel,
+    }
+  }
+  if (
+    Math.abs(twelveMonthRate) >=
+    inflationMomentumThresholds.relativeDenominator
+  ) {
+    const relativeDifference = difference / Math.abs(twelveMonthRate)
+    const magnitude = Math.round(Math.abs(relativeDifference) * 100)
+    return {
+      relativeDifference,
+      showRelativeHero: true,
+      heroValue: `${magnitude}% ${difference > 0 ? 'faster' : 'slower'}`,
+      heroLabel,
+    }
+  }
+  const magnitude = formatSignedPercentagePoints(Math.abs(difference))
+    .replace(/^\+/, '')
+  return {
+    relativeDifference: null,
+    showRelativeHero: false,
+    heroValue:
+      `${magnitude} percentage points ${difference > 0 ? 'faster' : 'slower'}`,
+    heroLabel,
+  }
+}
 
 export function classifyInflationMomentumDifference(
   difference: number | null,
@@ -112,6 +164,11 @@ export function deriveRecentInflationMomentumModel({
   const threeMonthAnnualizedRate = latestThreeMonthAtPeriod.value
   const difference = threeMonthAnnualizedRate - twelveMonthRate
   const classification = classifyInflationMomentumDifference(difference)
+  const hero = deriveInflationMomentumHero({
+    twelveMonthRate,
+    difference,
+    answerTier: classification.answerTier,
+  })
   const slopeDirection = difference >= inflationMomentumThresholds.meaningful
     ? 'up'
     : difference <= -inflationMomentumThresholds.meaningful
@@ -155,6 +212,11 @@ export function deriveRecentInflationMomentumModel({
     threeMonthAnnualizedRate,
     threeMonthPeriod: latestThreeMonthAtPeriod.date,
     difference,
+    ...hero,
+    supportingComparison:
+      `${formatSignedPercentage(threeMonthAnnualizedRate)} versus ` +
+      `${formatSignedPercentage(twelveMonthRate)}, a difference of ` +
+      `${differenceMagnitude} percentage points.`,
     scale,
     slopeDirection,
     slopeReferenceY: Math.min(
@@ -193,6 +255,12 @@ function unavailableModel(
     threeMonthAnnualizedRate: null,
     threeMonthPeriod: null,
     difference: null,
+    relativeDifference: null,
+    showRelativeHero: false,
+    heroValue: 'Unavailable',
+    heroLabel:
+      'Recent annualized pace compared with the past-year inflation rate',
+    supportingComparison: null,
     scale: null,
     items: [],
     slopeDirection: null,
@@ -218,5 +286,9 @@ export function createRecentInflationMomentumAccessibleSummary(
     `${formatObservationPeriod(model.threeMonthPeriod!, 'monthly')}. ` +
     `The recent pace was ${direction}; the recent-minus-past-year difference was ` +
     `${formatSignedPercentagePoints(model.difference)} percentage points. ` +
+    (model.showRelativeHero && model.relativeDifference !== null
+      ? `Relative to the absolute past-year rate, the recent annualized pace was ` +
+        `${Math.round(Math.abs(model.relativeDifference) * 100)}% ${direction}. `
+      : '') +
     'The graphic compares two measurement windows rather than consecutive observations. The recent rate is annualized and describes an observed pace; it is not a forecast.'
 }

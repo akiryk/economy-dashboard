@@ -3,7 +3,9 @@ import type { EconomicSeries } from '../models/economicSeries'
 import {
   classifyInflationMomentumDifference,
   createRecentInflationMomentumAccessibleSummary,
+  deriveInflationMomentumHero,
   deriveRecentInflationMomentumModel,
+  inflationMomentumThresholds,
 } from './recentInflationMomentum'
 
 function series(slug: string, observations: Array<[string, number | null]>): EconomicSeries {
@@ -45,6 +47,8 @@ describe('deriveRecentInflationMomentumModel', () => {
       answerTier: 'substantial-slowing',
       slopeDirection: 'down',
       differenceLabel: '1.5 percentage points slower',
+      heroValue: '150% slower',
+      showRelativeHero: true,
     })
     expect(model.scale?.[0]).toBeLessThan(-2.5)
     expect(model.scale?.[1]).toBeGreaterThan(0)
@@ -108,6 +112,8 @@ describe('deriveRecentInflationMomentumModel', () => {
     expect(createRecentInflationMomentumAccessibleSummary(model))
       .toContain('slower; the recent-minus-past-year difference was −0.7 percentage points')
     expect(createRecentInflationMomentumAccessibleSummary(model))
+      .toContain('the recent annualized pace was 20% slower')
+    expect(createRecentInflationMomentumAccessibleSummary(model))
       .toContain('compares two measurement windows rather than consecutive observations')
     expect(createRecentInflationMomentumAccessibleSummary(model))
       .toContain('it is not a forecast')
@@ -117,5 +123,70 @@ describe('deriveRecentInflationMomentumModel', () => {
     expect(
       model.slopeReferenceY! - model.items[1]!.slopeYPercent,
     ).toBe(3)
+  })
+})
+
+describe('relative inflation momentum hero', () => {
+  it.each([
+    [3.5, -0.7, 'slowing', '20% slower'],
+    [2.5, 0.5, 'pickup', '20% faster'],
+    [-2, 1, 'substantial-pickup', '50% faster'],
+  ] as const)(
+    'formats a relative comparison for %s with change %s',
+    (twelveMonthRate, difference, answerTier, heroValue) => {
+      expect(deriveInflationMomentumHero({
+        twelveMonthRate,
+        difference,
+        answerTier,
+      })).toMatchObject({
+        showRelativeHero: true,
+        heroValue,
+      })
+    },
+  )
+
+  it('rounds only the displayed relative percentage', () => {
+    const hero = deriveInflationMomentumHero({
+      twelveMonthRate: 3.5,
+      difference: -0.69,
+      answerTier: 'slowing',
+    })
+    expect(hero.relativeDifference).toBeCloseTo(-0.1971428571)
+    expect(hero.heroValue).toBe('20% slower')
+  })
+
+  it('uses About the same inside the existing neutral threshold', () => {
+    expect(deriveInflationMomentumHero({
+      twelveMonthRate: 3.5,
+      difference: 0.299,
+      answerTier: 'close',
+    })).toMatchObject({
+      showRelativeHero: false,
+      heroValue: 'About the same',
+    })
+  })
+
+  it('guards a near-zero denominator with a percentage-point hero', () => {
+    expect(deriveInflationMomentumHero({
+      twelveMonthRate:
+        inflationMomentumThresholds.relativeDenominator - 0.01,
+      difference: 0.3,
+      answerTier: 'pickup',
+    })).toMatchObject({
+      relativeDifference: null,
+      showRelativeHero: false,
+      heroValue: '0.3 percentage points faster',
+    })
+  })
+
+  it('allows the exact denominator threshold', () => {
+    expect(deriveInflationMomentumHero({
+      twelveMonthRate: inflationMomentumThresholds.relativeDenominator,
+      difference: 0.3,
+      answerTier: 'pickup',
+    })).toMatchObject({
+      showRelativeHero: true,
+      heroValue: '60% faster',
+    })
   })
 })

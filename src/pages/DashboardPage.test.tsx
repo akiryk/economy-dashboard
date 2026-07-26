@@ -461,6 +461,13 @@ describe('DashboardPage economic series', () => {
     expect(within(momentum).getByText(
       'No — inflation has been slowing in recent months.',
     )).toBeVisible()
+    expect(within(momentum).getByText('20% slower')).toBeVisible()
+    expect(within(momentum).getByText(
+      'Recent annualized pace compared with the past-year inflation rate',
+    )).toBeVisible()
+    expect(within(momentum).getByText(
+      '+2.8% versus +3.5%, a difference of 0.7 percentage points.',
+    )).toBeVisible()
     expect(within(momentum).getByText('Past 12 months')).toBeVisible()
     expect(within(momentum).getByText('Latest 3 months, annualized')).toBeVisible()
     expect(within(momentum).getByText('+3.5%')).toBeVisible()
@@ -492,6 +499,12 @@ describe('DashboardPage economic series', () => {
     )
     expect(within(momentum).getByRole('dialog')).toHaveTextContent(
       'Both compact values use overall, or headline, CPI',
+    )
+    expect(within(momentum).getByRole('dialog')).toHaveTextContent(
+      'past-year rate is at least 0.5% in absolute value',
+    )
+    expect(momentum).not.toHaveTextContent(
+      /inflation fell 20%|CPI declined 20%|prices fell 20%/i,
     )
     await user.keyboard('{Escape}')
     expect(within(drivers).queryByRole('group', {
