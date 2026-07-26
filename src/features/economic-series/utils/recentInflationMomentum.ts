@@ -33,6 +33,7 @@ export interface RecentInflationMomentumModel {
   scale: readonly [number, number] | null
   items: readonly InflationMomentumComparisonItem[]
   slopeDirection: 'up' | 'down' | 'level' | null
+  slopeReferenceY: number | null
   differenceLabel: string | null
 }
 
@@ -140,6 +141,12 @@ export function deriveRecentInflationMomentumModel({
   const emphasizedDifference = (threeMonthY - twelveMonthY) * 1.5
   const emphasizedTwelveMonthY = slopeCenter - emphasizedDifference / 2
   const emphasizedThreeMonthY = slopeCenter + emphasizedDifference / 2
+  const displayedTwelveMonthY = slopeDirection === 'level'
+    ? levelY
+    : emphasizedTwelveMonthY
+  const displayedThreeMonthY = slopeDirection === 'level'
+    ? levelY
+    : emphasizedThreeMonthY
   return {
     status: 'available',
     ...classification,
@@ -150,6 +157,10 @@ export function deriveRecentInflationMomentumModel({
     difference,
     scale,
     slopeDirection,
+    slopeReferenceY: Math.min(
+      38,
+      Math.max(displayedTwelveMonthY, displayedThreeMonthY) + 3,
+    ),
     differenceLabel,
     items: [
       {
@@ -157,18 +168,14 @@ export function deriveRecentInflationMomentumModel({
         label: 'Past 12 months',
         value: twelveMonthRate,
         period: latestTwelveMonth.date,
-        slopeYPercent: slopeDirection === 'level'
-          ? levelY
-          : emphasizedTwelveMonthY,
+        slopeYPercent: displayedTwelveMonthY,
       },
       {
         id: 'three-month',
         label: 'Latest 3 months, annualized',
         value: threeMonthAnnualizedRate,
         period: latestThreeMonthAtPeriod.date,
-        slopeYPercent: slopeDirection === 'level'
-          ? levelY
-          : emphasizedThreeMonthY,
+        slopeYPercent: displayedThreeMonthY,
       },
     ],
   }
@@ -189,6 +196,7 @@ function unavailableModel(
     scale: null,
     items: [],
     slopeDirection: null,
+    slopeReferenceY: null,
     differenceLabel: null,
   }
 }

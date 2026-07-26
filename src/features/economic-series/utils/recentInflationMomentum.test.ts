@@ -114,5 +114,8 @@ describe('deriveRecentInflationMomentumModel', () => {
     expect(
       model.items[1]!.slopeYPercent - model.items[0]!.slopeYPercent,
     ).toBeGreaterThan(8)
+    expect(
+      model.slopeReferenceY! - model.items[1]!.slopeYPercent,
+    ).toBe(3)
   })
 })

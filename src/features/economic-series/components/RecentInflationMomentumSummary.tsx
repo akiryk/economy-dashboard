@@ -137,9 +137,9 @@ export function RecentInflationMomentumSummary({
               <line
                 className="recent-inflation-momentum__reference"
                 x1="4"
-                y1="34"
+                y1={model.slopeReferenceY ?? 34}
                 x2="96"
-                y2="34"
+                y2={model.slopeReferenceY ?? 34}
                 stroke={compactReferenceLineTheme.color}
                 strokeWidth={compactReferenceLineTheme.width}
                 strokeDasharray={compactReferenceLineTheme.svgDashArray}
