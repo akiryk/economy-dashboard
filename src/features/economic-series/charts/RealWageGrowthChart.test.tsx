@@ -53,6 +53,18 @@ describe('RealWageGrowthChart', () => {
     await waitFor(() => expect(dispose).toHaveBeenCalledOnce())
   })
 
+  it('applies the expanded presentation without changing chart behavior', () => {
+    render(
+      <RealWageGrowthChart
+        model={model}
+        accessibleSummary="Expanded summary"
+        variant="expanded"
+      />,
+    )
+    expect(screen.getByRole('figure', { name: 'Expanded summary' }))
+      .toHaveClass('real-wage-growth-chart--expanded')
+  })
+
   it('reveals exact month and value by keyboard, pointer, and tap', async () => {
     const user = userEvent.setup()
     render(

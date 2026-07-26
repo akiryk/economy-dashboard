@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import type { EconomicSeries } from '../models/economicSeries'
 import {
+  calculateVisibleRealWageGrowthSummary,
   classifyRealWageGrowth,
   createRealWageGrowthAccessibleSummary,
+  createRealWageGrowthRangeModel,
+  createVisibleRealWageGrowthAccessibleSummary,
   deriveRealWageGrowthModel,
+  formatVisibleRealWageGrowthSummary,
 } from './realWageGrowth'
 
 function series(
@@ -136,6 +140,60 @@ describe('deriveRealWageGrowthModel', () => {
     expect(model.answerTier).toBe('about-even')
     expect(createRealWageGrowthAccessibleSummary(model)).toContain(
       'Real wage growth was 0% in June 2026',
+    )
+  })
+})
+
+describe('visible real wage growth context', () => {
+  const observations = [
+    { date: '2026-01-01', value: 1 },
+    { date: '2026-02-01', value: null },
+    { date: '2026-03-01', value: -2 },
+    { date: '2026-04-01', value: 1 },
+    { date: '2026-05-01', value: 0 },
+    { date: '2026-06-01', value: -0.049 },
+  ]
+
+  it('creates a zero-inclusive range model from the selected observations', () => {
+    const model = createRealWageGrowthRangeModel(observations)
+    expect(model.recentObservations).toEqual(observations)
+    expect(model.latestObservation).toEqual({
+      date: '2026-06-01',
+      value: -0.049,
+    })
+    expect(model.domain?.[0]).toBeLessThan(-2)
+    expect(model.domain?.[1]).toBeGreaterThan(1)
+  })
+
+  it('reports latest extrema, latest ties, and an explicit valid denominator', () => {
+    const summary = calculateVisibleRealWageGrowthSummary(observations)
+    expect(summary).toMatchObject({
+      startPeriod: '2026-01-01',
+      endPeriod: '2026-06-01',
+      latest: { date: '2026-06-01', value: -0.049 },
+      minimum: { date: '2026-03-01', value: -2 },
+      maximum: { date: '2026-04-01', value: 1 },
+      validObservationCount: 5,
+      atOrAboveZeroCount: 3,
+      atOrAboveZeroShare: 60,
+    })
+    expect(formatVisibleRealWageGrowthSummary(summary)).toBe(
+      'In the visible period, real wage growth ranged from −2.0% in March 2026 to +1.0% in April 2026. ' +
+      'Wages rose at least as fast as prices in 60% of 5 valid months shown. ' +
+      'The latest reading is 0% in June 2026.',
+    )
+  })
+
+  it('provides complete nonvisual context and excludes nulls', () => {
+    const summary = calculateVisibleRealWageGrowthSummary(observations)
+    expect(createVisibleRealWageGrowthAccessibleSummary(summary)).toContain(
+      'selected range runs from January 2026 through June 2026',
+    )
+    expect(createVisibleRealWageGrowthAccessibleSummary(summary)).toContain(
+      'Zero means wage growth and consumer-price inflation were equal',
+    )
+    expect(createVisibleRealWageGrowthAccessibleSummary(summary)).toContain(
+      'does not describe every worker',
     )
   })
 })

@@ -73,15 +73,18 @@ vi.mock('../features/economic-series/charts/RealWageGrowthChart', () => ({
   RealWageGrowthChart: ({
     model,
     accessibleSummary,
+    variant,
   }: {
     model: RealWageGrowthModel
     accessibleSummary: string
+    variant?: 'compact' | 'expanded'
   }) => {
-    realWageChartPropsSpy(model)
+    realWageChartPropsSpy({ model, variant: variant ?? 'compact' })
     return (
       <figure
         data-testid="real-wage-growth-chart"
         data-zero-baseline="true"
+        data-variant={variant ?? 'compact'}
         aria-label={accessibleSummary}
       />
     )
@@ -800,10 +803,13 @@ describe('DashboardPage economic series', () => {
     expect(within(comparison).getByTestId('real-wage-growth-chart'))
       .toHaveAttribute('data-zero-baseline', 'true')
     expect(realWageChartPropsSpy.mock.calls.at(-1)?.[0]).toMatchObject({
-      status: 'available',
-      answerTier: 'about-even',
+      variant: 'compact',
+      model: {
+        status: 'available',
+        answerTier: 'about-even',
+      },
     })
-    expect(realWageChartPropsSpy.mock.calls.at(-1)?.[0].recentObservations)
+    expect(realWageChartPropsSpy.mock.calls.at(-1)?.[0].model.recentObservations)
       .toHaveLength(61)
     expect(within(comparison).getByRole('figure')).toHaveAccessibleName(
       /Zero means wage growth and consumer-price inflation were equal/,
@@ -819,15 +825,46 @@ describe('DashboardPage economic series', () => {
     )).toBe(false)
 
     await user.click(within(comparison).getByRole('button', { name: /More/ }))
-    expect(within(comparison).getByText(
+    expect(within(comparison).getAllByText(
       /Positive values mean wages rose faster than consumer prices/,
-    )).toHaveTextContent(
+    )[0]).toHaveTextContent(
       'Negative values mean prices rose faster than wages.',
     )
-    expect(within(comparison).getByText(/nominal wages grew 3.4%/))
+    const expandedChart = within(comparison).getAllByTestId(
+      'real-wage-growth-chart',
+    ).find((chart) => chart.dataset.variant === 'expanded')!
+    expect(expandedChart).toHaveAttribute('data-variant', 'expanded')
+    expect(expandedChart).toHaveAccessibleName(
+      /Wages rose at least as fast as prices in 74% of 240 valid months shown/,
+    )
+    expect(within(comparison).getByText(
+      /In the visible period, real wage growth ranged from/,
+    )).toHaveTextContent(/The latest reading is 0% in June 2026/)
+    const components = within(comparison).getByText(
+      'How wage growth and inflation compare',
+    ).closest('details')!
+    expect(components).not.toHaveAttribute('open')
+    expect(
+      expandedChart.compareDocumentPosition(components) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+    const tellsYou = within(comparison).getByRole('heading', {
+      name: 'What this tells you',
+    })
+    expect(
+      components.compareDocumentPosition(tellsYou) &
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy()
+    await user.click(within(components).getByText(
+      'How wage growth and inflation compare',
+    ))
+    expect(within(components).getByText(/nominal wages grew 3.4%/))
       .toHaveTextContent('consumer prices rose 3.5%')
-    expect(within(comparison).getByText(/producing negative real wage growth/))
-      .toBeVisible()
+    expect(within(components).getByText(/approximately the same rate/))
+      .toHaveTextContent('real wage growth of about 0%')
+    expect(within(comparison).queryByText(
+      /producing negative real wage growth of 0%/,
+    )).not.toBeInTheDocument()
     await waitFor(() => {
       const call = [...chartPropsSpy.mock.calls]
         .reverse()
@@ -844,6 +881,11 @@ describe('DashboardPage economic series', () => {
       name: 'Wages versus inflation displayed time range',
     })).toBeVisible()
     await user.click(within(comparison).getByRole('button', { name: '5 years' }))
+    expect(realWageChartPropsSpy.mock.calls.at(-1)?.[0]).toMatchObject({
+      variant: 'expanded',
+    })
+    expect(realWageChartPropsSpy.mock.calls.at(-1)?.[0].model.recentObservations)
+      .toHaveLength(61)
     await user.click(within(comparison).getByRole('button', { name: /Less/ }))
     expect(within(comparison).queryByRole('group', {
       name: 'Wages versus inflation displayed time range',

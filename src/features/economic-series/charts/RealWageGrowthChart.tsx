@@ -32,9 +32,11 @@ echarts.use([
 export function RealWageGrowthChart({
   model,
   accessibleSummary,
+  variant = 'compact',
 }: {
   model: RealWageGrowthModel
   accessibleSummary: string
+  variant?: 'compact' | 'expanded'
 }) {
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstanceRef = useRef<ReturnType<typeof echarts.init> | null>(null)
@@ -123,7 +125,7 @@ export function RealWageGrowthChart({
 
   return (
     <figure
-      className="real-wage-growth-chart"
+      className={`real-wage-growth-chart real-wage-growth-chart--${variant}`}
       aria-labelledby={summaryId}
     >
       <div

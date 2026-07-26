@@ -11,6 +11,11 @@
   cursor: crosshair;
 }
 
+.real-wage-growth-chart--expanded
+  .real-wage-growth-chart__interaction {
+  height: 18rem;
+}
+
 .real-wage-growth-chart__interaction:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
@@ -67,5 +72,10 @@
 @media (max-width: 36rem) {
   .real-wage-growth-chart__interaction {
     height: 10rem;
+  }
+
+  .real-wage-growth-chart--expanded
+    .real-wage-growth-chart__interaction {
+    height: 14rem;
   }
 }

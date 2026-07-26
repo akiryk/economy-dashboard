@@ -24,6 +24,17 @@ export interface RealWageGrowthModel {
   visiblePeriod: readonly [string, string] | null
 }
 
+export interface VisibleRealWageGrowthSummary {
+  startPeriod: string | null
+  endPeriod: string | null
+  latest: (EconomicObservation & { value: number }) | null
+  minimum: (EconomicObservation & { value: number }) | null
+  maximum: (EconomicObservation & { value: number }) | null
+  validObservationCount: number
+  atOrAboveZeroCount: number
+  atOrAboveZeroShare: number | null
+}
+
 export const realWageGrowthThresholds = {
   neutral: 0.1,
 } as const
@@ -83,6 +94,93 @@ function deriveDomain(observations: readonly EconomicObservation[]): readonly [
   ]
 }
 
+export function createRealWageGrowthRangeModel(
+  observations: readonly EconomicObservation[],
+): RealWageGrowthModel {
+  const sorted = [...observations].sort((left, right) =>
+    left.date.localeCompare(right.date))
+  const latestObservation = [...sorted].reverse()
+    .find((observation): observation is EconomicObservation & { value: number } =>
+      finite(observation.value)) ?? null
+  const visiblePeriod = sorted.length
+    ? [sorted[0]!.date, sorted.at(-1)!.date] as const
+    : null
+  return {
+    status: latestObservation ? 'available' : 'unavailable',
+    ...classifyRealWageGrowth(latestObservation?.value ?? null),
+    latestObservation,
+    observations: sorted,
+    recentObservations: sorted,
+    domain: deriveDomain(sorted),
+    visiblePeriod,
+  }
+}
+
+export function calculateVisibleRealWageGrowthSummary(
+  observations: readonly EconomicObservation[],
+): VisibleRealWageGrowthSummary {
+  const sorted = [...observations].sort((left, right) =>
+    left.date.localeCompare(right.date))
+  const valid = sorted.filter(
+    (observation): observation is EconomicObservation & { value: number } =>
+      finite(observation.value),
+  )
+  let minimum: VisibleRealWageGrowthSummary['minimum'] = null
+  let maximum: VisibleRealWageGrowthSummary['maximum'] = null
+  for (const observation of valid) {
+    if (!minimum || observation.value <= minimum.value) minimum = observation
+    if (!maximum || observation.value >= maximum.value) maximum = observation
+  }
+  const atOrAboveZeroCount = valid.filter(({ value }) => value >= 0).length
+  return {
+    startPeriod: sorted[0]?.date ?? null,
+    endPeriod: sorted.at(-1)?.date ?? null,
+    latest: valid.at(-1) ?? null,
+    minimum,
+    maximum,
+    validObservationCount: valid.length,
+    atOrAboveZeroCount,
+    atOrAboveZeroShare: valid.length
+      ? Math.round(atOrAboveZeroCount / valid.length * 100)
+      : null,
+  }
+}
+
+export function formatVisibleRealWageGrowthSummary(
+  summary: VisibleRealWageGrowthSummary,
+): string {
+  if (
+    !summary.latest ||
+    !summary.minimum ||
+    !summary.maximum ||
+    summary.atOrAboveZeroShare === null
+  ) {
+    return 'No valid real wage growth observations are available in the visible period.'
+  }
+  return `In the visible period, real wage growth ranged from ` +
+    `${formatSignedPercentage(summary.minimum.value)} in ` +
+    `${formatObservationPeriod(summary.minimum.date, 'monthly')} to ` +
+    `${formatSignedPercentage(summary.maximum.value)} in ` +
+    `${formatObservationPeriod(summary.maximum.date, 'monthly')}. ` +
+    `Wages rose at least as fast as prices in ${summary.atOrAboveZeroShare}% ` +
+    `of ${summary.validObservationCount} valid months shown. The latest ` +
+    `reading is ${formatSignedPercentage(summary.latest.value)} in ` +
+    `${formatObservationPeriod(summary.latest.date, 'monthly')}.`
+}
+
+export function createVisibleRealWageGrowthAccessibleSummary(
+  summary: VisibleRealWageGrowthSummary,
+): string {
+  if (!summary.startPeriod || !summary.endPeriod) {
+    return 'No real wage growth date range is visible.'
+  }
+  return `${formatVisibleRealWageGrowthSummary(summary)} The selected range runs ` +
+    `from ${formatObservationPeriod(summary.startPeriod, 'monthly')} through ` +
+    `${formatObservationPeriod(summary.endPeriod, 'monthly')}. Zero means wage ` +
+    `growth and consumer-price inflation were equal. This is an aggregate ` +
+    `measure and does not describe every worker.`
+}
+
 export function deriveRealWageGrowthModel({
   realWageGrowth,
   nominalWageGrowth,
@@ -134,15 +232,16 @@ export function deriveRealWageGrowthModel({
         recentObservations.at(-1)!.date,
       ] as const
     : null
-  const classification = classifyRealWageGrowth(latestObservation?.value ?? null)
-
+  const rangeModel = createRealWageGrowthRangeModel(recentObservations)
+  const latestClassification = classifyRealWageGrowth(
+    latestObservation?.value ?? null,
+  )
   return {
+    ...rangeModel,
     status: latestObservation ? 'available' : 'unavailable',
-    ...classification,
+    ...latestClassification,
     latestObservation,
     observations,
-    recentObservations,
-    domain: deriveDomain(recentObservations),
     visiblePeriod,
   }
 }

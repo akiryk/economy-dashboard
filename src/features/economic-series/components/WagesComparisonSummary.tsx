@@ -8,12 +8,15 @@ import {
 } from '../utils/economicSeries'
 import {
   alignWageComparisonObservations,
-  calculateWageComparisonSummary,
   filterWageComparisonByTimeRange,
 } from '../utils/comparisonData'
 import {
+  calculateVisibleRealWageGrowthSummary,
   createRealWageGrowthAccessibleSummary,
+  createRealWageGrowthRangeModel,
+  createVisibleRealWageGrowthAccessibleSummary,
   deriveRealWageGrowthModel,
+  formatVisibleRealWageGrowthSummary,
 } from '../utils/realWageGrowth'
 import type { TimeRange } from '../utils/chartData'
 import { CompactMetricCardLayout } from './CompactMetricCardLayout'
@@ -67,23 +70,40 @@ export function WagesComparisonSummary({
   )
   const zoom = useHistoricalZoom(selected, selectedRange, 'monthly', setSelectedRange)
   const visible = zoom.visibleItems
-  const summary = useMemo(
-    () => calculateWageComparisonSummary(visible),
-    [visible],
+  const compactRealByDate = useMemo(
+    () => new Map(
+      compactModel.observations.map(({ date, value }) => [date, value]),
+    ),
+    [compactModel.observations],
   )
-  const latest = [...visible]
+  const visibleRealObservations = useMemo(
+    () => visible.map(({ date }) => ({
+      date,
+      value: compactRealByDate.get(date) ?? null,
+    })),
+    [compactRealByDate, visible],
+  )
+  const expandedRealWageModel = useMemo(
+    () => createRealWageGrowthRangeModel(visibleRealObservations),
+    [visibleRealObservations],
+  )
+  const visibleSummary = useMemo(
+    () => calculateVisibleRealWageGrowthSummary(visibleRealObservations),
+    [visibleRealObservations],
+  )
+  const expandedAccessibleSummary =
+    createVisibleRealWageGrowthAccessibleSummary(visibleSummary)
+  const latestComponents = [...visible]
     .reverse()
-    .find((item) => item.realWageGrowth !== null)
+    .find((item) =>
+      item.realWageGrowth !== null &&
+      item.nominalWageGrowth !== null &&
+      item.cpiInflation !== null)
   const coverageStart = aligned[0]
   const coverageEnd = aligned.at(-1)
-  const direction =
-    latest?.realWageGrowth === null || latest?.realWageGrowth === undefined
-      ? 'unavailable'
-      : latest.realWageGrowth > 0
-        ? 'positive'
-        : latest.realWageGrowth < 0
-          ? 'negative'
-          : 'zero'
+  const latestRealDisplay = formatSignedPercentage(
+    latestComponents?.realWageGrowth ?? null,
+  )
 
   const expandedContent = (
     <>
@@ -94,6 +114,13 @@ export function WagesComparisonSummary({
         wages rose faster than consumer prices. Negative values mean prices
         rose faster than wages.
       </p>
+      <section>
+        <h4>Real wage growth</h4>
+        <p>
+          Positive values mean average wages gained purchasing power relative
+          to CPI. Negative values mean they lost purchasing power.
+        </p>
+      </section>
       <TimeRangeControl
         selectedRange={selectedRange}
         onRangeChange={zoom.selectPreset}
@@ -107,60 +134,75 @@ export function WagesComparisonSummary({
         onReset={zoom.reset}
       />
 
-      {summary.observationCount > 0 ? (
+      {visibleSummary.validObservationCount > 0 ? (
         <>
           <Suspense fallback={<p className="chart-state">Loading chart visualization…</p>}>
-            <EconomicTimeSeriesChart
-              key={selectedRange}
-              kind="comparison"
-              nominalObservations={selected.map((item) => ({
-                date: item.date,
-                value: item.nominalWageGrowth,
-              }))}
-              inflationObservations={selected.map((item) => ({
-                date: item.date,
-                value: item.cpiInflation,
-              }))}
-              realObservations={selected.map((item) => ({
-                date: item.date,
-                value: item.realWageGrowth,
-              }))}
-              frequency="monthly"
-              zoomStartDate={visible[0]?.date ?? ''}
-              zoomEndDate={visible.at(-1)?.date ?? ''}
-              onZoomChange={zoom.onChartZoom}
+            <RealWageGrowthChart
+              model={expandedRealWageModel}
+              accessibleSummary={expandedAccessibleSummary}
+              variant="expanded"
             />
           </Suspense>
           <p className="chart-summary" aria-live="polite">
-            In {latest ? formatObservationPeriod(latest.date, 'monthly') : 'an unavailable month'}, nominal wages grew{' '}
-            {formatPercentage(latest?.nominalWageGrowth ?? null)} from a year
-            earlier while consumer prices rose{' '}
-            {formatPercentage(latest?.cpiInflation ?? null)}, producing{' '}
-            {direction} real wage growth of{' '}
-            {formatSignedPercentage(latest?.realWageGrowth ?? null)}. Over the
-            visible period, real wage growth ranged from{' '}
-            {formatSignedPercentage(summary.minimum?.value ?? null)} in{' '}
-            {summary.minimum
-              ? formatObservationPeriod(summary.minimum.date, 'monthly')
-              : 'an unavailable month'}{' '}
-            to {formatSignedPercentage(summary.maximum?.value ?? null)} in{' '}
-            {summary.maximum
-              ? formatObservationPeriod(summary.maximum.date, 'monthly')
-              : 'an unavailable month'}.
+            {formatVisibleRealWageGrowthSummary(visibleSummary)}
           </p>
         </>
       ) : (
         <p className="chart-state">No aligned wage and inflation observations are available.</p>
       )}
 
+      <details className="supporting-disclosure wages-comparison__components">
+        <summary>How wage growth and inflation compare</summary>
+        <p>
+          The two components use one shared percent axis. Their difference
+          produces the real-wage series used for the compact answer and primary
+          chart.
+        </p>
+        <Suspense fallback={<p className="chart-state">Loading chart visualization…</p>}>
+          <EconomicTimeSeriesChart
+            key={selectedRange}
+            kind="comparison"
+            nominalObservations={selected.map((item) => ({
+              date: item.date,
+              value: item.nominalWageGrowth,
+            }))}
+            inflationObservations={selected.map((item) => ({
+              date: item.date,
+              value: item.cpiInflation,
+            }))}
+            realObservations={selected.map((item) => ({
+              date: item.date,
+              value: item.realWageGrowth,
+            }))}
+            frequency="monthly"
+            zoomStartDate={visible[0]?.date ?? ''}
+            zoomEndDate={visible.at(-1)?.date ?? ''}
+            onZoomChange={zoom.onChartZoom}
+          />
+        </Suspense>
+        {latestComponents && (
+          <p className="chart-summary">
+            In {formatObservationPeriod(latestComponents.date, 'monthly')},
+            nominal wages grew{' '}
+            {formatPercentage(latestComponents.nominalWageGrowth)} while
+            consumer prices rose{' '}
+            {formatPercentage(latestComponents.cpiInflation)}
+            {latestRealDisplay === '0%'
+              ? ', so wages and prices rose at approximately the same rate, producing real wage growth of about 0%.'
+              : `, producing real wage growth of ${latestRealDisplay}.`}
+          </p>
+        )}
+      </details>
+
       <div className="series-explanations">
         <section>
           <h4>What this tells you</h4>
           <p>
-            This comparison shows whether average hourly earnings for
-            private-sector production and nonsupervisory employees are rising
-            faster or slower than consumer prices. Real wage growth is positive
-            when inflation-adjusted hourly earnings increase from a year earlier.
+            This chart shows whether average hourly earnings for private-sector
+            production and nonsupervisory employees rose faster or slower than
+            consumer prices. Positive real wage growth means average wages
+            gained purchasing power relative to CPI; negative real wage growth
+            means they lost purchasing power.
           </p>
         </section>
         <section>
