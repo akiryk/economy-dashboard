@@ -155,6 +155,7 @@ export function DashboardPage() {
         description="Labor-market indicators show how readily people can find work and how broadly employment is distributed. No single measure fully captures labor-market strength."
       >
         <EconomicSeriesCard
+          collapsible
           slug="unemployment-rate"
           label="unemployment rate"
           onSeriesLoaded={handleSeriesLoaded}

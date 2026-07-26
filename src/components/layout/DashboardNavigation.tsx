@@ -39,7 +39,7 @@ const navigationGroups = [
     cards: [
       {
         id: 'unemployment-rate-card',
-        title: 'How difficult is it for people who want work to find it?',
+        title: 'Is unemployment high or low?',
       },
       {
         id: 'prime-age-employment-ratio-card',

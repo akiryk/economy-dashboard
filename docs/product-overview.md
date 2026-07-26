@@ -35,7 +35,7 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 
 | Card | Displayed measure and chart | Why it is here |
 |---|---|---|
-| How difficult is it for people who want work to find it? | Monthly unemployment rate. | Measures unsuccessful job seeking among people in the labor force. |
+| Is unemployment high or low? | Monthly unemployment rate: the share of the labor force without a job and actively looking for work. The compact view pairs the latest level with a five-year line over trailing 25-year middle-50% and middle-80% bands, uses lower-is-better historical states, and separately classifies the exact 12-month percentage-point change. More preserves the full research chart and controls. | Describes both the current level and recent direction of unsuccessful job seeking among people in the labor force. Payroll growth, prime-age employment, and initial claims remain complementary indicators rather than inputs to this card’s answer. |
 | What share of prime-age adults are employed? | Monthly employment-to-population ratio for ages 25–54. | Adds a broad employment measure less affected by population aging than the all-age ratio. |
 | Are employers adding jobs? | Monthly payroll changes, emphasizing a rolling three-month average. | Shows the direction and recent pace of employer job creation while retaining monthly detail. |
 | Are layoffs beginning to rise? | Weekly initial unemployment claims and the official four-week average, aligned by week ending. | Adds a timely signal of new unemployment-insurance filings while emphasizing the less noisy official average. |

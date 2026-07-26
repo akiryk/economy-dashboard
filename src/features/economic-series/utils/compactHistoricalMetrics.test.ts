@@ -3,6 +3,7 @@ import gdpData from '../data/real-gdp-growth.json'
 import perCapitaData from '../data/real-gdp-per-capita-growth.json'
 import productivityData from '../data/labor-productivity-growth.json'
 import cpiData from '../data/headline-cpi-inflation.json'
+import unemploymentData from '../data/unemployment-rate.json'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import { deriveHistoricalBandContext } from './historicalBandContext'
 import {
@@ -12,6 +13,7 @@ import {
   laborProductivityGrowthCompactDefinition,
   realGdpCompactDefinition,
   realGdpPerCapitaCompactDefinition,
+  unemploymentCompactDefinition,
 } from './compactHistoricalMetrics'
 
 describe('compact historical metric definitions', () => {
@@ -89,6 +91,28 @@ describe('compact historical metric definitions', () => {
     )
     expect(summary).toContain('latest 61 months')
     expect(summary).toContain('Federal Reserve formally targets PCE inflation')
+  })
+
+  it('configures unemployment with five years, oriented bands, and no zero line', () => {
+    const series = validateEconomicSeries(unemploymentData)
+    const model = deriveHistoricalBandContext(
+      series.observations,
+      unemploymentCompactDefinition.historicalBands,
+    )
+    expect(model.status).toBe('ready')
+    if (model.status !== 'ready') return
+    expect(model.recentObservations).toHaveLength(61)
+    expect(model.comparisonStart).toBe('2001-06-01')
+    expect(model.comparisonEnd).toBe('2026-06-01')
+    expect(unemploymentCompactDefinition.showZeroLine).toBe(false)
+    expect(unemploymentCompactDefinition.showLatestMarker).toBe(true)
+    expect(unemploymentCompactDefinition.helpText.description).toContain(
+      'Some people who want work are not counted if they are not actively looking',
+    )
+    expect(describeCompactHistoricalPosition(
+      model,
+      unemploymentCompactDefinition,
+    )).toBe('low compared with the past 25 years')
   })
 
   it('keeps per-capita interpretation factual and distribution-neutral', () => {

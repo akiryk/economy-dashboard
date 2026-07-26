@@ -46,6 +46,7 @@ vi.mock('../features/economic-series/charts/CompactHistoricalMetricChart', () =>
       data-testid="production-compact-chart"
       data-status={model.status}
       data-series-label={definition.seriesLabel}
+      data-show-zero={definition.showZeroLine}
     />,
 }))
 
@@ -145,7 +146,7 @@ describe('DashboardPage economic series', () => {
       'What is driving inflation?',
       'Has inflation picked up in recent months?',
       'Are workers’ wages keeping up with prices?',
-      'How difficult is it for people who want work to find it?',
+      'Is unemployment high or low?',
       'What share of prime-age adults are employed?',
       'Are employers adding jobs?',
       'Are layoffs beginning to rise?',
@@ -386,7 +387,7 @@ describe('DashboardPage economic series', () => {
       level: 3,
     })
     expect(laborQuestions.map((heading) => heading.textContent)).toEqual([
-      'How difficult is it for people who want work to find it?',
+      'Is unemployment high or low?',
       'What share of prime-age adults are employed?',
       'Are employers adding jobs?',
       'Are layoffs beginning to rise?',
@@ -969,7 +970,7 @@ describe('DashboardPage economic series', () => {
     render(<DashboardPage />)
 
     const unemployment = await screen.findByRole('article', {
-      name: 'How difficult is it for people who want work to find it?',
+      name: 'Is unemployment high or low?',
     })
     const primeAge = await screen.findByRole('article', {
       name: 'What share of prime-age adults are employed?',
@@ -978,18 +979,35 @@ describe('DashboardPage economic series', () => {
       name: 'How quickly are consumer prices rising?',
     })
 
-    expect(within(unemployment).getByLabelText('Latest unemployment rate'))
+    const unemploymentCallout = within(unemployment).getByLabelText(
+      /The unemployment rate was 4.2% in June 2026/,
+    )
+    expect(unemploymentCallout)
       .toHaveTextContent('4.2%')
+    expect(unemploymentCallout).toHaveTextContent(
+      'Share of the labor force without a job and actively looking for work',
+    )
+    expect(unemploymentCallout).toHaveTextContent(
+      'Unemployment is low compared with the past 25 years.',
+    )
+    expect(unemploymentCallout).toHaveTextContent(
+      'Unemployment is little changed from a year ago.',
+    )
+    expect(unemploymentCallout).toHaveAccessibleName(
+      /middle 50% ranges from 4.3% to 6.4%.*middle 80% ranges from 3.7% to 9.0%/,
+    )
+    expect(within(unemployment).getByTestId('production-compact-chart'))
+      .toHaveAttribute('data-show-zero', 'false')
     expect(within(primeAge).getByLabelText('Latest prime-age employment ratio'))
       .toHaveTextContent('80.2%')
-    expect(within(unemployment).getAllByText('June 2026')).not.toHaveLength(0)
+    expect(within(unemployment).getByText(/June 2026/)).toBeVisible()
     expect(within(primeAge).getAllByText('June 2026')).not.toHaveLength(0)
-    expect(within(unemployment).getByText(/ranged from/)).not.toHaveTextContent(
-      'below zero',
-    )
     expect(within(primeAge).getByText(/ranged from/)).not.toHaveTextContent(
       'below zero',
     )
+    expect(within(unemployment).queryByRole('button', { name: '5 years' }))
+      .not.toBeInTheDocument()
+    await user.click(within(unemployment).getByRole('button', { name: /More/ }))
     await user.click(within(cpiCard).getByRole('button', { name: /More/ }))
     await waitFor(() => {
       const zeroPolicies = Object.fromEntries(
@@ -1603,7 +1621,7 @@ describe('DashboardPage economic series', () => {
     ],
     [
       'prime-age-employment-ratio',
-      'How difficult is it for people who want work to find it?',
+      'Is unemployment high or low?',
       'The prime-age employment-to-population ratio data could not be loaded.',
     ],
   ])(
@@ -1654,7 +1672,7 @@ describe('DashboardPage economic series', () => {
         await screen.findByText('The payroll growth data could not be loaded.'),
       ).toBeVisible()
       expect(await screen.findByRole('article', {
-        name: 'How difficult is it for people who want work to find it?',
+        name: 'Is unemployment high or low?',
       })).toBeVisible()
       expect(await screen.findByRole('article', {
         name: 'What share of prime-age adults are employed?',
@@ -1688,7 +1706,7 @@ describe('DashboardPage economic series', () => {
       for (const question of [
         'Is the U.S. economy growing?',
         'How quickly are consumer prices rising?',
-        'How difficult is it for people who want work to find it?',
+        'Is unemployment high or low?',
         'What share of prime-age adults are employed?',
         'Are employers adding jobs?',
       ]) {
@@ -1882,7 +1900,7 @@ describe('DashboardPage economic series', () => {
         'Is the U.S. economy growing?',
         survivingQuestion,
         'How quickly are consumer prices rising?',
-        'How difficult is it for people who want work to find it?',
+        'Is unemployment high or low?',
       ]) {
         expect(await screen.findByRole('article', { name: question })).toBeVisible()
       }

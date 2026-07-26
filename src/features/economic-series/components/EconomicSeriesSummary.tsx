@@ -54,6 +54,10 @@ import {
 } from '../utils/cpiData'
 import { CpiPceComparison } from './CpiPceComparison'
 import { CpiCoreComparison } from './CpiCoreComparison'
+import {
+  createUnemploymentAccessibleSummary,
+  deriveUnemploymentContext,
+} from '../utils/unemploymentContext'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -175,6 +179,12 @@ export function EconomicSeriesSummary({
       : null,
     [compactDefinition, series.observations],
   )
+  const unemploymentContext = useMemo(
+    () => series.slug === 'unemployment-rate'
+      ? deriveUnemploymentContext(series.observations)
+      : null,
+    [series.observations, series.slug],
+  )
   const formatValue = (value: number | null) =>
     formatEconomicValue(value, presentation.valueFormat)
   const savingRateChange =
@@ -228,6 +238,9 @@ export function EconomicSeriesSummary({
       aria-label={
         productivityAccessibleLabel ??
         cpiAccessibleLabel ??
+        (unemploymentContext
+          ? createUnemploymentAccessibleSummary(unemploymentContext)
+          : null) ??
         presentation.latestValueLabel
       }
     >
@@ -267,6 +280,8 @@ export function EconomicSeriesSummary({
             ? formatProductivityAnswer(productivityAnswer!)
             : series.slug === 'headline-cpi-inflation'
             ? cpiAssessment
+            : series.slug === 'unemployment-rate'
+            ? 'Share of the labor force without a job and actively looking for work'
             : presentation.latestValueLabel}
         </p>
         <p className="series-current__period">
@@ -293,6 +308,24 @@ export function EconomicSeriesSummary({
               {cpiReferenceComparison}
             </p>
           )}
+        {unemploymentContext && (
+          <>
+            <p className="series-current__answer">
+              {unemploymentContext.levelStatement}
+            </p>
+            <p className="series-current__comparison">
+              {unemploymentContext.directionStatement}
+              {unemploymentContext.twelveMonthChange !== null && (
+                <>
+                  {' '}The change was{' '}
+                  {formatSignedPercentagePoints(
+                    unemploymentContext.twelveMonthChange,
+                  )} percentage points.
+                </>
+              )}
+            </p>
+          </>
+        )}
     </div>
   )
   const compactVisual = compactModel && compactDefinition ? (
@@ -315,7 +348,9 @@ export function EconomicSeriesSummary({
     <CompactMetricCardLayout
       cardId={series.slug}
       eyebrow={presentation.topicLabel}
-      question={series.question}
+      question={series.slug === 'unemployment-rate'
+        ? 'Is unemployment high or low?'
+        : series.question}
       measureLabel={series.title}
       latestValue={latestValueContent}
       compactVisual={compactVisual}
@@ -557,11 +592,19 @@ export function EconomicSeriesSummary({
       <div className="series-explanations">
         <section>
           <h4>What this tells you</h4>
-          <p>{presentation.whatThisTellsYou}</p>
+          <p>
+            {series.slug === 'unemployment-rate'
+              ? 'The unemployment rate measures the current level of joblessness among people in the labor force. The compact historical classification and the separate 12-month movement describe level and direction without combining them into one score.'
+              : presentation.whatThisTellsYou}
+          </p>
         </section>
         <section>
           <h4>What this leaves out</h4>
-          <p>{presentation.whatThisLeavesOut}</p>
+          <p>
+            {series.slug === 'unemployment-rate'
+              ? 'The labor force includes employed people and unemployed people who are available and have recently looked for work. People who want work but are not actively looking are not counted as unemployed. The rate does not measure job creation, layoffs, job quality, hours, pay, or differences across groups.'
+              : presentation.whatThisLeavesOut}
+          </p>
         </section>
       </div>
 
@@ -571,7 +614,9 @@ export function EconomicSeriesSummary({
       >
         <h4 id={`${series.slug}-related-heading`}>Consider alongside</h4>
         <ul>
-          {presentation.relatedIndicators.map((indicator) => (
+          {(series.slug === 'unemployment-rate'
+            ? ['Payroll growth', 'Prime-age employment', 'Initial claims']
+            : presentation.relatedIndicators).map((indicator) => (
             <li key={indicator}>{indicator}</li>
           ))}
         </ul>
