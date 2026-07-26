@@ -16,6 +16,7 @@ import {
   createRealWageGrowthRangeModel,
   createVisibleRealWageGrowthAccessibleSummary,
   deriveRealWageGrowthModel,
+  formatRealWageGrowthHistoricalPosition,
   formatVisibleRealWageGrowthSummary,
 } from '../utils/realWageGrowth'
 import type { TimeRange } from '../utils/chartData'
@@ -103,6 +104,9 @@ export function WagesComparisonSummary({
   const coverageEnd = aligned.at(-1)
   const latestRealDisplay = formatSignedPercentage(
     latestComponents?.realWageGrowth ?? null,
+  )
+  const historicalPosition = formatRealWageGrowthHistoricalPosition(
+    compactModel.historicalBands,
   )
 
   const expandedContent = (
@@ -282,6 +286,9 @@ export function WagesComparisonSummary({
               : 'Observation period unavailable'}
           </p>
           <p className="series-current__answer">{compactModel.answer}</p>
+          {historicalPosition && (
+            <p className="series-current__comparison">{historicalPosition}</p>
+          )}
         </div>
       )}
       compactVisual={(

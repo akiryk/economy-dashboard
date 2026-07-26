@@ -9,6 +9,20 @@ const observations = [
   { date: '2025-10-01', value: null },
   { date: '2026-06-01', value: 0.5 },
 ]
+const historicalBands = {
+  status: 'ready' as const,
+  recentObservations: observations,
+  comparisonStart: '2001-06-01',
+  comparisonEnd: '2026-06-01',
+  innerLower: -0.5,
+  innerUpper: 0.75,
+  median: 0.1,
+  outerLower: -2,
+  outerUpper: 1.5,
+  latestObservation: { date: '2026-06-01', value: 0.5 },
+  validObservationCount: 300,
+  recentObservationCount: 61,
+}
 
 describe('createRealWageGrowthChartOptions', () => {
   it('renders one nonsmoothed gap-preserving line with zero and latest markers', () => {
@@ -51,6 +65,54 @@ describe('createRealWageGrowthChartOptions', () => {
         { coord: ['2021-06-01', -1] },
       ],
     })
+  })
+
+  it('layers quiet historical bands behind the line and prominent zero', () => {
+    const options = createRealWageGrowthChartOptions({
+      observations,
+      domain: [-1.2, 0.7],
+      historicalBands,
+    })
+    const yAxis = options.yAxis as { min: number; max: number }
+    expect(yAxis.min).toBeLessThan(historicalBands.outerLower)
+    expect(yAxis.max).toBeGreaterThan(historicalBands.outerUpper)
+    const series = (options.series as Array<{
+      z: number
+      markArea: { data: unknown }
+      markLine: {
+        data: Array<{
+          yAxis: number
+          lineStyle: { width: number; opacity: number }
+        }>
+      }
+      lineStyle: { width: number }
+    }>)[0]!
+    expect(series.z).toBe(3)
+    expect(series.markArea.data).toMatchObject([
+      [
+        {
+          name: 'Historical middle 80 percent',
+          yAxis: -2,
+          itemStyle: { color: 'rgba(184, 148, 54, 0.14)' },
+        },
+        { yAxis: 1.5 },
+      ],
+      [
+        {
+          name: 'Historical middle 50 percent',
+          yAxis: -0.5,
+          itemStyle: { color: 'rgba(184, 148, 54, 0.28)' },
+        },
+        { yAxis: 0.75 },
+      ],
+    ])
+    expect(series.markLine.data[0]).toMatchObject({
+      yAxis: 0,
+      lineStyle: { width: 1.5, opacity: 1 },
+    })
+    expect(series.lineStyle.width).toBeGreaterThan(
+      series.markLine.data[0].lineStyle.width,
+    )
   })
 
   it('formats exact tooltip content in percent', () => {

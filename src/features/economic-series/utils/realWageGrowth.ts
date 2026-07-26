@@ -6,6 +6,12 @@ import {
   formatObservationPeriod,
   formatSignedPercentage,
 } from './economicSeries'
+import {
+  classifyHistoricalBandPosition,
+  deriveHistoricalBandContext,
+  type HistoricalBandDefinition,
+  type HistoricalBandResult,
+} from './historicalBandContext'
 
 export type RealWageGrowthAnswerTier =
   | 'positive'
@@ -22,6 +28,7 @@ export interface RealWageGrowthModel {
   recentObservations: EconomicObservation[]
   domain: readonly [number, number] | null
   visiblePeriod: readonly [string, string] | null
+  historicalBands: HistoricalBandResult | null
 }
 
 export interface VisibleRealWageGrowthSummary {
@@ -38,6 +45,15 @@ export interface VisibleRealWageGrowthSummary {
 export const realWageGrowthThresholds = {
   neutral: 0.1,
 } as const
+
+export const realWageGrowthHistoricalBandDefinition: HistoricalBandDefinition = {
+  recentObservationCount: 61,
+  comparisonWindow: { kind: 'trailing-years', years: 25 },
+  innerPercentiles: [25, 75],
+  outerPercentiles: [10, 90],
+  minimumFiniteObservations: 60,
+  latestObservationPolicy: 'last-observation',
+}
 
 export function classifyRealWageGrowth(value: number | null): Pick<
   RealWageGrowthModel,
@@ -113,7 +129,40 @@ export function createRealWageGrowthRangeModel(
     recentObservations: sorted,
     domain: deriveDomain(sorted),
     visiblePeriod,
+    historicalBands: null,
   }
+}
+
+export function describeRealWageGrowthHistoricalPosition(
+  bands: HistoricalBandResult | null,
+): string | null {
+  if (bands?.status !== 'ready') return null
+  const position = classifyHistoricalBandPosition(
+    bands.latestObservation.value,
+    bands,
+  )
+  const descriptions = {
+    belowOuterBand:
+      'unusually low relative to the past 25 years',
+    betweenOuterAndInnerLow:
+      'below its typical range of the past 25 years',
+    insideInnerBand:
+      'within its typical range of the past 25 years',
+    betweenInnerAndOuterHigh:
+      'above its typical range of the past 25 years',
+    aboveOuterBand:
+      'unusually high relative to the past 25 years',
+    unavailable:
+      'unavailable relative to the past 25 years',
+  } as const
+  return descriptions[position]
+}
+
+export function formatRealWageGrowthHistoricalPosition(
+  bands: HistoricalBandResult | null,
+): string | null {
+  const description = describeRealWageGrowthHistoricalPosition(bands)
+  return description ? `The latest reading is ${description}.` : null
 }
 
 export function calculateVisibleRealWageGrowthSummary(
@@ -233,6 +282,10 @@ export function deriveRealWageGrowthModel({
       ] as const
     : null
   const rangeModel = createRealWageGrowthRangeModel(recentObservations)
+  const historicalBands = deriveHistoricalBandContext(
+    observations,
+    realWageGrowthHistoricalBandDefinition,
+  )
   const latestClassification = classifyRealWageGrowth(
     latestObservation?.value ?? null,
   )
@@ -243,6 +296,7 @@ export function deriveRealWageGrowthModel({
     latestObservation,
     observations,
     visiblePeriod,
+    historicalBands,
   }
 }
 
@@ -261,10 +315,23 @@ export function createRealWageGrowthAccessibleSummary(
     : model.answerTier === 'negative'
       ? 'prices were rising faster than wages'
       : 'wages and prices were rising at about the same pace'
+  const historicalContext = model.historicalBands?.status === 'ready'
+    ? ` The trailing comparison runs from ` +
+      `${formatObservationPeriod(model.historicalBands.comparisonStart, 'monthly')} ` +
+      `through ${formatObservationPeriod(model.historicalBands.comparisonEnd, 'monthly')}. ` +
+      `The middle 50% ranges from ` +
+      `${formatSignedPercentage(model.historicalBands.innerLower)} to ` +
+      `${formatSignedPercentage(model.historicalBands.innerUpper)}, and the ` +
+      `middle 80% ranges from ` +
+      `${formatSignedPercentage(model.historicalBands.outerLower)} to ` +
+      `${formatSignedPercentage(model.historicalBands.outerUpper)}. ` +
+      `${formatRealWageGrowthHistoricalPosition(model.historicalBands)}`
+    : ''
   return `Real wage growth was ${formatSignedPercentage(model.latestObservation.value)} ` +
     `in ${formatObservationPeriod(model.latestObservation.date, 'monthly')}; ` +
     `${relationship}. Zero means wage growth and consumer-price inflation were equal. ` +
     `The visible trend runs from ${formatObservationPeriod(model.visiblePeriod[0], 'monthly')} ` +
     `through ${formatObservationPeriod(model.visiblePeriod[1], 'monthly')}. ` +
+    historicalContext +
     'This is an aggregate measure and does not describe every worker.'
 }

@@ -2,6 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { LineChart } from 'echarts/charts'
 import {
   GridComponent,
+  MarkAreaComponent,
   MarkLineComponent,
   MarkPointComponent,
   TooltipComponent,
@@ -9,6 +10,7 @@ import {
 import * as echarts from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { RealWageGrowthModel } from '../utils/realWageGrowth'
+import { CompactChartHelp } from '../components/CompactChartHelp'
 import { formatObservationPeriod } from '../utils/economicSeries'
 import {
   adjacentFiniteObservationIndex,
@@ -24,6 +26,7 @@ echarts.use([
   CanvasRenderer,
   GridComponent,
   LineChart,
+  MarkAreaComponent,
   MarkLineComponent,
   MarkPointComponent,
   TooltipComponent,
@@ -54,10 +57,17 @@ export function RealWageGrowthChart({
       ? createRealWageGrowthChartOptions({
           observations: model.recentObservations,
           domain: model.domain,
+          historicalBands: variant === 'compact' ? model.historicalBands : null,
           activeObservation,
         })
       : null,
-    [activeObservation, model.domain, model.recentObservations],
+    [
+      activeObservation,
+      model.domain,
+      model.historicalBands,
+      model.recentObservations,
+      variant,
+    ],
   )
 
   useEffect(() => {
@@ -206,9 +216,31 @@ export function RealWageGrowthChart({
           <span>{formatObservationPeriod(model.visiblePeriod[1], 'monthly')}</span>
         </div>
       )}
-      <p className="real-wage-growth-chart__zero-label">
-        Zero = wage growth matched inflation
-      </p>
+      <div className="real-wage-growth-chart__footer">
+        <p className="real-wage-growth-chart__zero-label">
+          Zero = wage growth matched inflation
+        </p>
+        {variant === 'compact' && model.historicalBands?.status === 'ready' && (
+          <CompactChartHelp
+            buttonLabel="Explain real wage growth historical bands"
+            dialogLabel="Real wage growth historical context"
+          >
+            <p>
+              The line is year-over-year real wage growth. Zero means wage
+              growth matched consumer-price inflation.
+            </p>
+            <p>
+              The darker band contains the middle 50% of monthly readings over
+              the trailing 25 years; the lighter band contains the middle 80%.
+              Null observations are excluded. The dot marks the latest reading.
+            </p>
+            <p>
+              These ranges describe historical frequency, not a target. A
+              reading near zero can still be historically typical or atypical.
+            </p>
+          </CompactChartHelp>
+        )}
+      </div>
       <figcaption className="visually-hidden" id={summaryId}>
         {accessibleSummary}
       </figcaption>

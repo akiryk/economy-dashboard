@@ -793,6 +793,7 @@ describe('DashboardPage economic series', () => {
         'Year-over-year wage growth after adjusting for inflation',
         'June 2026',
         'About even — wages are roughly keeping pace with prices.',
+        'The latest reading is within its typical range of the past 25 years.',
       ])
     expect(within(comparison).getByText(
       'About even — wages are roughly keeping pace with prices.',
@@ -807,12 +808,21 @@ describe('DashboardPage economic series', () => {
       model: {
         status: 'available',
         answerTier: 'about-even',
+        historicalBands: {
+          status: 'ready',
+          comparisonStart: '2001-06-01',
+          comparisonEnd: '2026-06-01',
+          recentObservationCount: 61,
+        },
       },
     })
     expect(realWageChartPropsSpy.mock.calls.at(-1)?.[0].model.recentObservations)
       .toHaveLength(61)
     expect(within(comparison).getByRole('figure')).toHaveAccessibleName(
       /Zero means wage growth and consumer-price inflation were equal/,
+    )
+    expect(within(comparison).getByRole('figure')).toHaveAccessibleName(
+      /middle 50% ranges from.*middle 80% ranges from/,
     )
     expect(within(comparison).queryByRole('group', {
       name: 'Wages versus inflation displayed time range',

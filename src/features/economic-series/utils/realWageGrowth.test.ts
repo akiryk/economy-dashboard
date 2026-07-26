@@ -7,7 +7,10 @@ import {
   createRealWageGrowthRangeModel,
   createVisibleRealWageGrowthAccessibleSummary,
   deriveRealWageGrowthModel,
+  describeRealWageGrowthHistoricalPosition,
+  formatRealWageGrowthHistoricalPosition,
   formatVisibleRealWageGrowthSummary,
+  realWageGrowthHistoricalBandDefinition,
 } from './realWageGrowth'
 
 function series(
@@ -21,6 +24,17 @@ function series(
     sourceName: 'test', sourceUrl: 'https://example.com', retrievedAt: '2026-07-25',
     observations: observations.map(([date, value]) => ({ date, value })),
   }
+}
+
+function monthlyObservations(
+  startYear: number,
+  count: number,
+  value: (index: number) => number | null,
+): Array<[string, number | null]> {
+  return Array.from({ length: count }, (_, index) => {
+    const date = new Date(Date.UTC(startYear, index, 1))
+    return [date.toISOString().slice(0, 10), value(index)]
+  })
 }
 
 describe('classifyRealWageGrowth', () => {
@@ -85,6 +99,60 @@ describe('deriveRealWageGrowthModel', () => {
     })
     expect(model.visiblePeriod).toEqual(['2025-11-01', '2026-06-01'])
     expect(model.recentObservations).toHaveLength(2)
+    expect(model.historicalBands?.status).toBe('insufficient-history')
+  })
+
+  it('uses a trailing 25-year comparison and a 61-month compact line', () => {
+    const observations = monthlyObservations(2000, 318, (index) => index % 20)
+    const inputs = {
+      nominalWageGrowth: series('wages', observations),
+      cpiInflation: series('cpi', observations),
+      realWageGrowth: series('real', observations),
+    }
+    const model = deriveRealWageGrowthModel(inputs)
+    expect(realWageGrowthHistoricalBandDefinition).toMatchObject({
+      recentObservationCount: 61,
+      comparisonWindow: { kind: 'trailing-years', years: 25 },
+      innerPercentiles: [25, 75],
+      outerPercentiles: [10, 90],
+      minimumFiniteObservations: 60,
+    })
+    expect(model.recentObservations).toHaveLength(61)
+    expect(model.historicalBands).toMatchObject({
+      status: 'ready',
+      comparisonStart: '2001-06-01',
+      comparisonEnd: '2026-06-01',
+      validObservationCount: 301,
+      recentObservationCount: 61,
+    })
+  })
+
+  it('excludes nulls from percentiles and enforces the minimum history', () => {
+    const enough = monthlyObservations(2021, 61, (index) =>
+      index === 4 ? null : index)
+    const ready = deriveRealWageGrowthModel({
+      nominalWageGrowth: series('wages', enough),
+      cpiInflation: series('cpi', enough),
+      realWageGrowth: series('real', enough),
+    })
+    expect(ready.historicalBands).toMatchObject({
+      status: 'ready',
+      validObservationCount: 60,
+      innerLower: 15.75,
+      innerUpper: 45.25,
+    })
+
+    const tooShort = enough.slice(1)
+    const insufficient = deriveRealWageGrowthModel({
+      nominalWageGrowth: series('wages', tooShort),
+      cpiInflation: series('cpi', tooShort),
+      realWageGrowth: series('real', tooShort),
+    })
+    expect(insufficient.historicalBands).toMatchObject({
+      status: 'insufficient-history',
+      validObservationCount: 59,
+      minimumRequired: 60,
+    })
   })
 
   it('is unavailable when the latest wage input is null', () => {
@@ -140,6 +208,43 @@ describe('deriveRealWageGrowthModel', () => {
     expect(model.answerTier).toBe('about-even')
     expect(createRealWageGrowthAccessibleSummary(model)).toContain(
       'Real wage growth was 0% in June 2026',
+    )
+  })
+})
+
+describe('real wage historical position', () => {
+  const bands = {
+    status: 'ready' as const,
+    recentObservations: [],
+    comparisonStart: '2001-06-01',
+    comparisonEnd: '2026-06-01',
+    innerLower: -0.5,
+    innerUpper: 0.5,
+    median: 0,
+    outerLower: -1,
+    outerUpper: 1,
+    latestObservation: { date: '2026-06-01', value: 0 },
+    validObservationCount: 300,
+    recentObservationCount: 61,
+  }
+
+  it.each([
+    [-1.01, 'unusually low'],
+    [-1, 'below its typical range'],
+    [-0.5, 'within its typical range'],
+    [0.5, 'within its typical range'],
+    [1, 'above its typical range'],
+    [1.01, 'unusually high'],
+  ])('classifies %s at exact band boundaries', (value, wording) => {
+    expect(describeRealWageGrowthHistoricalPosition({
+      ...bands,
+      latestObservation: { ...bands.latestObservation, value },
+    })).toContain(wording)
+  })
+
+  it('keeps the historical statement additional to the sign answer', () => {
+    expect(formatRealWageGrowthHistoricalPosition(bands)).toBe(
+      'The latest reading is within its typical range of the past 25 years.',
     )
   })
 })

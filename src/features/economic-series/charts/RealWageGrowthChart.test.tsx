@@ -31,6 +31,23 @@ const model: RealWageGrowthModel = {
   ],
   domain: [-0.1, 0.6],
   visiblePeriod: ['2026-05-01', '2026-06-01'],
+  historicalBands: {
+    status: 'ready',
+    recentObservations: [
+      { date: '2026-05-01', value: null },
+      { date: '2026-06-01', value: 0.5 },
+    ],
+    comparisonStart: '2001-06-01',
+    comparisonEnd: '2026-06-01',
+    innerLower: -0.5,
+    innerUpper: 0.75,
+    median: 0.1,
+    outerLower: -1,
+    outerUpper: 1.5,
+    latestObservation: { date: '2026-06-01', value: 0.5 },
+    validObservationCount: 300,
+    recentObservationCount: 61,
+  },
 }
 
 describe('RealWageGrowthChart', () => {
@@ -63,6 +80,29 @@ describe('RealWageGrowthChart', () => {
     )
     expect(screen.getByRole('figure', { name: 'Expanded summary' }))
       .toHaveClass('real-wage-growth-chart--expanded')
+    expect(screen.queryByRole('button', {
+      name: 'Explain real wage growth historical bands',
+    })).not.toBeInTheDocument()
+  })
+
+  it('explains compact historical bands without hiding chart interaction', async () => {
+    const user = userEvent.setup()
+    render(
+      <RealWageGrowthChart model={model} accessibleSummary="Complete summary" />,
+    )
+    await user.click(screen.getByRole('button', {
+      name: 'Explain real wage growth historical bands',
+    }))
+    const dialog = screen.getByRole('dialog', {
+      name: 'Real wage growth historical context',
+    })
+    expect(dialog).toHaveTextContent('middle 50%')
+    expect(dialog).toHaveTextContent('middle 80%')
+    expect(dialog).toHaveTextContent('historical frequency, not a target')
+    expect(dialog).toHaveTextContent(
+      'near zero can still be historically typical or atypical',
+    )
+    expect(screen.getByLabelText(/Use left and right arrow keys/)).toBeVisible()
   })
 
   it('reveals exact month and value by keyboard, pointer, and tap', async () => {

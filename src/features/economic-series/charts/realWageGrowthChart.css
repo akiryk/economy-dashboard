@@ -27,10 +27,23 @@
 }
 
 .real-wage-growth-chart__zero-label {
-  margin: var(--space-1) 0 0;
+  margin: 0;
   color: var(--color-text-muted);
   font-size: 0.8125rem;
   text-align: center;
+}
+
+.real-wage-growth-chart__footer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  min-height: var(--compact-chart-help-size);
+  margin-top: var(--space-1);
+}
+
+.real-wage-growth-chart__footer .historical-band-chart__help {
+  right: 0;
+  bottom: 0;
 }
 
 .real-wage-growth-chart__periods {
