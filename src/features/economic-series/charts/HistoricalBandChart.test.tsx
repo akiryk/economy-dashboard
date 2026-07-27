@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { HistoricalBandModel } from '../utils/historicalBandContext'
@@ -77,6 +77,54 @@ describe('HistoricalBandChart', () => {
     expect(screen.getByRole('dialog')).toBeVisible()
     await user.click(document.body)
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('reveals exact details by keyboard, pointer, and tap when enabled', async () => {
+    const user = userEvent.setup()
+    render(
+      <HistoricalBandChart
+        {...defaultProps}
+        frequency="monthly"
+        interactiveDetails
+      />,
+    )
+    expect(chart.setOption).toHaveBeenCalledWith(
+      expect.objectContaining({ tooltip: { show: false } }),
+      { notMerge: true },
+    )
+    const interaction = screen.getByLabelText(
+      /Use left and right arrow keys for exact monthly values/,
+    )
+    vi.spyOn(interaction, 'getBoundingClientRect').mockReturnValue({
+      x: 0, y: 0, width: 100, height: 128,
+      top: 0, right: 100, bottom: 128, left: 0,
+      toJSON: () => ({}),
+    })
+
+    await user.tab()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Example growthJanuary 20262%',
+    )
+    await user.keyboard('{ArrowLeft}')
+    expect(screen.getByRole('status')).toHaveTextContent('April 20211%')
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+
+    fireEvent.pointerMove(interaction, {
+      clientX: 100,
+      pointerType: 'mouse',
+    })
+    expect(screen.getByRole('status')).toHaveTextContent('January 2026')
+    fireEvent.pointerLeave(interaction, { pointerType: 'mouse' })
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+
+    fireEvent.pointerDown(interaction, {
+      clientX: 0,
+      pointerType: 'touch',
+    })
+    expect(screen.getByRole('status')).toHaveTextContent('April 2021')
+    fireEvent.pointerDown(document.body)
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 
   it('renders an explicit unavailable state without initializing ECharts', () => {

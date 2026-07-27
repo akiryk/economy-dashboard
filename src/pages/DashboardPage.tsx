@@ -161,6 +161,7 @@ export function DashboardPage() {
           onSeriesLoaded={handleSeriesLoaded}
         />
         <EconomicSeriesCard
+          collapsible
           slug="prime-age-employment-ratio"
           label="prime-age employment-to-population ratio"
           onSeriesLoaded={handleSeriesLoaded}

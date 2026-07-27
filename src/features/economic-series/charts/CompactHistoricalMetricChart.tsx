@@ -44,6 +44,7 @@ export function CompactHistoricalMetricChart({
       showLatestMarker={definition.showLatestMarker}
       referenceLines={definition.referenceLines}
       visuallyHideSummary={visuallyHideSummary}
+      interactiveDetails={definition.interactiveDetails}
     />
   )
 }

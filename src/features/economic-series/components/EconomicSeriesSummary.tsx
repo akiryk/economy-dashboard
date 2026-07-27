@@ -58,6 +58,10 @@ import {
   createUnemploymentAccessibleSummary,
   deriveUnemploymentContext,
 } from '../utils/unemploymentContext'
+import {
+  createPrimeAgeEmploymentAccessibleSummary,
+  derivePrimeAgeEmploymentContext,
+} from '../utils/primeAgeEmploymentContext'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -185,6 +189,12 @@ export function EconomicSeriesSummary({
       : null,
     [series.observations, series.slug],
   )
+  const primeAgeEmploymentContext = useMemo(
+    () => series.slug === 'prime-age-employment-ratio'
+      ? derivePrimeAgeEmploymentContext(series.observations)
+      : null,
+    [series.observations, series.slug],
+  )
   const formatValue = (value: number | null) =>
     formatEconomicValue(value, presentation.valueFormat)
   const savingRateChange =
@@ -241,6 +251,11 @@ export function EconomicSeriesSummary({
         (unemploymentContext
           ? createUnemploymentAccessibleSummary(unemploymentContext)
           : null) ??
+        (primeAgeEmploymentContext
+          ? createPrimeAgeEmploymentAccessibleSummary(
+              primeAgeEmploymentContext,
+            )
+          : null) ??
         presentation.latestValueLabel
       }
     >
@@ -282,6 +297,8 @@ export function EconomicSeriesSummary({
             ? cpiAssessment
             : series.slug === 'unemployment-rate'
             ? 'Share of the labor force without a job and actively looking for work'
+            : series.slug === 'prime-age-employment-ratio'
+            ? 'Share of adults ages 25–54 who are employed'
             : presentation.latestValueLabel}
         </p>
         <p className="series-current__period">
@@ -325,6 +342,11 @@ export function EconomicSeriesSummary({
               )}
             </p>
           </>
+        )}
+        {primeAgeEmploymentContext && (
+          <p className="series-current__answer">
+            {primeAgeEmploymentContext.levelStatement}
+          </p>
         )}
     </div>
   )

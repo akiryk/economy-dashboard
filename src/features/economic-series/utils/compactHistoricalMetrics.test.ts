@@ -4,6 +4,7 @@ import perCapitaData from '../data/real-gdp-per-capita-growth.json'
 import productivityData from '../data/labor-productivity-growth.json'
 import cpiData from '../data/headline-cpi-inflation.json'
 import unemploymentData from '../data/unemployment-rate.json'
+import primeAgeEmploymentData from '../data/prime-age-employment-ratio.json'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import { deriveHistoricalBandContext } from './historicalBandContext'
 import {
@@ -14,6 +15,7 @@ import {
   realGdpCompactDefinition,
   realGdpPerCapitaCompactDefinition,
   unemploymentCompactDefinition,
+  primeAgeEmploymentCompactDefinition,
 } from './compactHistoricalMetrics'
 
 describe('compact historical metric definitions', () => {
@@ -113,6 +115,27 @@ describe('compact historical metric definitions', () => {
       model,
       unemploymentCompactDefinition,
     )).toBe('low compared with the past 25 years')
+  })
+
+  it('configures prime-age employment with higher-oriented interactive bands', () => {
+    const series = validateEconomicSeries(primeAgeEmploymentData)
+    const model = deriveHistoricalBandContext(
+      series.observations,
+      primeAgeEmploymentCompactDefinition.historicalBands,
+    )
+    expect(model.status).toBe('ready')
+    if (model.status !== 'ready') return
+    expect(model.recentObservations).toHaveLength(61)
+    expect(model.comparisonStart).toBe('2001-06-01')
+    expect(model.comparisonEnd).toBe('2026-06-01')
+    expect(primeAgeEmploymentCompactDefinition.showZeroLine).toBe(false)
+    expect(primeAgeEmploymentCompactDefinition.interactiveDetails).toBe(true)
+    expect(primeAgeEmploymentCompactDefinition.helpText.description)
+      .toContain('less affected by retirement and schooling')
+    expect(describeCompactHistoricalPosition(
+      model,
+      primeAgeEmploymentCompactDefinition,
+    )).toBe('high compared with the past 25 years')
   })
 
   it('keeps per-capita interpretation factual and distribution-neutral', () => {

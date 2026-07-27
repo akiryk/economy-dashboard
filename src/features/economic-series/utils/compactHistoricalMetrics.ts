@@ -22,6 +22,7 @@ export interface CompactHistoricalMetricDefinition {
   historicalBands: HistoricalBandDefinition
   showZeroLine: boolean
   showLatestMarker: boolean
+  interactiveDetails?: boolean
   referenceLines?: readonly { value: number; label: string }[]
   helpText: HistoricalBandHelpText
   zeroLineMeaning: string
@@ -70,6 +71,15 @@ const cpiPositionDescriptions: CompactHistoricalMetricDefinition['positionDescri
 }
 
 const unemploymentPositionDescriptions:
+CompactHistoricalMetricDefinition['positionDescriptions'] = {
+  belowOuterBand: 'very low compared with the past 25 years',
+  betweenOuterAndInnerLow: 'low compared with the past 25 years',
+  insideInnerBand: 'near its typical range of the past 25 years',
+  betweenInnerAndOuterHigh: 'high compared with the past 25 years',
+  aboveOuterBand: 'very high compared with the past 25 years',
+}
+
+const primeAgeEmploymentPositionDescriptions:
 CompactHistoricalMetricDefinition['positionDescriptions'] = {
   belowOuterBand: 'very low compared with the past 25 years',
   betweenOuterAndInnerLow: 'low compared with the past 25 years',
@@ -181,6 +191,31 @@ export const unemploymentCompactDefinition: CompactHistoricalMetricDefinition = 
   positionDescriptions: unemploymentPositionDescriptions,
 }
 
+export const primeAgeEmploymentCompactDefinition:
+CompactHistoricalMetricDefinition = {
+  seriesLabel: 'Prime-age employment',
+  frequency: 'monthly',
+  historicalBands: {
+    recentObservationCount: 61,
+    comparisonWindow: { kind: 'trailing-years', years: 25 },
+    innerPercentiles: [25, 75],
+    outerPercentiles: [10, 90],
+    minimumFiniteObservations: 60,
+    latestObservationPolicy: 'last-observation',
+  },
+  showZeroLine: false,
+  showLatestMarker: true,
+  interactiveDetails: true,
+  helpText: {
+    heading: 'Prime-age employment and historical context',
+    description:
+      'Prime age means ages 25–54, a range less affected by retirement and schooling than an all-age measure. The line shows the latest five years. The dark band is the middle 50% and the lighter band is the middle 80% of monthly readings over the trailing 25 years. Higher readings occupy the higher historical bands. The measure does not describe hours, pay, job quality, or why someone is not employed.',
+  },
+  zeroLineMeaning:
+    'No zero line is shown because zero is not a meaningful reference for this metric.',
+  positionDescriptions: primeAgeEmploymentPositionDescriptions,
+}
+
 const compactDefinitions: Readonly<
   Partial<Record<string, CompactHistoricalMetricDefinition>>
 > = {
@@ -189,6 +224,7 @@ const compactDefinitions: Readonly<
   'labor-productivity-growth': laborProductivityGrowthCompactDefinition,
   'headline-cpi-inflation': headlineCpiCompactDefinition,
   'unemployment-rate': unemploymentCompactDefinition,
+  'prime-age-employment-ratio': primeAgeEmploymentCompactDefinition,
 }
 
 export function getCompactHistoricalMetricDefinition(

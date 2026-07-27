@@ -47,6 +47,7 @@ vi.mock('../features/economic-series/charts/CompactHistoricalMetricChart', () =>
       data-status={model.status}
       data-series-label={definition.seriesLabel}
       data-show-zero={definition.showZeroLine}
+      data-interactive={definition.interactiveDetails}
     />,
 }))
 
@@ -1011,16 +1012,35 @@ describe('DashboardPage economic series', () => {
     )
     expect(within(unemployment).getByTestId('production-compact-chart'))
       .toHaveAttribute('data-show-zero', 'false')
-    expect(within(primeAge).getByLabelText('Latest prime-age employment ratio'))
-      .toHaveTextContent('80.2%')
-    expect(within(unemployment).getByText(/June 2026/)).toBeVisible()
-    expect(within(primeAge).getAllByText('June 2026')).not.toHaveLength(0)
-    expect(within(primeAge).getByText(/ranged from/)).not.toHaveTextContent(
-      'below zero',
+    const primeAgeCallout = within(primeAge).getByLabelText(
+      /The prime-age employment ratio was 80.2% in June 2026/,
     )
+    expect(primeAgeCallout)
+      .toHaveTextContent('80.2%')
+    expect(primeAgeCallout).toHaveTextContent(
+      'Share of adults ages 25–54 who are employed',
+    )
+    expect(primeAgeCallout).toHaveTextContent(
+      'Prime-age employment is high compared with the past 25 years.',
+    )
+    expect(primeAgeCallout).toHaveAccessibleName(
+      /line runs from June 2021 through June 2026/,
+    )
+    expect(primeAgeCallout).toHaveAccessibleName(
+      /middle 50% ranges from 76.7% to 79.8%.*middle 80% ranges from 75.3% to 80.6%/,
+    )
+    expect(within(primeAge).getByTestId('production-compact-chart'))
+      .toHaveAttribute('data-show-zero', 'false')
+    expect(within(primeAge).getByTestId('production-compact-chart'))
+      .toHaveAttribute('data-interactive', 'true')
+    expect(within(unemployment).getByText(/June 2026/)).toBeVisible()
+    expect(within(primeAge).getByText(/June 2026/)).toBeVisible()
+    expect(within(primeAge).queryByRole('button', { name: '5 years' }))
+      .not.toBeInTheDocument()
     expect(within(unemployment).queryByRole('button', { name: '5 years' }))
       .not.toBeInTheDocument()
     await user.click(within(unemployment).getByRole('button', { name: /More/ }))
+    await user.click(within(primeAge).getByRole('button', { name: /More/ }))
     await user.click(within(cpiCard).getByRole('button', { name: /More/ }))
     await waitFor(() => {
       const zeroPolicies = Object.fromEntries(

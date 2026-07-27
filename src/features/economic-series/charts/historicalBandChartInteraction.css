@@ -1,0 +1,28 @@
+.historical-band-chart__interaction {
+  position: relative;
+  border-radius: var(--radius-small);
+  cursor: crosshair;
+}
+
+.historical-band-chart__interaction:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.historical-band-chart__interaction-tooltip {
+  position: absolute;
+  z-index: 3;
+  bottom: calc(100% + var(--space-2));
+  display: grid;
+  width: 10rem;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  box-shadow: 0 0.25rem 0.75rem rgb(23 32 42 / 14%);
+  color: var(--color-text);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  pointer-events: none;
+  transform: translateX(-50%);
+}

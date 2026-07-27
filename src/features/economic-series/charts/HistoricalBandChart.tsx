@@ -14,6 +14,12 @@ import type { HistoricalBandHelpText } from '../utils/compactHistoricalMetrics'
 import type { HistoricalBandResult } from '../utils/historicalBandContext'
 import { createHistoricalBandChartOptions } from './historicalBandChartOptions'
 import { CompactChartHelp } from '../components/CompactChartHelp'
+import {
+  adjacentFiniteObservationIndex,
+  nearestFiniteObservationIndex,
+} from '../utils/inflationCategoryTrendInteraction'
+import { formatObservationPeriod } from '../utils/economicSeries'
+import './historicalBandChartInteraction.css'
 
 echarts.use([
   GridComponent,
@@ -38,6 +44,7 @@ interface HistoricalBandChartProps {
   showLatestMarker?: boolean
   referenceLines?: readonly { value: number; label: string }[]
   visuallyHideSummary?: boolean
+  interactiveDetails?: boolean
 }
 
 export function HistoricalBandChart({
@@ -53,9 +60,13 @@ export function HistoricalBandChart({
   showLatestMarker = true,
   referenceLines = [],
   visuallyHideSummary = false,
+  interactiveDetails = false,
 }: HistoricalBandChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const interactionRef = useRef<HTMLDivElement>(null)
   const [chartError, setChartError] = useState(false)
+  const [activeIndex, setActiveIndex] = useState<number | null>(null)
+  const [pinned, setPinned] = useState(false)
   const id = useId()
   const summaryId = `${id}-summary`
   const options = useMemo(
@@ -64,11 +75,13 @@ export function HistoricalBandChart({
           model, seriesLabel, frequency, valueFormatter,
           latestPositionDescription, showZeroLine, showLatestMarker,
           referenceLines,
+          showTooltip: !interactiveDetails,
         })
       : null,
     [
       frequency, latestPositionDescription, model, seriesLabel,
-      referenceLines, showLatestMarker, showZeroLine, valueFormatter,
+      interactiveDetails, referenceLines, showLatestMarker, showZeroLine,
+      valueFormatter,
     ],
   )
 
@@ -95,6 +108,18 @@ export function HistoricalBandChart({
     }
   }, [options, seriesLabel])
 
+  useEffect(() => {
+    if (!pinned) return
+    const dismiss = (event: PointerEvent) => {
+      if (!interactionRef.current?.contains(event.target as Node)) {
+        setPinned(false)
+        setActiveIndex(null)
+      }
+    }
+    document.addEventListener('pointerdown', dismiss)
+    return () => document.removeEventListener('pointerdown', dismiss)
+  }, [pinned])
+
   if (model.status !== 'ready' || !accessibleSummary || !latestPositionDescription) {
     return (
       <p className="chart-state chart-state--compact" role="status">
@@ -109,6 +134,21 @@ export function HistoricalBandChart({
       </p>
     )
   }
+  const activeObservation = activeIndex === null
+    ? null
+    : model.recentObservations[activeIndex] ?? null
+  const activePosition = activeIndex === null ||
+    model.recentObservations.length < 2
+    ? 100
+    : activeIndex / (model.recentObservations.length - 1) * 100
+  const indexFromPointer = (clientX: number): number | null => {
+    const bounds = interactionRef.current?.getBoundingClientRect()
+    if (!bounds || bounds.width === 0) return null
+    return nearestFiniteObservationIndex(
+      model.recentObservations,
+      (clientX - bounds.left) / bounds.width,
+    )
+  }
 
   return (
     <figure
@@ -116,10 +156,83 @@ export function HistoricalBandChart({
       aria-labelledby={summaryId}
     >
       <div
-        ref={containerRef}
-        className="historical-band-chart__canvas"
-        aria-hidden="true"
-      />
+        ref={interactiveDetails ? interactionRef : undefined}
+        className={interactiveDetails
+          ? 'historical-band-chart__interaction'
+          : undefined}
+        tabIndex={interactiveDetails ? 0 : undefined}
+        aria-label={interactiveDetails
+          ? `${seriesLabel} chart. Use left and right arrow keys for exact monthly values.`
+          : undefined}
+        onFocus={interactiveDetails ? () => {
+          if (activeIndex === null) {
+            setActiveIndex(nearestFiniteObservationIndex(
+              model.recentObservations,
+              1,
+            ))
+          }
+        } : undefined}
+        onBlur={interactiveDetails ? () => {
+          if (!pinned) setActiveIndex(null)
+        } : undefined}
+        onKeyDown={interactiveDetails ? (event) => {
+          if (event.key === 'Escape') {
+            setPinned(false)
+            setActiveIndex(null)
+            interactionRef.current?.focus()
+            return
+          }
+          if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
+          event.preventDefault()
+          setActiveIndex((current) => adjacentFiniteObservationIndex(
+            model.recentObservations,
+            current,
+            event.key === 'ArrowLeft' ? -1 : 1,
+          ))
+        } : undefined}
+        onPointerMove={interactiveDetails ? (event) => {
+          if (!pinned && event.pointerType !== 'touch') {
+            setActiveIndex(indexFromPointer(event.clientX))
+          }
+        } : undefined}
+        onPointerLeave={interactiveDetails ? (event) => {
+          if (!pinned && event.pointerType !== 'touch') setActiveIndex(null)
+        } : undefined}
+        onPointerDown={interactiveDetails ? (event) => {
+          if (event.pointerType !== 'touch') return
+          const index = indexFromPointer(event.clientX)
+          if (pinned && index === activeIndex) {
+            setPinned(false)
+            setActiveIndex(null)
+          } else {
+            setActiveIndex(index)
+            setPinned(true)
+          }
+        } : undefined}
+      >
+        <div
+          ref={containerRef}
+          className="historical-band-chart__canvas"
+          aria-hidden="true"
+        />
+        {interactiveDetails &&
+          activeObservation?.value !== null &&
+          activeObservation && (
+            <div
+              className="historical-band-chart__interaction-tooltip"
+              role="status"
+              style={{
+                left: `clamp(5rem, ${activePosition}%, calc(100% - 5rem))`,
+              }}
+            >
+              <strong>{seriesLabel}</strong>
+              <span>
+                {formatObservationPeriod(activeObservation.date, frequency)}
+              </span>
+              <span>{valueFormatter(activeObservation.value)}</span>
+            </div>
+          )}
+      </div>
       <p className="historical-band-chart__title">{caption}</p>
       <CompactChartHelp
         buttonLabel="Explain the historical bands"

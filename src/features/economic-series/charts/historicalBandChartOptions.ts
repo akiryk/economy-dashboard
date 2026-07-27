@@ -12,6 +12,7 @@ export interface HistoricalBandChartOptionsInput {
   latestPositionDescription: string
   showZeroLine: boolean
   showLatestMarker: boolean
+  showTooltip?: boolean
   referenceLines?: readonly { value: number; label: string }[]
 }
 
@@ -48,6 +49,7 @@ export function createHistoricalBandChartOptions({
   latestPositionDescription,
   showZeroLine,
   showLatestMarker,
+  showTooltip = true,
   referenceLines = [],
 }: HistoricalBandChartOptionsInput): EChartsCoreOption {
   const domain = calculateHistoricalBandYDomain(
@@ -58,7 +60,7 @@ export function createHistoricalBandChartOptions({
   return {
     animation: false,
     grid: { left: 2, right: 2, top: 4, bottom: 4, containLabel: false },
-    tooltip: {
+    tooltip: showTooltip ? {
       trigger: 'axis',
       renderMode: 'html',
       confine: true,
@@ -73,7 +75,7 @@ export function createHistoricalBandChartOptions({
           : ''
         return `${formatObservationPeriod(date, frequency)}\n${seriesLabel}: ${valueFormatter(value ?? null)}${latestNote}`
       },
-    },
+    } : { show: false },
     xAxis: {
       type: 'time', show: false, boundaryGap: false,
       axisLabel: { show: false }, axisLine: { show: false },
