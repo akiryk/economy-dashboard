@@ -644,10 +644,26 @@ describe('DashboardPage economic series', () => {
     const payroll = await screen.findByRole('article', {
       name: 'Are employers adding jobs?',
     })
-    const current = within(payroll).getByLabelText('Latest 3-month average')
+    const current = within(payroll).getByLabelText(
+      /The latest three-month average was \+111K in June 2026/,
+    )
     expect(current).toHaveTextContent('+111K')
+    expect(current).toHaveTextContent('Latest three-month average')
+    expect(current).toHaveTextContent(
+      'Yes. Employers are adding jobs at a typical pace by historical standards.',
+    )
+    expect(current).toHaveAccessibleName(
+      /middle 50% ranges from \+66K to \+218K.*middle 80% ranges from −136K to \+287K/,
+    )
     expect(within(current).getByLabelText('a gain of 111,333 jobs')).toBeVisible()
-    expect(within(payroll).getAllByText('June 2026')).not.toHaveLength(0)
+    expect(within(payroll).getByTestId('production-compact-chart'))
+      .toHaveAttribute('data-show-zero', 'true')
+    expect(within(payroll).getByTestId('production-compact-chart'))
+      .toHaveAttribute('data-interactive', 'true')
+    expect(within(payroll).queryByRole('button', { name: '5 years' }))
+      .not.toBeInTheDocument()
+
+    await user.click(within(payroll).getByRole('button', { name: /More/ }))
     expect(within(payroll).getByText(/three-month average monthly payroll change/))
       .toHaveTextContent('a gain of 111,333 jobs')
 
@@ -668,6 +684,10 @@ describe('DashboardPage economic series', () => {
     for (const label of ['Unemployment', 'Prime-age employment', 'Wage growth']) {
       expect(within(payroll).getByText(label).closest('a')).toBeNull()
     }
+    await user.click(within(payroll).getByRole('button', { name: /Less/ }))
+    expect(within(payroll).queryByRole('table', {
+      name: 'Twelve most recent monthly payroll changes and three-month averages',
+    })).not.toBeInTheDocument()
   })
 
   it('renders both quarterly Growth additions with independent controls and accessible detail', async () => {
@@ -1042,6 +1062,10 @@ describe('DashboardPage economic series', () => {
     await user.click(within(unemployment).getByRole('button', { name: /More/ }))
     await user.click(within(primeAge).getByRole('button', { name: /More/ }))
     await user.click(within(cpiCard).getByRole('button', { name: /More/ }))
+    const payroll = await screen.findByRole('article', {
+      name: 'Are employers adding jobs?',
+    })
+    await user.click(within(payroll).getByRole('button', { name: /More/ }))
     await waitFor(() => {
       const zeroPolicies = Object.fromEntries(
         chartPropsSpy.mock.calls.map((call) => {
@@ -1150,6 +1174,7 @@ describe('DashboardPage economic series', () => {
     const payrollCard = await screen.findByRole('article', {
       name: 'Are employers adding jobs?',
     })
+    await user.click(within(payrollCard).getByRole('button', { name: /More/ }))
 
     await user.click(within(gdpCard).getByRole('button', { name: 'Maximum' }))
 

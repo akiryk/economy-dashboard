@@ -26,6 +26,7 @@ export function CompactHistoricalMetricChart({
     ? describeCompactHistoricalPosition(ready, definition)
     : null
   const firstRecent = ready?.recentObservations[0]
+  const valueFormatter = definition.valueFormatter ?? formatPercentage
   const caption = ready && firstRecent
     ? `${definition.seriesLabel} · ${formatObservationPeriod(firstRecent.date, definition.frequency)}–${formatObservationPeriod(ready.latestObservation.date, definition.frequency)}`
     : definition.seriesLabel
@@ -35,7 +36,7 @@ export function CompactHistoricalMetricChart({
       model={model}
       seriesLabel={definition.seriesLabel}
       frequency={definition.frequency}
-      valueFormatter={formatPercentage}
+      valueFormatter={valueFormatter}
       accessibleSummary={accessibleSummary}
       latestPositionDescription={latestPositionDescription}
       helpText={definition.helpText}

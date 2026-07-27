@@ -167,6 +167,7 @@ export function DashboardPage() {
           onSeriesLoaded={handleSeriesLoaded}
         />
         <EconomicSeriesCard
+          collapsible
           slug="payroll-growth"
           supportingSlugs={payrollSupportingSlugs}
           label="payroll growth"

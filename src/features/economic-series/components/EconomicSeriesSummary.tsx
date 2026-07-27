@@ -62,6 +62,10 @@ import {
   createPrimeAgeEmploymentAccessibleSummary,
   derivePrimeAgeEmploymentContext,
 } from '../utils/primeAgeEmploymentContext'
+import {
+  createPayrollGrowthAccessibleSummary,
+  derivePayrollGrowthContext,
+} from '../utils/payrollGrowthContext'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -195,6 +199,12 @@ export function EconomicSeriesSummary({
       : null,
     [series.observations, series.slug],
   )
+  const payrollGrowthContext = useMemo(
+    () => series.slug === 'payroll-growth'
+      ? derivePayrollGrowthContext(series.observations)
+      : null,
+    [series.observations, series.slug],
+  )
   const formatValue = (value: number | null) =>
     formatEconomicValue(value, presentation.valueFormat)
   const savingRateChange =
@@ -256,6 +266,9 @@ export function EconomicSeriesSummary({
               primeAgeEmploymentContext,
             )
           : null) ??
+        (payrollGrowthContext
+          ? createPayrollGrowthAccessibleSummary(payrollGrowthContext)
+          : null) ??
         presentation.latestValueLabel
       }
     >
@@ -299,6 +312,8 @@ export function EconomicSeriesSummary({
             ? 'Share of the labor force without a job and actively looking for work'
             : series.slug === 'prime-age-employment-ratio'
             ? 'Share of adults ages 25–54 who are employed'
+            : series.slug === 'payroll-growth'
+            ? 'Latest three-month average'
             : presentation.latestValueLabel}
         </p>
         <p className="series-current__period">
@@ -346,6 +361,11 @@ export function EconomicSeriesSummary({
         {primeAgeEmploymentContext && (
           <p className="series-current__answer">
             {primeAgeEmploymentContext.levelStatement}
+          </p>
+        )}
+        {payrollGrowthContext && (
+          <p className="series-current__answer">
+            {payrollGrowthContext.answer}
           </p>
         )}
     </div>

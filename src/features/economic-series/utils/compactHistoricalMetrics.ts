@@ -2,6 +2,7 @@ import type { EconomicFrequency } from '../models/economicSeries'
 import {
   formatObservationPeriod,
   formatPercentage,
+  formatSignedThousands,
 } from './economicSeries'
 import {
   classifyHistoricalBandPosition,
@@ -23,6 +24,7 @@ export interface CompactHistoricalMetricDefinition {
   showZeroLine: boolean
   showLatestMarker: boolean
   interactiveDetails?: boolean
+  valueFormatter?: (value: number | null) => string
   referenceLines?: readonly { value: number; label: string }[]
   helpText: HistoricalBandHelpText
   zeroLineMeaning: string
@@ -86,6 +88,15 @@ CompactHistoricalMetricDefinition['positionDescriptions'] = {
   insideInnerBand: 'near its typical range of the past 25 years',
   betweenInnerAndOuterHigh: 'high compared with the past 25 years',
   aboveOuterBand: 'very high compared with the past 25 years',
+}
+
+const payrollGrowthPositionDescriptions:
+CompactHistoricalMetricDefinition['positionDescriptions'] = {
+  belowOuterBand: 'very weak by historical standards',
+  betweenOuterAndInnerLow: 'somewhat weak by historical standards',
+  insideInnerBand: 'within the typical historical range',
+  betweenInnerAndOuterHigh: 'strong by historical standards',
+  aboveOuterBand: 'very strong by historical standards',
 }
 
 export const realGdpCompactDefinition: CompactHistoricalMetricDefinition = {
@@ -216,6 +227,34 @@ CompactHistoricalMetricDefinition = {
   positionDescriptions: primeAgeEmploymentPositionDescriptions,
 }
 
+export const payrollGrowthCompactDefinition:
+CompactHistoricalMetricDefinition = {
+  seriesLabel: 'Three-month average payroll change',
+  frequency: 'monthly',
+  historicalBands: {
+    recentObservationCount: 61,
+    comparisonWindow: { kind: 'trailing-years', years: 25 },
+    innerPercentiles: [25, 75],
+    outerPercentiles: [10, 90],
+    minimumFiniteObservations: 60,
+    latestObservationPolicy: 'last-observation',
+  },
+  showZeroLine: true,
+  showLatestMarker: true,
+  interactiveDetails: true,
+  valueFormatter: formatSignedThousands,
+  helpText: {
+    heading: 'Payroll growth and historical context',
+    description:
+      'Payroll growth measures the monthly change in nonfarm payroll employment. The displayed value averages the latest three valid consecutive monthly changes to reduce month-to-month noise. Positive values mean net job gains and negative values mean net job losses. The bands show where three-month-average payroll changes have commonly fallen during the trailing 25 years; they describe historical frequency, not a target or forecast. Payroll estimates are revised as additional information becomes available.',
+  },
+  zeroLineMeaning:
+    'Zero separates net payroll growth from net payroll decline.',
+  positionDescriptions: payrollGrowthPositionDescriptions,
+  accessibleSummarySuffix: () =>
+    'Every plotted value and both historical bands use the same complete three-month-average series. Payroll estimates are revised as additional information becomes available.',
+}
+
 const compactDefinitions: Readonly<
   Partial<Record<string, CompactHistoricalMetricDefinition>>
 > = {
@@ -225,6 +264,7 @@ const compactDefinitions: Readonly<
   'headline-cpi-inflation': headlineCpiCompactDefinition,
   'unemployment-rate': unemploymentCompactDefinition,
   'prime-age-employment-ratio': primeAgeEmploymentCompactDefinition,
+  'payroll-growth': payrollGrowthCompactDefinition,
 }
 
 export function getCompactHistoricalMetricDefinition(
@@ -250,11 +290,15 @@ export function createCompactHistoricalAccessibleSummary(
   model: HistoricalBandModel,
   definition: CompactHistoricalMetricDefinition,
 ): string {
+  const valueFormatter = definition.valueFormatter ?? formatPercentage
   const first = model.recentObservations.find(({ value }) => value !== null)
   const recentPath = first?.value === null || first?.value === undefined
     ? 'No finite recent path is available.'
-    : `The five-year line begins at ${formatPercentage(first.value)} in ${formatObservationPeriod(first.date, definition.frequency)} and ends at ${formatPercentage(model.latestObservation.value)}.`
+    : `The five-year line begins at ${valueFormatter(first.value)} in ${formatObservationPeriod(first.date, definition.frequency)} and ends at ${valueFormatter(model.latestObservation.value)}.`
   const observationUnit = definition.frequency === 'monthly' ? 'months' : 'quarters'
   const suffix = definition.accessibleSummarySuffix?.(model)
-  return `${definition.seriesLabel} was ${formatPercentage(model.latestObservation.value)} in ${formatObservationPeriod(model.latestObservation.date, definition.frequency)}. The line shows the latest ${model.recentObservationCount} ${observationUnit}. ${recentPath} The trailing comparison runs from ${formatObservationPeriod(model.comparisonStart, definition.frequency)} through ${formatObservationPeriod(model.comparisonEnd, definition.frequency)}. The dark band marks the middle 50% of historical readings, and the lighter bands extend the range to the middle 80%. ${definition.zeroLineMeaning} The latest reading is ${describeCompactHistoricalPosition(model, definition)}.${suffix ? ` ${suffix}` : ''}`
+  const bandRanges = definition.valueFormatter
+    ? ` (${valueFormatter(model.innerLower)} to ${valueFormatter(model.innerUpper)}), and the lighter bands extend the range to the middle 80% (${valueFormatter(model.outerLower)} to ${valueFormatter(model.outerUpper)})`
+    : ', and the lighter bands extend the range to the middle 80%'
+  return `${definition.seriesLabel} was ${valueFormatter(model.latestObservation.value)} in ${formatObservationPeriod(model.latestObservation.date, definition.frequency)}. The line shows the latest ${model.recentObservationCount} ${observationUnit}. ${recentPath} The trailing comparison runs from ${formatObservationPeriod(model.comparisonStart, definition.frequency)} through ${formatObservationPeriod(model.comparisonEnd, definition.frequency)}. The dark band marks the middle 50% of historical readings${bandRanges}. ${definition.zeroLineMeaning} The latest reading is ${describeCompactHistoricalPosition(model, definition)}.${suffix ? ` ${suffix}` : ''}`
 }

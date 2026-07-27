@@ -5,6 +5,7 @@ import productivityData from '../data/labor-productivity-growth.json'
 import cpiData from '../data/headline-cpi-inflation.json'
 import unemploymentData from '../data/unemployment-rate.json'
 import primeAgeEmploymentData from '../data/prime-age-employment-ratio.json'
+import payrollGrowthData from '../data/payroll-growth.json'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import { deriveHistoricalBandContext } from './historicalBandContext'
 import {
@@ -16,6 +17,7 @@ import {
   realGdpPerCapitaCompactDefinition,
   unemploymentCompactDefinition,
   primeAgeEmploymentCompactDefinition,
+  payrollGrowthCompactDefinition,
 } from './compactHistoricalMetrics'
 
 describe('compact historical metric definitions', () => {
@@ -136,6 +138,38 @@ describe('compact historical metric definitions', () => {
       model,
       primeAgeEmploymentCompactDefinition,
     )).toBe('high compared with the past 25 years')
+  })
+
+  it('configures payroll growth with complete three-month averages and signed units', () => {
+    const series = validateEconomicSeries(payrollGrowthData)
+    const model = deriveHistoricalBandContext(
+      series.observations,
+      payrollGrowthCompactDefinition.historicalBands,
+    )
+    expect(model.status).toBe('ready')
+    if (model.status !== 'ready') return
+    expect(model.latestObservation).toEqual({
+      date: '2026-06-01',
+      value: 111.33333333333333,
+    })
+    expect(model.recentObservations).toHaveLength(61)
+    expect(model.recentObservations[0]?.date).toBe('2021-06-01')
+    expect(model.comparisonStart).toBe('2001-06-01')
+    expect(model.comparisonEnd).toBe('2026-06-01')
+    expect(payrollGrowthCompactDefinition.showZeroLine).toBe(true)
+    expect(payrollGrowthCompactDefinition.showLatestMarker).toBe(true)
+    expect(payrollGrowthCompactDefinition.interactiveDetails).toBe(true)
+    expect(payrollGrowthCompactDefinition.valueFormatter?.(
+      model.latestObservation.value,
+    )).toBe('+111K')
+    expect(payrollGrowthCompactDefinition.helpText.description)
+      .toContain('three valid consecutive monthly changes')
+    expect(payrollGrowthCompactDefinition.helpText.description)
+      .toContain('revised')
+    expect(describeCompactHistoricalPosition(
+      model,
+      payrollGrowthCompactDefinition,
+    )).toBe('within the typical historical range')
   })
 
   it('keeps per-capita interpretation factual and distribution-neutral', () => {

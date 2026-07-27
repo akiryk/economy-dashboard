@@ -1,8 +1,12 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import perCapitaData from '../data/real-gdp-per-capita-growth.json'
+import payrollGrowthData from '../data/payroll-growth.json'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
-import { realGdpPerCapitaCompactDefinition } from '../utils/compactHistoricalMetrics'
+import {
+  payrollGrowthCompactDefinition,
+  realGdpPerCapitaCompactDefinition,
+} from '../utils/compactHistoricalMetrics'
 import { deriveHistoricalBandContext } from '../utils/historicalBandContext'
 import { CompactHistoricalMetricChart } from './CompactHistoricalMetricChart'
 
@@ -12,6 +16,8 @@ vi.mock('./HistoricalBandChart', () => ({
     accessibleSummary: string | null
     showZeroLine: boolean
     showLatestMarker: boolean
+    interactiveDetails: boolean
+    valueFormatter: (value: number | null) => string
   }) => (
     <div
       data-testid="historical-band-chart"
@@ -19,6 +25,8 @@ vi.mock('./HistoricalBandChart', () => ({
       data-summary={props.accessibleSummary}
       data-zero-line={props.showZeroLine}
       data-latest-marker={props.showLatestMarker}
+      data-interactive={props.interactiveDetails}
+      data-latest-value={props.valueFormatter(111.33333333333333)}
     />
   ),
 }))
@@ -49,5 +57,31 @@ describe('CompactHistoricalMetricChart', () => {
     )
     expect(chart).toHaveAttribute('data-zero-line', 'true')
     expect(chart).toHaveAttribute('data-latest-marker', 'true')
+  })
+
+  it('adapts payroll observations into a signed, interactive five-year chart', () => {
+    const series = validateEconomicSeries(payrollGrowthData)
+    const model = deriveHistoricalBandContext(
+      series.observations,
+      payrollGrowthCompactDefinition.historicalBands,
+    )
+
+    const { container } = render(
+      <CompactHistoricalMetricChart
+        model={model}
+        definition={payrollGrowthCompactDefinition}
+      />,
+    )
+
+    const chart = container.querySelector('[data-testid="historical-band-chart"]')
+    expect(chart).not.toBeNull()
+    expect(chart).toHaveAttribute(
+      'data-caption',
+      'Three-month average payroll change · June 2021–June 2026',
+    )
+    expect(chart).toHaveAttribute('data-zero-line', 'true')
+    expect(chart).toHaveAttribute('data-latest-marker', 'true')
+    expect(chart).toHaveAttribute('data-interactive', 'true')
+    expect(chart).toHaveAttribute('data-latest-value', '+111K')
   })
 })
