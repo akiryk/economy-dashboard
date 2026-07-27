@@ -5,6 +5,9 @@ node_modules/
 dist/
 performance-results/
 
+# Local implementation stories
+docs/stories/
+
 # Local environment files
 .env
 .env.local
