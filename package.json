@@ -9,6 +9,7 @@
     "data:ingest-inflation-contribution": "tsx scripts/bls/ingestInflationContributionRelease.ts",
     "data:ingest-inflation-contribution-history": "tsx scripts/bls/ingestInflationContributionHistory.ts",
     "data:ingest-category-cpi": "tsx scripts/bls/ingestCategoryCpiSeries.ts",
+    "data:refresh-job-growth-breakeven": "tsx scripts/refreshJobGrowthBreakevenData.ts",
     "data:refresh": "tsx scripts/refreshEconomicData.ts",
     "lint": "eslint .",
     "perf:measure": "tsx scripts/perf/measure.ts",

@@ -54,6 +54,24 @@ PAYEMS is a provider level in thousands of persons. The dashboard does not prese
 
 The primary `payroll-growth` and supporting `monthly-payroll-change` series use the unchanged `{ date, value }` observation shape. The supporting series begins two months earlier; every primary date aligns with a supporting monthly-change date. The repository loads both for one card, and React does not calculate either measure. The supporting series appears only in the payroll card's paired recent-observations table, not as a separate dashboard card.
 
+## Estimated breakeven employment comparison
+
+Breakeven employment growth uses a metric-specific runtime model because a
+single `{ date, value }` cannot retain the estimate status and all explanatory
+components. The source model stores quarterly Federal Reserve Board estimates
+of a monthly job-growth pace and distinguishes historical estimates from source
+projections. Quarter dates use the quarter-ending month. The aligned comparison
+is a discriminated union: `available` observations retain the two PAYEMS levels,
+both monthly job counts, their difference, both annualized rates, and the
+percentage-point gap; `unavailable` observations retain the estimate and an
+explicit missing-period or incomplete-window reason.
+
+The comparison aligns only exact quarter-ending months. Both rates use the same
+PAYEMS level three months earlier as their denominator and the same compounded
+three-month-to-annual transformation. No interpolation, monthly filling, or
+display rounding changes stored values. This model remains a data foundation
+until its visible card is implemented separately.
+
 ## Single-source quarterly growth
 
 Real GDP per capita growth, labor productivity growth, and real business investment growth are locally derived from single official provider level series. Each generated series preserves the level series’ FRED identifier and source attribution, while its description and transformation state that the displayed year-over-year rate is calculated by the application. This avoids implying that FRED directly supplied the exact displayed values.
@@ -109,7 +127,7 @@ DRTSCILM is a provider-published quarterly signed net percentage. Positive, zero
 
 ## Current limitations
 
-- The application contains twenty-eight visible research cards backed by thirty-seven datasets. The two LMCI datasets support the briefing rather than separate research cards; other supporting datasets used within relationship cards are likewise not separate cards.
+- The application contains twenty-eight visible research cards backed by thirty-nine committed datasets. The two breakeven files are a validated foundation for a future card; the two LMCI datasets support the briefing rather than separate research cards; other supporting datasets used within relationship cards are likewise not separate cards.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.

@@ -1,0 +1,1356 @@
+{
+  "id": "estimated-breakeven-employment-growth",
+  "provider": "Board of Governors of the Federal Reserve System",
+  "title": "Estimated Breakeven Employment Growth",
+  "description": "Federal Reserve Board estimate of the monthly payroll-employment growth needed to absorb potential labor-force growth while keeping unemployment approximately stable.",
+  "units": "Thousands of jobs per month",
+  "frequency": "quarterly",
+  "periodConvention": "Quarterly observations are stored at the first day of the quarter-ending month; each value is an estimated monthly job-growth pace, not a quarterly total.",
+  "methodology": "Change in potential labor force multiplied by one minus CBO noncyclical unemployment; the published quarterly estimate uses a 13-month centered population average and a 5-quarter centered breakeven average.",
+  "sourceName": "Federal Reserve Board, Labor force growth, breakeven employment, and potential GDP growth",
+  "sourceUrl": "https://www.federalreserve.gov/econres/notes/feds-notes/labor-force-growth-breakeven-employment-and-potential-gdp-growth-accessible-20260402.htm",
+  "publicationDate": "2026-04-02",
+  "retrievedAt": "2026-07-28",
+  "observations": [
+    {
+      "date": "1960-03-01",
+      "estimatedMonthlyJobGrowth": 84.124763,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1960-06-01",
+      "estimatedMonthlyJobGrowth": 80.973274,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1960-09-01",
+      "estimatedMonthlyJobGrowth": 78.557877,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1960-12-01",
+      "estimatedMonthlyJobGrowth": 74.950562,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1961-03-01",
+      "estimatedMonthlyJobGrowth": 68.438835,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1961-06-01",
+      "estimatedMonthlyJobGrowth": 63.341015,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1961-09-01",
+      "estimatedMonthlyJobGrowth": 60.339848,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1961-12-01",
+      "estimatedMonthlyJobGrowth": 60.905708,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1962-03-01",
+      "estimatedMonthlyJobGrowth": 66.974716,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1962-06-01",
+      "estimatedMonthlyJobGrowth": 77.493973,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1962-09-01",
+      "estimatedMonthlyJobGrowth": 89.062981,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1962-12-01",
+      "estimatedMonthlyJobGrowth": 97.57135,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1963-03-01",
+      "estimatedMonthlyJobGrowth": 101.9734,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1963-06-01",
+      "estimatedMonthlyJobGrowth": 102.06373,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1963-09-01",
+      "estimatedMonthlyJobGrowth": 100.31937,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1963-12-01",
+      "estimatedMonthlyJobGrowth": 98.443085,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1964-03-01",
+      "estimatedMonthlyJobGrowth": 98.272209,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1964-06-01",
+      "estimatedMonthlyJobGrowth": 99.009407,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1964-09-01",
+      "estimatedMonthlyJobGrowth": 99.26432,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1964-12-01",
+      "estimatedMonthlyJobGrowth": 98.420303,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1965-03-01",
+      "estimatedMonthlyJobGrowth": 95.511261,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1965-06-01",
+      "estimatedMonthlyJobGrowth": 91.410576,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1965-09-01",
+      "estimatedMonthlyJobGrowth": 86.362045,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1965-12-01",
+      "estimatedMonthlyJobGrowth": 81.947075,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1966-03-01",
+      "estimatedMonthlyJobGrowth": 79.189354,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1966-06-01",
+      "estimatedMonthlyJobGrowth": 79.29921,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1966-09-01",
+      "estimatedMonthlyJobGrowth": 83.185738,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1966-12-01",
+      "estimatedMonthlyJobGrowth": 89.671883,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1967-03-01",
+      "estimatedMonthlyJobGrowth": 97.569496,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1967-06-01",
+      "estimatedMonthlyJobGrowth": 104.81152,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1967-09-01",
+      "estimatedMonthlyJobGrowth": 110.44725,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1967-12-01",
+      "estimatedMonthlyJobGrowth": 113.66188,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1968-03-01",
+      "estimatedMonthlyJobGrowth": 115.66407,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1968-06-01",
+      "estimatedMonthlyJobGrowth": 117.51134,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1968-09-01",
+      "estimatedMonthlyJobGrowth": 120.13555,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1968-12-01",
+      "estimatedMonthlyJobGrowth": 123.72458,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1969-03-01",
+      "estimatedMonthlyJobGrowth": 127.93601,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1969-06-01",
+      "estimatedMonthlyJobGrowth": 133.4846,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1969-09-01",
+      "estimatedMonthlyJobGrowth": 140.06978,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1969-12-01",
+      "estimatedMonthlyJobGrowth": 147.8597,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1970-03-01",
+      "estimatedMonthlyJobGrowth": 155.80847,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1970-06-01",
+      "estimatedMonthlyJobGrowth": 163.99419,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1970-09-01",
+      "estimatedMonthlyJobGrowth": 170.52255,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1970-12-01",
+      "estimatedMonthlyJobGrowth": 175.3327,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1971-03-01",
+      "estimatedMonthlyJobGrowth": 178.48233,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1971-06-01",
+      "estimatedMonthlyJobGrowth": 180.71947,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1971-09-01",
+      "estimatedMonthlyJobGrowth": 181.90923,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1971-12-01",
+      "estimatedMonthlyJobGrowth": 181.9131,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1972-03-01",
+      "estimatedMonthlyJobGrowth": 181.21844,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1972-06-01",
+      "estimatedMonthlyJobGrowth": 180.32574,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1972-09-01",
+      "estimatedMonthlyJobGrowth": 179.57629,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1972-12-01",
+      "estimatedMonthlyJobGrowth": 179.4738,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1973-03-01",
+      "estimatedMonthlyJobGrowth": 180.52676,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1973-06-01",
+      "estimatedMonthlyJobGrowth": 182.14151,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1973-09-01",
+      "estimatedMonthlyJobGrowth": 183.68916,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1973-12-01",
+      "estimatedMonthlyJobGrowth": 185.4128,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1974-03-01",
+      "estimatedMonthlyJobGrowth": 186.63136,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1974-06-01",
+      "estimatedMonthlyJobGrowth": 187.50581,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1974-09-01",
+      "estimatedMonthlyJobGrowth": 189.3196,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1974-12-01",
+      "estimatedMonthlyJobGrowth": 191.21312,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1975-03-01",
+      "estimatedMonthlyJobGrowth": 192.97482,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1975-06-01",
+      "estimatedMonthlyJobGrowth": 194.65411,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1975-09-01",
+      "estimatedMonthlyJobGrowth": 195.69948,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1975-12-01",
+      "estimatedMonthlyJobGrowth": 194.79486,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1976-03-01",
+      "estimatedMonthlyJobGrowth": 193.23648,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1976-06-01",
+      "estimatedMonthlyJobGrowth": 192.04453,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1976-09-01",
+      "estimatedMonthlyJobGrowth": 191.19913,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1976-12-01",
+      "estimatedMonthlyJobGrowth": 190.80954,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1977-03-01",
+      "estimatedMonthlyJobGrowth": 191.40669,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1977-06-01",
+      "estimatedMonthlyJobGrowth": 192.37317,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1977-09-01",
+      "estimatedMonthlyJobGrowth": 192.35623,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1977-12-01",
+      "estimatedMonthlyJobGrowth": 192.26605,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1978-03-01",
+      "estimatedMonthlyJobGrowth": 192.53912,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1978-06-01",
+      "estimatedMonthlyJobGrowth": 192.84413,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1978-09-01",
+      "estimatedMonthlyJobGrowth": 193.14651,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1978-12-01",
+      "estimatedMonthlyJobGrowth": 194.95631,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1979-03-01",
+      "estimatedMonthlyJobGrowth": 196.11055,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1979-06-01",
+      "estimatedMonthlyJobGrowth": 196.53693,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1979-09-01",
+      "estimatedMonthlyJobGrowth": 195.87592,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1979-12-01",
+      "estimatedMonthlyJobGrowth": 194.81953,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1980-03-01",
+      "estimatedMonthlyJobGrowth": 190.54903,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1980-06-01",
+      "estimatedMonthlyJobGrowth": 185.08928,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1980-09-01",
+      "estimatedMonthlyJobGrowth": 178.70877,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1980-12-01",
+      "estimatedMonthlyJobGrowth": 171.96552,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1981-03-01",
+      "estimatedMonthlyJobGrowth": 164.45956,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1981-06-01",
+      "estimatedMonthlyJobGrowth": 158.80322,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1981-09-01",
+      "estimatedMonthlyJobGrowth": 154.36176,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1981-12-01",
+      "estimatedMonthlyJobGrowth": 150.37009,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1982-03-01",
+      "estimatedMonthlyJobGrowth": 146.7337,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1982-06-01",
+      "estimatedMonthlyJobGrowth": 143.88864,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1982-09-01",
+      "estimatedMonthlyJobGrowth": 141.39963,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1982-12-01",
+      "estimatedMonthlyJobGrowth": 138.53552,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1983-03-01",
+      "estimatedMonthlyJobGrowth": 135.56287,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1983-06-01",
+      "estimatedMonthlyJobGrowth": 133.15683,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1983-09-01",
+      "estimatedMonthlyJobGrowth": 131.17796,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1983-12-01",
+      "estimatedMonthlyJobGrowth": 128.91963,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1984-03-01",
+      "estimatedMonthlyJobGrowth": 126.74338,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1984-06-01",
+      "estimatedMonthlyJobGrowth": 125.74453,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1984-09-01",
+      "estimatedMonthlyJobGrowth": 125.65827,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1984-12-01",
+      "estimatedMonthlyJobGrowth": 125.64555,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1985-03-01",
+      "estimatedMonthlyJobGrowth": 125.84063,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1985-06-01",
+      "estimatedMonthlyJobGrowth": 127.62967,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1985-09-01",
+      "estimatedMonthlyJobGrowth": 130.08296,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1985-12-01",
+      "estimatedMonthlyJobGrowth": 132.005,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1986-03-01",
+      "estimatedMonthlyJobGrowth": 133.89844,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1986-06-01",
+      "estimatedMonthlyJobGrowth": 136.39467,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1986-09-01",
+      "estimatedMonthlyJobGrowth": 137.85107,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1986-12-01",
+      "estimatedMonthlyJobGrowth": 137.91301,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1987-03-01",
+      "estimatedMonthlyJobGrowth": 136.88472,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1987-06-01",
+      "estimatedMonthlyJobGrowth": 135.24208,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1987-09-01",
+      "estimatedMonthlyJobGrowth": 132.74889,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1987-12-01",
+      "estimatedMonthlyJobGrowth": 129.21883,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1988-03-01",
+      "estimatedMonthlyJobGrowth": 125.19318,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1988-06-01",
+      "estimatedMonthlyJobGrowth": 121.8363,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1988-09-01",
+      "estimatedMonthlyJobGrowth": 118.65711,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1988-12-01",
+      "estimatedMonthlyJobGrowth": 115.16272,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1989-03-01",
+      "estimatedMonthlyJobGrowth": 111.76558,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1989-06-01",
+      "estimatedMonthlyJobGrowth": 110.55355,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1989-09-01",
+      "estimatedMonthlyJobGrowth": 111.08302,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1989-12-01",
+      "estimatedMonthlyJobGrowth": 113.33939,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1990-03-01",
+      "estimatedMonthlyJobGrowth": 117.15894,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1990-06-01",
+      "estimatedMonthlyJobGrowth": 122.90409,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1990-09-01",
+      "estimatedMonthlyJobGrowth": 128.43663,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1990-12-01",
+      "estimatedMonthlyJobGrowth": 133.16524,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1991-03-01",
+      "estimatedMonthlyJobGrowth": 136.83679,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1991-06-01",
+      "estimatedMonthlyJobGrowth": 141.10497,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1991-09-01",
+      "estimatedMonthlyJobGrowth": 145.76291,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1991-12-01",
+      "estimatedMonthlyJobGrowth": 149.79291,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1992-03-01",
+      "estimatedMonthlyJobGrowth": 153.19803,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1992-06-01",
+      "estimatedMonthlyJobGrowth": 156.58795,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1992-09-01",
+      "estimatedMonthlyJobGrowth": 159.81854,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1992-12-01",
+      "estimatedMonthlyJobGrowth": 160.42316,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1993-03-01",
+      "estimatedMonthlyJobGrowth": 159.98541,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1993-06-01",
+      "estimatedMonthlyJobGrowth": 159.95636,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1993-09-01",
+      "estimatedMonthlyJobGrowth": 160.14201,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1993-12-01",
+      "estimatedMonthlyJobGrowth": 158.26047,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1994-03-01",
+      "estimatedMonthlyJobGrowth": 156.96634,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1994-06-01",
+      "estimatedMonthlyJobGrowth": 156.6666,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1994-09-01",
+      "estimatedMonthlyJobGrowth": 156.29532,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1994-12-01",
+      "estimatedMonthlyJobGrowth": 155.11743,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1995-03-01",
+      "estimatedMonthlyJobGrowth": 153.79012,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1995-06-01",
+      "estimatedMonthlyJobGrowth": 153.57178,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1995-09-01",
+      "estimatedMonthlyJobGrowth": 153.86613,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1995-12-01",
+      "estimatedMonthlyJobGrowth": 153.90076,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1996-03-01",
+      "estimatedMonthlyJobGrowth": 153.80768,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1996-06-01",
+      "estimatedMonthlyJobGrowth": 154.09822,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1996-09-01",
+      "estimatedMonthlyJobGrowth": 153.7722,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1996-12-01",
+      "estimatedMonthlyJobGrowth": 151.76242,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1997-03-01",
+      "estimatedMonthlyJobGrowth": 148.713,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1997-06-01",
+      "estimatedMonthlyJobGrowth": 146.64847,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1997-09-01",
+      "estimatedMonthlyJobGrowth": 145.51393,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1997-12-01",
+      "estimatedMonthlyJobGrowth": 144.40477,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1998-03-01",
+      "estimatedMonthlyJobGrowth": 144.2644,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1998-06-01",
+      "estimatedMonthlyJobGrowth": 145.78123,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1998-09-01",
+      "estimatedMonthlyJobGrowth": 147.65013,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1998-12-01",
+      "estimatedMonthlyJobGrowth": 148.61095,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1999-03-01",
+      "estimatedMonthlyJobGrowth": 148.65207,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1999-06-01",
+      "estimatedMonthlyJobGrowth": 148.51454,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1999-09-01",
+      "estimatedMonthlyJobGrowth": 147.89232,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "1999-12-01",
+      "estimatedMonthlyJobGrowth": 145.69971,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2000-03-01",
+      "estimatedMonthlyJobGrowth": 143.46971,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2000-06-01",
+      "estimatedMonthlyJobGrowth": 142.80067,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2000-09-01",
+      "estimatedMonthlyJobGrowth": 142.20781,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2000-12-01",
+      "estimatedMonthlyJobGrowth": 139.52112,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2001-03-01",
+      "estimatedMonthlyJobGrowth": 135.04118,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2001-06-01",
+      "estimatedMonthlyJobGrowth": 128.9893,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2001-09-01",
+      "estimatedMonthlyJobGrowth": 121.17045,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2001-12-01",
+      "estimatedMonthlyJobGrowth": 112.2276,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2002-03-01",
+      "estimatedMonthlyJobGrowth": 103.80167,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2002-06-01",
+      "estimatedMonthlyJobGrowth": 97.163399,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2002-09-01",
+      "estimatedMonthlyJobGrowth": 93.009186,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2002-12-01",
+      "estimatedMonthlyJobGrowth": 90.560287,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2003-03-01",
+      "estimatedMonthlyJobGrowth": 89.400932,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2003-06-01",
+      "estimatedMonthlyJobGrowth": 91.558098,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2003-09-01",
+      "estimatedMonthlyJobGrowth": 95.426842,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2003-12-01",
+      "estimatedMonthlyJobGrowth": 98.548592,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2004-03-01",
+      "estimatedMonthlyJobGrowth": 101.18789,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2004-06-01",
+      "estimatedMonthlyJobGrowth": 104.42541,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2004-09-01",
+      "estimatedMonthlyJobGrowth": 106.72008,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2004-12-01",
+      "estimatedMonthlyJobGrowth": 108.48219,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2005-03-01",
+      "estimatedMonthlyJobGrowth": 111.24985,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2005-06-01",
+      "estimatedMonthlyJobGrowth": 115.10906,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2005-09-01",
+      "estimatedMonthlyJobGrowth": 118.86893,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2005-12-01",
+      "estimatedMonthlyJobGrowth": 121.32722,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2006-03-01",
+      "estimatedMonthlyJobGrowth": 122.46323,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2006-06-01",
+      "estimatedMonthlyJobGrowth": 122.58028,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2006-09-01",
+      "estimatedMonthlyJobGrowth": 121.44906,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2006-12-01",
+      "estimatedMonthlyJobGrowth": 118.5125,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2007-03-01",
+      "estimatedMonthlyJobGrowth": 114.56374,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2007-06-01",
+      "estimatedMonthlyJobGrowth": 110.92937,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2007-09-01",
+      "estimatedMonthlyJobGrowth": 107.36068,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2007-12-01",
+      "estimatedMonthlyJobGrowth": 102.73382,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2008-03-01",
+      "estimatedMonthlyJobGrowth": 97.703987,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2008-06-01",
+      "estimatedMonthlyJobGrowth": 92.776215,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2008-09-01",
+      "estimatedMonthlyJobGrowth": 87.621277,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2008-12-01",
+      "estimatedMonthlyJobGrowth": 81.550583,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2009-03-01",
+      "estimatedMonthlyJobGrowth": 75.576942,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2009-06-01",
+      "estimatedMonthlyJobGrowth": 71.277519,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2009-09-01",
+      "estimatedMonthlyJobGrowth": 69.040573,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2009-12-01",
+      "estimatedMonthlyJobGrowth": 67.80439,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2010-03-01",
+      "estimatedMonthlyJobGrowth": 68.21328,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2010-06-01",
+      "estimatedMonthlyJobGrowth": 70.791328,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2010-09-01",
+      "estimatedMonthlyJobGrowth": 74.221123,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2010-12-01",
+      "estimatedMonthlyJobGrowth": 76.625015,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2011-03-01",
+      "estimatedMonthlyJobGrowth": 78.5345,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2011-06-01",
+      "estimatedMonthlyJobGrowth": 80.449371,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2011-09-01",
+      "estimatedMonthlyJobGrowth": 81.906097,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2011-12-01",
+      "estimatedMonthlyJobGrowth": 81.771248,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2012-03-01",
+      "estimatedMonthlyJobGrowth": 80.729347,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2012-06-01",
+      "estimatedMonthlyJobGrowth": 79.501572,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2012-09-01",
+      "estimatedMonthlyJobGrowth": 78.204102,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2012-12-01",
+      "estimatedMonthlyJobGrowth": 76.147644,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2013-03-01",
+      "estimatedMonthlyJobGrowth": 74.752472,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2013-06-01",
+      "estimatedMonthlyJobGrowth": 75.52343,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2013-09-01",
+      "estimatedMonthlyJobGrowth": 77.827843,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2013-12-01",
+      "estimatedMonthlyJobGrowth": 80.109764,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2014-03-01",
+      "estimatedMonthlyJobGrowth": 82.599777,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2014-06-01",
+      "estimatedMonthlyJobGrowth": 85.639206,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2014-09-01",
+      "estimatedMonthlyJobGrowth": 88.534981,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2014-12-01",
+      "estimatedMonthlyJobGrowth": 90.129509,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2015-03-01",
+      "estimatedMonthlyJobGrowth": 91.399193,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2015-06-01",
+      "estimatedMonthlyJobGrowth": 93.733612,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2015-09-01",
+      "estimatedMonthlyJobGrowth": 96.309128,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2015-12-01",
+      "estimatedMonthlyJobGrowth": 97.515442,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2016-03-01",
+      "estimatedMonthlyJobGrowth": 98.037834,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2016-06-01",
+      "estimatedMonthlyJobGrowth": 97.906998,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2016-09-01",
+      "estimatedMonthlyJobGrowth": 96.440063,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2016-12-01",
+      "estimatedMonthlyJobGrowth": 93.002655,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2017-03-01",
+      "estimatedMonthlyJobGrowth": 88.457573,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2017-06-01",
+      "estimatedMonthlyJobGrowth": 84.261429,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2017-09-01",
+      "estimatedMonthlyJobGrowth": 80.615608,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2017-12-01",
+      "estimatedMonthlyJobGrowth": 76.961807,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2018-03-01",
+      "estimatedMonthlyJobGrowth": 74.056259,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2018-06-01",
+      "estimatedMonthlyJobGrowth": 73.249626,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2018-09-01",
+      "estimatedMonthlyJobGrowth": 73.91523,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2018-12-01",
+      "estimatedMonthlyJobGrowth": 74.90097,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2019-03-01",
+      "estimatedMonthlyJobGrowth": 76.33152,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2019-06-01",
+      "estimatedMonthlyJobGrowth": 78.427834,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2019-09-01",
+      "estimatedMonthlyJobGrowth": 79.070465,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2019-12-01",
+      "estimatedMonthlyJobGrowth": 75.660751,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2020-03-01",
+      "estimatedMonthlyJobGrowth": 67.41011,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2020-06-01",
+      "estimatedMonthlyJobGrowth": 59.048439,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2020-09-01",
+      "estimatedMonthlyJobGrowth": 52.439377,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2020-12-01",
+      "estimatedMonthlyJobGrowth": 49.207317,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2021-03-01",
+      "estimatedMonthlyJobGrowth": 51.517574,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2021-06-01",
+      "estimatedMonthlyJobGrowth": 61.916359,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2021-09-01",
+      "estimatedMonthlyJobGrowth": 75.373398,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2021-12-01",
+      "estimatedMonthlyJobGrowth": 89.33358,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2022-03-01",
+      "estimatedMonthlyJobGrowth": 103.25905,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2022-06-01",
+      "estimatedMonthlyJobGrowth": 117.5216,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2022-09-01",
+      "estimatedMonthlyJobGrowth": 130.14201,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2022-12-01",
+      "estimatedMonthlyJobGrowth": 141.08159,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2023-03-01",
+      "estimatedMonthlyJobGrowth": 150.6071,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2023-06-01",
+      "estimatedMonthlyJobGrowth": 159.10405,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2023-09-01",
+      "estimatedMonthlyJobGrowth": 165.10907,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2023-12-01",
+      "estimatedMonthlyJobGrowth": 166.51279,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2024-03-01",
+      "estimatedMonthlyJobGrowth": 163.46544,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2024-06-01",
+      "estimatedMonthlyJobGrowth": 156.31197,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2024-09-01",
+      "estimatedMonthlyJobGrowth": 144.99454,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2024-12-01",
+      "estimatedMonthlyJobGrowth": 130.88716,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2025-03-01",
+      "estimatedMonthlyJobGrowth": 113.93407,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2025-06-01",
+      "estimatedMonthlyJobGrowth": 97.05484,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2025-09-01",
+      "estimatedMonthlyJobGrowth": 78.098907,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2025-12-01",
+      "estimatedMonthlyJobGrowth": 57.080868,
+      "estimateStatus": "historical-estimate"
+    },
+    {
+      "date": "2026-03-01",
+      "estimatedMonthlyJobGrowth": 35.830078,
+      "estimateStatus": "projection"
+    },
+    {
+      "date": "2026-06-01",
+      "estimatedMonthlyJobGrowth": 20.29385,
+      "estimateStatus": "projection"
+    },
+    {
+      "date": "2026-09-01",
+      "estimatedMonthlyJobGrowth": 10.053394,
+      "estimateStatus": "projection"
+    },
+    {
+      "date": "2026-12-01",
+      "estimatedMonthlyJobGrowth": 5.1578836,
+      "estimateStatus": "projection"
+    }
+  ]
+}

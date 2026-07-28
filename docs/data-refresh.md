@@ -7,7 +7,7 @@ This is the authoritative technical inventory for sources, transformations, gene
 The refresh path is deliberately separate from the browser:
 
 ```text
-FRED API or Atlanta Fed HOAM workbook -> Node refresh command -> validated domain JSON -> local repository -> React dashboard
+FRED, Federal Reserve Board, BLS, or Atlanta Fed source -> Node refresh command -> validated domain JSON -> local repository -> React dashboard
 ```
 
 The generated JSON is committed with the application, so the dashboard remains usable if FRED is unavailable. The browser never receives the API key and never contacts FRED.
@@ -45,6 +45,15 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Effective tariff burden, derived from quarterly customs-duty receipts (`B235RC1Q027SBEA`) divided by goods imports (`A255RC1Q027SBEA`) and written to `effective-tariff-burden.json`.
 
 The narrow `scripts/atlantaFed/hoamWorkbook.ts` path downloads the official national HOAM workbook and writes `home-ownership-cost-share.json`; it is intentionally separate from the FRED configuration list.
+
+The job-growth-versus-breakeven foundation is also separate from the general
+FRED configuration list. `npm run data:refresh-job-growth-breakeven` downloads
+the Federal Reserve Board’s official accessible Figure 2 table and the full
+PAYEMS level CSV, validates both, derives exact-quarter comparisons, and
+atomically replaces
+`estimated-breakeven-employment-growth.json` and
+`job-growth-breakeven-comparison.json` as one group. The command requires no API
+key. The browser never contacts either provider.
 
 The inflation-contribution snapshot is also outside the FRED list. It records the
 unadjusted 12-month “effect on All Items” values published directly in BLS CPI-U
@@ -163,6 +172,52 @@ FRED publishes PAYEMS in thousands of persons, seasonally adjusted. Full source 
 
 PAYEMS is fetched and provider-validated once. One explicit derivation module creates the monthly-change supporting series and the three-month-average primary series. Both use the existing domain model and identify PAYEMS as the source while stating that their transformations are calculated by the application.
 
+## Estimated breakeven employment growth
+
+The authoritative breakeven source is the Federal Reserve Board FEDS Note
+“Labor force growth, breakeven employment, and potential GDP growth,” published
+April 2, 2026. Its official accessible Figure 2 table publishes 268 quarterly
+estimates from 1960 Q1 through 2026 Q4. Each value is a monthly job-growth pace
+in thousands, not a quarterly total. The committed date is the first day of the
+quarter-ending month, so `2026-06-01` represents 2026 Q2. The source’s 2026
+values are projections and retain that status in the data model.
+This is a publication-vintage research table, not a regularly scheduled monthly
+series: the Board gives no fixed update cadence, so refreshes can only capture
+changes when the official page itself is revised or superseded.
+
+The Federal Reserve method defines breakeven growth as the change in potential
+labor force multiplied by one minus CBO’s noncyclical unemployment rate. It
+uses a 13-month centered average of the civilian noninstitutional population
+and a 5-quarter centered average of the quarterly breakeven estimate. The
+baseline is therefore modeled and revision-prone, particularly when population,
+immigration, potential participation, or CBO assumptions change. It is not an
+observed payroll threshold or a forecast produced by this application.
+The source does not identify a historical methodology break in the published
+1960–2025 estimates, but its population inputs splice harmonized estimates
+through 2024 to BLS data for 2025, and the separately labeled 2026 projection
+incorporates newer population and immigration assumptions.
+
+Comparison observations align only at exact quarter-ending PAYEMS months. No
+breakeven value is filled into the intervening months. Actual average monthly
+job growth is `(PAYEMS_t − PAYEMS_t-3) / 3`, which is algebraically identical to
+averaging the three consecutive monthly changes. All four monthly levels in
+that window must be present and finite so each constituent change is valid.
+The annualized actual rate is
+`((PAYEMS_t / PAYEMS_t-3)^4 − 1) × 100`. The estimated rate applies three months
+of the published monthly breakeven pace to that same starting PAYEMS
+denominator and annualizes with the identical formula. The stored
+percentage-point gap is the full-precision actual annualized rate minus the
+estimated annualized rate; rounding occurs only in presentation.
+
+The source dataset contains all 268 published estimates. The comparison dataset
+contains 266 available exact-quarter comparisons from 1960 Q1 through 2026 Q2
+and explicit unavailable records for the 2026 Q3 and Q4 projections because
+PAYEMS observations for those periods do not yet exist. Each available record
+retains both PAYEMS levels, actual and estimated monthly counts, their count
+difference, both annualized rates, and the percentage-point gap. Published
+benchmarks include 84.124763 thousand in 1960 Q1, 49.207317 thousand in 2020 Q4,
+and a projected 20.29385 thousand in 2026 Q2.
+
 AHETPI is fetched once using the full-history policy. CPIAUCSL is not fetched again: wage derivation reuses the full-precision CPI inflation series produced earlier in the same refresh. Wage levels require an observation at the exact calendar month one year earlier. Nominal growth is `(current wage / prior-year wage - 1) × 100`. Exact real growth divides that wage ratio by `1 + CPI inflation / 100` before subtracting one and multiplying by 100. Missing or mismatched months produce `null`; array positions are never substituted for calendar alignment.
 
 The nominal and real wage outputs are validated and staged together, then replaced through the existing rollback-protected grouped writer. Failure preserves both prior wage files without rolling back unrelated successful sources. Successful reporting includes the AHETPI source count and both generated ranges.
@@ -198,6 +253,8 @@ Leading unavailable values are removed so generated growth files begin with a va
 - LNS12300060: 942 observations, January 1948–June 2026.
 - PAYEMS monthly change: 1,049 observations, February 1939–June 2026.
 - PAYEMS three-month average: 1,047 observations, April 1939–June 2026.
+- Federal Reserve estimated breakeven employment growth: 268 quarterly monthly-pace estimates, 1960 Q1–2026 Q4; 2026 observations are source projections.
+- Job-growth-versus-breakeven comparison: 268 exact-quarter records, with 266 available comparisons through 2026 Q2 and two explicit future-period unavailable records.
 - ICSA: 3,106 weekly observations, January 7, 1967–July 11, 2026.
 - IC4WSA: 3,103 weekly observations, January 28, 1967–July 11, 2026; this defines the relationship card's full shared coverage.
 - AHETPI nominal wage growth: 738 observations, January 1965–June 2026.
@@ -230,6 +287,11 @@ Only fully retrieved, normalized, domain-validated, and serialized series reach 
 
 A missing key, network failure, HTTP error, malformed response, insufficient history, validation failure, or write failure leaves that series’ previous dataset intact. Errors are concise and never include the API key or a full provider response.
 
+The breakeven refresh follows the same preservation rule as one two-file unit:
+both downloads and both runtime models validate before any target is replaced.
+Temporary files and backups protect the pair during replacement; a failure
+before or during the grouped write restores or retains both prior files.
+
 Failure of one source does not stop the next or roll back an unrelated successful file. Each single-source quarterly derivation replaces only its own validated output. CPI, PAYEMS, wage, household comparison, corporate profit-share, and effective-tariff failures preserve their complete output groups. After all entries run, any failure produces a nonzero exit status and the command identifies which outputs updated and which were preserved.
 
 ## Manual refresh
@@ -240,6 +302,14 @@ Failure of one source does not stop the next or roll back an unrelated successfu
 4. Review the printed provider identifier, source count, generated count, transformation, generated range, latest observation, and output path. CPI reports both source counts and all four grouped outputs; quarterly derivatives, PAYEMS, wages, and the household comparison report their supporting counts and grouped paths as applicable.
 5. Run `npm run typecheck`, `npm run lint`, `npm test`, and `npm run build`.
 6. Inspect and commit the generated JSON with the refresh code or data-update commit.
+
+The breakeven pair has its own no-key refresh:
+
+1. Run `npm run data:refresh-job-growth-breakeven`.
+2. Confirm the reported latest available period and inspect the two generated
+   files, especially estimate/projection status and unavailable future periods.
+3. Run the repository checks and commit both outputs together with any refresh
+   implementation change.
 
 The command currently runs only when a developer invokes it; no scheduler or runtime backend exists.
 
