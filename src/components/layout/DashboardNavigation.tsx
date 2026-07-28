@@ -47,6 +47,10 @@ const navigationGroups = [
       },
       { id: 'payroll-growth-card', title: 'Are employers adding jobs?' },
       {
+        id: 'job-growth-breakeven-card',
+        title: 'Is job growth keeping up with the labor force?',
+      },
+      {
         id: 'initial-unemployment-claims-card',
         title: 'Are layoffs beginning to rise?',
       },
@@ -137,7 +141,7 @@ export function DashboardNavigation() {
         <summary>
           <span id="dashboard-navigation-heading">Explore all indicators</span>
           <span className="dashboard-navigation__summary-detail">
-            27 cards in 9 categories
+            28 cards in 9 categories
           </span>
         </summary>
         <div className="dashboard-navigation__groups">

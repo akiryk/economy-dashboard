@@ -40,7 +40,7 @@ The domain model remains independent of Apache ECharts. A chart adapter creates 
 
 Provider identity, series identity, units, frequency, transformations, dates, and observations belong to the economic-series domain data. Human explanations, related concepts, latest-value labels, and table captions belong to the explicit series presentation registry. Product copy is therefore reusable by the shared card without becoming provider metadata or chart configuration.
 
-The card structure supports a compact historical-context visual between the primary current-value callout and expanded research detail. The Growth compact cards, headline CPI, recent inflation momentum, and real wage growth use that extension; no empty placeholder or forecast view is rendered. The real-wage model verifies exact-month availability of the committed nominal-wage, CPI, and derived real-wage observations before presentation; the compact and primary expanded charts use that same validated series. Pure range-model and summary functions preserve null gaps, calculate visible extrema with deterministic latest-tie behavior, and exclude nulls from the explicit at-or-above-zero denominator before React renders the result.
+The card structure supports a compact historical-context visual between the primary current-value callout and expanded research detail. The Growth compact cards, headline CPI, recent inflation momentum, real wage growth, and job-growth-versus-estimated-breakeven comparison use that extension; no empty placeholder or application-generated forecast view is rendered. The shared historical-band chart accepts optional metric-specific interaction details, allowing the breakeven chart to expose both rates and all underlying job counts without changing the generic line-and-band calculation. The real-wage model verifies exact-month availability of the committed nominal-wage, CPI, and derived real-wage observations before presentation; the compact and primary expanded charts use that same validated series. Pure range-model and summary functions preserve null gaps, calculate visible extrema with deterministic latest-tie behavior, and exclude nulls from the explicit at-or-above-zero denominator before React renders the result.
 
 ## Percent levels and growth rates
 
@@ -69,8 +69,9 @@ explicit missing-period or incomplete-window reason.
 The comparison aligns only exact quarter-ending months. Both rates use the same
 PAYEMS level three months earlier as their denominator and the same compounded
 three-month-to-annual transformation. No interpolation, monthly filling, or
-display rounding changes stored values. This model remains a data foundation
-until its visible card is implemented separately.
+display rounding changes stored values. The relationship card loads this
+validated model through its own repository boundary and never recalculates the
+source comparison in React.
 
 ## Single-source quarterly growth
 
@@ -127,7 +128,7 @@ DRTSCILM is a provider-published quarterly signed net percentage. Positive, zero
 
 ## Current limitations
 
-- The application contains twenty-eight visible research cards backed by thirty-nine committed datasets. The two breakeven files are a validated foundation for a future card; the two LMCI datasets support the briefing rather than separate research cards; other supporting datasets used within relationship cards are likewise not separate cards.
+- The application contains twenty-eight visible research cards backed by thirty-nine committed datasets. The two breakeven files support one relationship card; the two LMCI datasets support the briefing rather than separate research cards; other supporting datasets used within relationship cards are likewise not separate cards.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.

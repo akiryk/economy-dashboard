@@ -1,4 +1,11 @@
-import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
 import * as echarts from 'echarts/core'
 import { LineChart } from 'echarts/charts'
 import {
@@ -10,6 +17,7 @@ import {
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import type { EconomicFrequency } from '../models/economicSeries'
+import type { EconomicObservation } from '../models/economicSeries'
 import type { HistoricalBandHelpText } from '../utils/compactHistoricalMetrics'
 import type { HistoricalBandResult } from '../utils/historicalBandContext'
 import { createHistoricalBandChartOptions } from './historicalBandChartOptions'
@@ -45,6 +53,10 @@ interface HistoricalBandChartProps {
   referenceLines?: readonly { value: number; label: string }[]
   visuallyHideSummary?: boolean
   interactiveDetails?: boolean
+  interactionDetails?: (observation: EconomicObservation & {
+    value: number
+  }) => ReactNode
+  zeroLineLabel?: string
 }
 
 export function HistoricalBandChart({
@@ -61,6 +73,8 @@ export function HistoricalBandChart({
   referenceLines = [],
   visuallyHideSummary = false,
   interactiveDetails = false,
+  interactionDetails,
+  zeroLineLabel,
 }: HistoricalBandChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const interactionRef = useRef<HTMLDivElement>(null)
@@ -162,7 +176,7 @@ export function HistoricalBandChart({
           : undefined}
         tabIndex={interactiveDetails ? 0 : undefined}
         aria-label={interactiveDetails
-          ? `${seriesLabel} chart. Use left and right arrow keys for exact monthly values.`
+          ? `${seriesLabel} chart. Use left and right arrow keys for exact ${frequency === 'quarterly' ? 'quarterly' : frequency === 'monthly' ? 'monthly' : 'period'} values.`
           : undefined}
         onFocus={interactiveDetails ? () => {
           if (activeIndex === null) {
@@ -225,15 +239,27 @@ export function HistoricalBandChart({
                 left: `clamp(5rem, ${activePosition}%, calc(100% - 5rem))`,
               }}
             >
-              <strong>{seriesLabel}</strong>
-              <span>
-                {formatObservationPeriod(activeObservation.date, frequency)}
-              </span>
-              <span>{valueFormatter(activeObservation.value)}</span>
+              {interactionDetails
+                ? interactionDetails({
+                    ...activeObservation,
+                    value: activeObservation.value,
+                  })
+                : (
+                  <>
+                    <strong>{seriesLabel}</strong>
+                    <span>
+                      {formatObservationPeriod(activeObservation.date, frequency)}
+                    </span>
+                    <span>{valueFormatter(activeObservation.value)}</span>
+                  </>
+                )}
             </div>
           )}
       </div>
       <p className="historical-band-chart__title">{caption}</p>
+      {zeroLineLabel && (
+        <p className="historical-band-chart__zero-label">{zeroLineLabel}</p>
+      )}
       <CompactChartHelp
         buttonLabel="Explain the historical bands"
         dialogLabel="Historical band explanation"

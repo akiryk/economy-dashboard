@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { EconomicSection } from '../components/layout/EconomicSection'
 import { DashboardNavigation } from '../components/layout/DashboardNavigation'
 import { EconomicSeriesCard } from '../features/economic-series/components/EconomicSeriesCard'
+import { JobGrowthBreakevenCard } from '../features/economic-series/components/JobGrowthBreakevenCard'
 import type { EconomicSeries } from '../features/economic-series/models/economicSeries'
 import {
   findLatestNonNullObservation,
@@ -173,6 +174,7 @@ export function DashboardPage() {
           label="payroll growth"
           onSeriesLoaded={handleSeriesLoaded}
         />
+        <JobGrowthBreakevenCard />
         <EconomicSeriesCard
           slug="initial-unemployment-claims-four-week-average"
           supportingSlugs={weeklyClaimsSupportingSlugs}

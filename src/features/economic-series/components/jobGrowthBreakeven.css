@@ -1,0 +1,94 @@
+#job-growth-breakeven-card .series-card__headline {
+  align-items: start;
+}
+
+.job-growth-breakeven__current {
+  gap: var(--space-2);
+}
+
+.job-growth-breakeven__derivation {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  font-size: 0.9375rem;
+}
+
+.job-growth-breakeven__chart {
+  min-width: 0;
+  padding-bottom: var(--space-8);
+}
+
+.job-growth-breakeven__chart .historical-band-chart__interaction-tooltip,
+.job-growth-breakeven__expanded-chart .historical-band-chart__interaction-tooltip {
+  left: 50% !important;
+  width: min(22rem, calc(100% - 1rem));
+  align-items: start;
+  text-align: left;
+}
+
+.historical-band-chart__zero-label {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.job-growth-breakeven__chart .historical-band-chart__title {
+  bottom: -3.5rem;
+}
+
+.job-growth-breakeven__chart .historical-band-chart__help {
+  bottom: -3.5rem;
+}
+
+.job-growth-breakeven__components {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.job-growth-breakeven__components h4,
+.job-growth-breakeven__expanded-chart h4 {
+  margin: 0;
+}
+
+.job-growth-breakeven__components dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.job-growth-breakeven__components dl > div {
+  padding: var(--space-3);
+  background: var(--color-page-background);
+  border-radius: var(--radius-small);
+}
+
+.job-growth-breakeven__components dt {
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.job-growth-breakeven__components dd {
+  margin: var(--space-1) 0 0;
+  font-weight: 700;
+}
+
+.job-growth-breakeven__expanded-chart {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.job-growth-breakeven__expanded-chart .historical-band-chart {
+  margin-bottom: var(--space-8);
+}
+
+@media (max-width: 47.99rem) {
+  .job-growth-breakeven__derivation {
+    gap: var(--space-2);
+  }
+
+  .job-growth-breakeven__components dl {
+    grid-template-columns: 1fr;
+  }
+}

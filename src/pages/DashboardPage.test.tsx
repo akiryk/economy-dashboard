@@ -93,6 +93,17 @@ vi.mock('../features/economic-series/charts/RealWageGrowthChart', () => ({
   },
 }))
 
+vi.mock('../features/economic-series/charts/JobGrowthBreakevenChart', () => ({
+  JobGrowthBreakevenChart: () => (
+    <figure
+      data-testid="job-growth-breakeven-chart"
+      data-zero-line="true"
+      data-latest-marker="true"
+      data-interactive="true"
+    />
+  ),
+}))
+
 afterEach(() => {
   cleanup()
   chartPropsSpy.mockClear()
@@ -132,13 +143,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('27 cards in 9 categories')).toBeVisible()
+    expect(within(navigation).getByText('28 cards in 9 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(27)
+    expect(links).toHaveLength(28)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -150,6 +161,7 @@ describe('DashboardPage economic series', () => {
       'Is unemployment high or low?',
       'What share of prime-age adults are employed?',
       'Are employers adding jobs?',
+      'Is job growth keeping up with the labor force?',
       'Are layoffs beginning to rise?',
       'Are real household incomes and spending growing per person?',
       'Are households saving or drawing down more of their income?',
@@ -391,9 +403,10 @@ describe('DashboardPage economic series', () => {
       'Is unemployment high or low?',
       'What share of prime-age adults are employed?',
       'Are employers adding jobs?',
+      'Is job growth keeping up with the labor force?',
       'Are layoffs beginning to rise?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(27)
+    expect(screen.getAllByRole('article')).toHaveLength(28)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'real-income-versus-spending-question',
       'personal-saving-rate-question',
