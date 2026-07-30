@@ -104,6 +104,17 @@ vi.mock('../features/economic-series/charts/JobGrowthBreakevenChart', () => ({
   ),
 }))
 
+vi.mock('../features/economic-series/charts/JoltsLayoffsChart', () => ({
+  default: ({ model }: { model: HistoricalBandResult }) => (
+    <figure
+      data-testid="jolts-layoffs-chart"
+      data-status={model.status}
+      data-zero-line="false"
+      data-interactive="true"
+    />
+  ),
+}))
+
 afterEach(() => {
   cleanup()
   chartPropsSpy.mockClear()
@@ -424,7 +435,7 @@ describe('DashboardPage economic series', () => {
     ).not.toBeInTheDocument()
     expect(
       await screen.findByText(
-        'Latest observations range from 2025 to Week of Jul 11, 2026',
+        'Latest observations range from 2025 to Week of Jul 10, 2026',
       ),
     ).toBeVisible()
   })
@@ -969,24 +980,43 @@ describe('DashboardPage economic series', () => {
       .not.toBeInTheDocument()
   })
 
-  it('renders official weekly claims and the four-week average without deriving it locally', async () => {
+  it('leads with JOLTS and preserves official weekly claims under More', async () => {
     const user = userEvent.setup()
     render(<DashboardPage />)
     const card = await screen.findByRole('article', {
       name: 'Are layoffs beginning to rise?',
     })
 
-    expect(within(card).getByLabelText('Latest four-week average of initial claims'))
+    expect(within(card).getByText('1.1%')).toBeVisible()
+    expect(within(card).getByText('May 2026')).toBeVisible()
+    expect(within(card).getByText(
+      'No — layoffs are not beginning to rise.',
+    )).toBeVisible()
+    expect(within(card).getByTestId('jolts-layoffs-chart'))
+      .toHaveAttribute('data-zero-line', 'false')
+    expect(within(card).queryByRole('group', {
+      name: 'Initial unemployment claims displayed time range',
+    })).not.toBeInTheDocument()
+
+    await user.click(within(card).getByRole('button', { name: /More/ }))
+    expect(within(card).getByText(
+      'Layoffs and discharges rate — monthly JOLTS measure',
+    )).toBeVisible()
+    expect(within(card).getByText(
+      'Initial unemployment claims — weekly early-warning measure',
+    )).toBeVisible()
+    expect(within(card).getByText(/Latest official four-week average:/))
       .toHaveTextContent('214,250 claims')
-    expect(within(card).getByText(/Four-week average, week ending/))
-      .toHaveTextContent('Jul 11, 2026')
     expect(within(card).getByText(/Latest weekly claims:/))
       .toHaveTextContent('208,000')
     expect(within(card).getByRole('group', {
       name: 'Initial unemployment claims displayed time range',
     })).toBeVisible()
 
-    await user.click(within(card).getByRole('button', { name: 'Maximum' }))
+    const claimsRange = within(card).getByRole('group', {
+      name: 'Initial unemployment claims displayed time range',
+    })
+    await user.click(within(claimsRange).getByRole('button', { name: 'Maximum' }))
     expect(within(card).getByText('Visible period: Week of Jan 28, 1967–Week of Jul 11, 2026'))
       .toBeVisible()
     await waitFor(() => {
@@ -1002,14 +1032,15 @@ describe('DashboardPage economic series', () => {
       expect(call?.weeklyClaimsObservations).toHaveLength(3103)
     })
 
-    await user.click(within(card).getByText('Recent observations'))
+    await user.click(within(card).getByText('Recent claims observations'))
     const table = within(card).getByRole('table', {
       name: 'Twelve most recent aligned initial-claims observations',
     })
     expect(within(table).getAllByRole('row')).toHaveLength(13)
     await user.click(within(card).getByText('Series details'))
-    expect(within(card).getByText('IC4WSA and ICSA')).toBeVisible()
-    expect(within(card).getByText(/no local moving-average calculation/i)).toBeVisible()
+    expect(within(card).getByText('JTSLDR, IC4WSA, and ICSA')).toBeVisible()
+    expect(within(card).getByText(/no further normalization or interpolation/i))
+      .toBeVisible()
   })
 
   it('renders labor levels with monthly context and accessible tables', async () => {

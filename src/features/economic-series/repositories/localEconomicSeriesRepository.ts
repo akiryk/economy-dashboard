@@ -29,6 +29,8 @@ const localSeriesLoaders: Readonly<
   'unemployment-rate': () => import('../data/unemployment-rate.json'),
   'prime-age-employment-ratio': () =>
     import('../data/prime-age-employment-ratio.json'),
+  'jolts-layoffs-and-discharges-rate': () =>
+    import('../data/jolts-layoffs-and-discharges-rate.json'),
   'initial-unemployment-claims': () =>
     import('../data/initial-unemployment-claims.json'),
   'initial-unemployment-claims-four-week-average': () =>

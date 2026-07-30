@@ -22,6 +22,15 @@ The series-level `retrievedAt` date records when this particular local snapshot 
 
 Observation coverage is series-specific. Maximum history is not a shared common date range: manufacturing employment and payroll derivatives begin in 1939, capacity utilization begins in 1967, and locally derived business-investment growth begins in 2008 Q1. Series details expose the actual earliest and latest included periods.
 
+The layoffs card keeps source roles separate. Its compact model uses the
+provider-published monthly JOLTS layoffs and discharges rate. Direction compares
+two complete, consecutive three-month averages and applies an inclusive
+0.10-percentage-point threshold to unrounded values. Historical level is a
+separate lower-is-better classification over valid observations in the trailing
+25 years. Weekly initial claims and the official four-week average retain their
+native frequency and appear only as complementary expanded evidence; the
+monthly and weekly sources are never overlaid.
+
 ## Repository boundary
 
 React components do not import JSON directly. They request a series by slug through `EconomicSeriesRepository`, and the local implementation validates the unknown JSON data before returning it. This keeps parsing and data-source details out of presentation code and provides a clear asynchronous boundary.
@@ -128,7 +137,7 @@ DRTSCILM is a provider-published quarterly signed net percentage. Positive, zero
 
 ## Current limitations
 
-- The application contains twenty-eight visible research cards backed by thirty-nine committed datasets. The two breakeven files support one relationship card; the two LMCI datasets support the briefing rather than separate research cards; other supporting datasets used within relationship cards are likewise not separate cards.
+- The application contains twenty-eight visible research cards backed by forty committed datasets. The two breakeven files support one relationship card; the JOLTS rate and two claims datasets support one layoffs card; the two LMCI datasets support the briefing rather than separate research cards; other supporting datasets used within relationship cards are likewise not separate cards.
 - Data is refreshed by a manual developer command and can become stale between runs.
 - Runtime validation is intentionally focused on the current model and does not enforce provider-specific rules.
 - There is no persistence, revision history, API, or automated refresh.

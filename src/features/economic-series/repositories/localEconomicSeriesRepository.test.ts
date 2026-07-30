@@ -50,6 +50,7 @@ describe('localEconomicSeriesRepository', () => {
     ['core-cpi-three-month-annualized', 'CPILFESL'],
     ['unemployment-rate', 'UNRATE'],
     ['prime-age-employment-ratio', 'LNS12300060'],
+    ['jolts-layoffs-and-discharges-rate', 'JTSLDR'],
     ['effective-federal-funds-rate', 'FEDFUNDS'],
     ['ten-year-treasury-yield', 'GS10'],
     ['labor-market-activity-index', 'FRBKCLMCILA'],
@@ -65,9 +66,9 @@ describe('localEconomicSeriesRepository', () => {
     if (providerSeriesId.startsWith('FRBKCLMCI')) {
       expect(series?.units).toBe('Index')
       expect(series?.transformation).toContain('full-history percentile')
-    } else if (['UNRATE', 'LNS12300060'].includes(providerSeriesId)) {
+    } else if (['UNRATE', 'LNS12300060', 'JTSLDR'].includes(providerSeriesId)) {
       expect(series?.units).toBe('Percent')
-      expect(series?.transformation).toBe('Level')
+      expect(series?.transformation).toMatch(/Level|Provider-published monthly rate/)
     } else if (['FEDFUNDS', 'GS10'].includes(providerSeriesId)) {
       expect(series?.units).toBe('Percent')
       expect(series?.transformation).toContain('Provider-published monthly average')

@@ -24,7 +24,8 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Headline PCE inflation (`PCEPI`, monthly index level), derived into exact 12-month year-over-year growth for the expanded CPI policy comparison.
 - Unemployment rate (`UNRATE`, monthly), written to `unemployment-rate.json`.
 - Prime-age employment-to-population ratio (`LNS12300060`, monthly), written to `prime-age-employment-ratio.json`.
-- Initial unemployment claims and the official four-week average (`ICSA` and `IC4WSA`, weekly), written as separate provider-published levels and aligned only for presentation.
+- JOLTS total-nonfarm layoffs and discharges rate (`JTSLDR`, monthly, seasonally adjusted), preserved as the provider-published percent of employment with no further normalization.
+- Initial unemployment claims and the official four-week average (`ICSA` and `IC4WSA`, weekly), written as separate provider-published levels and aligned only for presentation. They remain complementary evidence under the JOLTS-led layoffs card.
 - Payroll growth (`PAYEMS`, monthly source level), derived into `monthly-payroll-change.json` and `payroll-growth.json`.
 - Kansas City Fed Labor Market Conditions Indicators (`FRBKCLMCILA` activity and `FRBKCLMCIM` momentum, monthly), written as separate provider-published standardized indexes for briefing use.
 - Wages versus inflation (`AHETPI` plus the existing `CPIAUCSL` result), derived into `nominal-wage-growth.json` and `real-wage-growth.json`.
@@ -122,6 +123,7 @@ The series-specific requests are:
 - Unemployment: `series_id=UNRATE` and `frequency=m`, with no `units` parameter.
 - Prime-age employment: `series_id=LNS12300060` and `frequency=m`, with no `units` parameter.
 - Initial unemployment claims: `series_id=ICSA` and `frequency=w`, with no `units` parameter.
+- JOLTS layoffs and discharges rate: `series_id=JTSLDR` and `frequency=m`, with no `units` parameter.
 - Official four-week average: `series_id=IC4WSA` and `frequency=w`, with no `units` parameter.
 - Payroll: `series_id=PAYEMS` and `frequency=m`, with no `units` parameter.
 - LMCI Activity and Momentum: `series_id=FRBKCLMCILA` and `series_id=FRBKCLMCIM`, each with `frequency=m` and no `units` parameter.
@@ -251,6 +253,7 @@ Leading unavailable values are removed so generated growth files begin with a va
 - CPILFESL source: 834 index observations; generated year-over-year: 822 observations, January 1958–June 2026; generated momentum: 831 observations, April 1957–June 2026.
 - UNRATE: 942 observations, January 1948–June 2026.
 - LNS12300060: 942 observations, January 1948–June 2026.
+- JTSLDR: 306 observations, December 2000–May 2026.
 - PAYEMS monthly change: 1,049 observations, February 1939–June 2026.
 - PAYEMS three-month average: 1,047 observations, April 1939–June 2026.
 - Federal Reserve estimated breakeven employment growth: 268 quarterly monthly-pace estimates, 1960 Q1–2026 Q4; 2026 observations are source projections.

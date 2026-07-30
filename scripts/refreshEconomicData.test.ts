@@ -180,6 +180,7 @@ describe('refreshEconomicData', () => {
         'provider-level',
         'provider-level',
         'provider-level',
+        'provider-level',
         'locally-derived',
         'locally-derived',
         'provider-level',
@@ -766,19 +767,20 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(24)
+    expect(outcomes).toHaveLength(25)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 15, 15, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
+    ).toEqual([3, 15, 15, 3, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
       'PCEPI',
       'UNRATE',
       'LNS12300060',
+      'JTSLDR',
       'ICSA',
       'IC4WSA',
       'A939RX0Q048SBEA',
@@ -800,8 +802,9 @@ describe('refreshEconomicData', () => {
       'FRBKCLMCIM',
     ])
     expect(requestedUrls[0]?.searchParams.get('units')).toBe('pc1')
-    expect(requestedUrls.slice(1).map((url) => url.searchParams.has('units')))
-      .toEqual([false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false])
+    expect(
+      requestedUrls.slice(1).every((url) => !url.searchParams.has('units')),
+    ).toBe(true)
     expect(
       requestedUrls.every((url) => !url.searchParams.has('observation_start')),
     ).toBe(true)

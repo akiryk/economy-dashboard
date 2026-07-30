@@ -149,6 +149,28 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
   },
   {
     dataHandling: 'provider-level',
+    id: 'jolts-layoffs-and-discharges-rate',
+    slug: 'jolts-layoffs-and-discharges-rate',
+    outputFile:
+      'src/features/economic-series/data/jolts-layoffs-and-discharges-rate.json',
+    providerSeriesId: 'JTSLDR',
+    frequency: 'monthly',
+    fredFrequency: 'm',
+    historyPolicy: { type: 'full' },
+    minimumUsableObservations: 240,
+    title: 'JOLTS Total Nonfarm Layoffs and Discharges Rate',
+    shortTitle: 'Layoffs and discharges rate',
+    description:
+      'Employer-initiated layoffs and discharges during the month as a share of total nonfarm employment.',
+    question: 'Are layoffs beginning to rise?',
+    units: 'Percent',
+    seasonalAdjustment: 'Seasonally adjusted',
+    transformation: 'Provider-published monthly rate',
+    sourceName: 'U.S. Bureau of Labor Statistics via FRED',
+    sourceUrl: 'https://fred.stlouisfed.org/series/JTSLDR',
+  },
+  {
+    dataHandling: 'provider-level',
     id: 'initial-unemployment-claims',
     slug: 'initial-unemployment-claims',
     outputFile:

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import type { EconomicSeries } from '../models/economicSeries'
 import { localEconomicSeriesRepository } from '../repositories/localEconomicSeriesRepository'
 import { EconomicSeriesSummary } from './EconomicSeriesSummary'
@@ -8,11 +8,15 @@ import { HouseholdComparisonSummary } from './HouseholdComparisonSummary'
 import { ProductivityLevelSummary } from './ProductivityLevelSummary'
 import { ManufacturingComparisonSummary } from './ManufacturingComparisonSummary'
 import { RateComparisonSummary } from './RateComparisonSummary'
-import { ClaimsComparisonSummary } from './ClaimsComparisonSummary'
 import { InflationDriversSummary } from './InflationDriversSummary'
 import { RecentInflationMomentumSummary } from './RecentInflationMomentumSummary'
 
 const noSupportingSlugs: readonly string[] = []
+const ClaimsComparisonSummary = lazy(() =>
+  import('./ClaimsComparisonSummary').then((module) => ({
+    default: module.ClaimsComparisonSummary,
+  })),
+)
 
 type SeriesState =
   | { status: 'loading' }
@@ -164,10 +168,13 @@ export function EconomicSeriesCard({
 
   if (variant === 'claims-comparison') {
     return (
-      <ClaimsComparisonSummary
-        movingAverage={seriesState.series}
-        weeklyClaims={seriesState.supportingSeries[0]!}
-      />
+      <Suspense fallback={<p className="status-message">Loading layoffs card…</p>}>
+        <ClaimsComparisonSummary
+          joltsLayoffRate={seriesState.series}
+          movingAverage={seriesState.supportingSeries[0]!}
+          weeklyClaims={seriesState.supportingSeries[1]!}
+        />
+      </Suspense>
     )
   }
 

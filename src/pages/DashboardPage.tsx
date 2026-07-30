@@ -176,9 +176,12 @@ export function DashboardPage() {
         />
         <JobGrowthBreakevenCard />
         <EconomicSeriesCard
-          slug="initial-unemployment-claims-four-week-average"
-          supportingSlugs={weeklyClaimsSupportingSlugs}
-          label="initial unemployment claims"
+          slug="jolts-layoffs-and-discharges-rate"
+          supportingSlugs={[
+            'initial-unemployment-claims-four-week-average',
+            ...weeklyClaimsSupportingSlugs,
+          ]}
+          label="layoffs and initial unemployment claims"
           variant="claims-comparison"
           onSeriesLoaded={handleSeriesLoaded}
         />
