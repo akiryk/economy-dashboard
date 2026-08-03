@@ -24,6 +24,10 @@ export interface CompactHistoricalMetricDefinition {
   showZeroLine: boolean
   showLatestMarker: boolean
   interactiveDetails?: boolean
+  pointComparison?: {
+    months: number
+    label: string
+  }
   valueFormatter?: (value: number | null) => string
   referenceLines?: readonly { value: number; label: string }[]
   helpText: HistoricalBandHelpText
@@ -97,6 +101,15 @@ CompactHistoricalMetricDefinition['positionDescriptions'] = {
   insideInnerBand: 'within the typical historical range',
   betweenInnerAndOuterHigh: 'strong by historical standards',
   aboveOuterBand: 'very strong by historical standards',
+}
+
+const savingRatePositionDescriptions:
+CompactHistoricalMetricDefinition['positionDescriptions'] = {
+  belowOuterBand: 'very low by historical standards',
+  betweenOuterAndInnerLow: 'low by historical standards',
+  insideInnerBand: 'within its typical historical range',
+  betweenInnerAndOuterHigh: 'high by historical standards',
+  aboveOuterBand: 'very high by historical standards',
 }
 
 export const realGdpCompactDefinition: CompactHistoricalMetricDefinition = {
@@ -255,6 +268,35 @@ CompactHistoricalMetricDefinition = {
     'Every plotted value and both historical bands use the same complete three-month-average series. Payroll estimates are revised as additional information becomes available.',
 }
 
+export const savingRateCompactDefinition:
+CompactHistoricalMetricDefinition = {
+  seriesLabel: 'Personal saving rate',
+  frequency: 'monthly',
+  historicalBands: {
+    recentObservationCount: 61,
+    comparisonWindow: { kind: 'trailing-years', years: 25 },
+    innerPercentiles: [25, 75],
+    outerPercentiles: [10, 90],
+    minimumFiniteObservations: 60,
+    latestObservationPolicy: 'last-observation',
+  },
+  showZeroLine: false,
+  showLatestMarker: true,
+  interactiveDetails: true,
+  pointComparison: {
+    months: 12,
+    label: 'Change from 12 months earlier',
+  },
+  helpText: {
+    heading: 'Personal saving and historical context',
+    description:
+      'The personal saving rate is aggregate personal saving divided by aggregate disposable personal income. It is the share of after-tax income not used for current consumption and related outlays: a 3% rate means households collectively saved about $3 of every $100 of disposable income that month. A falling positive rate means households are still saving in aggregate but retaining a smaller share of current income; it does not prove that households are drawing down accumulated assets or increasing borrowing. The national rate is an aggregate and can differ sharply across households. A 12-month change within 0.2 percentage point of zero is classified as broadly stable. The line shows five years, while the bands show the middle 50% and middle 80% of valid monthly readings over the trailing 25 years. The bands describe frequency, not a target or a judgment that higher or lower is always better.',
+  },
+  zeroLineMeaning:
+    'No zero line is shown because zero is not the primary interpretive reference for this metric.',
+  positionDescriptions: savingRatePositionDescriptions,
+}
+
 const compactDefinitions: Readonly<
   Partial<Record<string, CompactHistoricalMetricDefinition>>
 > = {
@@ -265,6 +307,7 @@ const compactDefinitions: Readonly<
   'unemployment-rate': unemploymentCompactDefinition,
   'prime-age-employment-ratio': primeAgeEmploymentCompactDefinition,
   'payroll-growth': payrollGrowthCompactDefinition,
+  'personal-saving-rate': savingRateCompactDefinition,
 }
 
 export function getCompactHistoricalMetricDefinition(

@@ -6,7 +6,7 @@
   "title": "Personal Saving Rate",
   "shortTitle": "Saving rate",
   "description": "Personal saving as a percentage of disposable personal income.",
-  "question": "Are households saving or drawing down more of their income?",
+  "question": "Are households saving less of their income?",
   "units": "Percent",
   "frequency": "monthly",
   "seasonalAdjustment": "Seasonally adjusted annual rate",

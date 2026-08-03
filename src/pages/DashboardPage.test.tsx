@@ -13,6 +13,7 @@ import { localEconomicSeriesRepository } from '../features/economic-series/repos
 import { DashboardPage } from './DashboardPage'
 
 const chartPropsSpy = vi.hoisted(() => vi.fn())
+const compactChartPropsSpy = vi.hoisted(() => vi.fn())
 const categoryTrendPropsSpy = vi.hoisted(() => vi.fn())
 const realWageChartPropsSpy = vi.hoisted(() => vi.fn())
 
@@ -41,14 +42,16 @@ vi.mock('../features/economic-series/charts/CompactHistoricalMetricChart', () =>
   }: {
     model: HistoricalBandResult
     definition: CompactHistoricalMetricDefinition
-  }) =>
-    <figure
+  }) => {
+    compactChartPropsSpy({ model, definition })
+    return <figure
       data-testid="production-compact-chart"
       data-status={model.status}
       data-series-label={definition.seriesLabel}
       data-show-zero={definition.showZeroLine}
       data-interactive={definition.interactiveDetails}
-    />,
+    />
+  },
 }))
 
 vi.mock('../features/economic-series/charts/InflationCategoryTrendCharts', () => ({
@@ -118,6 +121,7 @@ vi.mock('../features/economic-series/charts/JoltsLayoffsChart', () => ({
 afterEach(() => {
   cleanup()
   chartPropsSpy.mockClear()
+  compactChartPropsSpy.mockClear()
   categoryTrendPropsSpy.mockClear()
   realWageChartPropsSpy.mockClear()
   vi.restoreAllMocks()
@@ -196,7 +200,7 @@ describe('DashboardPage economic series', () => {
       'Are employers adding jobs?',
       'Is job growth keeping up with the labor force?',
       'Are layoffs beginning to rise?',
-      'Are households saving or drawing down more of their income?',
+      'Are households saving less of their income?',
       'How much of household income is going toward required debt payments?',
       'Can a median-income household afford a typical home?',
       'How much new housing is being started?',
@@ -1254,6 +1258,60 @@ describe('DashboardPage economic series', () => {
     ).toHaveAttribute('aria-pressed', 'true')
   })
 
+  it('renders a direction-first compact personal saving rate card and preserves More', async () => {
+    const user = userEvent.setup()
+    render(<DashboardPage />)
+    const card = await screen.findByRole('article', {
+      name: 'Are households saving less of their income?',
+    })
+
+    const current = within(card).getByLabelText(/The personal saving rate was/)
+    expect(current).toHaveTextContent('2.7%')
+    expect(current).toHaveTextContent('Share of disposable personal income saved')
+    expect(current).toHaveTextContent('June 2026')
+    expect(current).toHaveTextContent(
+      'Yes — households are saving a smaller share of their income than a year ago.',
+    )
+    expect(current).toHaveTextContent(
+      'The saving rate is low by historical standards.',
+    )
+    expect(current).toHaveTextContent(
+      'Down 1.9 percentage points from a year earlier',
+    )
+    expect(within(card).getByTestId('production-compact-chart'))
+      .toHaveAttribute('data-show-zero', 'false')
+    expect(within(card).queryByRole('button', { name: '5 years' }))
+      .not.toBeInTheDocument()
+
+    const compactProps = compactChartPropsSpy.mock.calls
+      .map((call) => call[0] as {
+        definition: CompactHistoricalMetricDefinition
+        model: HistoricalBandResult
+      })
+      .find(({ definition }) => definition.seriesLabel === 'Personal saving rate')
+    expect(compactProps?.definition).toMatchObject({
+      showZeroLine: false,
+      showLatestMarker: true,
+      interactiveDetails: true,
+      pointComparison: { months: 12 },
+      historicalBands: {
+        recentObservationCount: 61,
+        comparisonWindow: { kind: 'trailing-years', years: 25 },
+      },
+    })
+    expect(compactProps?.model).toMatchObject({
+      status: 'ready', recentObservationCount: 61,
+    })
+
+    await user.click(within(card).getByRole('button', { name: /More/ }))
+    expect(within(card).getByRole('button', { name: '20 years' })).toBeVisible()
+    expect(within(card).getByText(/A positive saving rate means households still saved/))
+      .toHaveTextContent(/not necessarily that they drew down accumulated assets/)
+    await user.click(within(card).getByRole('button', { name: /Less/ }))
+    expect(within(card).queryByRole('button', { name: '20 years' }))
+      .not.toBeInTheDocument()
+  })
+
   it('renders TDSP as an aggregate quarterly level with full-history ranges', async () => {
     const user = userEvent.setup()
     render(<DashboardPage />)
@@ -1342,7 +1400,7 @@ describe('DashboardPage economic series', () => {
       'The household debt-service ratio data could not be loaded.',
     )).toBeVisible()
     expect(await screen.findByRole('article', {
-      name: 'Are households saving or drawing down more of their income?',
+      name: 'Are households saving less of their income?',
     })).toBeVisible()
   })
 

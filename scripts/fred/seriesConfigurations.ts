@@ -785,7 +785,7 @@ export const personalSavingRateConfiguration: FredSeriesConfig = {
   shortTitle: 'Saving rate',
   description:
     'Personal saving as a percentage of disposable personal income.',
-  question: 'Are households saving or drawing down more of their income?',
+  question: 'Are households saving less of their income?',
   units: 'Percent',
   seasonalAdjustment: 'Seasonally adjusted annual rate',
   transformation: 'Level',

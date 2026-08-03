@@ -61,7 +61,7 @@ const navigationGroups = [
     cards: [
       {
         id: 'personal-saving-rate-card',
-        title: 'Are households saving or drawing down more of their income?',
+        title: 'Are households saving less of their income?',
       },
       {
         id: 'household-debt-service-ratio-card',

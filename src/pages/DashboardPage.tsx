@@ -196,6 +196,7 @@ export function DashboardPage() {
         description="Household indicators show aggregate saving behavior and required debt-payment burdens, but do not describe every household’s experience."
       >
         <EconomicSeriesCard
+          collapsible
           slug="personal-saving-rate"
           label="personal saving rate"
           onSeriesLoaded={handleSeriesLoaded}

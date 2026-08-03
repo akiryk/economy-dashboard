@@ -7,7 +7,6 @@ import {
   formatDate,
   formatObservationPeriod,
   formatPercentage,
-  formatSignedPercentage,
   formatSignedPercentagePoints,
   formatAnnualizedHousingUnits,
   selectMostRecentObservations,
@@ -23,7 +22,11 @@ import { PayrollObservationsTable } from './PayrollObservationsTable'
 import { TimeRangeControl } from './TimeRangeControl'
 import { getEconomicSeriesPresentation } from './seriesPresentation'
 import { SavingRateTable } from './SavingRateTable'
-import { savingRateChanges } from '../utils/savingRateData'
+import {
+  createSavingRateAccessibleSummary,
+  deriveSavingRateContext,
+  formatSavingRateChange,
+} from '../utils/savingRateContext'
 import {
   calculateProductivityMomentum,
   classifyProductivityAnswer,
@@ -205,14 +208,14 @@ export function EconomicSeriesSummary({
       : null,
     [series.observations, series.slug],
   )
+  const savingRateContext = useMemo(
+    () => series.slug === 'personal-saving-rate'
+      ? deriveSavingRateContext(series.observations)
+      : null,
+    [series.observations, series.slug],
+  )
   const formatValue = (value: number | null) =>
     formatEconomicValue(value, presentation.valueFormat)
-  const savingRateChange =
-    series.slug === 'personal-saving-rate'
-      ? savingRateChanges(series.observations).find(
-          (item) => item.date === latestObservation?.date,
-        )?.change ?? null
-      : null
   const productivityMomentum =
     series.slug === 'labor-productivity-growth'
       ? calculateProductivityMomentum(series.observations).find(
@@ -269,6 +272,9 @@ export function EconomicSeriesSummary({
         (payrollGrowthContext
           ? createPayrollGrowthAccessibleSummary(payrollGrowthContext)
           : null) ??
+        (savingRateContext
+          ? createSavingRateAccessibleSummary(savingRateContext)
+          : null) ??
         presentation.latestValueLabel
       }
     >
@@ -314,6 +320,8 @@ export function EconomicSeriesSummary({
             ? 'Share of adults ages 25–54 who are employed'
             : series.slug === 'payroll-growth'
             ? 'Latest three-month average'
+            : series.slug === 'personal-saving-rate'
+            ? 'Share of disposable personal income saved'
             : presentation.latestValueLabel}
         </p>
         <p className="series-current__period">
@@ -368,6 +376,19 @@ export function EconomicSeriesSummary({
             {payrollGrowthContext.answer}
           </p>
         )}
+        {savingRateContext && (
+          <>
+            <p className="series-current__answer">
+              {savingRateContext.directionStatement}
+            </p>
+            <p className="series-current__answer">
+              {savingRateContext.levelStatement}
+            </p>
+            <p className="series-current__comparison">
+              {formatSavingRateChange(savingRateContext.twelveMonthChange)}
+            </p>
+          </>
+        )}
     </div>
   )
   const compactVisual = compactModel && compactDefinition ? (
@@ -381,6 +402,7 @@ export function EconomicSeriesSummary({
       <CompactHistoricalMetricChart
         model={compactModel}
         definition={compactDefinition}
+        observations={series.observations}
         visuallyHideSummary
       />
     </Suspense>
@@ -392,6 +414,8 @@ export function EconomicSeriesSummary({
       eyebrow={presentation.topicLabel}
       question={series.slug === 'unemployment-rate'
         ? 'Is unemployment high or low?'
+        : series.slug === 'personal-saving-rate'
+        ? 'Are households saving less of their income?'
         : series.question}
       measureLabel={series.title}
       latestValue={latestValueContent}
@@ -615,7 +639,7 @@ export function EconomicSeriesSummary({
                   ? 'At least one observation was below zero.'
                   : 'No observations were below zero.')}
               {series.slug === 'personal-saving-rate' && (
-                <> The change from 12 months earlier was {formatSignedPercentage(savingRateChange)} percentage points.</>
+                <> {formatSavingRateChange(savingRateContext?.twelveMonthChange ?? null)}. A positive saving rate means households still saved in aggregate; a decline means they retained a smaller share of current income, not necessarily that they drew down accumulated assets.</>
               )}
               {series.slug === 'labor-productivity-growth' &&
                 productivityMomentumText && (
