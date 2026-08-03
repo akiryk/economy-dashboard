@@ -7,7 +7,7 @@ This is the authoritative technical inventory for sources, transformations, gene
 The refresh path is deliberately separate from the browser:
 
 ```text
-FRED, Federal Reserve Board, BLS, or Atlanta Fed source -> Node refresh command -> validated domain JSON -> local repository -> React dashboard
+FRED, BEA, Federal Reserve Board, BLS, or Atlanta Fed source -> Node refresh command -> validated domain JSON -> local repository -> React dashboard
 ```
 
 The generated JSON is committed with the application, so the dashboard remains usable if FRED is unavailable. The browser never receives the API key and never contacts FRED.
@@ -31,6 +31,7 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Wages versus inflation (`AHETPI` plus the existing `CPIAUCSL` result), derived into `nominal-wage-growth.json` and `real-wage-growth.json`.
 - Real disposable income per capita and real consumer spending per capita (`A229RX0Q048SBEA` and `A794RX0Q048SBEA`, quarterly source levels), derived into quarterly per-capita growth outputs.
 - Personal saving rate (`PSAVERT`, monthly), written to `personal-saving-rate.json`.
+- Saving rate by income decile (BEA Distribution of Personal Saving workbook, annual), written to `saving-rate-by-income-decile.json`.
 - Household debt-service ratio (`TDSP`, quarterly), written as the provider-published level to `household-debt-service-ratio.json`.
 - Housing starts (`HOUST`, monthly), written as the provider-published level to `housing-starts.json`.
 - Manufacturing output (`IPMAN`, monthly), written as the provider-published index to `manufacturing-output.json`.
@@ -153,6 +154,52 @@ The series-specific requests are:
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
 The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, PCE, unemployment, prime-age employment, LMCI, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, personal saving, household debt service, housing starts, manufacturing output, manufacturing employment, real business investment, and industrial capacity utilization. Domain transformation metadata separately records provider values and local calculations.
+
+## BEA saving-rate distribution
+
+The annual income-decile dataset comes from BEA and BLS's ongoing **Distribution
+of Personal Saving** research project on BEA's
+[Distribution of Personal Income](https://www.bea.gov/data/special-topics/distribution-of-personal-income)
+page. The structured source is the `savings rates` worksheet in BEA's
+[`joint_dist_summary.xlsx`](https://www.bea.gov/sites/default/files/2026-05/joint_dist_summary.xlsx)
+workbook; the accompanying
+[read-me](https://www.bea.gov/sites/default/files/2026-04/readme_for_summary_file.pdf)
+defines the fields, and the
+[technical document](https://www.bea.gov/sites/default/files/2026-04/technical_document_personal_saving.pdf)
+documents the joint DPI/PCE method. This source is separate from NIPA Table
+2.10 and the newer personal-income nowcast: the saving workbook currently has
+final annual estimates for 2000–2023 and no provisional or experimental saving
+observations.
+
+BEA directly publishes the rate for each decile of equivalized disposable
+personal income. The source values are ratios (for example, `-1.342`); ingestion
+multiplies them by 100 to store percentage units (`-134.2`). This matches BEA's
+definition: a group's share of total personal saving divided by its share of
+total disposable personal income. The application does not reconstruct the rate
+when that direct field is present. A negative rate means estimated personal
+outlays exceeded disposable personal income for the group, not that every
+household in it dissaved.
+
+`npm run data:refresh` runs the BEA update after all FRED updates. The narrower
+`npm run data:refresh-saving-distribution` command requires no API key and may be
+used independently. Both download the workbook; verify the worksheet and exact
+`Year`, `0-10%` through `90-100%` columns; reject duplicate or unordered years,
+nonnumeric values, unexpected units, ranking, deciles, or statuses; preserve
+`N/A` as null; and atomically replace
+`src/features/economic-series/data/saving-rate-by-income-decile.json` only after
+the complete 10-decile dataset validates. No interpolation or carry-forward is
+permitted. A failed download, parse, or validation leaves the previous committed
+file untouched. Output is deterministic apart from the explicit retrieval date,
+and the command reports coverage, observation count, and included status labels.
+
+BEA describes this as an ongoing research project rather than a fixed scheduled
+release. Check the source page when BEA updates the workbook, run the narrow
+refresh, verify the reported latest year and representative bottom, middle, and
+upper-decile values, then commit the validated JSON. If BEA adds provisional or
+experimental saving estimates, update the year-status mapping only after the
+release metadata identifies those years; the data model and UI already expose
+those labels. Do not apply the provisional personal-income or experimental
+nowcast labels to saving-rate years that are absent from this workbook.
 
 The two LMCI outputs contain 414 monthly observations from January 1992 through June 2026 and were retrieved July 20, 2026. They remain raw standardized, seasonally adjusted indexes; percentile ranks are derived at briefing interpretation time from each output's full committed finite history. Source: Federal Reserve Bank of Kansas City, Labor Market Conditions Indicators. Required citation: Hakkio, Craig S., and Jonathan L. Willis. 2014. “Kansas City Fed’s Labor Market Conditions Indicators (LMCI).” Federal Reserve Bank of Kansas City, *The Macro Bulletin*, August 28. FRED series pages: [`FRBKCLMCILA`](https://fred.stlouisfed.org/series/FRBKCLMCILA) and [`FRBKCLMCIM`](https://fred.stlouisfed.org/series/FRBKCLMCIM).
 

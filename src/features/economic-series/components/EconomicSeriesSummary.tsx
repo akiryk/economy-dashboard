@@ -80,6 +80,12 @@ const CompactHistoricalMetricChart = lazy(() =>
   })),
 )
 
+const SavingRateDistributionSection = lazy(() =>
+  import('./SavingRateDistributionSection').then((module) => ({
+    default: module.SavingRateDistributionSection,
+  })),
+)
+
 interface EconomicSeriesSummaryProps {
   collapsible?: boolean
   series: EconomicSeries
@@ -653,6 +659,12 @@ export function EconomicSeriesSummary({
           No {series.shortTitle} observations are available for the selected
           period.
         </p>
+      )}
+
+      {series.slug === 'personal-saving-rate' && chartSummary.observationCount > 0 && (
+        <Suspense fallback={<p className="chart-state" role="status">Loading saving-rate distribution…</p>}>
+          <SavingRateDistributionSection />
+        </Suspense>
       )}
 
       <div className="series-explanations">

@@ -1,0 +1,1452 @@
+{
+  "id": "saving-rate-by-income-decile",
+  "sourceName": "U.S. Bureau of Economic Analysis, Distribution of Personal Saving",
+  "sourceUrl": "https://www.bea.gov/data/special-topics/distribution-of-personal-income",
+  "workbookUrl": "https://www.bea.gov/sites/default/files/2026-05/joint_dist_summary.xlsx",
+  "methodologyUrl": "https://www.bea.gov/sites/default/files/2026-04/technical_document_personal_saving.pdf",
+  "retrievedAt": "2026-08-03",
+  "ranking": "Equivalized Disposable Personal Income",
+  "units": "Percent of disposable personal income",
+  "observations": [
+    {
+      "year": 2000,
+      "decile": "0-10%",
+      "rate": -152.1,
+      "status": "final"
+    },
+    {
+      "year": 2000,
+      "decile": "10-20%",
+      "rate": -54.800000000000004,
+      "status": "final"
+    },
+    {
+      "year": 2000,
+      "decile": "20-30%",
+      "rate": -40.1,
+      "status": "final"
+    },
+    {
+      "year": 2000,
+      "decile": "30-40%",
+      "rate": -30.8,
+      "status": "final"
+    },
+    {
+      "year": 2000,
+      "decile": "40-50%",
+      "rate": -22.8,
+      "status": "final"
+    },
+    {
+      "year": 2000,
+      "decile": "50-60%",
+      "rate": -14.6,
+      "status": "final"
+    },
+    {
+      "year": 2000,
+      "decile": "60-70%",
+      "rate": -9.5,
+      "status": "final"
+    },
+    {
+      "year": 2000,
+      "decile": "70-80%",
+      "rate": -1.3,
+      "status": "final"
+    },
+    {
+      "year": 2000,
+      "decile": "80-90%",
+      "rate": 7.199999999999999,
+      "status": "final"
+    },
+    {
+      "year": 2000,
+      "decile": "90-100%",
+      "rate": 48,
+      "status": "final"
+    },
+    {
+      "year": 2001,
+      "decile": "0-10%",
+      "rate": -233.5,
+      "status": "final"
+    },
+    {
+      "year": 2001,
+      "decile": "10-20%",
+      "rate": -56.8,
+      "status": "final"
+    },
+    {
+      "year": 2001,
+      "decile": "20-30%",
+      "rate": -42.1,
+      "status": "final"
+    },
+    {
+      "year": 2001,
+      "decile": "30-40%",
+      "rate": -32.7,
+      "status": "final"
+    },
+    {
+      "year": 2001,
+      "decile": "40-50%",
+      "rate": -23.7,
+      "status": "final"
+    },
+    {
+      "year": 2001,
+      "decile": "50-60%",
+      "rate": -15.8,
+      "status": "final"
+    },
+    {
+      "year": 2001,
+      "decile": "60-70%",
+      "rate": -10.299999999999999,
+      "status": "final"
+    },
+    {
+      "year": 2001,
+      "decile": "70-80%",
+      "rate": -0.2,
+      "status": "final"
+    },
+    {
+      "year": 2001,
+      "decile": "80-90%",
+      "rate": 9.8,
+      "status": "final"
+    },
+    {
+      "year": 2001,
+      "decile": "90-100%",
+      "rate": 53.6,
+      "status": "final"
+    },
+    {
+      "year": 2002,
+      "decile": "0-10%",
+      "rate": -165,
+      "status": "final"
+    },
+    {
+      "year": 2002,
+      "decile": "10-20%",
+      "rate": -58.699999999999996,
+      "status": "final"
+    },
+    {
+      "year": 2002,
+      "decile": "20-30%",
+      "rate": -41.5,
+      "status": "final"
+    },
+    {
+      "year": 2002,
+      "decile": "30-40%",
+      "rate": -32.800000000000004,
+      "status": "final"
+    },
+    {
+      "year": 2002,
+      "decile": "40-50%",
+      "rate": -21.8,
+      "status": "final"
+    },
+    {
+      "year": 2002,
+      "decile": "50-60%",
+      "rate": -10.100000000000001,
+      "status": "final"
+    },
+    {
+      "year": 2002,
+      "decile": "60-70%",
+      "rate": -0.2,
+      "status": "final"
+    },
+    {
+      "year": 2002,
+      "decile": "70-80%",
+      "rate": 6,
+      "status": "final"
+    },
+    {
+      "year": 2002,
+      "decile": "80-90%",
+      "rate": 10,
+      "status": "final"
+    },
+    {
+      "year": 2002,
+      "decile": "90-100%",
+      "rate": 46.5,
+      "status": "final"
+    },
+    {
+      "year": 2003,
+      "decile": "0-10%",
+      "rate": -190.9,
+      "status": "final"
+    },
+    {
+      "year": 2003,
+      "decile": "10-20%",
+      "rate": -61.1,
+      "status": "final"
+    },
+    {
+      "year": 2003,
+      "decile": "20-30%",
+      "rate": -43.6,
+      "status": "final"
+    },
+    {
+      "year": 2003,
+      "decile": "30-40%",
+      "rate": -35,
+      "status": "final"
+    },
+    {
+      "year": 2003,
+      "decile": "40-50%",
+      "rate": -27.1,
+      "status": "final"
+    },
+    {
+      "year": 2003,
+      "decile": "50-60%",
+      "rate": -19.400000000000002,
+      "status": "final"
+    },
+    {
+      "year": 2003,
+      "decile": "60-70%",
+      "rate": -7.3999999999999995,
+      "status": "final"
+    },
+    {
+      "year": 2003,
+      "decile": "70-80%",
+      "rate": 2.1,
+      "status": "final"
+    },
+    {
+      "year": 2003,
+      "decile": "80-90%",
+      "rate": 11.600000000000001,
+      "status": "final"
+    },
+    {
+      "year": 2003,
+      "decile": "90-100%",
+      "rate": 52.1,
+      "status": "final"
+    },
+    {
+      "year": 2004,
+      "decile": "0-10%",
+      "rate": -167.79999999999998,
+      "status": "final"
+    },
+    {
+      "year": 2004,
+      "decile": "10-20%",
+      "rate": -52.1,
+      "status": "final"
+    },
+    {
+      "year": 2004,
+      "decile": "20-30%",
+      "rate": -35.8,
+      "status": "final"
+    },
+    {
+      "year": 2004,
+      "decile": "30-40%",
+      "rate": -27.700000000000003,
+      "status": "final"
+    },
+    {
+      "year": 2004,
+      "decile": "40-50%",
+      "rate": -19.7,
+      "status": "final"
+    },
+    {
+      "year": 2004,
+      "decile": "50-60%",
+      "rate": -10.8,
+      "status": "final"
+    },
+    {
+      "year": 2004,
+      "decile": "60-70%",
+      "rate": -3.3000000000000003,
+      "status": "final"
+    },
+    {
+      "year": 2004,
+      "decile": "70-80%",
+      "rate": 2.4,
+      "status": "final"
+    },
+    {
+      "year": 2004,
+      "decile": "80-90%",
+      "rate": 8.1,
+      "status": "final"
+    },
+    {
+      "year": 2004,
+      "decile": "90-100%",
+      "rate": 41.9,
+      "status": "final"
+    },
+    {
+      "year": 2005,
+      "decile": "0-10%",
+      "rate": -171,
+      "status": "final"
+    },
+    {
+      "year": 2005,
+      "decile": "10-20%",
+      "rate": -57.3,
+      "status": "final"
+    },
+    {
+      "year": 2005,
+      "decile": "20-30%",
+      "rate": -40,
+      "status": "final"
+    },
+    {
+      "year": 2005,
+      "decile": "30-40%",
+      "rate": -29.599999999999998,
+      "status": "final"
+    },
+    {
+      "year": 2005,
+      "decile": "40-50%",
+      "rate": -22.400000000000002,
+      "status": "final"
+    },
+    {
+      "year": 2005,
+      "decile": "50-60%",
+      "rate": -16.8,
+      "status": "final"
+    },
+    {
+      "year": 2005,
+      "decile": "60-70%",
+      "rate": -8,
+      "status": "final"
+    },
+    {
+      "year": 2005,
+      "decile": "70-80%",
+      "rate": 0.7000000000000001,
+      "status": "final"
+    },
+    {
+      "year": 2005,
+      "decile": "80-90%",
+      "rate": 5.2,
+      "status": "final"
+    },
+    {
+      "year": 2005,
+      "decile": "90-100%",
+      "rate": 41.099999999999994,
+      "status": "final"
+    },
+    {
+      "year": 2006,
+      "decile": "0-10%",
+      "rate": -168.9,
+      "status": "final"
+    },
+    {
+      "year": 2006,
+      "decile": "10-20%",
+      "rate": -51,
+      "status": "final"
+    },
+    {
+      "year": 2006,
+      "decile": "20-30%",
+      "rate": -36.7,
+      "status": "final"
+    },
+    {
+      "year": 2006,
+      "decile": "30-40%",
+      "rate": -31.900000000000002,
+      "status": "final"
+    },
+    {
+      "year": 2006,
+      "decile": "40-50%",
+      "rate": -25.5,
+      "status": "final"
+    },
+    {
+      "year": 2006,
+      "decile": "50-60%",
+      "rate": -19,
+      "status": "final"
+    },
+    {
+      "year": 2006,
+      "decile": "60-70%",
+      "rate": -10.7,
+      "status": "final"
+    },
+    {
+      "year": 2006,
+      "decile": "70-80%",
+      "rate": -1.0999999999999999,
+      "status": "final"
+    },
+    {
+      "year": 2006,
+      "decile": "80-90%",
+      "rate": 4,
+      "status": "final"
+    },
+    {
+      "year": 2006,
+      "decile": "90-100%",
+      "rate": 44.5,
+      "status": "final"
+    },
+    {
+      "year": 2007,
+      "decile": "0-10%",
+      "rate": -153.6,
+      "status": "final"
+    },
+    {
+      "year": 2007,
+      "decile": "10-20%",
+      "rate": -54,
+      "status": "final"
+    },
+    {
+      "year": 2007,
+      "decile": "20-30%",
+      "rate": -38.6,
+      "status": "final"
+    },
+    {
+      "year": 2007,
+      "decile": "30-40%",
+      "rate": -30.2,
+      "status": "final"
+    },
+    {
+      "year": 2007,
+      "decile": "40-50%",
+      "rate": -22.400000000000002,
+      "status": "final"
+    },
+    {
+      "year": 2007,
+      "decile": "50-60%",
+      "rate": -15.1,
+      "status": "final"
+    },
+    {
+      "year": 2007,
+      "decile": "60-70%",
+      "rate": -9.4,
+      "status": "final"
+    },
+    {
+      "year": 2007,
+      "decile": "70-80%",
+      "rate": -3.1,
+      "status": "final"
+    },
+    {
+      "year": 2007,
+      "decile": "80-90%",
+      "rate": 3,
+      "status": "final"
+    },
+    {
+      "year": 2007,
+      "decile": "90-100%",
+      "rate": 41.4,
+      "status": "final"
+    },
+    {
+      "year": 2008,
+      "decile": "0-10%",
+      "rate": -158.7,
+      "status": "final"
+    },
+    {
+      "year": 2008,
+      "decile": "10-20%",
+      "rate": -52.1,
+      "status": "final"
+    },
+    {
+      "year": 2008,
+      "decile": "20-30%",
+      "rate": -38,
+      "status": "final"
+    },
+    {
+      "year": 2008,
+      "decile": "30-40%",
+      "rate": -28.4,
+      "status": "final"
+    },
+    {
+      "year": 2008,
+      "decile": "40-50%",
+      "rate": -20,
+      "status": "final"
+    },
+    {
+      "year": 2008,
+      "decile": "50-60%",
+      "rate": -13.600000000000001,
+      "status": "final"
+    },
+    {
+      "year": 2008,
+      "decile": "60-70%",
+      "rate": -6.9,
+      "status": "final"
+    },
+    {
+      "year": 2008,
+      "decile": "70-80%",
+      "rate": 0.8,
+      "status": "final"
+    },
+    {
+      "year": 2008,
+      "decile": "80-90%",
+      "rate": 5.3,
+      "status": "final"
+    },
+    {
+      "year": 2008,
+      "decile": "90-100%",
+      "rate": 42.6,
+      "status": "final"
+    },
+    {
+      "year": 2009,
+      "decile": "0-10%",
+      "rate": -144.6,
+      "status": "final"
+    },
+    {
+      "year": 2009,
+      "decile": "10-20%",
+      "rate": -45.300000000000004,
+      "status": "final"
+    },
+    {
+      "year": 2009,
+      "decile": "20-30%",
+      "rate": -28.799999999999997,
+      "status": "final"
+    },
+    {
+      "year": 2009,
+      "decile": "30-40%",
+      "rate": -20.200000000000003,
+      "status": "final"
+    },
+    {
+      "year": 2009,
+      "decile": "40-50%",
+      "rate": -14.299999999999999,
+      "status": "final"
+    },
+    {
+      "year": 2009,
+      "decile": "50-60%",
+      "rate": -9.4,
+      "status": "final"
+    },
+    {
+      "year": 2009,
+      "decile": "60-70%",
+      "rate": -4.3999999999999995,
+      "status": "final"
+    },
+    {
+      "year": 2009,
+      "decile": "70-80%",
+      "rate": 1.4000000000000001,
+      "status": "final"
+    },
+    {
+      "year": 2009,
+      "decile": "80-90%",
+      "rate": 6.9,
+      "status": "final"
+    },
+    {
+      "year": 2009,
+      "decile": "90-100%",
+      "rate": 41.8,
+      "status": "final"
+    },
+    {
+      "year": 2010,
+      "decile": "0-10%",
+      "rate": -128.7,
+      "status": "final"
+    },
+    {
+      "year": 2010,
+      "decile": "10-20%",
+      "rate": -41.4,
+      "status": "final"
+    },
+    {
+      "year": 2010,
+      "decile": "20-30%",
+      "rate": -27.1,
+      "status": "final"
+    },
+    {
+      "year": 2010,
+      "decile": "30-40%",
+      "rate": -20.1,
+      "status": "final"
+    },
+    {
+      "year": 2010,
+      "decile": "40-50%",
+      "rate": -15.6,
+      "status": "final"
+    },
+    {
+      "year": 2010,
+      "decile": "50-60%",
+      "rate": -11.3,
+      "status": "final"
+    },
+    {
+      "year": 2010,
+      "decile": "60-70%",
+      "rate": -5.2,
+      "status": "final"
+    },
+    {
+      "year": 2010,
+      "decile": "70-80%",
+      "rate": 1.0999999999999999,
+      "status": "final"
+    },
+    {
+      "year": 2010,
+      "decile": "80-90%",
+      "rate": 5.4,
+      "status": "final"
+    },
+    {
+      "year": 2010,
+      "decile": "90-100%",
+      "rate": 42,
+      "status": "final"
+    },
+    {
+      "year": 2011,
+      "decile": "0-10%",
+      "rate": -132.7,
+      "status": "final"
+    },
+    {
+      "year": 2011,
+      "decile": "10-20%",
+      "rate": -43.6,
+      "status": "final"
+    },
+    {
+      "year": 2011,
+      "decile": "20-30%",
+      "rate": -31.6,
+      "status": "final"
+    },
+    {
+      "year": 2011,
+      "decile": "30-40%",
+      "rate": -24.3,
+      "status": "final"
+    },
+    {
+      "year": 2011,
+      "decile": "40-50%",
+      "rate": -19,
+      "status": "final"
+    },
+    {
+      "year": 2011,
+      "decile": "50-60%",
+      "rate": -14.000000000000002,
+      "status": "final"
+    },
+    {
+      "year": 2011,
+      "decile": "60-70%",
+      "rate": -5.6000000000000005,
+      "status": "final"
+    },
+    {
+      "year": 2011,
+      "decile": "70-80%",
+      "rate": 1.6,
+      "status": "final"
+    },
+    {
+      "year": 2011,
+      "decile": "80-90%",
+      "rate": 7.3,
+      "status": "final"
+    },
+    {
+      "year": 2011,
+      "decile": "90-100%",
+      "rate": 44.5,
+      "status": "final"
+    },
+    {
+      "year": 2012,
+      "decile": "0-10%",
+      "rate": -137.5,
+      "status": "final"
+    },
+    {
+      "year": 2012,
+      "decile": "10-20%",
+      "rate": -45.9,
+      "status": "final"
+    },
+    {
+      "year": 2012,
+      "decile": "20-30%",
+      "rate": -31.3,
+      "status": "final"
+    },
+    {
+      "year": 2012,
+      "decile": "30-40%",
+      "rate": -23.5,
+      "status": "final"
+    },
+    {
+      "year": 2012,
+      "decile": "40-50%",
+      "rate": -18.5,
+      "status": "final"
+    },
+    {
+      "year": 2012,
+      "decile": "50-60%",
+      "rate": -11.799999999999999,
+      "status": "final"
+    },
+    {
+      "year": 2012,
+      "decile": "60-70%",
+      "rate": -4,
+      "status": "final"
+    },
+    {
+      "year": 2012,
+      "decile": "70-80%",
+      "rate": 1.3,
+      "status": "final"
+    },
+    {
+      "year": 2012,
+      "decile": "80-90%",
+      "rate": 7.3,
+      "status": "final"
+    },
+    {
+      "year": 2012,
+      "decile": "90-100%",
+      "rate": 46.1,
+      "status": "final"
+    },
+    {
+      "year": 2013,
+      "decile": "0-10%",
+      "rate": -142.3,
+      "status": "final"
+    },
+    {
+      "year": 2013,
+      "decile": "10-20%",
+      "rate": -42.8,
+      "status": "final"
+    },
+    {
+      "year": 2013,
+      "decile": "20-30%",
+      "rate": -31.6,
+      "status": "final"
+    },
+    {
+      "year": 2013,
+      "decile": "30-40%",
+      "rate": -23.5,
+      "status": "final"
+    },
+    {
+      "year": 2013,
+      "decile": "40-50%",
+      "rate": -18.6,
+      "status": "final"
+    },
+    {
+      "year": 2013,
+      "decile": "50-60%",
+      "rate": -12.3,
+      "status": "final"
+    },
+    {
+      "year": 2013,
+      "decile": "60-70%",
+      "rate": -6.1,
+      "status": "final"
+    },
+    {
+      "year": 2013,
+      "decile": "70-80%",
+      "rate": 0.6,
+      "status": "final"
+    },
+    {
+      "year": 2013,
+      "decile": "80-90%",
+      "rate": 5.6000000000000005,
+      "status": "final"
+    },
+    {
+      "year": 2013,
+      "decile": "90-100%",
+      "rate": 41.9,
+      "status": "final"
+    },
+    {
+      "year": 2014,
+      "decile": "0-10%",
+      "rate": -154,
+      "status": "final"
+    },
+    {
+      "year": 2014,
+      "decile": "10-20%",
+      "rate": -47.599999999999994,
+      "status": "final"
+    },
+    {
+      "year": 2014,
+      "decile": "20-30%",
+      "rate": -32.5,
+      "status": "final"
+    },
+    {
+      "year": 2014,
+      "decile": "30-40%",
+      "rate": -25.1,
+      "status": "final"
+    },
+    {
+      "year": 2014,
+      "decile": "40-50%",
+      "rate": -18.9,
+      "status": "final"
+    },
+    {
+      "year": 2014,
+      "decile": "50-60%",
+      "rate": -11.700000000000001,
+      "status": "final"
+    },
+    {
+      "year": 2014,
+      "decile": "60-70%",
+      "rate": -6.5,
+      "status": "final"
+    },
+    {
+      "year": 2014,
+      "decile": "70-80%",
+      "rate": -1.2,
+      "status": "final"
+    },
+    {
+      "year": 2014,
+      "decile": "80-90%",
+      "rate": 4.9,
+      "status": "final"
+    },
+    {
+      "year": 2014,
+      "decile": "90-100%",
+      "rate": 44,
+      "status": "final"
+    },
+    {
+      "year": 2015,
+      "decile": "0-10%",
+      "rate": -129.1,
+      "status": "final"
+    },
+    {
+      "year": 2015,
+      "decile": "10-20%",
+      "rate": -43.8,
+      "status": "final"
+    },
+    {
+      "year": 2015,
+      "decile": "20-30%",
+      "rate": -30.7,
+      "status": "final"
+    },
+    {
+      "year": 2015,
+      "decile": "30-40%",
+      "rate": -23.9,
+      "status": "final"
+    },
+    {
+      "year": 2015,
+      "decile": "40-50%",
+      "rate": -17.7,
+      "status": "final"
+    },
+    {
+      "year": 2015,
+      "decile": "50-60%",
+      "rate": -11.3,
+      "status": "final"
+    },
+    {
+      "year": 2015,
+      "decile": "60-70%",
+      "rate": -5.8999999999999995,
+      "status": "final"
+    },
+    {
+      "year": 2015,
+      "decile": "70-80%",
+      "rate": 0,
+      "status": "final"
+    },
+    {
+      "year": 2015,
+      "decile": "80-90%",
+      "rate": 5.800000000000001,
+      "status": "final"
+    },
+    {
+      "year": 2015,
+      "decile": "90-100%",
+      "rate": 43.2,
+      "status": "final"
+    },
+    {
+      "year": 2016,
+      "decile": "0-10%",
+      "rate": -141.4,
+      "status": "final"
+    },
+    {
+      "year": 2016,
+      "decile": "10-20%",
+      "rate": -42.4,
+      "status": "final"
+    },
+    {
+      "year": 2016,
+      "decile": "20-30%",
+      "rate": -30.599999999999998,
+      "status": "final"
+    },
+    {
+      "year": 2016,
+      "decile": "30-40%",
+      "rate": -24,
+      "status": "final"
+    },
+    {
+      "year": 2016,
+      "decile": "40-50%",
+      "rate": -18.3,
+      "status": "final"
+    },
+    {
+      "year": 2016,
+      "decile": "50-60%",
+      "rate": -12.4,
+      "status": "final"
+    },
+    {
+      "year": 2016,
+      "decile": "60-70%",
+      "rate": -5.3,
+      "status": "final"
+    },
+    {
+      "year": 2016,
+      "decile": "70-80%",
+      "rate": 1.5,
+      "status": "final"
+    },
+    {
+      "year": 2016,
+      "decile": "80-90%",
+      "rate": 6.3,
+      "status": "final"
+    },
+    {
+      "year": 2016,
+      "decile": "90-100%",
+      "rate": 41.699999999999996,
+      "status": "final"
+    },
+    {
+      "year": 2017,
+      "decile": "0-10%",
+      "rate": -133.6,
+      "status": "final"
+    },
+    {
+      "year": 2017,
+      "decile": "10-20%",
+      "rate": -45.2,
+      "status": "final"
+    },
+    {
+      "year": 2017,
+      "decile": "20-30%",
+      "rate": -32.5,
+      "status": "final"
+    },
+    {
+      "year": 2017,
+      "decile": "30-40%",
+      "rate": -26.1,
+      "status": "final"
+    },
+    {
+      "year": 2017,
+      "decile": "40-50%",
+      "rate": -20.9,
+      "status": "final"
+    },
+    {
+      "year": 2017,
+      "decile": "50-60%",
+      "rate": -14.299999999999999,
+      "status": "final"
+    },
+    {
+      "year": 2017,
+      "decile": "60-70%",
+      "rate": -5.5,
+      "status": "final"
+    },
+    {
+      "year": 2017,
+      "decile": "70-80%",
+      "rate": 1.7000000000000002,
+      "status": "final"
+    },
+    {
+      "year": 2017,
+      "decile": "80-90%",
+      "rate": 6.5,
+      "status": "final"
+    },
+    {
+      "year": 2017,
+      "decile": "90-100%",
+      "rate": 43.7,
+      "status": "final"
+    },
+    {
+      "year": 2018,
+      "decile": "0-10%",
+      "rate": -134.1,
+      "status": "final"
+    },
+    {
+      "year": 2018,
+      "decile": "10-20%",
+      "rate": -48.1,
+      "status": "final"
+    },
+    {
+      "year": 2018,
+      "decile": "20-30%",
+      "rate": -33.7,
+      "status": "final"
+    },
+    {
+      "year": 2018,
+      "decile": "30-40%",
+      "rate": -27.3,
+      "status": "final"
+    },
+    {
+      "year": 2018,
+      "decile": "40-50%",
+      "rate": -19.900000000000002,
+      "status": "final"
+    },
+    {
+      "year": 2018,
+      "decile": "50-60%",
+      "rate": -13.900000000000002,
+      "status": "final"
+    },
+    {
+      "year": 2018,
+      "decile": "60-70%",
+      "rate": -5.8999999999999995,
+      "status": "final"
+    },
+    {
+      "year": 2018,
+      "decile": "70-80%",
+      "rate": 2.9000000000000004,
+      "status": "final"
+    },
+    {
+      "year": 2018,
+      "decile": "80-90%",
+      "rate": 8.6,
+      "status": "final"
+    },
+    {
+      "year": 2018,
+      "decile": "90-100%",
+      "rate": 44.4,
+      "status": "final"
+    },
+    {
+      "year": 2019,
+      "decile": "0-10%",
+      "rate": -126.2,
+      "status": "final"
+    },
+    {
+      "year": 2019,
+      "decile": "10-20%",
+      "rate": -48.699999999999996,
+      "status": "final"
+    },
+    {
+      "year": 2019,
+      "decile": "20-30%",
+      "rate": -35.4,
+      "status": "final"
+    },
+    {
+      "year": 2019,
+      "decile": "30-40%",
+      "rate": -26.5,
+      "status": "final"
+    },
+    {
+      "year": 2019,
+      "decile": "40-50%",
+      "rate": -16.900000000000002,
+      "status": "final"
+    },
+    {
+      "year": 2019,
+      "decile": "50-60%",
+      "rate": -10,
+      "status": "final"
+    },
+    {
+      "year": 2019,
+      "decile": "60-70%",
+      "rate": -3.5999999999999996,
+      "status": "final"
+    },
+    {
+      "year": 2019,
+      "decile": "70-80%",
+      "rate": 1.7999999999999998,
+      "status": "final"
+    },
+    {
+      "year": 2019,
+      "decile": "80-90%",
+      "rate": 7.6,
+      "status": "final"
+    },
+    {
+      "year": 2019,
+      "decile": "90-100%",
+      "rate": 45.6,
+      "status": "final"
+    },
+    {
+      "year": 2020,
+      "decile": "0-10%",
+      "rate": -112.79999999999998,
+      "status": "final"
+    },
+    {
+      "year": 2020,
+      "decile": "10-20%",
+      "rate": -32.5,
+      "status": "final"
+    },
+    {
+      "year": 2020,
+      "decile": "20-30%",
+      "rate": -19.400000000000002,
+      "status": "final"
+    },
+    {
+      "year": 2020,
+      "decile": "30-40%",
+      "rate": -12.4,
+      "status": "final"
+    },
+    {
+      "year": 2020,
+      "decile": "40-50%",
+      "rate": -4.7,
+      "status": "final"
+    },
+    {
+      "year": 2020,
+      "decile": "50-60%",
+      "rate": 0.6,
+      "status": "final"
+    },
+    {
+      "year": 2020,
+      "decile": "60-70%",
+      "rate": 4.8,
+      "status": "final"
+    },
+    {
+      "year": 2020,
+      "decile": "70-80%",
+      "rate": 11.899999999999999,
+      "status": "final"
+    },
+    {
+      "year": 2020,
+      "decile": "80-90%",
+      "rate": 19.2,
+      "status": "final"
+    },
+    {
+      "year": 2020,
+      "decile": "90-100%",
+      "rate": 50.1,
+      "status": "final"
+    },
+    {
+      "year": 2021,
+      "decile": "0-10%",
+      "rate": -101.49999999999999,
+      "status": "final"
+    },
+    {
+      "year": 2021,
+      "decile": "10-20%",
+      "rate": -38.2,
+      "status": "final"
+    },
+    {
+      "year": 2021,
+      "decile": "20-30%",
+      "rate": -26.200000000000003,
+      "status": "final"
+    },
+    {
+      "year": 2021,
+      "decile": "30-40%",
+      "rate": -17.4,
+      "status": "final"
+    },
+    {
+      "year": 2021,
+      "decile": "40-50%",
+      "rate": -10.8,
+      "status": "final"
+    },
+    {
+      "year": 2021,
+      "decile": "50-60%",
+      "rate": -5.5,
+      "status": "final"
+    },
+    {
+      "year": 2021,
+      "decile": "60-70%",
+      "rate": 1,
+      "status": "final"
+    },
+    {
+      "year": 2021,
+      "decile": "70-80%",
+      "rate": 7.000000000000001,
+      "status": "final"
+    },
+    {
+      "year": 2021,
+      "decile": "80-90%",
+      "rate": 11.200000000000001,
+      "status": "final"
+    },
+    {
+      "year": 2021,
+      "decile": "90-100%",
+      "rate": 49.3,
+      "status": "final"
+    },
+    {
+      "year": 2022,
+      "decile": "0-10%",
+      "rate": -144.9,
+      "status": "final"
+    },
+    {
+      "year": 2022,
+      "decile": "10-20%",
+      "rate": -54,
+      "status": "final"
+    },
+    {
+      "year": 2022,
+      "decile": "20-30%",
+      "rate": -39.2,
+      "status": "final"
+    },
+    {
+      "year": 2022,
+      "decile": "30-40%",
+      "rate": -29.5,
+      "status": "final"
+    },
+    {
+      "year": 2022,
+      "decile": "40-50%",
+      "rate": -20.9,
+      "status": "final"
+    },
+    {
+      "year": 2022,
+      "decile": "50-60%",
+      "rate": -15.2,
+      "status": "final"
+    },
+    {
+      "year": 2022,
+      "decile": "60-70%",
+      "rate": -9.4,
+      "status": "final"
+    },
+    {
+      "year": 2022,
+      "decile": "70-80%",
+      "rate": -3.5000000000000004,
+      "status": "final"
+    },
+    {
+      "year": 2022,
+      "decile": "80-90%",
+      "rate": 1.9,
+      "status": "final"
+    },
+    {
+      "year": 2022,
+      "decile": "90-100%",
+      "rate": 44.3,
+      "status": "final"
+    },
+    {
+      "year": 2023,
+      "decile": "0-10%",
+      "rate": -134.20000000000002,
+      "status": "final"
+    },
+    {
+      "year": 2023,
+      "decile": "10-20%",
+      "rate": -50.4,
+      "status": "final"
+    },
+    {
+      "year": 2023,
+      "decile": "20-30%",
+      "rate": -35.8,
+      "status": "final"
+    },
+    {
+      "year": 2023,
+      "decile": "30-40%",
+      "rate": -27.800000000000004,
+      "status": "final"
+    },
+    {
+      "year": 2023,
+      "decile": "40-50%",
+      "rate": -21.6,
+      "status": "final"
+    },
+    {
+      "year": 2023,
+      "decile": "50-60%",
+      "rate": -16,
+      "status": "final"
+    },
+    {
+      "year": 2023,
+      "decile": "60-70%",
+      "rate": -8,
+      "status": "final"
+    },
+    {
+      "year": 2023,
+      "decile": "70-80%",
+      "rate": -1.3,
+      "status": "final"
+    },
+    {
+      "year": 2023,
+      "decile": "80-90%",
+      "rate": 5,
+      "status": "final"
+    },
+    {
+      "year": 2023,
+      "decile": "90-100%",
+      "rate": 46.6,
+      "status": "final"
+    }
+  ]
+}

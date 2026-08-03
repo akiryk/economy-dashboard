@@ -1,0 +1,35 @@
+.saving-distribution { display: grid; gap: var(--space-4); min-width: 0; padding: var(--space-8) 0; border-top: 1px solid var(--color-border); }
+.saving-distribution h4 { font-size: 1.5rem; }
+.saving-distribution h5 { font-size: 1.125rem; }
+.saving-distribution__scale { display: flex; align-items: center; gap: var(--space-2); font-size: .875rem; color: var(--color-text-muted); }
+.saving-distribution__scale i { width: 4rem; height: .75rem; background: linear-gradient(90deg, rgb(181 82 67 / .8), #f2efe7); }
+.saving-distribution__scale i:nth-of-type(2) { background: linear-gradient(90deg, #f2efe7, rgb(42 112 128 / .8)); }
+.saving-distribution__zero-label { font-size: .875rem; font-weight: 700; }
+.saving-distribution__heatmap-wrap { min-width: 0; overflow-x: auto; padding-bottom: var(--space-2); }
+.saving-distribution__heatmap { display: grid; grid-template-columns: minmax(10rem, 1.5fr) repeat(var(--saving-years), minmax(1.5rem, 1fr)); gap: 2px; min-width: 46rem; }
+.saving-distribution__heat-row { display: contents; }
+.saving-distribution__year { font-size: .7rem; color: var(--color-text-muted); writing-mode: vertical-rl; min-height: 2.2rem; }
+.saving-distribution__row-label { align-self: center; font-size: .78rem; font-weight: 600; }
+.saving-distribution__cell { min-width: 0; height: 1.6rem; padding: 0; border: 1px solid transparent; border-radius: 2px; cursor: pointer; }
+.saving-distribution__cell:hover, .saving-distribution__cell:focus-visible { border-color: var(--color-text); outline: 2px solid var(--color-focus); outline-offset: 1px; }
+.saving-distribution__detail { min-height: 1.5rem; color: var(--color-text-muted); font-size: .875rem; }
+.saving-distribution__comparison, .saving-distribution__latest { display: grid; gap: var(--space-3); padding-top: var(--space-4); }
+.saving-distribution__comparison fieldset { display: grid; gap: var(--space-2); padding: 0; border: 0; }
+.saving-distribution__comparison legend { font-weight: 700; }
+.saving-distribution__comparison fieldset p { color: var(--color-text-muted); font-size: .875rem; }
+.saving-distribution__controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: var(--space-2); }
+.saving-distribution__controls label { font-size: .875rem; }
+.saving-distribution__legend { display: flex; flex-wrap: wrap; gap: var(--space-3); font-size: .875rem; }
+.saving-distribution__legend span { display: flex; align-items: center; gap: var(--space-1); }
+.saving-distribution__legend i { width: 1.5rem; height: .2rem; }
+.saving-distribution__line-chart { width: 100%; min-height: 14rem; overflow: visible; }
+.saving-distribution__line-chart text { fill: var(--color-text-muted); font-size: 12px; }
+.saving-distribution__line-chart circle { cursor: pointer; }
+.saving-distribution__line-chart circle:focus { outline: none; stroke: var(--color-text); stroke-width: 3; }
+.saving-distribution__zero-line { stroke: var(--color-text-muted); stroke-dasharray: 5 4; }
+.saving-distribution__bars { display: grid; gap: var(--space-2); }
+.saving-distribution__bar-row { display: grid; grid-template-columns: minmax(9rem, 1.4fr) minmax(10rem, 4fr) 4.5rem; align-items: center; gap: var(--space-3); font-size: .875rem; }
+.saving-distribution__bar-track { position: relative; height: 1.5rem; background: linear-gradient(to right, transparent calc(var(--saving-zero) - 1px), var(--color-text-muted) var(--saving-zero), transparent calc(var(--saving-zero) + 1px)); }
+.saving-distribution__dot { position: absolute; top: 50%; width: .85rem; height: .85rem; padding: 0; border: 2px solid white; border-radius: 50%; background: #1f6576; box-shadow: 0 0 0 1px #1f6576; transform: translate(-50%, -50%); cursor: pointer; }
+.saving-distribution__bar-row strong { text-align: right; }
+@media (max-width: 36rem) { .saving-distribution__scale { flex-wrap: wrap; } .saving-distribution__controls { grid-template-columns: 1fr; } .saving-distribution__bar-row { grid-template-columns: minmax(8rem, 1.5fr) minmax(6rem, 2fr) 3.5rem; gap: var(--space-2); font-size: .75rem; } }

@@ -45,7 +45,7 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 
 | Card | Displayed measure and chart | Why it is here |
 |---|---|---|
-| Are households saving less of their income? | Monthly personal saving as a percentage of disposable personal income. | Leads with the 12-month direction, separately classifies the current rate against a trailing 25-year distribution, and shows a five-year compact chart. A declining positive rate means households retain a smaller share of current income; it does not by itself show that accumulated assets are being drawn down. The full historical research view remains available under **More**. |
+| Are households saving less of their income? | Monthly aggregate personal saving as a percentage of disposable personal income, plus annual BEA saving rates for ten income deciles. | Leads with the 12-month aggregate direction, separately classifies the current rate against a trailing 25-year distribution, and shows a five-year compact chart. The expanded view retains the monthly history and adds an annual decile heat map, a three-group comparison, and a latest-year distribution view. Distributional rates rank households by equivalized disposable personal income and should not be treated as monthly figures or household-level verdicts. |
 | How much of household income is going toward required debt payments? | Quarterly mortgage and consumer debt-service payments as a percentage of disposable income. | Adds a broad measure of required household debt burden without substituting delinquency or debt balances. |
 
 ### Housing
