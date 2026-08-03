@@ -1,6 +1,10 @@
 import { EconomicSection } from '../components/layout/EconomicSection'
 import { EconomicSeriesCard } from '../features/economic-series/components/EconomicSeriesCard'
 
+const householdSpendingSupportingSlugs = [
+  'quarterly-real-consumer-spending-per-capita-growth',
+] as const
+
 export function SecondaryPage() {
   return (
     <div className="page">
@@ -21,6 +25,19 @@ export function SecondaryPage() {
           slug="labor-productivity-level"
           label="labor productivity level"
           variant="productivity-level"
+        />
+      </EconomicSection>
+
+      <EconomicSection
+        id="secondary-households"
+        title="Households"
+        description="Additional household measures retained for future evaluation."
+      >
+        <EconomicSeriesCard
+          slug="quarterly-real-disposable-income-per-capita-growth"
+          supportingSlugs={householdSpendingSupportingSlugs}
+          label="real income versus spending"
+          variant="household-comparison"
         />
       </EconomicSection>
     </div>

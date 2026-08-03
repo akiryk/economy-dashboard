@@ -8,7 +8,7 @@ The current product is intentionally broad and nonpartisan. It does not forecast
 
 The dashboard contains 27 visible cards in nine sections. Most cards use nonsmoothed time-series line charts. Relationship cards use two aligned lines; the manufacturing comparison normalizes two differently scaled series to a common selected-range baseline.
 
-The `/secondary` route retains indicators that are not currently part of the main dashboard for possible future review. It currently contains the productivity-level card, “How much more productive is the economy than in the past?” The primary navigation links to this page as Secondary indicators.
+The `/secondary` route retains indicators that are not currently part of the main dashboard for possible future review. It contains the productivity-level card, “How much more productive is the economy than in the past?”, and the household-resources card, “Are real household incomes and spending growing per person?” The primary navigation links to this page as Secondary indicators.
 
 The non-default `/briefing` preview currently adds one compact Labor tile. Its activity bar and momentum arrow show full-history percentile positions of the Kansas City Fed Labor Market Conditions Indicators; raw LMCI readings and the existing unemployment, payroll, prime-age employment, and claims measures appear only under More. The supporting measures cannot override the LMCI headline tiers.
 
@@ -45,7 +45,6 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 
 | Card | Displayed measure and chart | Why it is here |
 |---|---|---|
-| Are real household incomes and spending growing per person? | Quarterly real disposable income per person and real consumer spending per person, year-over-year growth. | Compares purchasing resources and consumption on consistent real, per-capita terms. |
 | Are households saving or drawing down more of their income? | Monthly personal saving as a percentage of disposable personal income. | Shows the aggregate income share not used for current consumption. |
 | How much of household income is going toward required debt payments? | Quarterly mortgage and consumer debt-service payments as a percentage of disposable income. | Adds a broad measure of required household debt burden without substituting delinquency or debt balances. |
 

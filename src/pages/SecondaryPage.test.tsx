@@ -1,11 +1,13 @@
-import { render, screen, within } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SecondaryPage } from './SecondaryPage'
 
 vi.mock('../features/economic-series/charts/EconomicTimeSeriesChart', () => ({
   default: () => <div data-testid="productivity-level-chart" />,
 }))
+
+afterEach(cleanup)
 
 describe('SecondaryPage', () => {
   it('retains the productivity-level card outside the main dashboard', async () => {
@@ -34,5 +36,18 @@ describe('SecondaryPage', () => {
     })
     expect(within(table).getAllByRole('row')).toHaveLength(9)
     expect(within(table).getAllByRole('columnheader')).toHaveLength(3)
+  })
+
+  it('retains the household-resources card outside the main dashboard', async () => {
+    render(<SecondaryPage />)
+
+    const households = screen.getByRole('region', { name: 'Households' })
+    const card = await within(households).findByRole('article', {
+      name: 'Are real household incomes and spending growing per person?',
+    })
+
+    expect(card).toHaveAttribute('id', 'real-income-versus-spending-card')
+    expect(within(card).getByText('Latest shared quarter: 2026 Q1')).toBeVisible()
+    expect(within(card).getByRole('button', { name: 'Maximum' })).toBeVisible()
   })
 })

@@ -33,9 +33,6 @@ const headlineMomentumSupportingSlugs = [
   'core-cpi-inflation',
   'core-cpi-three-month-annualized',
 ] as const
-const householdSpendingSupportingSlugs = [
-  'quarterly-real-consumer-spending-per-capita-growth',
-] as const
 const manufacturingEmploymentSupportingSlugs = ['manufacturing-employment'] as const
 const treasuryYieldSupportingSlugs = ['ten-year-treasury-yield'] as const
 
@@ -196,15 +193,8 @@ export function DashboardPage() {
       <EconomicSection
         id="households"
         title="Households"
-        description="Household indicators show how inflation-adjusted income, spending, and saving are changing in aggregate, but do not describe every household’s experience."
+        description="Household indicators show aggregate saving behavior and required debt-payment burdens, but do not describe every household’s experience."
       >
-        <EconomicSeriesCard
-          slug="quarterly-real-disposable-income-per-capita-growth"
-          supportingSlugs={householdSpendingSupportingSlugs}
-          label="real income versus spending"
-          variant="household-comparison"
-          onSeriesLoaded={handleSeriesLoaded}
-        />
         <EconomicSeriesCard
           slug="personal-saving-rate"
           label="personal saving rate"

@@ -60,10 +60,6 @@ const navigationGroups = [
     title: 'Households',
     cards: [
       {
-        id: 'real-income-versus-spending-card',
-        title: 'Are real household incomes and spending growing per person?',
-      },
-      {
         id: 'personal-saving-rate-card',
         title: 'Are households saving or drawing down more of their income?',
       },
@@ -141,7 +137,7 @@ export function DashboardNavigation() {
         <summary>
           <span id="dashboard-navigation-heading">Explore all indicators</span>
           <span className="dashboard-navigation__summary-detail">
-            28 cards in 9 categories
+            27 cards in 9 categories
           </span>
         </summary>
         <div className="dashboard-navigation__groups">
