@@ -63,10 +63,6 @@ const navigationGroups = [
         id: 'personal-saving-rate-card',
         title: 'Are households saving less of their income?',
       },
-      {
-        id: 'household-debt-service-ratio-card',
-        title: 'How much of household income is going toward required debt payments?',
-      },
     ],
   },
   {
@@ -137,7 +133,7 @@ export function DashboardNavigation() {
         <summary>
           <span id="dashboard-navigation-heading">Explore all indicators</span>
           <span className="dashboard-navigation__summary-detail">
-            27 cards in 9 categories
+            26 cards in 9 categories
           </span>
         </summary>
         <div className="dashboard-navigation__groups">

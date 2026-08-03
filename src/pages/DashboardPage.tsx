@@ -193,17 +193,12 @@ export function DashboardPage() {
       <EconomicSection
         id="households"
         title="Households"
-        description="Household indicators show aggregate saving behavior and required debt-payment burdens, but do not describe every household’s experience."
+        description="Household indicators show aggregate saving behavior, but do not describe every household’s experience."
       >
         <EconomicSeriesCard
           collapsible
           slug="personal-saving-rate"
           label="personal saving rate"
-          onSeriesLoaded={handleSeriesLoaded}
-        />
-        <EconomicSeriesCard
-          slug="household-debt-service-ratio"
-          label="household debt-service ratio"
           onSeriesLoaded={handleSeriesLoaded}
         />
       </EconomicSection>

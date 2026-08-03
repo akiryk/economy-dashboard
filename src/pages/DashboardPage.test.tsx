@@ -180,13 +180,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('27 cards in 9 categories')).toBeVisible()
+    expect(within(navigation).getByText('26 cards in 9 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(27)
+    expect(links).toHaveLength(26)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -201,7 +201,6 @@ describe('DashboardPage economic series', () => {
       'Is job growth keeping up with the labor force?',
       'Are layoffs beginning to rise?',
       'Are households saving less of their income?',
-      'How much of household income is going toward required debt payments?',
       'Can a median-income household afford a typical home?',
       'How much new housing is being started?',
       'Are manufacturing output and jobs moving together?',
@@ -439,10 +438,9 @@ describe('DashboardPage economic series', () => {
       'Is job growth keeping up with the labor force?',
       'Are layoffs beginning to rise?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(27)
+    expect(screen.getAllByRole('article')).toHaveLength(26)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'personal-saving-rate-question',
-      'household-debt-service-ratio-question',
     ])
     expect(
       within(employment).queryByRole('article', {
@@ -1310,98 +1308,6 @@ describe('DashboardPage economic series', () => {
     await user.click(within(card).getByRole('button', { name: /Less/ }))
     expect(within(card).queryByRole('button', { name: '20 years' }))
       .not.toBeInTheDocument()
-  })
-
-  it('renders TDSP as an aggregate quarterly level with full-history ranges', async () => {
-    const user = userEvent.setup()
-    render(<DashboardPage />)
-    const card = await screen.findByRole('article', {
-      name: 'How much of household income is going toward required debt payments?',
-    })
-
-    expect(within(card).getByLabelText('Latest household debt-service ratio'))
-      .toHaveTextContent('11.2%')
-    expect(within(card).getByText('2026 Q1 · Percent')).toBeVisible()
-    expect(within(card).getByText(/required mortgage and consumer-debt payments/))
-      .toBeVisible()
-    expect(within(card).getByText(/not the share paid by a typical household/))
-      .toBeVisible()
-    expect(card).not.toHaveTextContent(/delinquency rate|healthy|unhealthy|safe|concerning/i)
-
-    await user.click(within(card).getByText('Series details'))
-    const metadata = within(card).getByText('Provider series identifier').closest('dl')!
-    expect(within(metadata).getByText('TDSP')).toBeVisible()
-    expect(within(metadata).getByText('Quarterly')).toBeVisible()
-    expect(within(metadata).getByText('Percent')).toBeVisible()
-    expect(within(metadata).getByText('Seasonally adjusted')).toBeVisible()
-    expect(within(metadata).getByText('Level')).toBeVisible()
-    expect(within(metadata).getByText('2005 Q1 to 2026 Q1')).toBeVisible()
-
-    await waitFor(() => {
-      const props = chartPropsSpy.mock.calls
-        .map((call) => call[0] as {
-          seriesName: string
-          includeZero: boolean
-          observations: EconomicObservation[]
-        })
-        .find((candidate) => candidate.seriesName === 'Household debt-service ratio')
-      expect(props?.includeZero).toBe(false)
-      expect(props?.observations[0]?.date).toBe('2006-01-01')
-    })
-
-    await user.click(within(card).getByRole('button', { name: '5 years' }))
-    await waitFor(() => {
-      const props = chartPropsSpy.mock.calls
-        .map((call) => call[0] as {
-          seriesName: string
-          observations: EconomicObservation[]
-        })
-        .filter((candidate) => candidate.seriesName === 'Household debt-service ratio')
-        .at(-1)
-      expect(props?.observations[0]?.date).toBe('2021-01-01')
-    })
-
-    await user.click(within(card).getByRole('button', { name: 'Maximum' }))
-    await waitFor(() => {
-      const props = chartPropsSpy.mock.calls
-        .map((call) => call[0] as {
-          seriesName: string
-          observations: EconomicObservation[]
-        })
-        .filter((candidate) => candidate.seriesName === 'Household debt-service ratio')
-        .at(-1)
-      expect(props?.observations).toHaveLength(85)
-      expect(props?.observations[0]?.date).toBe('2005-01-01')
-      expect(props?.observations.at(-1)?.date).toBe('2026-01-01')
-    })
-
-    await user.click(within(card).getByText('Recent observations'))
-    expect(within(card).getByRole('table', {
-      name: 'Eight most recent household debt-service ratio observations',
-    })).toBeVisible()
-  })
-
-  it('isolates a TDSP failure from the other household cards', async () => {
-    const originalGetBySlug =
-      localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
-    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(
-      async (slug) => {
-        if (slug === 'household-debt-service-ratio') {
-          throw new Error('Invalid TDSP fixture')
-        }
-        return originalGetBySlug(slug)
-      },
-    )
-    vi.spyOn(console, 'error').mockImplementation(() => undefined)
-
-    render(<DashboardPage />)
-
-    expect(await screen.findByText(
-      'The household debt-service ratio data could not be loaded.',
-    )).toBeVisible()
-    expect(await screen.findByRole('article', {
-      name: 'Are households saving less of their income?',
-    })).toBeVisible()
   })
 
   it('renders the two Housing cards in order with full-history controls and explicit units', async () => {

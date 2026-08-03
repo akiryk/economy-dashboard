@@ -50,4 +50,17 @@ describe('SecondaryPage', () => {
     expect(within(card).getByText(/Latest shared quarter: \d{4} Q[1-4]/)).toBeVisible()
     expect(within(card).getByRole('button', { name: 'Maximum' })).toBeVisible()
   })
+
+  it('retains the household debt-burden card outside the main dashboard', async () => {
+    render(<SecondaryPage />)
+
+    const households = screen.getByRole('region', { name: 'Households' })
+    const card = await within(households).findByRole('article', {
+      name: 'How much of household income is going toward required debt payments?',
+    })
+
+    expect(card).toHaveAttribute('id', 'household-debt-service-ratio-card')
+    expect(within(card).getByLabelText('Latest household debt-service ratio'))
+      .toHaveTextContent('11.2%')
+  })
 })

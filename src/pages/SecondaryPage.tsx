@@ -39,6 +39,10 @@ export function SecondaryPage() {
           label="real income versus spending"
           variant="household-comparison"
         />
+        <EconomicSeriesCard
+          slug="household-debt-service-ratio"
+          label="household debt-service ratio"
+        />
       </EconomicSection>
     </div>
   )
