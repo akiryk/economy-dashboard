@@ -13,7 +13,7 @@
   "transformation": "Exact-quarter percent change from year ago, calculated by the application",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED; growth calculated by the application",
   "sourceUrl": "https://fred.stlouisfed.org/series/PNFIC1",
-  "retrievedAt": "2026-07-17",
+  "retrievedAt": "2026-08-03",
   "observations": [
     {
       "date": "2008-01-01",
@@ -306,6 +306,10 @@
     {
       "date": "2026-01-01",
       "value": 5.812806347240862
+    },
+    {
+      "date": "2026-04-01",
+      "value": 6.086486013794912
     }
   ]
 }

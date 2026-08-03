@@ -13,7 +13,7 @@
   "transformation": "Level",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/PSAVERT",
-  "retrievedAt": "2026-07-17",
+  "retrievedAt": "2026-08-03",
   "observations": [
     {
       "date": "1959-01-01",
@@ -3249,7 +3249,11 @@
     },
     {
       "date": "2026-05-01",
-      "value": 3
+      "value": 2.8
+    },
+    {
+      "date": "2026-06-01",
+      "value": 2.7
     }
   ]
 }

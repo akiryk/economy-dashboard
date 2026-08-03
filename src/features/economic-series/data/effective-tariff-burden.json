@@ -13,7 +13,7 @@
   "transformation": "Customs duties divided by goods imports multiplied by 100, calculated by the application",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED; ratio calculated by the application",
   "sourceUrl": "https://fred.stlouisfed.org/series/B235RC1Q027SBEA",
-  "retrievedAt": "2026-07-17",
+  "retrievedAt": "2026-08-03",
   "observations": [
     {
       "date": "1959-01-01",
@@ -1090,6 +1090,10 @@
     {
       "date": "2026-01-01",
       "value": 10.146429257125437
+    },
+    {
+      "date": "2026-04-01",
+      "value": 8.839849048262352
     }
   ],
   "sources": [

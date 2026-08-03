@@ -6,14 +6,14 @@
   "title": "Unemployment Rate",
   "shortTitle": "Unemployment",
   "description": "The share of the U.S. civilian labor force age 16 and older that does not have a job and is actively looking for work.",
-  "question": "Is unemployment high or low?",
+  "question": "How difficult is it for people who want work to find it?",
   "units": "Percent",
   "frequency": "monthly",
   "seasonalAdjustment": "Seasonally adjusted",
   "transformation": "Level",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/UNRATE",
-  "retrievedAt": "2026-07-17",
+  "retrievedAt": "2026-08-03",
   "observations": [
     {
       "date": "1948-01-01",

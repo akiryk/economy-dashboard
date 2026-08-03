@@ -13,7 +13,7 @@
   "transformation": "CPATAX divided by GDP multiplied by 100, calculated by the application",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED; ratio calculated by the application",
   "sourceUrl": "https://fred.stlouisfed.org/series/CPATAX",
-  "retrievedAt": "2026-07-18",
+  "retrievedAt": "2026-08-03",
   "observations": [
     {
       "date": "1947-01-01",
@@ -1301,7 +1301,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/series/GDP",
       "role": "Nominal GDP denominator",
       "observationStart": "1947-01-01",
-      "observationEnd": "2026-01-01"
+      "observationEnd": "2026-04-01"
     }
   ]
 }
