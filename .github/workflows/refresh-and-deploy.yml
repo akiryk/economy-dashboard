@@ -88,6 +88,14 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Preserve refreshed datasets for failed-run diagnosis
+        if: failure() && steps.changes.outputs.data_changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: refreshed-datasets
+          path: src/features/economic-series/data/*.json
+          retention-days: 1
+
       - name: Build GitHub Pages application
         run: npm run build
         env:
