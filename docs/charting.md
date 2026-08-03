@@ -148,6 +148,8 @@ The business-investment and capacity-utilization cards reuse the shared preset a
 
 Tooltips use one shared ECharts configuration for the browser-native HTML renderer. It explicitly disables tooltip interaction and pointer events, so the tooltip cannot take hover away from either compact or expanded plotting areas. All data-bearing ECharts tooltips inherit this configuration; formatters return plain text only. Percentage series retain one-decimal percentage formatting. Payroll tooltips show the month and a signed rounded count in thousands, such as `+145K`; full derived precision remains in JSON.
 
+Compact charts that expose richer keyboard and touch details use one shared React tooltip overlay. Its horizontal and vertical positions follow the selected observation using the same padded chart domain as ECharts. The tooltip appears above the line by default and flips below observations near the chart's top edge, keeping the detail visually associated with the selected point without sacrificing keyboard or touch interaction.
+
 ## Accessibility
 
 The chart container has a descriptive accessible label, and ECharts accessibility support is enabled. Because canvas alone is not a sufficient nonvisual representation, each card also provides a live factual summary that updates with the selected range. Percentage summaries retain existing formatting. Payroll describes extrema as job gains or losses using full counts or readable millions and keeps zero meaningful. Its recent semantic table aligns the monthly change and three-month average by month without recalculating either value in React.

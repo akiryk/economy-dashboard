@@ -12,7 +12,6 @@
 .historical-band-chart__interaction-tooltip {
   position: absolute;
   z-index: 3;
-  bottom: calc(100% + var(--space-2));
   display: grid;
   width: 10rem;
   padding: var(--space-2);
@@ -24,5 +23,9 @@
   font-size: 0.75rem;
   line-height: 1.35;
   pointer-events: none;
-  transform: translateX(-50%);
+  transform: translate(-50%, calc(-100% - var(--space-2)));
+}
+
+.historical-band-chart__interaction-tooltip--below {
+  transform: translate(-50%, var(--space-2));
 }

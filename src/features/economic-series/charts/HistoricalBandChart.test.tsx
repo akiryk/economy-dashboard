@@ -117,7 +117,13 @@ describe('HistoricalBandChart', () => {
       clientX: 100,
       pointerType: 'mouse',
     })
-    expect(screen.getByRole('status')).toHaveTextContent('January 2026')
+    const latestTooltip = screen.getByRole('status')
+    expect(latestTooltip).toHaveTextContent('January 2026')
+    expect(latestTooltip.style.top).toMatch(/%$/)
+    expect(Number.parseFloat(latestTooltip.style.top)).toBeCloseTo(41.38, 1)
+    expect(latestTooltip).not.toHaveClass(
+      'historical-band-chart__interaction-tooltip--below',
+    )
     fireEvent.pointerLeave(interaction, { pointerType: 'mouse' })
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
 

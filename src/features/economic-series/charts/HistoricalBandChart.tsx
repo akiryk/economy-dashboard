@@ -20,7 +20,10 @@ import type { EconomicFrequency } from '../models/economicSeries'
 import type { EconomicObservation } from '../models/economicSeries'
 import type { HistoricalBandHelpText } from '../utils/compactHistoricalMetrics'
 import type { HistoricalBandResult } from '../utils/historicalBandContext'
-import { createHistoricalBandChartOptions } from './historicalBandChartOptions'
+import {
+  calculateHistoricalBandYDomain,
+  createHistoricalBandChartOptions,
+} from './historicalBandChartOptions'
 import { CompactChartHelp } from '../components/CompactChartHelp'
 import {
   adjacentFiniteObservationIndex,
@@ -157,6 +160,19 @@ export function HistoricalBandChart({
     model.recentObservations.length < 2
     ? 100
     : activeIndex / (model.recentObservations.length - 1) * 100
+  const verticalDomain = model.status === 'ready'
+    ? calculateHistoricalBandYDomain(
+        model,
+        showZeroLine,
+        referenceLines.map(({ value }) => value),
+      )
+    : null
+  const activeVerticalPosition = activeObservation?.value !== null &&
+    activeObservation && verticalDomain
+    ? (verticalDomain.max - activeObservation.value) /
+      (verticalDomain.max - verticalDomain.min) * 100
+    : 50
+  const placeTooltipBelow = activeVerticalPosition < 35
   const indexFromPointer = (clientX: number): number | null => {
     const bounds = interactionRef.current?.getBoundingClientRect()
     if (!bounds || bounds.width === 0) return null
@@ -235,10 +251,15 @@ export function HistoricalBandChart({
           activeObservation?.value !== null &&
           activeObservation && (
             <div
-              className="historical-band-chart__interaction-tooltip"
+              className={`historical-band-chart__interaction-tooltip${
+                placeTooltipBelow
+                  ? ' historical-band-chart__interaction-tooltip--below'
+                  : ''
+              }`}
               role="status"
               style={{
                 left: `clamp(5rem, ${activePosition}%, calc(100% - 5rem))`,
+                top: `${activeVerticalPosition}%`,
               }}
             >
               {interactionDetails
