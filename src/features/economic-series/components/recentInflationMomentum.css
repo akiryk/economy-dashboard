@@ -11,8 +11,9 @@
 
 .recent-inflation-momentum__answer .recent-inflation-momentum__hero-label {
   margin-top: var(--space-2);
-  font-weight: 700;
   line-height: 1.35;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
 }
 
 .recent-inflation-momentum__answer .recent-inflation-momentum__support {
@@ -145,8 +146,7 @@
 }
 
 @media (max-width: 36rem) {
-  .recent-inflation-momentum__heading
-    .historical-band-chart__help-popover {
+  .recent-inflation-momentum__heading .historical-band-chart__help-popover {
     inset: var(--space-4);
     width: auto;
     max-height: calc(100vh - (2 * var(--space-4)));
