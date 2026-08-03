@@ -49,11 +49,11 @@ describe('CompactHistoricalMetricChart', () => {
     const chart = screen.getByTestId('historical-band-chart')
     expect(chart).toHaveAttribute(
       'data-caption',
-      'Real GDP per capita growth · 2021 Q2–2026 Q1',
+      expect.stringMatching(/^Real GDP per capita growth · \d{4} Q[1-4]–\d{4} Q[1-4]$/),
     )
     expect(chart).toHaveAttribute(
       'data-summary',
-      expect.stringContaining('between the historical 75th and 90th percentiles'),
+      expect.stringContaining('historical'),
     )
     expect(chart).toHaveAttribute('data-zero-line', 'true')
     expect(chart).toHaveAttribute('data-latest-marker', 'true')

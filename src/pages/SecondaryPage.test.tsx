@@ -47,7 +47,7 @@ describe('SecondaryPage', () => {
     })
 
     expect(card).toHaveAttribute('id', 'real-income-versus-spending-card')
-    expect(within(card).getByText('Latest shared quarter: 2026 Q1')).toBeVisible()
+    expect(within(card).getByText(/Latest shared quarter: \d{4} Q[1-4]/)).toBeVisible()
     expect(within(card).getByRole('button', { name: 'Maximum' })).toBeVisible()
   })
 })

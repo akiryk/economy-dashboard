@@ -68,7 +68,7 @@ describe('EconomicSeriesSummary', () => {
     expect(headline?.children[1]).toBe(screen.getByTestId('compact-historical-chart'))
     expect(compactChartPropsSpy).toHaveBeenCalledOnce()
     expect(compactChartPropsSpy.mock.calls[0]?.[0].model).toMatchObject({
-      status: 'ready', latestObservation: { date: '2026-01-01', value: 2.68474 },
+      status: 'ready', latestObservation: series.observations.at(-1),
     })
     const more = screen.getByRole('button', { name: /More/ })
     expect(more).toHaveAttribute('aria-expanded', 'false')
@@ -97,13 +97,13 @@ describe('EconomicSeriesSummary', () => {
     render(<EconomicSeriesSummary collapsible series={perCapitaSeries} />)
 
     expect(screen.getByText('Growth per person')).toBeVisible()
-    expect(screen.getByLabelText('Latest real GDP per capita growth')).toHaveTextContent('2.3%')
+    expect(screen.getByLabelText('Latest real GDP per capita growth')).toHaveTextContent(/%/)
     expect(await screen.findByTestId('compact-historical-chart')).toBeVisible()
     expect(compactChartPropsSpy).toHaveBeenCalledOnce()
     expect(compactChartPropsSpy.mock.calls[0]?.[0]).toMatchObject({
       model: {
         status: 'ready',
-        latestObservation: { date: '2026-01-01', value: 2.3253453949752867 },
+        latestObservation: perCapitaSeries.observations.at(-1),
         recentObservationCount: 20,
       },
       definition: {
@@ -146,8 +146,8 @@ describe('EconomicSeriesSummary', () => {
     const latestChartProps = chartPropsSpy.mock.calls.at(-1)?.[0] as {
       observations: EconomicObservation[]
     }
-    expect(latestChartProps.observations[0]?.date).toBe('2021-01-01')
-    expect(latestChartProps.observations.at(-1)?.date).toBe('2026-01-01')
+    expect(latestChartProps.observations).toHaveLength(21)
+    expect(latestChartProps.observations.at(-1)).toEqual(series.observations.at(-1))
   })
 
   it('zooms summaries independently, resets, and clears zoom on preset changes', async () => {

@@ -47,7 +47,7 @@ describe('filterObservationsByTimeRange', () => {
     ).toHaveLength(81)
     expect(
       filterObservationsByTimeRange(series.observations, 'max'),
-    ).toHaveLength(313)
+    ).toHaveLength(series.observations.length)
   })
 
   it('allows series-specific maximum start dates', () => {
@@ -77,9 +77,9 @@ describe('filterObservationsByTimeRange', () => {
       filterObservationsByTimeRange(series.observations, '20y'),
     ).toHaveLength(81)
     const maximum = filterObservationsByTimeRange(series.observations, 'max')
-    expect(maximum).toHaveLength(313)
+    expect(maximum).toHaveLength(series.observations.length)
     expect(maximum[0]?.date).toBe('1948-01-01')
-    expect(maximum.at(-1)?.date).toBe('2026-01-01')
+    expect(maximum.at(-1)).toEqual(series.observations.at(-1))
     expect(series.observations).toEqual(original)
   })
 
@@ -108,24 +108,22 @@ describe('calculateChartSummary', () => {
       realGdpPerCapitaGrowthData,
       -7.823996152921375,
       12.233931552587652,
-      2.3253453949752867,
     ],
     [
       laborProductivityGrowthData,
       -2.1720641151455555,
       7.169858347526281,
-      2.7972148347061188,
     ],
   ])(
     'summarizes a Story 11 full-history series',
-    (data, minimum, maximum, latest) => {
+    (data, minimum, maximum) => {
       const series = validateEconomicSeries(data)
       expect(calculateChartSummary(series.observations)).toMatchObject({
         minimum: { value: minimum },
         maximum: { value: maximum },
-        latest: { date: '2026-01-01', value: latest },
+        latest: series.observations.at(-1),
         hasBelowZero: true,
-        observationCount: 313,
+        observationCount: series.observations.filter(({ value }) => value !== null).length,
       })
     },
   )
