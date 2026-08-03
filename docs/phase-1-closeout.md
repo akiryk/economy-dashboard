@@ -2,33 +2,61 @@
 
 ## Outcome
 
-Epic 02 and Story 21 are complete. No indicator was added during closeout.
+The original Epic 02 closeout through Story 21 is complete, and the subsequent analytical-gap stories 22–24 are also complete.
 
-Final product inventory:
+The completed Phase 1 product now contains:
 
-- 25 visible cards
+- 28 visible cards
 - 9 ordered sections
-- 31 generated datasets
-- 7 unique series used in supporting roles across relationship cards, of which 6 are supporting-only datasets and headline CPI is also a visible primary series
+- the original 25-card Phase 1 inventory
+- 3 subsequently added cards:
+  - initial unemployment claims
+  - bank lending standards
+  - corporate profit share
 
 Sections, in order: Growth; Prices; Employment and income; Households; Housing; Business and manufacturing; Financial conditions; Government finances; Trade and tariffs.
 
-The product-level inventory and rationale are in [`product-overview.md`](product-overview.md). Accepted constraints are in [`phase-1-limitations.md`](phase-1-limitations.md), and the product-owner review workflow and noncommittal Phase 2 candidates are in [`dashboard-review-guide.md`](dashboard-review-guide.md).
+The authoritative generated-dataset count, source identifiers, transformations, and exact coverage ranges are maintained in [`data-refresh.md`](data-refresh.md). That document should be treated as the source of truth rather than duplicating a potentially stale dataset count here.
 
-## Epic coverage and approved decisions
+The product-level inventory and rationale are in [`product-overview.md`](product-overview.md). Product interpretation rules are in [`product-principles.md`](product-principles.md). Accepted constraints are in [`phase-1-limitations.md`](phase-1-limitations.md).
 
-Every required Phase 1 topic is represented. The line-by-line Epic 02 review confirmed growth, growth per person, productivity level and momentum, headline and core inflation, recent inflation momentum, labor conditions, wages and purchasing power, household income/spending/saving/stress, housing affordability/construction, manufacturing, investment, industrial activity, rates, credit, federal finances, trade, and tariffs.
+## Product coverage
 
-Approved substitutions and scope decisions:
+The completed Phase 1 product covers:
 
-- `NFCICREDIT` supplies broad credit conditions instead of the contemplated corporate credit spread because it has long, nonproprietary, redistributable history. Its standardized-composite limitation is disclosed.
-- Capacity utilization supplies the epic’s industrial-activity perspective without duplicating the manufacturing-output card.
+- aggregate economic growth;
+- growth per person;
+- productivity level and momentum;
+- headline and core inflation;
+- recent inflation momentum;
+- unemployment, prime-age employment, payroll growth, and wages;
+- timely unemployment-claims evidence;
+- household income, spending, saving, and debt service;
+- housing affordability and construction;
+- manufacturing activity, business investment, corporate profitability, and capacity utilization;
+- short- and long-term interest rates;
+- broad credit conditions and reported bank lending standards;
+- federal budget balance and publicly held debt;
+- trade balance and effective tariff burden.
+
+The three post-Story-21 additions close important analytical gaps:
+
+- **Initial unemployment claims** add a timely weekly signal of emerging labor-market stress while preserving the distinction between unemployment-insurance filings and total layoffs.
+- **Bank lending standards** add a direct quarterly survey measure of whether banks report tightening or easing standards for commercial and industrial loans, complementing the broader NFCI credit composite.
+- **Corporate profit share** adds a quarterly national-accounts measure of adjusted after-tax corporate profits relative to nominal GDP, while explicitly distinguishing the measure from S&P 500 earnings, company-level margins, and market valuation.
+
+## Approved substitutions and scope decisions
+
+- `NFCICREDIT` supplies broad credit conditions instead of the originally contemplated corporate credit spread because it provides long, nonproprietary, redistributable history. Its standardized-composite limitation remains disclosed.
+- Bank lending standards complement rather than replace `NFCICREDIT`: the survey measure answers whether banks report tighter standards for a defined borrower class, while NFCI describes broader credit conditions.
+- Capacity utilization supplies the industrial-activity perspective without duplicating the manufacturing-output card.
 - Atlanta Fed HOAM supplies the approved ownership-cost affordability model outside FRED.
-- The optional additional labor participation or leading measure is deferred because unemployment, prime-age employment, and payroll growth provide complementary Phase 1 labor coverage.
+- Initial unemployment claims complement unemployment, payroll growth, and prime-age employment rather than replacing any of them.
+- Corporate profit share uses adjusted after-tax corporate profits divided by nominal GDP and is not presented as a stock-market earnings or valuation measure.
 
 ## Card review checklist
 
-Each card passed review for question/measure agreement, latest-callout semantics, units and transformation, full-history Maximum, preset and zoom behavior, factual summary, semantic table, explanatory limitations, accessible labeling and native controls, source link, metadata, and isolated loading behavior. Multi-source cards also passed exact-period alignment and source-provenance review.
+Each completed card is expected to satisfy the repository-wide card contract: question/measure agreement, latest-callout semantics, correct units and transformation, full-history Maximum, independent presets and zoom behavior, factual summary, semantic table, explanatory limitations, accessible labeling and native controls, source links, metadata, and isolated loading behavior. Relationship and locally derived cards additionally require exact-period alignment and complete source-provenance review.
 
 | Section | Card | Result |
 |---|---|---|
@@ -42,6 +70,7 @@ Each card passed review for question/measure agreement, latest-callout semantics
 | Employment and income | Unemployment rate | Passed |
 | Employment and income | Prime-age employment-to-population ratio | Passed |
 | Employment and income | Payroll growth | Passed |
+| Employment and income | Initial unemployment claims | Passed |
 | Employment and income | Wages versus inflation | Passed |
 | Households | Real income versus spending per person | Passed |
 | Households | Personal saving rate | Passed |
@@ -50,72 +79,84 @@ Each card passed review for question/measure agreement, latest-callout semantics
 | Housing | Housing starts | Passed |
 | Business and manufacturing | Manufacturing output versus employment | Passed |
 | Business and manufacturing | Real business investment growth | Passed |
+| Business and manufacturing | Corporate profit share | Passed |
 | Business and manufacturing | Industrial capacity utilization | Passed |
 | Financial conditions | Federal funds rate versus 10-year Treasury yield | Passed |
 | Financial conditions | Broad credit conditions | Passed |
+| Financial conditions | Bank lending standards | Passed |
 | Government finances | Federal budget balance | Passed |
 | Government finances | Federal debt held by the public | Passed |
 | Trade and tariffs | Trade balance as a share of GDP | Passed |
 | Trade and tariffs | Effective tariff burden | Passed |
 
-## Data and architecture audit
+## Data and architecture status
 
-- All 31 JSON files validate through the shared domain validator and have explicit lazy repository loaders.
-- All visible and supporting datasets have active card uses; no obsolete generated dataset remains.
-- Dates are unique, chronological, not future-dated relative to retrieval, and retain internal missing values as `null`.
-- Exact month and quarter calculations use calendar lookup rather than array position.
-- Direct writes are atomic; multi-output CPI, payroll, wage, household, productivity, and tariff workflows use validated rollback-protected replacement where applicable.
-- FRED remains the default intermediary. HOAM is the documented official non-FRED exception.
+- All committed generated datasets must validate through the shared domain validator and have explicit repository loaders.
+- Visible and supporting datasets must have active card uses; obsolete generated data should not remain committed.
+- Dates remain unique, chronological, not future-dated relative to retrieval, and preserve internal missing observations as `null`.
+- Exact month, quarter, and week alignment uses calendar lookup rather than array position.
+- Direct writes remain atomic, and multi-output or locally derived workflows use validated rollback-protected replacement where applicable.
+- FRED remains the default intermediary. Atlanta Fed HOAM remains the documented official non-FRED exception.
 - The browser makes no provider request and receives no provider credential.
-- ECharts remains one shared lazy chunk. Chart option builders call one shared `dataZoom` configuration, and all cards use the centralized historical-zoom state and native controls.
-- No unsupported `any`, stale TODO/FIXME, debug logging, duplicated reset markup, speculative provider framework, or unused dependency was found.
+- ECharts remains one shared lazy chunk, with centralized historical zoom and native controls.
+- The initial-claims card uses official weekly claims and the official four-week moving average aligned by exact week-ending date.
+- The bank-lending-standards card preserves the survey series' sign semantics: positive values mean net tightening and negative values mean net easing.
+- The corporate-profit-share card aligns adjusted after-tax corporate profits and nominal GDP by exact quarter and derives the ratio transparently.
 
-## Real-provider refresh
+## Refresh and coverage status
 
-The full refresh completed successfully on July 17, 2026. It refreshed every configured FRED source and the Atlanta Fed HOAM workbook, regenerated all 31 committed datasets, and reported no source or validation failure.
+The original full Phase 1 provider refresh completed successfully on July 17, 2026, refreshing every then-configured FRED source and the Atlanta Fed HOAM workbook without source or validation failure.
 
-Coverage spans:
+Stories 22–24 subsequently expanded the configured refresh inventory to include the sources and derivations required for:
 
-- annual: 1929–2025;
-- quarterly: source-dependent starts from 1947 Q1 to 2005 Q1, with locally derived business-investment growth beginning 2008 Q1, through 2026 Q1;
-- monthly: source-dependent starts from January 1939 to January 2005, with latest periods from March through June 2026;
-- weekly: January 8, 1971–July 10, 2026.
+- weekly initial unemployment claims and their official four-week moving average;
+- quarterly bank lending standards;
+- quarterly adjusted after-tax corporate profits and the derived corporate-profit share of GDP.
 
-Exact per-series counts and ranges are maintained in [`data-refresh.md`](data-refresh.md).
+Because source histories and latest release periods differ, the exact current counts, starts, endpoints, and retrieval dates should be taken from [`data-refresh.md`](data-refresh.md), not from this closeout summary.
 
-## Browser and accessibility verification
+## Browser, accessibility, and behavior
 
-A real headless Chrome session verified all 25 cards at 1440px desktop width and a fresh 375px narrow viewport.
+The original Story 21 closeout performed a real headless-Chrome review of the 25-card dashboard at desktop and narrow widths. That review verified rendering, navigation, presets, Maximum history, zoom and reset, tooltips, source disclosures, keyboard focus, semantic tables, and containment of wide tables.
 
-- 25 cards, 25 canvases, 25 navigation links, and 25 semantic tables rendered.
-- All four presets were exercised on every card.
-- Maximum returned the documented full-history boundary for every card.
-- Zoom in exposed Reset zoom, and reset restored the full preset on every card.
-- Native mouse movement produced a tooltip on every chart.
-- Every card exposed source links and both supporting disclosures; multi-source cards exposed 31 source links in total.
-- Native keyboard focus reached the range controls.
-- The fresh narrow viewport had no page-level horizontal overflow. Wide tables remained contained in their intentional horizontal scroll regions.
-- Desktop and narrow screenshots were inspected temporarily and were not committed.
+Stories 22–24 were completed under the repository's story-completion requirements, which require each story to pass the standard lint, typecheck, test, build, diff, documentation, browser or manual verification as applicable, commit, push, upstream-synchronization, and clean-working-tree checks before completion.
 
-Component tests continue to cover card failure isolation, semantic content, relationship alignment, range independence, zoom semantics, chart gaps, nonsmoothed lines, axis policies, and accessible alternatives.
+The completed 28-card product must continue to preserve:
 
-## Defects corrected during closeout
+- isolated card failure behavior;
+- semantic nonvisual content for every chart;
+- independent range controls;
+- exact-period relationship alignment;
+- visible chart gaps for missing observations;
+- nonsmoothed source-derived lines except where an official moving average is itself the measure;
+- accessible labels, controls, source links, and recent-observation tables;
+- no page-level horizontal overflow at supported narrow widths.
 
-- The effective-tariff refresh summary reported the repository root as its output because it retained the numerator source’s empty internal output path. The refresh outcome now reports the actual derived JSON path, with a regression test.
+## Defects corrected during the original closeout
+
+- The effective-tariff refresh summary reported the repository root as its output because it retained the numerator source's empty internal output path. The refresh outcome was corrected to report the actual derived JSON path, with a regression test.
 - Refresh documentation was reconciled with the successful provider run for June 2026 housing starts, manufacturing output, capacity utilization, and exact real wage growth.
-- Phase status, product inventory, archived handoff status, and documentation ownership had already been reconciled immediately before the executable Story 21 audit and were retained.
+- Phase status, product inventory, archived handoff status, and documentation ownership were reconciled before the executable Story 21 audit.
 
-## Verification
+## Verification standard
 
-The closeout passed:
+The repository's completion standard requires every story to pass:
 
-- `npm run data:refresh`
-- `npm run lint`
-- `npm run typecheck`
-- `npm test`
-- `npm run build`
-- `git diff --check`
-- repository-loader and generated-file inventory reconciliation
-- real-browser desktop and narrow verification
+- `npm run data:refresh` when the story changes provider data or derivations;
+- `npm run lint`;
+- `npm run typecheck`;
+- `npm test`;
+- `npm run build`;
+- `git diff --check`;
+- story-specific data, browser, accessibility, or manual verification;
+- repository-loader and generated-file reconciliation when data inventory changes;
+- focused commit and successful push;
+- synchronized branch and clean working tree.
 
-The only accepted build warning is Vite’s advisory for the greater-than-500-kB deferred ECharts chunk. ECharts remains outside the initial application chunk and deduplicated; the limitation is recorded in [`phase-1-limitations.md`](phase-1-limitations.md).
+The only previously accepted build warning is Vite's advisory for the greater-than-500-kB deferred ECharts chunk. ECharts remains outside the initial application chunk and deduplicated; the limitation is recorded in [`phase-1-limitations.md`](phase-1-limitations.md).
+
+## Final Phase 1 status
+
+Phase 1 is complete as a broad, historically grounded research and evidence layer with 28 visible cards.
+
+The next product phase is not primarily another indicator-expansion phase. Its central task is to transform this research inventory into a compact at-a-glance economic briefing that communicates current condition, direction, strengths, weaknesses, conflicts, and uncertainty while retaining the full cards as drill-down evidence.
