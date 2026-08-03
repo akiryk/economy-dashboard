@@ -314,7 +314,64 @@ The breakeven pair has its own no-key refresh:
 3. Run the repository checks and commit both outputs together with any refresh
    implementation change.
 
-The command currently runs only when a developer invokes it; no scheduler or runtime backend exists.
+## Automatic refresh and deployment
+
+GitHub Actions runs [the coordinated refresh and Pages workflow](../.github/workflows/refresh-and-deploy.yml)
+daily at **09:17 UTC** (`17 9 * * *`). The non-round minute avoids the busiest
+top-of-hour scheduling window. `workflow_dispatch` also supports manual runs.
+
+The workflow receives `FRED_API_KEY` only from the repository's encrypted
+Actions secret. Create or replace that secret through the GitHub CLI's secure
+interactive input:
+
+```bash
+gh secret set FRED_API_KEY --repo akiryk/economy-dashboard
+```
+
+Do not include the value in a command, workflow file, log, commit, or document.
+The browser application never receives the key.
+
+For each scheduled or manual run, the workflow:
+
+1. checks out `main`, restores the npm dependency cache, and runs `npm ci`;
+2. runs `npm run data:refresh` with the secret available only to that step;
+3. restores files whose only difference is `retrievedAt`, so an unchanged
+   provider dataset does not create a daily metadata-only commit;
+4. rejects tracked or untracked refresh output outside
+   `src/features/economic-series/data/*.json`;
+5. runs lint, typecheck, all tests, the Pages-aware production build, and
+   `git diff --check`;
+6. commits and pushes only validated dataset JSON when substantive data changed;
+7. uploads that validated build and deploys it directly in the same workflow.
+
+The automation commit is `chore(data): automated economic data refresh` and is
+authored by `github-actions[bot]`. The workflow uses the repository-scoped
+`GITHUB_TOKEN`; it does not require or use a personal access token. Keeping the
+commit and deployment in one workflow avoids relying on an automation push to
+trigger a second workflow.
+
+If no substantive tracked data changes, a normal run completes successfully
+without committing, uploading an artifact, or deploying. A manual operator can
+deploy the current validated data and code explicitly:
+
+```bash
+gh workflow run refresh-and-deploy.yml --ref main -f deploy_current=true
+```
+
+Concurrency is serialized without cancelling an in-progress refresh or
+deployment. If refresh, scope validation, verification, build, push, artifact
+upload, or deployment fails, later steps do not deploy and the existing Pages
+site remains untouched. Each job writes a summary containing its result,
+whether data changed, the deployment commit, deployed URL, and newest dataset
+date when available.
+
+Production is served at
+[`https://akiryk.github.io/economy-dashboard/`](https://akiryk.github.io/economy-dashboard/).
+The deployed
+[`deployment-metadata.json`](https://akiryk.github.io/economy-dashboard/deployment-metadata.json)
+reports the exact `deploymentCommit` and the newest deployed dataset
+`latestDatasetDate`. The application also shows each individual dataset's
+retrieval date under the relevant card's Series details disclosure.
 
 ## Future series
 

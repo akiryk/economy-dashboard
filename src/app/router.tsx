@@ -6,19 +6,22 @@ import { NotFoundPage } from '../pages/NotFoundPage'
 import { GdpCompactChartPreviewRoute } from '../pages/GdpCompactChartPreviewRoute'
 import { SecondaryPage } from '../pages/SecondaryPage'
 
-export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <App />,
-    children: [
-      { index: true, element: <DashboardPage /> },
-      { path: 'briefing', element: <BriefingPage /> },
-      { path: 'secondary', element: <SecondaryPage /> },
-      {
-        path: 'previews/gdp-compact-chart',
-        element: <GdpCompactChartPreviewRoute />,
-      },
-      { path: '*', element: <NotFoundPage /> },
-    ],
-  },
-])
+export const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <App />,
+      children: [
+        { index: true, element: <DashboardPage /> },
+        { path: 'briefing', element: <BriefingPage /> },
+        { path: 'secondary', element: <SecondaryPage /> },
+        {
+          path: 'previews/gdp-compact-chart',
+          element: <GdpCompactChartPreviewRoute />,
+        },
+        { path: '*', element: <NotFoundPage /> },
+      ],
+    },
+  ],
+  { basename: import.meta.env.BASE_URL },
+)

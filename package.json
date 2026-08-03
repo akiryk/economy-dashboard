@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "pages:prepare": "node scripts/preparePages.mjs",
     "data:ingest-inflation-contribution": "tsx scripts/bls/ingestInflationContributionRelease.ts",
     "data:ingest-inflation-contribution-history": "tsx scripts/bls/ingestInflationContributionHistory.ts",
     "data:ingest-category-cpi": "tsx scripts/bls/ingestCategoryCpiSeries.ts",

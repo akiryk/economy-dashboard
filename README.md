@@ -80,3 +80,54 @@ docs/                   Product, architecture, epics, and completed stories
 ```
 
 Repository-wide working rules are in [`AGENTS.md`](AGENTS.md).
+
+## Production deployment
+
+The production application is published with GitHub Pages at:
+
+**https://akiryk.github.io/economy-dashboard/**
+
+Vite builds production assets with `/economy-dashboard/` as the base path, and
+React Router uses that same basename. The Pages artifact also includes a
+`404.html` SPA fallback so direct visits to routes such as `/secondary` and
+`/briefing` load correctly.
+
+The coordinated [refresh and deployment workflow](.github/workflows/refresh-and-deploy.yml)
+runs every day at **09:17 UTC** and can be started manually:
+
+```bash
+gh workflow run refresh-and-deploy.yml --ref main
+```
+
+Use the manual deployment override for an intentional deployment when provider
+data has not changed:
+
+```bash
+gh workflow run refresh-and-deploy.yml --ref main -f deploy_current=true
+```
+
+The workflow expects `FRED_API_KEY` as a GitHub Actions repository secret. Set
+or replace it through the interactive GitHub CLI prompt; do not put its value in
+the command or repository:
+
+```bash
+gh secret set FRED_API_KEY --repo akiryk/economy-dashboard
+```
+
+Every refresh runs lint, typecheck, tests, the production build, and
+`git diff --check`. Metadata-only retrieval-date rewrites are discarded. With
+no substantive tracked dataset changes, the scheduled run succeeds without a
+commit or deployment. With valid changes, the workflow commits only dataset
+JSON using the `github-actions[bot]` identity and deploys the already validated
+artifact in the same workflow. A refresh, validation, build, push, artifact, or
+deployment failure stops the workflow before the Pages deployment completes,
+so GitHub Pages continues serving the previous successful artifact.
+
+To verify the deployed revision and newest dataset retrieval date, open:
+
+**https://akiryk.github.io/economy-dashboard/deployment-metadata.json**
+
+The `deploymentCommit` identifies the deployed repository revision, and
+`latestDatasetDate` reports the newest `retrievedAt` value in the deployed
+dataset inventory. The same retrieval dates remain visible in each card's
+Series details disclosure.

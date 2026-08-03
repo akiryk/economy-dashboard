@@ -1,0 +1,202 @@
+name: Refresh economic data and deploy Pages
+
+on:
+  schedule:
+    - cron: '17 9 * * *'
+  workflow_dispatch:
+    inputs:
+      deploy_current:
+        description: Deploy even when no substantive dataset changes are found
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: economic-data-refresh-and-pages
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  refresh-and-build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: read
+    outputs:
+      data_changed: ${{ steps.changes.outputs.data_changed }}
+      deploy_required: ${{ steps.decision.outputs.deploy_required }}
+      deployment_commit: ${{ steps.commit.outputs.deployment_commit }}
+      latest_dataset_date: ${{ steps.metadata.outputs.latest_dataset_date }}
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Refresh economic datasets
+        run: npm run data:refresh
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+
+      - name: Discard retrieval-date-only rewrites
+        shell: bash
+        run: |
+          while IFS= read -r file; do
+            if git diff --ignore-matching-lines='^[[:space:]]*"retrievedAt":' --quiet -- "$file"; then
+              git restore --worktree -- "$file"
+            fi
+          done < <(git diff --name-only -- 'src/features/economic-series/data/*.json')
+
+      - name: Validate refresh scope
+        shell: bash
+        run: |
+          unexpected_tracked="$(git diff --name-only -- . ':(exclude)src/features/economic-series/data/*.json')"
+          unexpected_untracked="$(git ls-files --others --exclude-standard)"
+          if [[ -n "$unexpected_tracked" || -n "$unexpected_untracked" ]]; then
+            echo 'The refresh changed files outside the committed dataset directory.' >&2
+            printf '%s\n%s\n' "$unexpected_tracked" "$unexpected_untracked" >&2
+            exit 1
+          fi
+
+      - name: Detect substantive dataset changes
+        id: changes
+        shell: bash
+        run: |
+          if git diff --quiet -- 'src/features/economic-series/data/*.json'; then
+            echo 'data_changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'data_changed=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build GitHub Pages application
+        run: npm run build
+        env:
+          VITE_BASE_PATH: /economy-dashboard/
+
+      - name: Check whitespace errors
+        run: git diff --check
+
+      - name: Decide whether deployment is required
+        id: decision
+        shell: bash
+        env:
+          DATA_CHANGED: ${{ steps.changes.outputs.data_changed }}
+          DEPLOY_CURRENT: ${{ inputs.deploy_current || 'false' }}
+        run: |
+          if [[ "$DATA_CHANGED" == 'true' || "$DEPLOY_CURRENT" == 'true' ]]; then
+            echo 'deploy_required=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'deploy_required=false' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit validated dataset changes
+        id: commit
+        shell: bash
+        env:
+          DATA_CHANGED: ${{ steps.changes.outputs.data_changed }}
+        run: |
+          if [[ "$DATA_CHANGED" == 'true' ]]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -- 'src/features/economic-series/data/*.json'
+            unexpected_staged="$(git diff --cached --name-only -- . ':(exclude)src/features/economic-series/data/*.json')"
+            if [[ -n "$unexpected_staged" ]]; then
+              echo 'Refusing to commit files outside the dataset directory.' >&2
+              printf '%s\n' "$unexpected_staged" >&2
+              exit 1
+            fi
+            git diff --cached --check
+            git commit -m 'chore(data): automated economic data refresh'
+            git push origin HEAD:main
+          fi
+          echo "deployment_commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare Pages fallback and deployment metadata
+        if: steps.decision.outputs.deploy_required == 'true'
+        run: npm run pages:prepare
+        env:
+          DEPLOYMENT_COMMIT: ${{ steps.commit.outputs.deployment_commit }}
+
+      - name: Read deployed dataset date
+        if: steps.decision.outputs.deploy_required == 'true'
+        id: metadata
+        shell: bash
+        run: |
+          latest_date="$(node -p "require('./dist/deployment-metadata.json').latestDatasetDate")"
+          echo "latest_dataset_date=$latest_date" >> "$GITHUB_OUTPUT"
+
+      - name: Configure GitHub Pages
+        if: steps.decision.outputs.deploy_required == 'true'
+        uses: actions/configure-pages@v6
+
+      - name: Upload validated Pages artifact
+        if: steps.decision.outputs.deploy_required == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+      - name: Summarize refresh and build
+        if: always()
+        shell: bash
+        env:
+          DATA_CHANGED: ${{ steps.changes.outputs.data_changed }}
+          DEPLOY_REQUIRED: ${{ steps.decision.outputs.deploy_required }}
+          COMMIT_SHA: ${{ steps.commit.outputs.deployment_commit }}
+          LATEST_DATASET_DATE: ${{ steps.metadata.outputs.latest_dataset_date }}
+        run: |
+          {
+            echo '## Economic data refresh and Pages build'
+            echo "- Job result: ${{ job.status }}"
+            echo "- Substantive dataset changes: ${DATA_CHANGED:-not determined}"
+            echo "- Deployment requested: ${DEPLOY_REQUIRED:-not determined}"
+            echo "- Deployment commit: ${COMMIT_SHA:-not created}"
+            echo "- Latest dataset date: ${LATEST_DATASET_DATE:-not prepared}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    needs: refresh-and-build
+    if: needs.refresh-and-build.outputs.deploy_required == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy validated artifact to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+      - name: Summarize deployment
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## GitHub Pages deployment'
+            echo "- Job result: ${{ job.status }}"
+            echo "- URL: ${{ steps.deployment.outputs.page_url }}"
+            echo "- Commit: ${{ needs.refresh-and-build.outputs.deployment_commit }}"
+            echo "- Latest dataset date: ${{ needs.refresh-and-build.outputs.latest_dataset_date }}"
+          } >> "$GITHUB_STEP_SUMMARY"
