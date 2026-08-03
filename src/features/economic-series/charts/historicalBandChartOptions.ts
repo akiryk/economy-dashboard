@@ -3,6 +3,7 @@ import type { EconomicFrequency } from '../models/economicSeries'
 import type { HistoricalBandModel } from '../utils/historicalBandContext'
 import { formatObservationPeriod } from '../utils/economicSeries'
 import { compactChartTheme } from './compactChartTheme'
+import { sharedChartTooltip } from './sharedChartTooltip'
 
 export interface HistoricalBandChartOptionsInput {
   model: HistoricalBandModel
@@ -61,9 +62,7 @@ export function createHistoricalBandChartOptions({
     animation: false,
     grid: { left: 2, right: 2, top: 4, bottom: 4, containLabel: false },
     tooltip: showTooltip ? {
-      trigger: 'axis',
-      renderMode: 'html',
-      confine: true,
+      ...sharedChartTooltip,
       formatter: (parameters: unknown) => {
         const item = (Array.isArray(parameters) ? parameters[0] : parameters) as
           | { value?: [string, number | null] }

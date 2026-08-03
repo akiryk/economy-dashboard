@@ -12,6 +12,7 @@ import {
   formatSignedPercentagePoints,
   type EconomicValueFormat,
 } from '../utils/economicSeries'
+import { sharedChartTooltip } from './sharedChartTooltip'
 
 interface EconomicTimeSeriesChartOptionsInput {
   data: ChartDataPoint[]
@@ -163,10 +164,7 @@ export function createEconomicTimeSeriesChartOptions({
       containLabel: false,
     },
     tooltip: {
-      trigger: 'axis',
-      renderMode: 'html',
-      confine: true,
-      extraCssText: 'white-space: pre-line;',
+      ...sharedChartTooltip,
       formatter: (params: TooltipComponentFormatterCallbackParams) =>
         formatTooltip(params, seriesName, frequency, valueFormat),
       axisPointer: {
@@ -274,10 +272,7 @@ export function createEconomicComparisonChartOptions({
       containLabel: false,
     },
     tooltip: {
-      trigger: 'axis',
-      renderMode: 'html',
-      confine: true,
-      extraCssText: 'white-space: pre-line;',
+      ...sharedChartTooltip,
       formatter: (params: TooltipComponentFormatterCallbackParams) => {
         const items = Array.isArray(params) ? params : [params]
         const first = items.find((item) => isChartDataPoint(item.value))
@@ -407,10 +402,7 @@ export function createInflationComparisonChartOptions({
       containLabel: false,
     },
     tooltip: {
-      trigger: 'axis',
-      renderMode: 'html',
-      confine: true,
-      extraCssText: 'white-space: pre-line;',
+      ...sharedChartTooltip,
       formatter: (params: TooltipComponentFormatterCallbackParams) => {
         const items = Array.isArray(params) ? params : [params]
         const first = items.find((item) => isChartDataPoint(item.value))
@@ -523,7 +515,7 @@ export function createManufacturingComparisonChartOptions({
     legend: { data: ['Manufacturing output', 'Manufacturing employment'], bottom: 0, textStyle: { color: '#56616d' } },
     grid: { top: 24, right: 18, bottom: 120, left: 58, containLabel: false },
     tooltip: {
-      trigger: 'axis', renderMode: 'html', confine: true, extraCssText: 'white-space: pre-line;',
+      ...sharedChartTooltip,
       formatter: (params: TooltipComponentFormatterCallbackParams) => {
         const items = Array.isArray(params) ? params : [params]
         const first = items.find((item) => isChartDataPoint(item.value))

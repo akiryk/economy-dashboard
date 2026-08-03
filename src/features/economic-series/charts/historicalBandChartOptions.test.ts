@@ -95,7 +95,15 @@ describe('historical band chart options', () => {
     const formatter = vi.fn((value: number | null) => `${value}% formatted`)
     const tooltip = options({ valueFormatter: formatter }).tooltip as {
       formatter: (items: Array<{ value: [string, number] }>) => string
+      renderMode: string
+      enterable: boolean
+      extraCssText: string
     }
+    expect(tooltip).toMatchObject({
+      renderMode: 'html',
+      enterable: false,
+      extraCssText: expect.stringContaining('pointer-events: none'),
+    })
     expect(tooltip.formatter([{ value: ['2026-01-01', 3] }])).toBe(
       '2026 Q1\nExample growth: 3% formatted\nLatest position: within the historical middle 50%',
     )

@@ -25,6 +25,26 @@ function getYAxis(includeZero: boolean): YAXisComponentOption {
 }
 
 describe('createEconomicTimeSeriesChartOptions', () => {
+  it('uses the shared non-interactive browser tooltip', () => {
+    const options = createEconomicTimeSeriesChartOptions({
+      data: [['2026-01-01', 2.5]],
+      seriesName: 'Real GDP growth',
+      frequency: 'quarterly',
+      units: 'Percent',
+      transformation: 'Percent change from one year earlier',
+      includeZero: true,
+      valueFormat: 'percentage',
+    })
+
+    expect(options.tooltip).toMatchObject({
+      trigger: 'axis',
+      renderMode: 'html',
+      confine: true,
+      enterable: false,
+      extraCssText: expect.stringContaining('pointer-events: none'),
+    })
+  })
+
   it('uses only a zero reference line for signed lending standards', () => {
     const options = createEconomicTimeSeriesChartOptions({
       data: [['2026-01-01', -5], ['2026-04-01', 8.1]],

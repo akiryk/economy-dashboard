@@ -146,7 +146,7 @@ Axis policy is series-specific. GDP growth, real GDP per capita growth, labor pr
 
 The business-investment and capacity-utilization cards reuse the shared preset and historical-zoom controls. Investment Maximum begins with the first exact-quarter derived observation in 2008 Q1 and does not reconstruct history before the available PNFIC1 source levels. Capacity Maximum uses the full provider-published TCU history beginning in January 1967.
 
-Tooltips use ECharts' browser-native HTML renderer with non-interactive content, so the tooltip cannot take hover away from the plotting area. Formatters return plain text only. Percentage series retain one-decimal percentage formatting. Payroll tooltips show the month and a signed rounded count in thousands, such as `+145K`; full derived precision remains in JSON.
+Tooltips use one shared ECharts configuration for the browser-native HTML renderer. It explicitly disables tooltip interaction and pointer events, so the tooltip cannot take hover away from either compact or expanded plotting areas. All data-bearing ECharts tooltips inherit this configuration; formatters return plain text only. Percentage series retain one-decimal percentage formatting. Payroll tooltips show the month and a signed rounded count in thousands, such as `+145K`; full derived precision remains in JSON.
 
 ## Accessibility
 
