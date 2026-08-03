@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import * as echarts from 'echarts/core'
 import { LineChart } from 'echarts/charts'
 import {
@@ -104,7 +104,7 @@ export type EconomicTimeSeriesChartProps =
   | ClaimsComparisonChartProps
   | ManufacturingComparisonChartProps
 
-export default function EconomicTimeSeriesChart(
+function EconomicTimeSeriesChart(
   props: EconomicTimeSeriesChartProps,
 ) {
   const { onZoomChange } = props
@@ -307,3 +307,5 @@ export default function EconomicTimeSeriesChart(
     />
   )
 }
+
+export default memo(EconomicTimeSeriesChart)

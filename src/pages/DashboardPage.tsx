@@ -11,6 +11,10 @@ import {
 
 const payrollSupportingSlugs = ['monthly-payroll-change'] as const
 const weeklyClaimsSupportingSlugs = ['initial-unemployment-claims'] as const
+const claimsComparisonSupportingSlugs = [
+  'initial-unemployment-claims-four-week-average',
+  ...weeklyClaimsSupportingSlugs,
+] as const
 const wageComparisonSupportingSlugs = [
   'nominal-wage-growth',
   'headline-cpi-inflation',
@@ -43,7 +47,12 @@ export function DashboardPage() {
   const handleSeriesLoaded = useCallback(
     (slug: string, series: EconomicSeries | null) => {
       setLoadedSeries((current) => {
-        if (series) return { ...current, [slug]: series }
+        if (series) {
+          return current[slug] === series
+            ? current
+            : { ...current, [slug]: series }
+        }
+        if (!(slug in current)) return current
         const next = { ...current }
         delete next[slug]
         return next
@@ -177,10 +186,7 @@ export function DashboardPage() {
         <JobGrowthBreakevenCard />
         <EconomicSeriesCard
           slug="jolts-layoffs-and-discharges-rate"
-          supportingSlugs={[
-            'initial-unemployment-claims-four-week-average',
-            ...weeklyClaimsSupportingSlugs,
-          ]}
+          supportingSlugs={claimsComparisonSupportingSlugs}
           label="layoffs and initial unemployment claims"
           variant="claims-comparison"
           onSeriesLoaded={handleSeriesLoaded}

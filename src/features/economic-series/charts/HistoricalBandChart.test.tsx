@@ -45,7 +45,7 @@ const defaultProps = {
 
 describe('HistoricalBandChart', () => {
   it('owns one chart lifecycle and exposes one supplied accessible summary', () => {
-    const { unmount } = render(
+    const { rerender, unmount } = render(
       <HistoricalBandChart {...defaultProps} visuallyHideSummary />,
     )
     expect(screen.getByRole('figure', { name: 'Example accessible summary' })).toBeVisible()
@@ -53,6 +53,9 @@ describe('HistoricalBandChart', () => {
     expect(screen.getByText('Example accessible summary')).toHaveClass('visually-hidden')
     expect(screen.getByText('Example growth · 2021 Q2–2026 Q1')).toBeVisible()
     expect(init).toHaveBeenCalledOnce()
+    rerender(<HistoricalBandChart {...defaultProps} visuallyHideSummary />)
+    expect(init).toHaveBeenCalledOnce()
+    expect(chart.dispose).not.toHaveBeenCalled()
     unmount()
     expect(chart.dispose).toHaveBeenCalledOnce()
   })

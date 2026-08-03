@@ -39,6 +39,8 @@ echarts.use([
   CanvasRenderer,
 ])
 
+const noReferenceLines: readonly { value: number; label: string }[] = []
+
 interface HistoricalBandChartProps {
   model: HistoricalBandResult
   seriesLabel: string
@@ -70,7 +72,7 @@ export function HistoricalBandChart({
   caption,
   showZeroLine = false,
   showLatestMarker = true,
-  referenceLines = [],
+  referenceLines = noReferenceLines,
   visuallyHideSummary = false,
   interactiveDetails = false,
   interactionDetails,

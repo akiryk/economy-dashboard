@@ -145,6 +145,28 @@ describe('DashboardPage economic series', () => {
     })
   })
 
+  it('does not reload claims data when the dashboard rerenders', async () => {
+    const getBySlug = vi.spyOn(localEconomicSeriesRepository, 'getBySlug')
+    const { rerender } = render(<DashboardPage />)
+
+    await waitFor(() => {
+      expect(
+        getBySlug.mock.calls.filter(
+          ([slug]) => slug === 'jolts-layoffs-and-discharges-rate',
+        ),
+      ).toHaveLength(1)
+    })
+    rerender(<DashboardPage />)
+
+    await waitFor(() => {
+      expect(
+        getBySlug.mock.calls.filter(
+          ([slug]) => slug === 'jolts-layoffs-and-discharges-rate',
+        ),
+      ).toHaveLength(1)
+    })
+  })
+
   it('provides a collapsed navigation whose links target each full card', async () => {
     const user = userEvent.setup()
     render(<DashboardPage />)
