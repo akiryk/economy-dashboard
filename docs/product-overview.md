@@ -52,7 +52,7 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 | Card | Displayed measure and chart | Why it is here |
 |---|---|---|
 | How much of a median household’s income would it take to own a typical home? | Monthly modeled annual ownership cost as a share of median household income. | The compact card compares the latest prospective-buyer cost with the Atlanta Fed’s 30% affordability threshold and with the official available history, while retaining the full research view under **More**. The model assumes a 10% down payment and includes principal, interest, taxes, homeowners insurance, and private mortgage insurance. |
-| How much new housing is being started? | Monthly privately owned housing starts at a seasonally adjusted annual rate. | Shows the pace at which new housing supply enters construction. |
+| How much new housing is being started? | Latest three-month average of monthly privately owned housing starts at a seasonally adjusted annual rate, with a five-year compact line and trailing 25-year bands based on three-month-average starts per 1,000 residents. | Shows the physical pace at which housing enters construction and classifies that pace against population-normalized history without treating the annualized rate as a forecast or claiming that construction is sufficient. **More** retains the raw starts history and adds a separate normalized research view. |
 
 ### Business and manufacturing
 

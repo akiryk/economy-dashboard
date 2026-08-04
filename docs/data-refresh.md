@@ -136,6 +136,7 @@ The series-specific requests are:
 - Personal saving rate: `series_id=PSAVERT` and `frequency=m`, with no `units` parameter.
 - Household debt-service ratio: `series_id=TDSP` and `frequency=q`, with no `units` parameter.
 - Housing starts: `series_id=HOUST` and `frequency=m`, with no `units` parameter.
+- Monthly U.S. population: `series_id=POPTHM` and `frequency=m`, with no `units` parameter. This BEA population estimate is not seasonally adjusted and is stored in thousands of people. Housing starts are aligned to the population observation with the exact same month; missing months remain null and are neither interpolated nor carried forward. The compact historical series first divides each monthly HOUST value (thousands of housing units at a seasonally adjusted annual rate) by the same-month POPTHM value (thousands of residents), multiplies by 1,000, and then requires all three constituent months for its trailing average.
 - Manufacturing output: `series_id=IPMAN` and `frequency=m`, with no `units` parameter.
 - Manufacturing employment: `series_id=MANEMP` and `frequency=m`, with no `units` parameter.
 - Real business investment: `series_id=PNFIC1` and `frequency=q`, with no `units` parameter.
@@ -153,7 +154,7 @@ The series-specific requests are:
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
-The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, PCE, unemployment, prime-age employment, LMCI, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, personal saving, household debt service, housing starts, manufacturing output, manufacturing employment, real business investment, and industrial capacity utilization. Domain transformation metadata separately records provider values and local calculations.
+The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, PCE, unemployment, prime-age employment, LMCI, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, personal saving, household debt service, housing starts, population, manufacturing output, manufacturing employment, real business investment, and industrial capacity utilization. Domain transformation metadata separately records provider values and local calculations.
 
 ## BEA saving-rate distribution
 

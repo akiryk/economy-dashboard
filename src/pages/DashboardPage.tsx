@@ -35,6 +35,7 @@ const headlineMomentumSupportingSlugs = [
 ] as const
 const manufacturingEmploymentSupportingSlugs = ['manufacturing-employment'] as const
 const treasuryYieldSupportingSlugs = ['ten-year-treasury-yield'] as const
+const housingStartsSupportingSlugs = ['us-population-monthly'] as const
 
 export function DashboardPage() {
   const [loadedSeries, setLoadedSeries] = useState<
@@ -215,7 +216,9 @@ export function DashboardPage() {
           onSeriesLoaded={handleSeriesLoaded}
         />
         <EconomicSeriesCard
+          collapsible
           slug="housing-starts"
+          supportingSlugs={housingStartsSupportingSlugs}
           label="housing starts"
           onSeriesLoaded={handleSeriesLoaded}
         />

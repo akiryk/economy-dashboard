@@ -1327,9 +1327,31 @@ describe('DashboardPage economic series', () => {
     expect(within(cards[0]!).getByText(/well above the 30% affordability threshold/)).toBeVisible()
     expect(within(cards[0]!).getByText(/required income share is high|very high/)).toBeVisible()
     expect(within(cards[0]!).getByRole('button', { name: /More/ })).toHaveAttribute('aria-expanded', 'false')
-    expect(within(cards[1]!).getAllByText('1.43 million')).not.toHaveLength(0)
-    expect(within(cards[1]!).getAllByText('June 2026')).not.toHaveLength(0)
-    expect(within(cards[1]!).getByText(/annualized pace implied by one month/)).toBeVisible()
+    expect(within(cards[1]!).getAllByText('1.35 million')).not.toHaveLength(0)
+    expect(within(cards[1]!).getByText(/June 2026 · Thousands of units/)).toBeVisible()
+    expect(within(cards[1]!).getByText('Three-month average annualized pace')).toBeVisible()
+    expect(within(cards[1]!).getByText(/Builders are starting housing at an annualized pace/)).toBeVisible()
+    expect(within(cards[1]!).getByText(/Relative to the U.S. population/)).toBeVisible()
+
+    const startsCompactCall = compactChartPropsSpy.mock.calls
+      .map((call) => call[0] as {
+        definition: CompactHistoricalMetricDefinition
+        model: HistoricalBandResult
+      })
+      .find(({ definition }) => definition.seriesLabel === 'Housing starts per 1,000 residents')
+    expect(startsCompactCall?.definition).toMatchObject({
+      showZeroLine: false,
+      showLatestMarker: true,
+      interactiveDetails: true,
+      historicalBands: {
+        recentObservationCount: 61,
+        comparisonWindow: { kind: 'trailing-years', years: 25 },
+      },
+    })
+    expect(startsCompactCall?.model).toMatchObject({
+      status: 'ready',
+      recentObservationCount: 61,
+    })
 
     const compactCall = compactChartPropsSpy.mock.calls
       .map((call) => call[0] as { definition: { seriesLabel: string; showZeroLine: boolean } })
@@ -1339,6 +1361,11 @@ describe('DashboardPage economic series', () => {
     await user.click(within(cards[0]!).getByRole('button', { name: /More/ }))
     expect(within(cards[0]!).getByText(/30-year fixed-rate mortgage with a 10% down payment/)).toBeVisible()
     await user.click(within(cards[0]!).getByRole('button', { name: 'Maximum' }))
+    expect(within(cards[1]!).queryByRole('button', { name: 'Maximum' }))
+      .not.toBeInTheDocument()
+    await user.click(within(cards[1]!).getByRole('button', { name: /More/ }))
+    expect(within(cards[1]!).getByText('Housing starts per 1,000 residents')).toBeVisible()
+    expect(within(cards[1]!).getByText(/annualized pace is not the literal number/)).toBeVisible()
     await user.click(within(cards[1]!).getByRole('button', { name: 'Maximum' }))
     await waitFor(() => {
       const calls = chartPropsSpy.mock.calls.map((call) => call[0] as {

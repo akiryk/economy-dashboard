@@ -237,11 +237,11 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
   },
   "housing-starts": {
     topicLabel: "Housing construction",
-    latestValueLabel: "Latest seasonally adjusted annual rate",
+    latestValueLabel: "Three-month average annualized pace",
     whatThisTellsYou:
-      "Housing starts measure the annualized pace at which privately owned housing units begin construction. Excavation for a multifamily building counts every unit in that building as started.",
+      "Housing starts measure the annualized pace at which privately owned housing units begin construction. The compact headline smooths that raw monthly pace with a three-month average, while the population-normalized view divides each exact month by that month’s U.S. population estimate. Excavation for a multifamily building counts every unit in that building as started.",
     whatThisLeavesOut:
-      "The latest value is an annualized pace implied by one month, not the literal number started that month or a forecast of completed annual supply. Starts do not show affordability, construction completion, inventory, or whether demand is strong or weak.",
+      "A start is not a completion or an occupied home. The annualized pace is not the literal number started in a month or a forecast of completed annual supply, and population normalization does not establish whether construction is adequate for household formation, replacement needs, vacancies, affordability, or an existing housing shortage.",
     relatedIndicators: [
       "Home-ownership affordability",
       "Residential investment",

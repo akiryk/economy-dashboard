@@ -187,6 +187,7 @@ describe('refreshEconomicData', () => {
         'provider-level',
         'provider-level',
         'provider-level',
+        'provider-level',
         'locally-derived',
         'provider-level',
         'provider-level',
@@ -767,13 +768,13 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(25)
+    expect(outcomes).toHaveLength(26)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 15, 15, 3, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
+    ).toEqual([3, 15, 15, 3, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 3, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
@@ -787,6 +788,7 @@ describe('refreshEconomicData', () => {
       'OPHNFB',
       'TDSP',
       'HOUST',
+      'POPTHM',
       'IPMAN',
       'MANEMP',
       'PNFIC1',

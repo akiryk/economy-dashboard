@@ -6,10 +6,12 @@ import {
 } from '../utils/compactHistoricalMetrics'
 import {
   formatObservationPeriod,
+  formatAnnualizedHousingUnits,
   formatPercentage,
   formatSignedPercentagePoints,
 } from '../utils/economicSeries'
 import type { HistoricalBandResult } from '../utils/historicalBandContext'
+import { classifyHistoricalBandPosition } from '../utils/historicalBandContext'
 import { HistoricalBandChart } from './HistoricalBandChart'
 import { formatHomeOwnershipPointDifference } from '../utils/homeOwnershipAffordability'
 
@@ -18,6 +20,8 @@ interface CompactHistoricalMetricChartProps {
   definition: CompactHistoricalMetricDefinition
   observations?: readonly EconomicObservation[]
   visuallyHideSummary?: boolean
+  accessibleSummaryOverride?: string
+  pairedObservations?: readonly EconomicObservation[]
 }
 
 export function CompactHistoricalMetricChart({
@@ -25,11 +29,13 @@ export function CompactHistoricalMetricChart({
   definition,
   observations = [],
   visuallyHideSummary = false,
+  accessibleSummaryOverride,
+  pairedObservations = [],
 }: CompactHistoricalMetricChartProps) {
   const ready = model.status === 'ready' ? model : null
-  const accessibleSummary = ready
+  const accessibleSummary = accessibleSummaryOverride ?? (ready
     ? createCompactHistoricalAccessibleSummary(ready, definition)
-    : null
+    : null)
   const latestPositionDescription = ready
     ? describeCompactHistoricalPosition(ready, definition)
     : null
@@ -39,6 +45,7 @@ export function CompactHistoricalMetricChart({
     ? `${definition.seriesLabel} · ${formatObservationPeriod(firstRecent.date, definition.frequency)}–${formatObservationPeriod(ready.latestObservation.date, definition.frequency)}`
     : definition.seriesLabel
   const valuesByDate = new Map(observations.map(({ date, value }) => [date, value]))
+  const pairedValuesByDate = new Map(pairedObservations.map(({ date, value }) => [date, value]))
   const pointComparison = definition.pointComparison
     ? (observation: EconomicObservation & { value: number }) => {
         const priorDate = new Date(`${observation.date}T00:00:00Z`)
@@ -72,7 +79,7 @@ export function CompactHistoricalMetricChart({
       showReferenceLineLabels={definition.showReferenceLineLabels}
       visuallyHideSummary={visuallyHideSummary}
       interactiveDetails={definition.interactiveDetails}
-      interactionDetails={pointComparison || threshold
+      interactionDetails={pointComparison || threshold || pairedObservations.length > 0
         ? (observation) => {
             const comparison = pointComparison?.(observation) ?? null
             return (
@@ -90,6 +97,16 @@ export function CompactHistoricalMetricChart({
                   <span>{threshold.differenceLabel}: {definition.seriesLabel === 'Modeled ownership-cost share'
                     ? formatHomeOwnershipPointDifference(observation.value)
                     : formatSignedPercentagePoints(observation.value - threshold.value)}</span>
+                </>}
+                {pairedObservations.length > 0 && <>
+                  <span>Three-month-average annualized starts: {formatAnnualizedHousingUnits(pairedValuesByDate.get(observation.date) ?? null)}</span>
+                  <span>Historical position: {(() => {
+                    if (!ready) return 'unavailable'
+                    const position = classifyHistoricalBandPosition(observation.value, ready)
+                    return position === 'unavailable'
+                      ? 'unavailable'
+                      : definition.positionDescriptions[position]
+                  })()}</span>
                 </>}
               </>
             )

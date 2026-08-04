@@ -5,6 +5,8 @@ import perCapitaData from '../data/real-gdp-per-capita-growth.json'
 import payrollGrowthData from '../data/payroll-growth.json'
 import savingRateData from '../data/personal-saving-rate.json'
 import homeOwnershipData from '../data/home-ownership-cost-share.json'
+import housingStartsData from '../data/housing-starts.json'
+import populationData from '../data/us-population-monthly.json'
 import type { EconomicObservation } from '../models/economicSeries'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import {
@@ -12,8 +14,10 @@ import {
   realGdpPerCapitaCompactDefinition,
   savingRateCompactDefinition,
   homeOwnershipCostCompactDefinition,
+  housingStartsCompactDefinition,
 } from '../utils/compactHistoricalMetrics'
 import { deriveHistoricalBandContext } from '../utils/historicalBandContext'
+import { deriveHousingStartsCompactData } from '../utils/housingStartsData'
 import { CompactHistoricalMetricChart } from './CompactHistoricalMetricChart'
 
 vi.mock('./HistoricalBandChart', () => ({
@@ -45,6 +49,8 @@ vi.mock('./HistoricalBandChart', () => ({
       {props.interactionDetails?.(
         props.caption.startsWith('Modeled ownership-cost share')
           ? { date: '2026-03-01', value: 42 }
+          : props.caption.startsWith('Housing starts')
+          ? { date: '2026-06-01', value: 3.93 }
           : { date: '2026-06-01', value: 2.7 },
       )}
       {props.showReferenceLineLabels && props.referenceLines?.map(({ label }) => (
@@ -158,5 +164,37 @@ describe('CompactHistoricalMetricChart', () => {
     expect(chart).toHaveTextContent('Modeled ownership-cost shareMarch 202642.0%')
     expect(chart).toHaveTextContent('Affordability threshold: 30.0%')
     expect(chart).toHaveTextContent('Difference: 12.0 percentage points above threshold')
+  })
+
+  it('shows normalized housing history with paired raw values and an accessible override', () => {
+    const starts = validateEconomicSeries(housingStartsData)
+    const population = validateEconomicSeries(populationData)
+    const compact = deriveHousingStartsCompactData(
+      starts.observations,
+      population.observations,
+    )
+    const model = deriveHistoricalBandContext(
+      compact.normalizedAverages,
+      housingStartsCompactDefinition.historicalBands,
+    )
+
+    render(<CompactHistoricalMetricChart
+      model={model}
+      definition={housingStartsCompactDefinition}
+      observations={compact.normalizedAverages}
+      pairedObservations={compact.rawAverages}
+      accessibleSummaryOverride="Population-normalized accessible summary"
+    />)
+
+    const chart = screen.getByTestId('historical-band-chart')
+    expect(chart).toHaveAttribute(
+      'data-caption',
+      'Housing starts per 1,000 residents · June 2021–June 2026',
+    )
+    expect(chart).toHaveAttribute('data-summary', 'Population-normalized accessible summary')
+    expect(chart).toHaveAttribute('data-zero-line', 'false')
+    expect(chart).toHaveAttribute('data-latest-marker', 'true')
+    expect(chart).toHaveTextContent('Three-month-average annualized starts: 1.35 million')
+    expect(chart).toHaveTextContent('Historical position: typical by historical standards')
   })
 })

@@ -130,6 +130,15 @@ CompactHistoricalMetricDefinition['positionDescriptions'] = {
   aboveOuterBand: 'very high compared with the available history',
 }
 
+const housingStartsPositionDescriptions:
+CompactHistoricalMetricDefinition['positionDescriptions'] = {
+  belowOuterBand: 'very low by historical standards',
+  betweenOuterAndInnerLow: 'low by historical standards',
+  insideInnerBand: 'typical by historical standards',
+  betweenInnerAndOuterHigh: 'high by historical standards',
+  aboveOuterBand: 'very high by historical standards',
+}
+
 export const realGdpCompactDefinition: CompactHistoricalMetricDefinition = {
   seriesLabel: 'Real GDP growth',
   frequency: 'quarterly',
@@ -361,6 +370,31 @@ CompactHistoricalMetricDefinition = {
   accessibleSummarySuffix: formatHomeOwnershipHistoricalPosition,
 }
 
+export const housingStartsCompactDefinition:
+CompactHistoricalMetricDefinition = {
+  seriesLabel: 'Housing starts per 1,000 residents',
+  frequency: 'monthly',
+  historicalBands: {
+    recentObservationCount: 61,
+    comparisonWindow: { kind: 'trailing-years', years: 25 },
+    innerPercentiles: [25, 75],
+    outerPercentiles: [10, 90],
+    minimumFiniteObservations: 60,
+    latestObservationPolicy: 'latest-finite',
+  },
+  showZeroLine: false,
+  showLatestMarker: true,
+  interactiveDetails: true,
+  valueFormatter: (value) => value === null ? 'Unavailable' : `${value.toFixed(2)} per 1,000 residents`,
+  helpText: {
+    heading: 'Housing construction and population context',
+    description:
+      'A housing start is recorded when excavation begins for a building’s footings or foundation. The headline is a three-month average of a seasonally adjusted annual rate, not a forecast. Multifamily totals can be volatile because every unit is counted when one building starts. Historical bands compare three-month-average starts per 1,000 residents over the trailing 25 years, allowing more coherent comparison across differently sized U.S. populations. Starts enter the construction pipeline; they are not completed or occupied homes and do not determine whether construction is sufficient for household formation, replacement, vacancies, affordability, or a past shortage. One monthly movement is not a general economic forecast.',
+  },
+  zeroLineMeaning: 'No zero line is shown because zero is not a useful reference for this metric.',
+  positionDescriptions: housingStartsPositionDescriptions,
+}
+
 const compactDefinitions: Readonly<
   Partial<Record<string, CompactHistoricalMetricDefinition>>
 > = {
@@ -373,6 +407,7 @@ const compactDefinitions: Readonly<
   'payroll-growth': payrollGrowthCompactDefinition,
   'personal-saving-rate': savingRateCompactDefinition,
   'home-ownership-cost-share': homeOwnershipCostCompactDefinition,
+  'housing-starts': housingStartsCompactDefinition,
 }
 
 export function getCompactHistoricalMetricDefinition(

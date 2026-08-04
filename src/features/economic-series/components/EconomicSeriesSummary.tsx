@@ -74,6 +74,11 @@ import {
   formatHomeOwnershipHistoricalPosition,
   formatHomeOwnershipThresholdContext,
 } from '../utils/homeOwnershipAffordability'
+import {
+  createHousingStartsAccessibleSummary,
+  deriveHousingStartsCompactData,
+  formatHousingStartsHistoricalPosition,
+} from '../utils/housingStartsData'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -151,6 +156,31 @@ export function EconomicSeriesSummary({
   const pceSeries = supportingSeries?.find(
     ({ slug }) => slug === 'headline-pce-inflation',
   )
+  const populationSeries = supportingSeries?.find(
+    ({ slug }) => slug === 'us-population-monthly',
+  )
+  const housingStartsCompactData = useMemo(
+    () => series.slug === 'housing-starts' && populationSeries
+      ? deriveHousingStartsCompactData(
+          series.observations,
+          populationSeries.observations,
+        )
+      : null,
+    [populationSeries, series.observations, series.slug],
+  )
+  const compactObservations = housingStartsCompactData?.normalizedAverages ??
+    series.observations
+  const housingNormalizedPresetObservations = useMemo(() => {
+    if (!housingStartsCompactData || presetObservations.length === 0) return []
+    const start = presetObservations[0]!.date
+    const end = presetObservations.at(-1)!.date
+    return housingStartsCompactData.normalizedAverages.filter(
+      ({ date }) => date >= start && date <= end,
+    )
+  }, [housingStartsCompactData, presetObservations])
+  const headlineObservation = housingStartsCompactData
+    ? findLatestNonNullObservation(housingStartsCompactData.rawAverages)
+    : latestObservation
   const coreCpiSeries = supportingSeries?.find(
     ({ slug }) => slug === 'core-cpi-inflation',
   )
@@ -195,11 +225,11 @@ export function EconomicSeriesSummary({
   const compactModel = useMemo(
     () => compactDefinition
       ? deriveHistoricalBandContext(
-          series.observations,
+          compactObservations,
           compactDefinition.historicalBands,
         )
       : null,
-    [compactDefinition, series.observations],
+    [compactDefinition, compactObservations],
   )
   const unemploymentContext = useMemo(
     () => series.slug === 'unemployment-rate'
@@ -265,6 +295,13 @@ export function EconomicSeriesSummary({
   const cpiAccessibleLabel = series.slug === 'headline-cpi-inflation'
     ? `CPI inflation was ${formatPercentage(latestObservation?.value ?? null)} in ${latestObservation ? formatObservationPeriod(latestObservation.date, series.frequency) : 'an unavailable month'}. ${cpiAssessment}${cpiReferenceComparison ? ` ${cpiReferenceComparison}` : ''}`
     : null
+  const housingStartsAccessibleLabel = housingStartsCompactData &&
+    compactModel?.status === 'ready'
+    ? createHousingStartsAccessibleSummary(
+        compactModel,
+        housingStartsCompactData.rawAverages,
+      )
+    : null
 
   const latestValueContent = (
     <div
@@ -272,6 +309,7 @@ export function EconomicSeriesSummary({
       aria-label={
         productivityAccessibleLabel ??
         cpiAccessibleLabel ??
+        housingStartsAccessibleLabel ??
         (unemploymentContext
           ? createUnemploymentAccessibleSummary(unemploymentContext)
           : null) ??
@@ -300,7 +338,7 @@ export function EconomicSeriesSummary({
             {series.slug === 'bank-lending-standards'
               ? formatLendingStandardsCallout(latestObservation?.value ?? null)
               : series.slug === 'housing-starts'
-              ? formatAnnualizedHousingUnits(latestObservation?.value ?? null)
+              ? formatAnnualizedHousingUnits(headlineObservation?.value ?? null)
               : formatValue(latestObservation?.value ?? null)}
           </span>
         </p>
@@ -335,12 +373,14 @@ export function EconomicSeriesSummary({
             ? 'Share of disposable personal income saved'
             : series.slug === 'home-ownership-cost-share'
             ? 'Estimated share of median household income needed to own the median-priced home'
+            : series.slug === 'housing-starts'
+            ? 'Three-month average annualized pace'
             : presentation.latestValueLabel}
         </p>
         <p className="series-current__period">
-          {latestObservation
+          {headlineObservation
             ? formatObservationPeriod(
-                latestObservation.date,
+                headlineObservation.date,
                 series.frequency,
               )
             : 'Observation period unavailable'}
@@ -417,6 +457,24 @@ export function EconomicSeriesSummary({
             )}
           </>
         )}
+        {housingStartsCompactData && (
+          <>
+            <p className="series-current__answer">
+              Builders are starting housing at an annualized pace of about{' '}
+              {formatAnnualizedHousingUnits(headlineObservation?.value ?? null)}.
+            </p>
+            {compactModel?.status === 'ready' && (
+              <p className="series-current__comparison">
+                Relative to the U.S. population, the current pace is{' '}
+                {formatHousingStartsHistoricalPosition(
+                  compactModel.latestObservation.value,
+                  compactModel,
+                )}{' '}
+                by historical standards.
+              </p>
+            )}
+          </>
+        )}
     </div>
   )
   const compactVisual = compactModel && compactDefinition ? (
@@ -430,7 +488,9 @@ export function EconomicSeriesSummary({
       <CompactHistoricalMetricChart
         model={compactModel}
         definition={compactDefinition}
-        observations={series.observations}
+        observations={compactObservations}
+        pairedObservations={housingStartsCompactData?.rawAverages}
+        accessibleSummaryOverride={housingStartsAccessibleLabel ?? undefined}
         visuallyHideSummary
       />
     </Suspense>
@@ -691,6 +751,36 @@ export function EconomicSeriesSummary({
         <Suspense fallback={<p className="chart-state" role="status">Loading saving-rate distribution…</p>}>
           <SavingRateDistributionSection />
         </Suspense>
+      )}
+
+      {housingStartsCompactData && housingNormalizedPresetObservations.length > 0 && (
+        <section aria-labelledby="housing-starts-population-heading">
+          <h4 id="housing-starts-population-heading">
+            Housing starts per 1,000 residents
+          </h4>
+          <p>
+            This separate view shows the three-month-average annualized pace
+            divided by the population estimate for each exact month. It makes
+            different population eras more comparable without changing the raw
+            housing-start series above.
+          </p>
+          <Suspense fallback={<p className="chart-state" role="status">Loading population-normalized housing chart…</p>}>
+            <EconomicTimeSeriesChart
+              key={`housing-normalized-${selectedRange}`}
+              kind="single"
+              observations={housingNormalizedPresetObservations}
+              seriesName="Three-month-average annualized starts per 1,000 residents"
+              frequency="monthly"
+              units="Starts per 1,000 residents"
+              transformation="Three-month average of exact-month housing starts divided by population"
+              includeZero={false}
+              valueFormat="index"
+              zoomStartDate={visibleObservations[0]?.date ?? ''}
+              zoomEndDate={visibleObservations.at(-1)?.date ?? ''}
+              onZoomChange={zoom.onChartZoom}
+            />
+          </Suspense>
+        </section>
       )}
 
       <div className="series-explanations">
