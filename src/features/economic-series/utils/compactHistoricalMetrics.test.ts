@@ -6,6 +6,7 @@ import cpiData from '../data/headline-cpi-inflation.json'
 import unemploymentData from '../data/unemployment-rate.json'
 import primeAgeEmploymentData from '../data/prime-age-employment-ratio.json'
 import payrollGrowthData from '../data/payroll-growth.json'
+import homeOwnershipData from '../data/home-ownership-cost-share.json'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import { deriveHistoricalBandContext } from './historicalBandContext'
 import {
@@ -18,6 +19,7 @@ import {
   unemploymentCompactDefinition,
   primeAgeEmploymentCompactDefinition,
   payrollGrowthCompactDefinition,
+  homeOwnershipCostCompactDefinition,
 } from './compactHistoricalMetrics'
 
 describe('compact historical metric definitions', () => {
@@ -194,5 +196,26 @@ describe('compact historical metric definitions', () => {
       model,
       realGdpPerCapitaCompactDefinition,
     )).toMatch(/historical/)
+  })
+
+  it('configures home ownership with available history, a threshold, and no zero line', () => {
+    const series = validateEconomicSeries(homeOwnershipData)
+    const model = deriveHistoricalBandContext(
+      series.observations,
+      homeOwnershipCostCompactDefinition.historicalBands,
+    )
+    expect(model.status).toBe('ready')
+    if (model.status !== 'ready') return
+    expect(model.recentObservations).toHaveLength(61)
+    expect(model.recentObservations[0]?.date).toBe('2021-03-01')
+    expect(model.comparisonStart).toBe('2005-01-01')
+    expect(homeOwnershipCostCompactDefinition.comparisonLabel?.(model))
+      .toBe('Available history since 2005')
+    expect(homeOwnershipCostCompactDefinition.showZeroLine).toBe(false)
+    expect(homeOwnershipCostCompactDefinition.referenceLines).toEqual([
+      { value: 30, label: '30% = Atlanta Fed affordability threshold' },
+    ])
+    expect(createCompactHistoricalAccessibleSummary(model, homeOwnershipCostCompactDefinition))
+      .toContain('above the 30% affordability threshold')
   })
 })

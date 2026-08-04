@@ -11,6 +11,11 @@ import {
   type HistoricalBandPosition,
 } from './historicalBandContext'
 import { classifyCpiAssessment, formatCpiAssessment } from './cpiData'
+import {
+  createHomeOwnershipAccessibleSummary,
+  formatHomeOwnershipHistoricalPosition,
+  homeOwnershipAffordabilityThreshold,
+} from './homeOwnershipAffordability'
 
 export interface HistoricalBandHelpText {
   heading: string
@@ -28,14 +33,18 @@ export interface CompactHistoricalMetricDefinition {
     months: number
     label: string
   }
+  pointThreshold?: { value: number; label: string; differenceLabel: string }
   valueFormatter?: (value: number | null) => string
   referenceLines?: readonly { value: number; label: string }[]
+  showReferenceLineLabels?: boolean
   helpText: HistoricalBandHelpText
   zeroLineMeaning: string
   positionDescriptions: Readonly<
     Record<Exclude<HistoricalBandPosition, 'unavailable'>, string>
   >
   accessibleSummarySuffix?: (model: HistoricalBandModel) => string
+  accessibleSummary?: (model: HistoricalBandModel) => string
+  comparisonLabel?: (model: HistoricalBandModel) => string
 }
 
 const sharedBandHelp: HistoricalBandHelpText = {
@@ -110,6 +119,15 @@ CompactHistoricalMetricDefinition['positionDescriptions'] = {
   insideInnerBand: 'within its typical historical range',
   betweenInnerAndOuterHigh: 'high by historical standards',
   aboveOuterBand: 'very high by historical standards',
+}
+
+const homeOwnershipPositionDescriptions:
+CompactHistoricalMetricDefinition['positionDescriptions'] = {
+  belowOuterBand: 'very low compared with the available history',
+  betweenOuterAndInnerLow: 'low compared with the available history',
+  insideInnerBand: 'typical compared with the available history',
+  betweenInnerAndOuterHigh: 'high compared with the available history',
+  aboveOuterBand: 'very high compared with the available history',
 }
 
 export const realGdpCompactDefinition: CompactHistoricalMetricDefinition = {
@@ -297,6 +315,52 @@ CompactHistoricalMetricDefinition = {
   positionDescriptions: savingRatePositionDescriptions,
 }
 
+export const homeOwnershipCostCompactDefinition:
+CompactHistoricalMetricDefinition = {
+  seriesLabel: 'Modeled ownership-cost share',
+  frequency: 'monthly',
+  historicalBands: {
+    recentObservationCount: 61,
+    comparisonWindow: {
+      kind: 'trailing-years-with-all-available-fallback',
+      years: 25,
+    },
+    innerPercentiles: [25, 75],
+    outerPercentiles: [10, 90],
+    minimumFiniteObservations: 60,
+    latestObservationPolicy: 'last-observation',
+  },
+  showZeroLine: false,
+  showLatestMarker: true,
+  interactiveDetails: true,
+  referenceLines: [{
+    value: homeOwnershipAffordabilityThreshold,
+    label: '30% = Atlanta Fed affordability threshold',
+  }],
+  showReferenceLineLabels: true,
+  pointThreshold: {
+    value: homeOwnershipAffordabilityThreshold,
+    label: 'Affordability threshold',
+    differenceLabel: 'Difference',
+  },
+  helpText: {
+    heading: 'Home-ownership affordability and historical context',
+    description:
+      'This national measure models the annual cost of purchasing and owning the median-priced home as a share of median household income. Costs include principal and interest, property taxes, homeowners insurance, and private mortgage insurance, using the Atlanta Fed’s published 10% down-payment and 30-year fixed-rate financing assumptions. The 30% line is the Atlanta Fed affordability threshold. A 42% reading means modeled annual costs equal about $42 of every $100 of median household income. This is a prospective-buyer model, not the payment burden of a typical current homeowner; local conditions and costs for owners with older mortgages, larger down payments, or no mortgage can differ substantially. Bands use all available official history until 25 years exist, then automatically use the trailing 25 years. They describe frequency, not an affordability target.',
+  },
+  zeroLineMeaning: 'No zero line is shown because zero is not a useful affordability reference.',
+  positionDescriptions: homeOwnershipPositionDescriptions,
+  accessibleSummary: createHomeOwnershipAccessibleSummary,
+  comparisonLabel: (model) => {
+    const years = new Date(`${model.latestObservation.date}T00:00:00Z`).getUTCFullYear() -
+      new Date(`${model.comparisonStart}T00:00:00Z`).getUTCFullYear()
+    return years >= 25
+      ? 'Trailing 25-year historical comparison'
+      : `Available history since ${new Date(`${model.comparisonStart}T00:00:00Z`).getUTCFullYear()}`
+  },
+  accessibleSummarySuffix: formatHomeOwnershipHistoricalPosition,
+}
+
 const compactDefinitions: Readonly<
   Partial<Record<string, CompactHistoricalMetricDefinition>>
 > = {
@@ -308,6 +372,7 @@ const compactDefinitions: Readonly<
   'prime-age-employment-ratio': primeAgeEmploymentCompactDefinition,
   'payroll-growth': payrollGrowthCompactDefinition,
   'personal-saving-rate': savingRateCompactDefinition,
+  'home-ownership-cost-share': homeOwnershipCostCompactDefinition,
 }
 
 export function getCompactHistoricalMetricDefinition(
@@ -333,6 +398,7 @@ export function createCompactHistoricalAccessibleSummary(
   model: HistoricalBandModel,
   definition: CompactHistoricalMetricDefinition,
 ): string {
+  if (definition.accessibleSummary) return definition.accessibleSummary(model)
   const valueFormatter = definition.valueFormatter ?? formatPercentage
   const first = model.recentObservations.find(({ value }) => value !== null)
   const recentPath = first?.value === null || first?.value === undefined

@@ -209,6 +209,7 @@ export function DashboardPage() {
         description="Housing conditions reflect both what households can afford and how quickly new supply is entering construction. These measures can move differently because prices, financing costs, income, and building activity respond on different timelines."
       >
         <EconomicSeriesCard
+          collapsible
           slug="home-ownership-cost-share"
           label="home-ownership affordability"
           onSeriesLoaded={handleSeriesLoaded}

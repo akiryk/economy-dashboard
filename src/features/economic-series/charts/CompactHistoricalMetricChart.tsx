@@ -11,6 +11,7 @@ import {
 } from '../utils/economicSeries'
 import type { HistoricalBandResult } from '../utils/historicalBandContext'
 import { HistoricalBandChart } from './HistoricalBandChart'
+import { formatHomeOwnershipPointDifference } from '../utils/homeOwnershipAffordability'
 
 interface CompactHistoricalMetricChartProps {
   model: HistoricalBandResult
@@ -50,6 +51,7 @@ export function CompactHistoricalMetricChart({
           : observation.value - priorValue
       }
     : null
+  const threshold = definition.pointThreshold
 
   return (
     <HistoricalBandChart
@@ -60,26 +62,35 @@ export function CompactHistoricalMetricChart({
       accessibleSummary={accessibleSummary}
       latestPositionDescription={latestPositionDescription}
       helpText={definition.helpText}
+      comparisonLabel={ready && definition.comparisonLabel
+        ? definition.comparisonLabel(ready)
+        : undefined}
       caption={caption}
       showZeroLine={definition.showZeroLine}
       showLatestMarker={definition.showLatestMarker}
       referenceLines={definition.referenceLines}
+      showReferenceLineLabels={definition.showReferenceLineLabels}
       visuallyHideSummary={visuallyHideSummary}
       interactiveDetails={definition.interactiveDetails}
-      interactionDetails={pointComparison
+      interactionDetails={pointComparison || threshold
         ? (observation) => {
-            const comparison = pointComparison(observation)
+            const comparison = pointComparison?.(observation) ?? null
             return (
               <>
                 <strong>{definition.seriesLabel}</strong>
                 <span>{formatObservationPeriod(observation.date, definition.frequency)}</span>
                 <span>{valueFormatter(observation.value)}</span>
-                <span>
-                  {definition.pointComparison!.label}:{' '}
-                  {comparison === null
+                {definition.pointComparison && <span>
+                  {definition.pointComparison.label}: {comparison === null
                     ? 'unavailable'
                     : `${formatSignedPercentagePoints(comparison)} percentage points`}
-                </span>
+                </span>}
+                {threshold && <>
+                  <span>{threshold.label}: {formatPercentage(threshold.value)}</span>
+                  <span>{threshold.differenceLabel}: {definition.seriesLabel === 'Modeled ownership-cost share'
+                    ? formatHomeOwnershipPointDifference(observation.value)
+                    : formatSignedPercentagePoints(observation.value - threshold.value)}</span>
+                </>}
               </>
             )
           }

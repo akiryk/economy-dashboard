@@ -56,12 +56,14 @@ interface HistoricalBandChartProps {
   showZeroLine?: boolean
   showLatestMarker?: boolean
   referenceLines?: readonly { value: number; label: string }[]
+  showReferenceLineLabels?: boolean
   visuallyHideSummary?: boolean
   interactiveDetails?: boolean
   interactionDetails?: (observation: EconomicObservation & {
     value: number
   }) => ReactNode
   zeroLineLabel?: string
+  comparisonLabel?: string
 }
 
 export function HistoricalBandChart({
@@ -76,10 +78,12 @@ export function HistoricalBandChart({
   showZeroLine = false,
   showLatestMarker = true,
   referenceLines = noReferenceLines,
+  showReferenceLineLabels = false,
   visuallyHideSummary = false,
   interactiveDetails = false,
   interactionDetails,
   zeroLineLabel,
+  comparisonLabel,
 }: HistoricalBandChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const interactionRef = useRef<HTMLDivElement>(null)
@@ -280,6 +284,14 @@ export function HistoricalBandChart({
           )}
       </div>
       <p className="historical-band-chart__title">{caption}</p>
+      {showReferenceLineLabels && referenceLines.map(({ value, label }) => (
+        <p className="historical-band-chart__zero-label" key={`${value}-${label}`}>
+          {label}
+        </p>
+      ))}
+      {comparisonLabel && (
+        <p className="historical-band-chart__zero-label">{comparisonLabel}</p>
+      )}
       {zeroLineLabel && (
         <p className="historical-band-chart__zero-label">{zeroLineLabel}</p>
       )}

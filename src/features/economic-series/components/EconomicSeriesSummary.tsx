@@ -69,6 +69,11 @@ import {
   createPayrollGrowthAccessibleSummary,
   derivePayrollGrowthContext,
 } from '../utils/payrollGrowthContext'
+import {
+  formatHomeOwnershipAffordabilityAnswer,
+  formatHomeOwnershipHistoricalPosition,
+  formatHomeOwnershipThresholdContext,
+} from '../utils/homeOwnershipAffordability'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -328,6 +333,8 @@ export function EconomicSeriesSummary({
             ? 'Latest three-month average'
             : series.slug === 'personal-saving-rate'
             ? 'Share of disposable personal income saved'
+            : series.slug === 'home-ownership-cost-share'
+            ? 'Estimated share of median household income needed to own the median-priced home'
             : presentation.latestValueLabel}
         </p>
         <p className="series-current__period">
@@ -395,6 +402,21 @@ export function EconomicSeriesSummary({
             </p>
           </>
         )}
+        {series.slug === 'home-ownership-cost-share' && (
+          <>
+            <p className="series-current__answer">
+              {formatHomeOwnershipAffordabilityAnswer(latestObservation?.value ?? null)}
+            </p>
+            <p className="series-current__comparison">
+              {formatHomeOwnershipThresholdContext(latestObservation?.value ?? null)}
+            </p>
+            {compactModel?.status === 'ready' && (
+              <p className="series-current__comparison">
+                {formatHomeOwnershipHistoricalPosition(compactModel)}
+              </p>
+            )}
+          </>
+        )}
     </div>
   )
   const compactVisual = compactModel && compactDefinition ? (
@@ -422,8 +444,12 @@ export function EconomicSeriesSummary({
         ? 'Is unemployment high or low?'
         : series.slug === 'personal-saving-rate'
         ? 'Are households saving less of their income?'
+        : series.slug === 'home-ownership-cost-share'
+        ? 'How much of a median household’s income would it take to own a typical home?'
         : series.question}
-      measureLabel={series.title}
+      measureLabel={series.slug === 'home-ownership-cost-share'
+        ? 'Estimated share of median household income needed to own the median-priced home'
+        : series.title}
       latestValue={latestValueContent}
       compactVisual={compactVisual}
       collapsible={collapsible}

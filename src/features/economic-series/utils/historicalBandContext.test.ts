@@ -82,6 +82,16 @@ describe('historical band context', () => {
     })
   })
 
+  it('uses all available history until 25 years exist, then transitions automatically', () => {
+    const fallback = { ...definition, comparisonWindow: {
+      kind: 'trailing-years-with-all-available-fallback' as const, years: 25,
+    } }
+    const short = deriveHistoricalBandContext(quarters(Array.from({ length: 84 }, (_, index) => index), 2005), fallback)
+    expect(short).toMatchObject({ status: 'ready', comparisonStart: '2005-01-01' })
+    const long = deriveHistoricalBandContext(quarters(Array.from({ length: 121 }, (_, index) => index), 2000), fallback)
+    expect(long).toMatchObject({ status: 'ready', comparisonStart: '2005-01-01', comparisonEnd: '2030-01-01' })
+  })
+
   it.each([
     [9, 'belowOuterBand'], [10, 'betweenOuterAndInnerLow'],
     [24, 'betweenOuterAndInnerLow'], [25, 'insideInnerBand'],

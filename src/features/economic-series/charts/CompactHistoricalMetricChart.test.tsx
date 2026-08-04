@@ -4,12 +4,14 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import perCapitaData from '../data/real-gdp-per-capita-growth.json'
 import payrollGrowthData from '../data/payroll-growth.json'
 import savingRateData from '../data/personal-saving-rate.json'
+import homeOwnershipData from '../data/home-ownership-cost-share.json'
 import type { EconomicObservation } from '../models/economicSeries'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import {
   payrollGrowthCompactDefinition,
   realGdpPerCapitaCompactDefinition,
   savingRateCompactDefinition,
+  homeOwnershipCostCompactDefinition,
 } from '../utils/compactHistoricalMetrics'
 import { deriveHistoricalBandContext } from '../utils/historicalBandContext'
 import { CompactHistoricalMetricChart } from './CompactHistoricalMetricChart'
@@ -25,6 +27,9 @@ vi.mock('./HistoricalBandChart', () => ({
     interactionDetails?: (
       observation: EconomicObservation & { value: number },
     ) => ReactNode
+    referenceLines?: readonly { value: number; label: string }[]
+    showReferenceLineLabels?: boolean
+    comparisonLabel?: string
   }) => (
     <div
       data-testid="historical-band-chart"
@@ -33,9 +38,18 @@ vi.mock('./HistoricalBandChart', () => ({
       data-zero-line={props.showZeroLine}
       data-latest-marker={props.showLatestMarker}
       data-interactive={props.interactiveDetails}
+      data-reference-lines={JSON.stringify(props.referenceLines)}
+      data-comparison-label={props.comparisonLabel}
       data-latest-value={props.valueFormatter(111.33333333333333)}
     >
-      {props.interactionDetails?.({ date: '2026-06-01', value: 2.7 })}
+      {props.interactionDetails?.(
+        props.caption.startsWith('Modeled ownership-cost share')
+          ? { date: '2026-03-01', value: 42 }
+          : { date: '2026-06-01', value: 2.7 },
+      )}
+      {props.showReferenceLineLabels && props.referenceLines?.map(({ label }) => (
+        <span key={label}>{label}</span>
+      ))}
     </div>
   ),
 }))
@@ -121,5 +135,28 @@ describe('CompactHistoricalMetricChart', () => {
     expect(chart).toHaveTextContent(
       'Change from 12 months earlier: −1.9 percentage points',
     )
+  })
+
+  it('adds the affordability threshold and exact point details', () => {
+    const series = validateEconomicSeries(homeOwnershipData)
+    const model = deriveHistoricalBandContext(
+      series.observations,
+      homeOwnershipCostCompactDefinition.historicalBands,
+    )
+    render(<CompactHistoricalMetricChart
+      model={model}
+      definition={homeOwnershipCostCompactDefinition}
+      observations={series.observations}
+    />)
+    const chart = screen.getByTestId('historical-band-chart')
+    expect(chart).toHaveAttribute('data-zero-line', 'false')
+    expect(chart).toHaveAttribute('data-latest-marker', 'true')
+    expect(chart).toHaveAttribute('data-interactive', 'true')
+    expect(chart).toHaveAttribute('data-comparison-label', 'Available history since 2005')
+    expect(chart).toHaveAttribute('data-reference-lines', expect.stringContaining('Atlanta Fed affordability threshold'))
+    expect(chart).toHaveTextContent('30% = Atlanta Fed affordability threshold')
+    expect(chart).toHaveTextContent('Modeled ownership-cost shareMarch 202642.0%')
+    expect(chart).toHaveTextContent('Affordability threshold: 30.0%')
+    expect(chart).toHaveTextContent('Difference: 12.0 percentage points above threshold')
   })
 })

@@ -70,7 +70,7 @@ const navigationGroups = [
     cards: [
       {
         id: 'home-ownership-cost-share-card',
-        title: 'Can a median-income household afford a typical home?',
+        title: 'How much of a median household’s income would it take to own a typical home?',
       },
       {
         id: 'housing-starts-card',

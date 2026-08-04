@@ -215,9 +215,9 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
   },
   "home-ownership-cost-share": {
     topicLabel: "Housing affordability",
-    latestValueLabel: "Latest modeled annual ownership cost share",
+    latestValueLabel: "Latest estimated share of median household income needed to own the median-priced home",
     whatThisTellsYou:
-      "The Atlanta Fed models the annual cost for a median-income household to purchase a median-priced home, including principal and interest, property taxes, homeowners insurance, and private mortgage insurance. A higher percentage means modeled ownership costs consume more median household income.",
+      "The Atlanta Fed models the annual cost for a median-income household to purchase a median-priced home, including principal and interest on a 30-year fixed-rate mortgage with a 10% down payment, property taxes, homeowners insurance, and private mortgage insurance. The median price is a monthly three-month moving average; median household income is based on Census ACS estimates. A higher percentage means modeled ownership costs consume more median household income.",
     whatThisLeavesOut:
       "This national model does not describe local markets, current homeowners with older mortgages, or every buyer’s down payment, credit profile, taxes, or insurance. It is not a count of households that can or cannot buy a home.",
     relatedIndicators: [

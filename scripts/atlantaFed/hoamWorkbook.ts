@@ -132,7 +132,7 @@ export function parseHoamWorkbook(
     title: 'Home-Ownership Cost Share',
     shortTitle: 'Home-ownership affordability',
     description: 'Modeled annual cost of owning a median-priced home as a percentage of median household income.',
-    question: 'Can a median-income household afford a typical home?',
+    question: 'How much of a median household’s income would it take to own a typical home?',
     units: 'Percent of median household income',
     frequency: 'monthly',
     seasonalAdjustment: null,

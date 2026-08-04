@@ -201,7 +201,7 @@ describe('DashboardPage economic series', () => {
       'Is job growth keeping up with the labor force?',
       'Are layoffs beginning to rise?',
       'Are households saving less of their income?',
-      'Can a median-income household afford a typical home?',
+      'How much of a median household’s income would it take to own a typical home?',
       'How much new housing is being started?',
       'Are manufacturing output and jobs moving together?',
       'Are businesses increasing investment in productive capacity?',
@@ -1310,7 +1310,7 @@ describe('DashboardPage economic series', () => {
       .not.toBeInTheDocument()
   })
 
-  it('renders the two Housing cards in order with full-history controls and explicit units', async () => {
+  it('renders compact affordability and preserves both Housing research views', async () => {
     const user = userEvent.setup()
     render(<DashboardPage />)
 
@@ -1321,12 +1321,23 @@ describe('DashboardPage economic series', () => {
       'housing-starts-question',
     ])
     expect(within(cards[0]!).getAllByText('42.0%')).not.toHaveLength(0)
-    expect(within(cards[0]!).getAllByText('March 2026')).not.toHaveLength(0)
-    expect(within(cards[0]!).getByText(/A higher percentage means/)).toBeVisible()
+    expect(cards[0]!.querySelector('.series-current__period')).toHaveTextContent('March 2026')
+    expect(within(cards[0]!).getAllByText('Estimated share of median household income needed to own the median-priced home')).toHaveLength(2)
+    expect(within(cards[0]!).getByText(/not affordable for a median-income household under this model/)).toBeVisible()
+    expect(within(cards[0]!).getByText(/well above the 30% affordability threshold/)).toBeVisible()
+    expect(within(cards[0]!).getByText(/required income share is high|very high/)).toBeVisible()
+    expect(within(cards[0]!).getByRole('button', { name: /More/ })).toHaveAttribute('aria-expanded', 'false')
     expect(within(cards[1]!).getAllByText('1.43 million')).not.toHaveLength(0)
     expect(within(cards[1]!).getAllByText('June 2026')).not.toHaveLength(0)
     expect(within(cards[1]!).getByText(/annualized pace implied by one month/)).toBeVisible()
 
+    const compactCall = compactChartPropsSpy.mock.calls
+      .map((call) => call[0] as { definition: { seriesLabel: string; showZeroLine: boolean } })
+      .find(({ definition }) => definition.seriesLabel === 'Modeled ownership-cost share')
+    expect(compactCall?.definition.showZeroLine).toBe(false)
+
+    await user.click(within(cards[0]!).getByRole('button', { name: /More/ }))
+    expect(within(cards[0]!).getByText(/30-year fixed-rate mortgage with a 10% down payment/)).toBeVisible()
     await user.click(within(cards[0]!).getByRole('button', { name: 'Maximum' }))
     await user.click(within(cards[1]!).getByRole('button', { name: 'Maximum' }))
     await waitFor(() => {
@@ -1348,7 +1359,7 @@ describe('DashboardPage economic series', () => {
 
   it.each([
     ['home-ownership-cost-share', 'The home-ownership affordability data could not be loaded.', 'How much new housing is being started?'],
-    ['housing-starts', 'The housing starts data could not be loaded.', 'Can a median-income household afford a typical home?'],
+    ['housing-starts', 'The housing starts data could not be loaded.', 'How much of a median household’s income would it take to own a typical home?'],
   ])('isolates a %s failure from the other Housing card', async (failedSlug, message, survivor) => {
     const originalGetBySlug = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
     vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {

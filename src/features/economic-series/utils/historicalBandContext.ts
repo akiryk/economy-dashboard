@@ -6,6 +6,7 @@ export interface HistoricalBandDefinition {
   recentObservationCount: number
   comparisonWindow:
     | { kind: 'trailing-years'; years: number }
+    | { kind: 'trailing-years-with-all-available-fallback'; years: number }
     | { kind: 'all-available' }
   innerPercentiles: readonly [number, number]
   outerPercentiles: readonly [number, number]
@@ -59,12 +60,17 @@ function finiteObservation(
 
 function comparisonStartDate(
   latestDate: string,
+  earliestDate: string,
   window: HistoricalBandDefinition['comparisonWindow'],
 ): string | null {
   if (window.kind === 'all-available') return null
   const cutoff = new Date(`${latestDate}T00:00:00Z`)
   cutoff.setUTCFullYear(cutoff.getUTCFullYear() - window.years)
-  return cutoff.toISOString().slice(0, 10)
+  const cutoffDate = cutoff.toISOString().slice(0, 10)
+  return window.kind === 'trailing-years-with-all-available-fallback' &&
+    earliestDate > cutoffDate
+    ? null
+    : cutoffDate
 }
 
 export function deriveHistoricalBandContext(
@@ -93,6 +99,7 @@ export function deriveHistoricalBandContext(
   )
   const cutoff = comparisonStartDate(
     latestObservation.date,
+    observationsThroughLatest[0]!.date,
     definition.comparisonWindow,
   )
   const comparisonObservations = observationsThroughLatest.filter(
