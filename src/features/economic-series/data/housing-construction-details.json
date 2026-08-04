@@ -1,0 +1,2908 @@
+{
+  "retrievedAt": "2026-08-04",
+  "regions": [
+    {
+      "date": "2015-01-01",
+      "northeast": 107,
+      "midwest": 140,
+      "south": 533,
+      "west": 305
+    },
+    {
+      "date": "2015-02-01",
+      "northeast": 46,
+      "midwest": 97,
+      "south": 504,
+      "west": 239
+    },
+    {
+      "date": "2015-03-01",
+      "northeast": 102,
+      "midwest": 144,
+      "south": 515,
+      "west": 199
+    },
+    {
+      "date": "2015-04-01",
+      "northeast": 194,
+      "midwest": 168,
+      "south": 519,
+      "west": 309
+    },
+    {
+      "date": "2015-05-01",
+      "northeast": 146,
+      "midwest": 145,
+      "south": 513,
+      "west": 275
+    },
+    {
+      "date": "2015-06-01",
+      "northeast": 219,
+      "midwest": 146,
+      "south": 552,
+      "west": 288
+    },
+    {
+      "date": "2015-07-01",
+      "northeast": 155,
+      "midwest": 172,
+      "south": 551,
+      "west": 268
+    },
+    {
+      "date": "2015-08-01",
+      "northeast": 113,
+      "midwest": 151,
+      "south": 622,
+      "west": 244
+    },
+    {
+      "date": "2015-09-01",
+      "northeast": 130,
+      "midwest": 139,
+      "south": 653,
+      "west": 302
+    },
+    {
+      "date": "2015-10-01",
+      "northeast": 132,
+      "midwest": 171,
+      "south": 518,
+      "west": 237
+    },
+    {
+      "date": "2015-11-01",
+      "northeast": 126,
+      "midwest": 167,
+      "south": 607,
+      "west": 272
+    },
+    {
+      "date": "2015-12-01",
+      "northeast": 155,
+      "midwest": 164,
+      "south": 586,
+      "west": 241
+    },
+    {
+      "date": "2016-01-01",
+      "northeast": 142,
+      "midwest": 147,
+      "south": 557,
+      "west": 246
+    },
+    {
+      "date": "2016-02-01",
+      "northeast": 82,
+      "midwest": 209,
+      "south": 625,
+      "west": 309
+    },
+    {
+      "date": "2016-03-01",
+      "northeast": 153,
+      "midwest": 161,
+      "south": 537,
+      "west": 260
+    },
+    {
+      "date": "2016-04-01",
+      "northeast": 119,
+      "midwest": 207,
+      "south": 601,
+      "west": 236
+    },
+    {
+      "date": "2016-05-01",
+      "northeast": 83,
+      "midwest": 191,
+      "south": 597,
+      "west": 277
+    },
+    {
+      "date": "2016-06-01",
+      "northeast": 116,
+      "midwest": 191,
+      "south": 591,
+      "west": 305
+    },
+    {
+      "date": "2016-07-01",
+      "northeast": 133,
+      "midwest": 158,
+      "south": 643,
+      "west": 305
+    },
+    {
+      "date": "2016-08-01",
+      "northeast": 134,
+      "midwest": 170,
+      "south": 572,
+      "west": 295
+    },
+    {
+      "date": "2016-09-01",
+      "northeast": 94,
+      "midwest": 152,
+      "south": 543,
+      "west": 279
+    },
+    {
+      "date": "2016-10-01",
+      "northeast": 160,
+      "midwest": 193,
+      "south": 621,
+      "west": 339
+    },
+    {
+      "date": "2016-11-01",
+      "northeast": 82,
+      "midwest": 214,
+      "south": 579,
+      "west": 265
+    },
+    {
+      "date": "2016-12-01",
+      "northeast": 90,
+      "midwest": 221,
+      "south": 555,
+      "west": 386
+    },
+    {
+      "date": "2017-01-01",
+      "northeast": 119,
+      "midwest": 193,
+      "south": 653,
+      "west": 225
+    },
+    {
+      "date": "2017-02-01",
+      "northeast": 113,
+      "midwest": 180,
+      "south": 645,
+      "west": 333
+    },
+    {
+      "date": "2017-03-01",
+      "northeast": 116,
+      "midwest": 142,
+      "south": 635,
+      "west": 297
+    },
+    {
+      "date": "2017-04-01",
+      "northeast": 85,
+      "midwest": 204,
+      "south": 555,
+      "west": 302
+    },
+    {
+      "date": "2017-05-01",
+      "northeast": 86,
+      "midwest": 163,
+      "south": 583,
+      "west": 325
+    },
+    {
+      "date": "2017-06-01",
+      "northeast": 163,
+      "midwest": 209,
+      "south": 538,
+      "west": 339
+    },
+    {
+      "date": "2017-07-01",
+      "northeast": 119,
+      "midwest": 161,
+      "south": 619,
+      "west": 307
+    },
+    {
+      "date": "2017-08-01",
+      "northeast": 108,
+      "midwest": 169,
+      "south": 577,
+      "west": 305
+    },
+    {
+      "date": "2017-09-01",
+      "northeast": 101,
+      "midwest": 191,
+      "south": 557,
+      "west": 332
+    },
+    {
+      "date": "2017-10-01",
+      "northeast": 149,
+      "midwest": 200,
+      "south": 617,
+      "west": 291
+    },
+    {
+      "date": "2017-11-01",
+      "northeast": 92,
+      "midwest": 182,
+      "south": 653,
+      "west": 346
+    },
+    {
+      "date": "2017-12-01",
+      "northeast": 87,
+      "midwest": 164,
+      "south": 570,
+      "west": 356
+    },
+    {
+      "date": "2018-01-01",
+      "northeast": 112,
+      "midwest": 137,
+      "south": 680,
+      "west": 370
+    },
+    {
+      "date": "2018-02-01",
+      "northeast": 132,
+      "midwest": 149,
+      "south": 610,
+      "west": 386
+    },
+    {
+      "date": "2018-03-01",
+      "northeast": 119,
+      "midwest": 182,
+      "south": 622,
+      "west": 395
+    },
+    {
+      "date": "2018-04-01",
+      "northeast": 96,
+      "midwest": 163,
+      "south": 674,
+      "west": 343
+    },
+    {
+      "date": "2018-05-01",
+      "northeast": 109,
+      "midwest": 239,
+      "south": 658,
+      "west": 351
+    },
+    {
+      "date": "2018-06-01",
+      "northeast": 107,
+      "midwest": 164,
+      "south": 571,
+      "west": 350
+    },
+    {
+      "date": "2018-07-01",
+      "northeast": 103,
+      "midwest": 180,
+      "south": 635,
+      "west": 290
+    },
+    {
+      "date": "2018-08-01",
+      "northeast": 100,
+      "midwest": 184,
+      "south": 669,
+      "west": 335
+    },
+    {
+      "date": "2018-09-01",
+      "northeast": 142,
+      "midwest": 176,
+      "south": 567,
+      "west": 365
+    },
+    {
+      "date": "2018-10-01",
+      "northeast": 97,
+      "midwest": 185,
+      "south": 605,
+      "west": 334
+    },
+    {
+      "date": "2018-11-01",
+      "northeast": 106,
+      "midwest": 149,
+      "south": 648,
+      "west": 278
+    },
+    {
+      "date": "2018-12-01",
+      "northeast": 109,
+      "midwest": 129,
+      "south": 624,
+      "west": 233
+    },
+    {
+      "date": "2019-01-01",
+      "northeast": 135,
+      "midwest": 133,
+      "south": 678,
+      "west": 280
+    },
+    {
+      "date": "2019-02-01",
+      "northeast": 85,
+      "midwest": 153,
+      "south": 639,
+      "west": 244
+    },
+    {
+      "date": "2019-03-01",
+      "northeast": 82,
+      "midwest": 130,
+      "south": 655,
+      "west": 324
+    },
+    {
+      "date": "2019-04-01",
+      "northeast": 130,
+      "midwest": 168,
+      "south": 657,
+      "west": 317
+    },
+    {
+      "date": "2019-05-01",
+      "northeast": 86,
+      "midwest": 158,
+      "south": 722,
+      "west": 327
+    },
+    {
+      "date": "2019-06-01",
+      "northeast": 112,
+      "midwest": 181,
+      "south": 635,
+      "west": 315
+    },
+    {
+      "date": "2019-07-01",
+      "northeast": 95,
+      "midwest": 177,
+      "south": 637,
+      "west": 331
+    },
+    {
+      "date": "2019-08-01",
+      "northeast": 170,
+      "midwest": 189,
+      "south": 712,
+      "west": 304
+    },
+    {
+      "date": "2019-09-01",
+      "northeast": 119,
+      "midwest": 163,
+      "south": 716,
+      "west": 313
+    },
+    {
+      "date": "2019-10-01",
+      "northeast": 119,
+      "midwest": 177,
+      "south": 677,
+      "west": 352
+    },
+    {
+      "date": "2019-11-01",
+      "northeast": 106,
+      "midwest": 176,
+      "south": 731,
+      "west": 340
+    },
+    {
+      "date": "2019-12-01",
+      "northeast": 140,
+      "midwest": 225,
+      "south": 781,
+      "west": 402
+    },
+    {
+      "date": "2020-01-01",
+      "northeast": 210,
+      "midwest": 163,
+      "south": 778,
+      "west": 430
+    },
+    {
+      "date": "2020-02-01",
+      "northeast": 115,
+      "midwest": 195,
+      "south": 872,
+      "west": 367
+    },
+    {
+      "date": "2020-03-01",
+      "northeast": 81,
+      "midwest": 156,
+      "south": 712,
+      "west": 317
+    },
+    {
+      "date": "2020-04-01",
+      "northeast": 49,
+      "midwest": 136,
+      "south": 576,
+      "west": 175
+    },
+    {
+      "date": "2020-05-01",
+      "northeast": 70,
+      "midwest": 142,
+      "south": 511,
+      "west": 316
+    },
+    {
+      "date": "2020-06-01",
+      "northeast": 116,
+      "midwest": 208,
+      "south": 649,
+      "west": 293
+    },
+    {
+      "date": "2020-07-01",
+      "northeast": 132,
+      "midwest": 212,
+      "south": 866,
+      "west": 316
+    },
+    {
+      "date": "2020-08-01",
+      "northeast": 89,
+      "midwest": 250,
+      "south": 710,
+      "west": 347
+    },
+    {
+      "date": "2020-09-01",
+      "northeast": 126,
+      "midwest": 214,
+      "south": 774,
+      "west": 359
+    },
+    {
+      "date": "2020-10-01",
+      "northeast": 91,
+      "midwest": 208,
+      "south": 852,
+      "west": 392
+    },
+    {
+      "date": "2020-11-01",
+      "northeast": 142,
+      "midwest": 201,
+      "south": 791,
+      "west": 409
+    },
+    {
+      "date": "2020-12-01",
+      "northeast": 132,
+      "midwest": 224,
+      "south": 816,
+      "west": 442
+    },
+    {
+      "date": "2021-01-01",
+      "northeast": 207,
+      "midwest": 212,
+      "south": 805,
+      "west": 400
+    },
+    {
+      "date": "2021-02-01",
+      "northeast": 99,
+      "midwest": 134,
+      "south": 749,
+      "west": 416
+    },
+    {
+      "date": "2021-03-01",
+      "northeast": 159,
+      "midwest": 270,
+      "south": 877,
+      "west": 382
+    },
+    {
+      "date": "2021-04-01",
+      "northeast": 155,
+      "midwest": 175,
+      "south": 782,
+      "west": 377
+    },
+    {
+      "date": "2021-05-01",
+      "northeast": 140,
+      "midwest": 269,
+      "south": 810,
+      "west": 381
+    },
+    {
+      "date": "2021-06-01",
+      "northeast": 153,
+      "midwest": 197,
+      "south": 869,
+      "west": 445
+    },
+    {
+      "date": "2021-07-01",
+      "northeast": 70,
+      "midwest": 188,
+      "south": 925,
+      "west": 417
+    },
+    {
+      "date": "2021-08-01",
+      "northeast": 165,
+      "midwest": 199,
+      "south": 900,
+      "west": 332
+    },
+    {
+      "date": "2021-09-01",
+      "northeast": 130,
+      "midwest": 207,
+      "south": 814,
+      "west": 425
+    },
+    {
+      "date": "2021-10-01",
+      "northeast": 120,
+      "midwest": 214,
+      "south": 828,
+      "west": 425
+    },
+    {
+      "date": "2021-11-01",
+      "northeast": 110,
+      "midwest": 227,
+      "south": 937,
+      "west": 433
+    },
+    {
+      "date": "2021-12-01",
+      "northeast": 138,
+      "midwest": 309,
+      "south": 879,
+      "west": 385
+    },
+    {
+      "date": "2022-01-01",
+      "northeast": 106,
+      "midwest": 203,
+      "south": 924,
+      "west": 460
+    },
+    {
+      "date": "2022-02-01",
+      "northeast": 123,
+      "midwest": 231,
+      "south": 977,
+      "west": 399
+    },
+    {
+      "date": "2022-03-01",
+      "northeast": 209,
+      "midwest": 229,
+      "south": 839,
+      "west": 423
+    },
+    {
+      "date": "2022-04-01",
+      "northeast": 132,
+      "midwest": 218,
+      "south": 1034,
+      "west": 423
+    },
+    {
+      "date": "2022-05-01",
+      "northeast": 131,
+      "midwest": 229,
+      "south": 857,
+      "west": 329
+    },
+    {
+      "date": "2022-06-01",
+      "northeast": 126,
+      "midwest": 203,
+      "south": 867,
+      "west": 360
+    },
+    {
+      "date": "2022-07-01",
+      "northeast": 169,
+      "midwest": 166,
+      "south": 713,
+      "west": 334
+    },
+    {
+      "date": "2022-08-01",
+      "northeast": 180,
+      "midwest": 183,
+      "south": 805,
+      "west": 364
+    },
+    {
+      "date": "2022-09-01",
+      "northeast": 152,
+      "midwest": 212,
+      "south": 746,
+      "west": 371
+    },
+    {
+      "date": "2022-10-01",
+      "northeast": 98,
+      "midwest": 235,
+      "south": 797,
+      "west": 316
+    },
+    {
+      "date": "2022-11-01",
+      "northeast": 86,
+      "midwest": 247,
+      "south": 740,
+      "west": 361
+    },
+    {
+      "date": "2022-12-01",
+      "northeast": 194,
+      "midwest": 118,
+      "south": 680,
+      "west": 304
+    },
+    {
+      "date": "2023-01-01",
+      "northeast": 127,
+      "midwest": 134,
+      "south": 795,
+      "west": 302
+    },
+    {
+      "date": "2023-02-01",
+      "northeast": 97,
+      "midwest": 181,
+      "south": 773,
+      "west": 344
+    },
+    {
+      "date": "2023-03-01",
+      "northeast": 183,
+      "midwest": 130,
+      "south": 818,
+      "west": 235
+    },
+    {
+      "date": "2023-04-01",
+      "northeast": 123,
+      "midwest": 174,
+      "south": 743,
+      "west": 303
+    },
+    {
+      "date": "2023-05-01",
+      "northeast": 99,
+      "midwest": 264,
+      "south": 897,
+      "west": 349
+    },
+    {
+      "date": "2023-06-01",
+      "northeast": 98,
+      "midwest": 166,
+      "south": 816,
+      "west": 340
+    },
+    {
+      "date": "2023-07-01",
+      "northeast": 111,
+      "midwest": 180,
+      "south": 789,
+      "west": 384
+    },
+    {
+      "date": "2023-08-01",
+      "northeast": 127,
+      "midwest": 159,
+      "south": 745,
+      "west": 290
+    },
+    {
+      "date": "2023-09-01",
+      "northeast": 86,
+      "midwest": 196,
+      "south": 791,
+      "west": 296
+    },
+    {
+      "date": "2023-10-01",
+      "northeast": 80,
+      "midwest": 211,
+      "south": 733,
+      "west": 356
+    },
+    {
+      "date": "2023-11-01",
+      "northeast": 134,
+      "midwest": 207,
+      "south": 810,
+      "west": 371
+    },
+    {
+      "date": "2023-12-01",
+      "northeast": 122,
+      "midwest": 197,
+      "south": 802,
+      "west": 383
+    },
+    {
+      "date": "2024-01-01",
+      "northeast": 137,
+      "midwest": 138,
+      "south": 763,
+      "west": 340
+    },
+    {
+      "date": "2024-02-01",
+      "northeast": 119,
+      "midwest": 231,
+      "south": 885,
+      "west": 320
+    },
+    {
+      "date": "2024-03-01",
+      "northeast": 93,
+      "midwest": 156,
+      "south": 732,
+      "west": 316
+    },
+    {
+      "date": "2024-04-01",
+      "northeast": 104,
+      "midwest": 178,
+      "south": 811,
+      "west": 286
+    },
+    {
+      "date": "2024-05-01",
+      "northeast": 102,
+      "midwest": 146,
+      "south": 754,
+      "west": 327
+    },
+    {
+      "date": "2024-06-01",
+      "northeast": 115,
+      "midwest": 174,
+      "south": 739,
+      "west": 290
+    },
+    {
+      "date": "2024-07-01",
+      "northeast": 175,
+      "midwest": 180,
+      "south": 643,
+      "west": 271
+    },
+    {
+      "date": "2024-08-01",
+      "northeast": 119,
+      "midwest": 209,
+      "south": 770,
+      "west": 296
+    },
+    {
+      "date": "2024-09-01",
+      "northeast": 165,
+      "midwest": 181,
+      "south": 726,
+      "west": 285
+    },
+    {
+      "date": "2024-10-01",
+      "northeast": 111,
+      "midwest": 251,
+      "south": 674,
+      "west": 334
+    },
+    {
+      "date": "2024-11-01",
+      "northeast": 124,
+      "midwest": 176,
+      "south": 706,
+      "west": 294
+    },
+    {
+      "date": "2024-12-01",
+      "northeast": 145,
+      "midwest": 204,
+      "south": 868,
+      "west": 277
+    },
+    {
+      "date": "2025-01-01",
+      "northeast": 95,
+      "midwest": 181,
+      "south": 698,
+      "west": 379
+    },
+    {
+      "date": "2025-02-01",
+      "northeast": 135,
+      "midwest": 125,
+      "south": 824,
+      "west": 407
+    },
+    {
+      "date": "2025-03-01",
+      "northeast": 144,
+      "midwest": 222,
+      "south": 693,
+      "west": 287
+    },
+    {
+      "date": "2025-04-01",
+      "northeast": 186,
+      "midwest": 228,
+      "south": 747,
+      "west": 239
+    },
+    {
+      "date": "2025-05-01",
+      "northeast": 104,
+      "midwest": 185,
+      "south": 702,
+      "west": 298
+    },
+    {
+      "date": "2025-06-01",
+      "northeast": 171,
+      "midwest": 192,
+      "south": 706,
+      "west": 310
+    },
+    {
+      "date": "2025-07-01",
+      "northeast": 101,
+      "midwest": 237,
+      "south": 850,
+      "west": 244
+    },
+    {
+      "date": "2025-08-01",
+      "northeast": 96,
+      "midwest": 222,
+      "south": 666,
+      "west": 307
+    },
+    {
+      "date": "2025-09-01",
+      "northeast": 165,
+      "midwest": 196,
+      "south": 643,
+      "west": 315
+    },
+    {
+      "date": "2025-10-01",
+      "northeast": 145,
+      "midwest": 204,
+      "south": 666,
+      "west": 258
+    },
+    {
+      "date": "2025-11-01",
+      "northeast": 151,
+      "midwest": 171,
+      "south": 745,
+      "west": 252
+    },
+    {
+      "date": "2025-12-01",
+      "northeast": 140,
+      "midwest": 186,
+      "south": 724,
+      "west": 328
+    },
+    {
+      "date": "2026-01-01",
+      "northeast": 177,
+      "midwest": 162,
+      "south": 751,
+      "west": 295
+    },
+    {
+      "date": "2026-02-01",
+      "northeast": 137,
+      "midwest": 190,
+      "south": 733,
+      "west": 286
+    },
+    {
+      "date": "2026-03-01",
+      "northeast": 170,
+      "midwest": 196,
+      "south": 811,
+      "west": 345
+    },
+    {
+      "date": "2026-04-01",
+      "northeast": 149,
+      "midwest": 194,
+      "south": 750,
+      "west": 321
+    },
+    {
+      "date": "2026-05-01",
+      "northeast": 117,
+      "midwest": 186,
+      "south": 643,
+      "west": 253
+    },
+    {
+      "date": "2026-06-01",
+      "northeast": 129,
+      "midwest": 248,
+      "south": 741,
+      "west": 309
+    }
+  ],
+  "populations": [
+    {
+      "year": 2015,
+      "northeast": 56052.79,
+      "midwest": 67885.682,
+      "south": 121049.223,
+      "west": 75751.299
+    },
+    {
+      "year": 2016,
+      "northeast": 56063.777,
+      "midwest": 68018.175,
+      "south": 122419.547,
+      "west": 76570.256
+    },
+    {
+      "year": 2017,
+      "northeast": 56083.383,
+      "midwest": 68160.342,
+      "south": 123611.036,
+      "west": 77267.367
+    },
+    {
+      "year": 2018,
+      "northeast": 56084.543,
+      "midwest": 68263.019,
+      "south": 124649.156,
+      "west": 77841.481
+    },
+    {
+      "year": 2019,
+      "northeast": 56002.934,
+      "midwest": 68340.091,
+      "south": 125686.544,
+      "west": 78300.384
+    },
+    {
+      "year": 2020,
+      "northeast": 57436.027,
+      "midwest": 68979.566,
+      "south": 126473.371,
+      "west": 78689.14
+    },
+    {
+      "year": 2021,
+      "northeast": 57234.503,
+      "midwest": 68867.096,
+      "south": 127380.165,
+      "west": 78618.402
+    },
+    {
+      "year": 2022,
+      "northeast": 57174.375,
+      "midwest": 68872.112,
+      "south": 129066.102,
+      "west": 78883.715
+    },
+    {
+      "year": 2023,
+      "northeast": 57458.539,
+      "midwest": 69132.05,
+      "south": 130894.372,
+      "west": 79270.091
+    },
+    {
+      "year": 2024,
+      "northeast": 57940.522,
+      "midwest": 69518.281,
+      "south": 132662.072,
+      "west": 79882.922
+    },
+    {
+      "year": 2025,
+      "northeast": 58042.054,
+      "midwest": 69762.666,
+      "south": 133833.983,
+      "west": 80146.154
+    }
+  ],
+  "pipeline": {
+    "permits": [
+      {
+        "date": "2021-01-01",
+        "total": 1856,
+        "singleFamily": 1247,
+        "twoToFour": 54,
+        "fiveOrMore": 555
+      },
+      {
+        "date": "2021-02-01",
+        "total": 1703,
+        "singleFamily": 1104,
+        "twoToFour": 49,
+        "fiveOrMore": 550
+      },
+      {
+        "date": "2021-03-01",
+        "total": 1756,
+        "singleFamily": 1167,
+        "twoToFour": 59,
+        "fiveOrMore": 530
+      },
+      {
+        "date": "2021-04-01",
+        "total": 1710,
+        "singleFamily": 1125,
+        "twoToFour": 49,
+        "fiveOrMore": 536
+      },
+      {
+        "date": "2021-05-01",
+        "total": 1705,
+        "singleFamily": 1125,
+        "twoToFour": 55,
+        "fiveOrMore": 525
+      },
+      {
+        "date": "2021-06-01",
+        "total": 1662,
+        "singleFamily": 1091,
+        "twoToFour": 50,
+        "fiveOrMore": 521
+      },
+      {
+        "date": "2021-07-01",
+        "total": 1666,
+        "singleFamily": 1069,
+        "twoToFour": 53,
+        "fiveOrMore": 544
+      },
+      {
+        "date": "2021-08-01",
+        "total": 1740,
+        "singleFamily": 1069,
+        "twoToFour": 45,
+        "fiveOrMore": 626
+      },
+      {
+        "date": "2021-09-01",
+        "total": 1649,
+        "singleFamily": 1064,
+        "twoToFour": 49,
+        "fiveOrMore": 536
+      },
+      {
+        "date": "2021-10-01",
+        "total": 1699,
+        "singleFamily": 1090,
+        "twoToFour": 52,
+        "fiveOrMore": 557
+      },
+      {
+        "date": "2021-11-01",
+        "total": 1770,
+        "singleFamily": 1131,
+        "twoToFour": 50,
+        "fiveOrMore": 589
+      },
+      {
+        "date": "2021-12-01",
+        "total": 1886,
+        "singleFamily": 1139,
+        "twoToFour": 67,
+        "fiveOrMore": 680
+      },
+      {
+        "date": "2022-01-01",
+        "total": 1923,
+        "singleFamily": 1245,
+        "twoToFour": 58,
+        "fiveOrMore": 620
+      },
+      {
+        "date": "2022-02-01",
+        "total": 1846,
+        "singleFamily": 1181,
+        "twoToFour": 55,
+        "fiveOrMore": 610
+      },
+      {
+        "date": "2022-03-01",
+        "total": 1899,
+        "singleFamily": 1129,
+        "twoToFour": 57,
+        "fiveOrMore": 713
+      },
+      {
+        "date": "2022-04-01",
+        "total": 1849,
+        "singleFamily": 1084,
+        "twoToFour": 55,
+        "fiveOrMore": 710
+      },
+      {
+        "date": "2022-05-01",
+        "total": 1711,
+        "singleFamily": 1036,
+        "twoToFour": 59,
+        "fiveOrMore": 616
+      },
+      {
+        "date": "2022-06-01",
+        "total": 1726,
+        "singleFamily": 957,
+        "twoToFour": 54,
+        "fiveOrMore": 715
+      },
+      {
+        "date": "2022-07-01",
+        "total": 1707,
+        "singleFamily": 931,
+        "twoToFour": 57,
+        "fiveOrMore": 719
+      },
+      {
+        "date": "2022-08-01",
+        "total": 1565,
+        "singleFamily": 890,
+        "twoToFour": 52,
+        "fiveOrMore": 623
+      },
+      {
+        "date": "2022-09-01",
+        "total": 1586,
+        "singleFamily": 862,
+        "twoToFour": 53,
+        "fiveOrMore": 671
+      },
+      {
+        "date": "2022-10-01",
+        "total": 1583,
+        "singleFamily": 841,
+        "twoToFour": 56,
+        "fiveOrMore": 686
+      },
+      {
+        "date": "2022-11-01",
+        "total": 1424,
+        "singleFamily": 789,
+        "twoToFour": 55,
+        "fiveOrMore": 580
+      },
+      {
+        "date": "2022-12-01",
+        "total": 1398,
+        "singleFamily": 738,
+        "twoToFour": 50,
+        "fiveOrMore": 610
+      },
+      {
+        "date": "2023-01-01",
+        "total": 1418,
+        "singleFamily": 755,
+        "twoToFour": 60,
+        "fiveOrMore": 603
+      },
+      {
+        "date": "2023-02-01",
+        "total": 1605,
+        "singleFamily": 794,
+        "twoToFour": 50,
+        "fiveOrMore": 761
+      },
+      {
+        "date": "2023-03-01",
+        "total": 1472,
+        "singleFamily": 838,
+        "twoToFour": 56,
+        "fiveOrMore": 578
+      },
+      {
+        "date": "2023-04-01",
+        "total": 1482,
+        "singleFamily": 874,
+        "twoToFour": 60,
+        "fiveOrMore": 548
+      },
+      {
+        "date": "2023-05-01",
+        "total": 1579,
+        "singleFamily": 925,
+        "twoToFour": 56,
+        "fiveOrMore": 598
+      },
+      {
+        "date": "2023-06-01",
+        "total": 1447,
+        "singleFamily": 959,
+        "twoToFour": 58,
+        "fiveOrMore": 430
+      },
+      {
+        "date": "2023-07-01",
+        "total": 1530,
+        "singleFamily": 967,
+        "twoToFour": 51,
+        "fiveOrMore": 512
+      },
+      {
+        "date": "2023-08-01",
+        "total": 1596,
+        "singleFamily": 977,
+        "twoToFour": 63,
+        "fiveOrMore": 556
+      },
+      {
+        "date": "2023-09-01",
+        "total": 1530,
+        "singleFamily": 985,
+        "twoToFour": 51,
+        "fiveOrMore": 494
+      },
+      {
+        "date": "2023-10-01",
+        "total": 1524,
+        "singleFamily": 982,
+        "twoToFour": 53,
+        "fiveOrMore": 489
+      },
+      {
+        "date": "2023-11-01",
+        "total": 1513,
+        "singleFamily": 994,
+        "twoToFour": 50,
+        "fiveOrMore": 469
+      },
+      {
+        "date": "2023-12-01",
+        "total": 1501,
+        "singleFamily": 1008,
+        "twoToFour": 52,
+        "fiveOrMore": 441
+      },
+      {
+        "date": "2024-01-01",
+        "total": 1548,
+        "singleFamily": 1036,
+        "twoToFour": 50,
+        "fiveOrMore": 462
+      },
+      {
+        "date": "2024-02-01",
+        "total": 1570,
+        "singleFamily": 1022,
+        "twoToFour": 58,
+        "fiveOrMore": 490
+      },
+      {
+        "date": "2024-03-01",
+        "total": 1477,
+        "singleFamily": 980,
+        "twoToFour": 53,
+        "fiveOrMore": 444
+      },
+      {
+        "date": "2024-04-01",
+        "total": 1456,
+        "singleFamily": 981,
+        "twoToFour": 56,
+        "fiveOrMore": 419
+      },
+      {
+        "date": "2024-05-01",
+        "total": 1405,
+        "singleFamily": 962,
+        "twoToFour": 56,
+        "fiveOrMore": 387
+      },
+      {
+        "date": "2024-06-01",
+        "total": 1459,
+        "singleFamily": 955,
+        "twoToFour": 49,
+        "fiveOrMore": 455
+      },
+      {
+        "date": "2024-07-01",
+        "total": 1448,
+        "singleFamily": 953,
+        "twoToFour": 53,
+        "fiveOrMore": 442
+      },
+      {
+        "date": "2024-08-01",
+        "total": 1492,
+        "singleFamily": 973,
+        "twoToFour": 57,
+        "fiveOrMore": 462
+      },
+      {
+        "date": "2024-09-01",
+        "total": 1421,
+        "singleFamily": 963,
+        "twoToFour": 60,
+        "fiveOrMore": 398
+      },
+      {
+        "date": "2024-10-01",
+        "total": 1435,
+        "singleFamily": 964,
+        "twoToFour": 50,
+        "fiveOrMore": 421
+      },
+      {
+        "date": "2024-11-01",
+        "total": 1512,
+        "singleFamily": 971,
+        "twoToFour": 52,
+        "fiveOrMore": 489
+      },
+      {
+        "date": "2024-12-01",
+        "total": 1467,
+        "singleFamily": 985,
+        "twoToFour": 58,
+        "fiveOrMore": 424
+      },
+      {
+        "date": "2025-01-01",
+        "total": 1463,
+        "singleFamily": 982,
+        "twoToFour": 56,
+        "fiveOrMore": 425
+      },
+      {
+        "date": "2025-02-01",
+        "total": 1446,
+        "singleFamily": 979,
+        "twoToFour": 58,
+        "fiveOrMore": 409
+      },
+      {
+        "date": "2025-03-01",
+        "total": 1492,
+        "singleFamily": 964,
+        "twoToFour": 59,
+        "fiveOrMore": 469
+      },
+      {
+        "date": "2025-04-01",
+        "total": 1445,
+        "singleFamily": 923,
+        "twoToFour": 61,
+        "fiveOrMore": 461
+      },
+      {
+        "date": "2025-05-01",
+        "total": 1416,
+        "singleFamily": 902,
+        "twoToFour": 54,
+        "fiveOrMore": 460
+      },
+      {
+        "date": "2025-06-01",
+        "total": 1399,
+        "singleFamily": 873,
+        "twoToFour": 51,
+        "fiveOrMore": 475
+      },
+      {
+        "date": "2025-07-01",
+        "total": 1400,
+        "singleFamily": 884,
+        "twoToFour": 55,
+        "fiveOrMore": 461
+      },
+      {
+        "date": "2025-08-01",
+        "total": 1347,
+        "singleFamily": 867,
+        "twoToFour": 53,
+        "fiveOrMore": 427
+      },
+      {
+        "date": "2025-09-01",
+        "total": 1444,
+        "singleFamily": 888,
+        "twoToFour": 58,
+        "fiveOrMore": 498
+      },
+      {
+        "date": "2025-10-01",
+        "total": 1418,
+        "singleFamily": 886,
+        "twoToFour": 55,
+        "fiveOrMore": 477
+      },
+      {
+        "date": "2025-11-01",
+        "total": 1414,
+        "singleFamily": 908,
+        "twoToFour": 58,
+        "fiveOrMore": 448
+      },
+      {
+        "date": "2025-12-01",
+        "total": 1482,
+        "singleFamily": 892,
+        "twoToFour": 53,
+        "fiveOrMore": 537
+      },
+      {
+        "date": "2026-01-01",
+        "total": 1393,
+        "singleFamily": 879,
+        "twoToFour": 51,
+        "fiveOrMore": 463
+      },
+      {
+        "date": "2026-02-01",
+        "total": 1540,
+        "singleFamily": 929,
+        "twoToFour": 50,
+        "fiveOrMore": 561
+      },
+      {
+        "date": "2026-03-01",
+        "total": 1363,
+        "singleFamily": 895,
+        "twoToFour": 49,
+        "fiveOrMore": 419
+      },
+      {
+        "date": "2026-04-01",
+        "total": 1423,
+        "singleFamily": 881,
+        "twoToFour": 51,
+        "fiveOrMore": 491
+      },
+      {
+        "date": "2026-05-01",
+        "total": 1410,
+        "singleFamily": 892,
+        "twoToFour": 50,
+        "fiveOrMore": 468
+      },
+      {
+        "date": "2026-06-01",
+        "total": 1374,
+        "singleFamily": 872,
+        "twoToFour": 53,
+        "fiveOrMore": 449
+      }
+    ],
+    "starts": [
+      {
+        "date": "2021-01-01",
+        "total": 1624,
+        "singleFamily": 1130,
+        "twoToFour": 13,
+        "fiveOrMore": 481
+      },
+      {
+        "date": "2021-02-01",
+        "total": 1398,
+        "singleFamily": 1041,
+        "twoToFour": 13,
+        "fiveOrMore": 344
+      },
+      {
+        "date": "2021-03-01",
+        "total": 1688,
+        "singleFamily": 1213,
+        "twoToFour": 22,
+        "fiveOrMore": 453
+      },
+      {
+        "date": "2021-04-01",
+        "total": 1489,
+        "singleFamily": 1060,
+        "twoToFour": 14,
+        "fiveOrMore": 415
+      },
+      {
+        "date": "2021-05-01",
+        "total": 1600,
+        "singleFamily": 1094,
+        "twoToFour": 10,
+        "fiveOrMore": 496
+      },
+      {
+        "date": "2021-06-01",
+        "total": 1664,
+        "singleFamily": 1173,
+        "twoToFour": 11,
+        "fiveOrMore": 480
+      },
+      {
+        "date": "2021-07-01",
+        "total": 1600,
+        "singleFamily": 1145,
+        "twoToFour": 11,
+        "fiveOrMore": 444
+      },
+      {
+        "date": "2021-08-01",
+        "total": 1596,
+        "singleFamily": 1107,
+        "twoToFour": 7,
+        "fiveOrMore": 482
+      },
+      {
+        "date": "2021-09-01",
+        "total": 1576,
+        "singleFamily": 1098,
+        "twoToFour": 10,
+        "fiveOrMore": 468
+      },
+      {
+        "date": "2021-10-01",
+        "total": 1587,
+        "singleFamily": 1108,
+        "twoToFour": 10,
+        "fiveOrMore": 469
+      },
+      {
+        "date": "2021-11-01",
+        "total": 1707,
+        "singleFamily": 1214,
+        "twoToFour": 18,
+        "fiveOrMore": 475
+      },
+      {
+        "date": "2021-12-01",
+        "total": 1711,
+        "singleFamily": 1169,
+        "twoToFour": 3,
+        "fiveOrMore": 539
+      },
+      {
+        "date": "2022-01-01",
+        "total": 1693,
+        "singleFamily": 1172,
+        "twoToFour": 10,
+        "fiveOrMore": 511
+      },
+      {
+        "date": "2022-02-01",
+        "total": 1730,
+        "singleFamily": 1193,
+        "twoToFour": 31,
+        "fiveOrMore": 506
+      },
+      {
+        "date": "2022-03-01",
+        "total": 1700,
+        "singleFamily": 1166,
+        "twoToFour": 15,
+        "fiveOrMore": 519
+      },
+      {
+        "date": "2022-04-01",
+        "total": 1807,
+        "singleFamily": 1202,
+        "twoToFour": 12,
+        "fiveOrMore": 593
+      },
+      {
+        "date": "2022-05-01",
+        "total": 1546,
+        "singleFamily": 1052,
+        "twoToFour": 30,
+        "fiveOrMore": 464
+      },
+      {
+        "date": "2022-06-01",
+        "total": 1556,
+        "singleFamily": 1013,
+        "twoToFour": 8,
+        "fiveOrMore": 535
+      },
+      {
+        "date": "2022-07-01",
+        "total": 1382,
+        "singleFamily": 911,
+        "twoToFour": 15,
+        "fiveOrMore": 456
+      },
+      {
+        "date": "2022-08-01",
+        "total": 1532,
+        "singleFamily": 927,
+        "twoToFour": 21,
+        "fiveOrMore": 584
+      },
+      {
+        "date": "2022-09-01",
+        "total": 1481,
+        "singleFamily": 892,
+        "twoToFour": 18,
+        "fiveOrMore": 571
+      },
+      {
+        "date": "2022-10-01",
+        "total": 1446,
+        "singleFamily": 876,
+        "twoToFour": 14,
+        "fiveOrMore": 556
+      },
+      {
+        "date": "2022-11-01",
+        "total": 1434,
+        "singleFamily": 791,
+        "twoToFour": 14,
+        "fiveOrMore": 629
+      },
+      {
+        "date": "2022-12-01",
+        "total": 1296,
+        "singleFamily": 850,
+        "twoToFour": 9,
+        "fiveOrMore": 437
+      },
+      {
+        "date": "2023-01-01",
+        "total": 1358,
+        "singleFamily": 832,
+        "twoToFour": 11,
+        "fiveOrMore": 515
+      },
+      {
+        "date": "2023-02-01",
+        "total": 1395,
+        "singleFamily": 817,
+        "twoToFour": 13,
+        "fiveOrMore": 565
+      },
+      {
+        "date": "2023-03-01",
+        "total": 1366,
+        "singleFamily": 829,
+        "twoToFour": 22,
+        "fiveOrMore": 515
+      },
+      {
+        "date": "2023-04-01",
+        "total": 1343,
+        "singleFamily": 869,
+        "twoToFour": 11,
+        "fiveOrMore": 463
+      },
+      {
+        "date": "2023-05-01",
+        "total": 1609,
+        "singleFamily": 1003,
+        "twoToFour": 9,
+        "fiveOrMore": 597
+      },
+      {
+        "date": "2023-06-01",
+        "total": 1420,
+        "singleFamily": 940,
+        "twoToFour": 15,
+        "fiveOrMore": 465
+      },
+      {
+        "date": "2023-07-01",
+        "total": 1464,
+        "singleFamily": 1007,
+        "twoToFour": 9,
+        "fiveOrMore": 448
+      },
+      {
+        "date": "2023-08-01",
+        "total": 1321,
+        "singleFamily": 959,
+        "twoToFour": 7,
+        "fiveOrMore": 355
+      },
+      {
+        "date": "2023-09-01",
+        "total": 1369,
+        "singleFamily": 978,
+        "twoToFour": 15,
+        "fiveOrMore": 376
+      },
+      {
+        "date": "2023-10-01",
+        "total": 1380,
+        "singleFamily": 987,
+        "twoToFour": 17,
+        "fiveOrMore": 376
+      },
+      {
+        "date": "2023-11-01",
+        "total": 1522,
+        "singleFamily": 1124,
+        "twoToFour": 14,
+        "fiveOrMore": 384
+      },
+      {
+        "date": "2023-12-01",
+        "total": 1504,
+        "singleFamily": 1024,
+        "twoToFour": 19,
+        "fiveOrMore": 461
+      },
+      {
+        "date": "2024-01-01",
+        "total": 1378,
+        "singleFamily": 1016,
+        "twoToFour": 18,
+        "fiveOrMore": 344
+      },
+      {
+        "date": "2024-02-01",
+        "total": 1555,
+        "singleFamily": 1140,
+        "twoToFour": 16,
+        "fiveOrMore": 399
+      },
+      {
+        "date": "2024-03-01",
+        "total": 1297,
+        "singleFamily": 1031,
+        "twoToFour": 7,
+        "fiveOrMore": 259
+      },
+      {
+        "date": "2024-04-01",
+        "total": 1379,
+        "singleFamily": 1051,
+        "twoToFour": 6,
+        "fiveOrMore": 322
+      },
+      {
+        "date": "2024-05-01",
+        "total": 1329,
+        "singleFamily": 995,
+        "twoToFour": 19,
+        "fiveOrMore": 315
+      },
+      {
+        "date": "2024-06-01",
+        "total": 1318,
+        "singleFamily": 979,
+        "twoToFour": 17,
+        "fiveOrMore": 322
+      },
+      {
+        "date": "2024-07-01",
+        "total": 1269,
+        "singleFamily": 879,
+        "twoToFour": 24,
+        "fiveOrMore": 366
+      },
+      {
+        "date": "2024-08-01",
+        "total": 1394,
+        "singleFamily": 1016,
+        "twoToFour": 34,
+        "fiveOrMore": 344
+      },
+      {
+        "date": "2024-09-01",
+        "total": 1357,
+        "singleFamily": 1052,
+        "twoToFour": 14,
+        "fiveOrMore": 291
+      },
+      {
+        "date": "2024-10-01",
+        "total": 1370,
+        "singleFamily": 958,
+        "twoToFour": 15,
+        "fiveOrMore": 397
+      },
+      {
+        "date": "2024-11-01",
+        "total": 1300,
+        "singleFamily": 1010,
+        "twoToFour": 15,
+        "fiveOrMore": 275
+      },
+      {
+        "date": "2024-12-01",
+        "total": 1494,
+        "singleFamily": 1056,
+        "twoToFour": 30,
+        "fiveOrMore": 408
+      },
+      {
+        "date": "2025-01-01",
+        "total": 1353,
+        "singleFamily": 1002,
+        "twoToFour": 23,
+        "fiveOrMore": 328
+      },
+      {
+        "date": "2025-02-01",
+        "total": 1491,
+        "singleFamily": 1094,
+        "twoToFour": 28,
+        "fiveOrMore": 369
+      },
+      {
+        "date": "2025-03-01",
+        "total": 1346,
+        "singleFamily": 939,
+        "twoToFour": 14,
+        "fiveOrMore": 393
+      },
+      {
+        "date": "2025-04-01",
+        "total": 1400,
+        "singleFamily": 953,
+        "twoToFour": 18,
+        "fiveOrMore": 429
+      },
+      {
+        "date": "2025-05-01",
+        "total": 1289,
+        "singleFamily": 945,
+        "twoToFour": 20,
+        "fiveOrMore": 324
+      },
+      {
+        "date": "2025-06-01",
+        "total": 1379,
+        "singleFamily": 925,
+        "twoToFour": 24,
+        "fiveOrMore": 430
+      },
+      {
+        "date": "2025-07-01",
+        "total": 1432,
+        "singleFamily": 959,
+        "twoToFour": 20,
+        "fiveOrMore": 453
+      },
+      {
+        "date": "2025-08-01",
+        "total": 1291,
+        "singleFamily": 873,
+        "twoToFour": 11,
+        "fiveOrMore": 407
+      },
+      {
+        "date": "2025-09-01",
+        "total": 1319,
+        "singleFamily": 837,
+        "twoToFour": 11,
+        "fiveOrMore": 471
+      },
+      {
+        "date": "2025-10-01",
+        "total": 1273,
+        "singleFamily": 893,
+        "twoToFour": 25,
+        "fiveOrMore": 355
+      },
+      {
+        "date": "2025-11-01",
+        "total": 1319,
+        "singleFamily": 929,
+        "twoToFour": 15,
+        "fiveOrMore": 375
+      },
+      {
+        "date": "2025-12-01",
+        "total": 1378,
+        "singleFamily": 946,
+        "twoToFour": 22,
+        "fiveOrMore": 410
+      },
+      {
+        "date": "2026-01-01",
+        "total": 1385,
+        "singleFamily": 894,
+        "twoToFour": 22,
+        "fiveOrMore": 469
+      },
+      {
+        "date": "2026-02-01",
+        "total": 1346,
+        "singleFamily": 923,
+        "twoToFour": 9,
+        "fiveOrMore": 414
+      },
+      {
+        "date": "2026-03-01",
+        "total": 1522,
+        "singleFamily": 1017,
+        "twoToFour": 24,
+        "fiveOrMore": 481
+      },
+      {
+        "date": "2026-04-01",
+        "total": 1414,
+        "singleFamily": 914,
+        "twoToFour": 6,
+        "fiveOrMore": 494
+      },
+      {
+        "date": "2026-05-01",
+        "total": 1199,
+        "singleFamily": 897,
+        "twoToFour": 11,
+        "fiveOrMore": 291
+      },
+      {
+        "date": "2026-06-01",
+        "total": 1427,
+        "singleFamily": 895,
+        "twoToFour": 19,
+        "fiveOrMore": 513
+      }
+    ],
+    "underConstruction": [
+      {
+        "date": "2021-01-01",
+        "total": 1278,
+        "singleFamily": 611,
+        "twoToFour": 11,
+        "fiveOrMore": 656
+      },
+      {
+        "date": "2021-02-01",
+        "total": 1285,
+        "singleFamily": 618,
+        "twoToFour": 11,
+        "fiveOrMore": 656
+      },
+      {
+        "date": "2021-03-01",
+        "total": 1304,
+        "singleFamily": 634,
+        "twoToFour": 12,
+        "fiveOrMore": 658
+      },
+      {
+        "date": "2021-04-01",
+        "total": 1321,
+        "singleFamily": 644,
+        "twoToFour": 13,
+        "fiveOrMore": 664
+      },
+      {
+        "date": "2021-05-01",
+        "total": 1339,
+        "singleFamily": 656,
+        "twoToFour": 13,
+        "fiveOrMore": 670
+      },
+      {
+        "date": "2021-06-01",
+        "total": 1372,
+        "singleFamily": 679,
+        "twoToFour": 13,
+        "fiveOrMore": 680
+      },
+      {
+        "date": "2021-07-01",
+        "total": 1387,
+        "singleFamily": 697,
+        "twoToFour": 13,
+        "fiveOrMore": 677
+      },
+      {
+        "date": "2021-08-01",
+        "total": 1413,
+        "singleFamily": 714,
+        "twoToFour": 13,
+        "fiveOrMore": 686
+      },
+      {
+        "date": "2021-09-01",
+        "total": 1441,
+        "singleFamily": 725,
+        "twoToFour": 13,
+        "fiveOrMore": 703
+      },
+      {
+        "date": "2021-10-01",
+        "total": 1466,
+        "singleFamily": 736,
+        "twoToFour": 12,
+        "fiveOrMore": 718
+      },
+      {
+        "date": "2021-11-01",
+        "total": 1495,
+        "singleFamily": 758,
+        "twoToFour": 13,
+        "fiveOrMore": 724
+      },
+      {
+        "date": "2021-12-01",
+        "total": 1524,
+        "singleFamily": 769,
+        "twoToFour": 13,
+        "fiveOrMore": 742
+      },
+      {
+        "date": "2022-01-01",
+        "total": 1547,
+        "singleFamily": 783,
+        "twoToFour": 13,
+        "fiveOrMore": 751
+      },
+      {
+        "date": "2022-02-01",
+        "total": 1580,
+        "singleFamily": 796,
+        "twoToFour": 15,
+        "fiveOrMore": 769
+      },
+      {
+        "date": "2022-03-01",
+        "total": 1629,
+        "singleFamily": 811,
+        "twoToFour": 14,
+        "fiveOrMore": 804
+      },
+      {
+        "date": "2022-04-01",
+        "total": 1668,
+        "singleFamily": 827,
+        "twoToFour": 13,
+        "fiveOrMore": 828
+      },
+      {
+        "date": "2022-05-01",
+        "total": 1681,
+        "singleFamily": 827,
+        "twoToFour": 15,
+        "fiveOrMore": 839
+      },
+      {
+        "date": "2022-06-01",
+        "total": 1687,
+        "singleFamily": 827,
+        "twoToFour": 15,
+        "fiveOrMore": 845
+      },
+      {
+        "date": "2022-07-01",
+        "total": 1683,
+        "singleFamily": 819,
+        "twoToFour": 16,
+        "fiveOrMore": 848
+      },
+      {
+        "date": "2022-08-01",
+        "total": 1700,
+        "singleFamily": 812,
+        "twoToFour": 17,
+        "fiveOrMore": 871
+      },
+      {
+        "date": "2022-09-01",
+        "total": 1704,
+        "singleFamily": 797,
+        "twoToFour": 18,
+        "fiveOrMore": 889
+      },
+      {
+        "date": "2022-10-01",
+        "total": 1714,
+        "singleFamily": 789,
+        "twoToFour": 17,
+        "fiveOrMore": 908
+      },
+      {
+        "date": "2022-11-01",
+        "total": 1700,
+        "singleFamily": 766,
+        "twoToFour": 17,
+        "fiveOrMore": 917
+      },
+      {
+        "date": "2022-12-01",
+        "total": 1694,
+        "singleFamily": 755,
+        "twoToFour": 16,
+        "fiveOrMore": 923
+      },
+      {
+        "date": "2023-01-01",
+        "total": 1691,
+        "singleFamily": 739,
+        "twoToFour": 16,
+        "fiveOrMore": 936
+      },
+      {
+        "date": "2023-02-01",
+        "total": 1683,
+        "singleFamily": 722,
+        "twoToFour": 16,
+        "fiveOrMore": 945
+      },
+      {
+        "date": "2023-03-01",
+        "total": 1678,
+        "singleFamily": 705,
+        "twoToFour": 17,
+        "fiveOrMore": 956
+      },
+      {
+        "date": "2023-04-01",
+        "total": 1680,
+        "singleFamily": 695,
+        "twoToFour": 17,
+        "fiveOrMore": 968
+      },
+      {
+        "date": "2023-05-01",
+        "total": 1690,
+        "singleFamily": 690,
+        "twoToFour": 16,
+        "fiveOrMore": 984
+      },
+      {
+        "date": "2023-06-01",
+        "total": 1691,
+        "singleFamily": 681,
+        "twoToFour": 17,
+        "fiveOrMore": 993
+      },
+      {
+        "date": "2023-07-01",
+        "total": 1700,
+        "singleFamily": 682,
+        "twoToFour": 17,
+        "fiveOrMore": 1001
+      },
+      {
+        "date": "2023-08-01",
+        "total": 1695,
+        "singleFamily": 681,
+        "twoToFour": 17,
+        "fiveOrMore": 997
+      },
+      {
+        "date": "2023-09-01",
+        "total": 1681,
+        "singleFamily": 675,
+        "twoToFour": 17,
+        "fiveOrMore": 989
+      },
+      {
+        "date": "2023-10-01",
+        "total": 1682,
+        "singleFamily": 672,
+        "twoToFour": 17,
+        "fiveOrMore": 993
+      },
+      {
+        "date": "2023-11-01",
+        "total": 1691,
+        "singleFamily": 685,
+        "twoToFour": 17,
+        "fiveOrMore": 989
+      },
+      {
+        "date": "2023-12-01",
+        "total": 1681,
+        "singleFamily": 677,
+        "twoToFour": 17,
+        "fiveOrMore": 987
+      },
+      {
+        "date": "2024-01-01",
+        "total": 1670,
+        "singleFamily": 680,
+        "twoToFour": 17,
+        "fiveOrMore": 973
+      },
+      {
+        "date": "2024-02-01",
+        "total": 1658,
+        "singleFamily": 683,
+        "twoToFour": 17,
+        "fiveOrMore": 958
+      },
+      {
+        "date": "2024-03-01",
+        "total": 1639,
+        "singleFamily": 690,
+        "twoToFour": 16,
+        "fiveOrMore": 933
+      },
+      {
+        "date": "2024-04-01",
+        "total": 1609,
+        "singleFamily": 677,
+        "twoToFour": 15,
+        "fiveOrMore": 917
+      },
+      {
+        "date": "2024-05-01",
+        "total": 1591,
+        "singleFamily": 672,
+        "twoToFour": 15,
+        "fiveOrMore": 904
+      },
+      {
+        "date": "2024-06-01",
+        "total": 1571,
+        "singleFamily": 659,
+        "twoToFour": 15,
+        "fiveOrMore": 897
+      },
+      {
+        "date": "2024-07-01",
+        "total": 1549,
+        "singleFamily": 643,
+        "twoToFour": 16,
+        "fiveOrMore": 890
+      },
+      {
+        "date": "2024-08-01",
+        "total": 1520,
+        "singleFamily": 642,
+        "twoToFour": 17,
+        "fiveOrMore": 861
+      },
+      {
+        "date": "2024-09-01",
+        "total": 1489,
+        "singleFamily": 645,
+        "twoToFour": 18,
+        "fiveOrMore": 826
+      },
+      {
+        "date": "2024-10-01",
+        "total": 1464,
+        "singleFamily": 644,
+        "twoToFour": 17,
+        "fiveOrMore": 803
+      },
+      {
+        "date": "2024-11-01",
+        "total": 1436,
+        "singleFamily": 639,
+        "twoToFour": 17,
+        "fiveOrMore": 780
+      },
+      {
+        "date": "2024-12-01",
+        "total": 1430,
+        "singleFamily": 644,
+        "twoToFour": 17,
+        "fiveOrMore": 769
+      },
+      {
+        "date": "2025-01-01",
+        "total": 1407,
+        "singleFamily": 641,
+        "twoToFour": 18,
+        "fiveOrMore": 748
+      },
+      {
+        "date": "2025-02-01",
+        "total": 1409,
+        "singleFamily": 645,
+        "twoToFour": 19,
+        "fiveOrMore": 745
+      },
+      {
+        "date": "2025-03-01",
+        "total": 1400,
+        "singleFamily": 632,
+        "twoToFour": 19,
+        "fiveOrMore": 749
+      },
+      {
+        "date": "2025-04-01",
+        "total": 1394,
+        "singleFamily": 632,
+        "twoToFour": 19,
+        "fiveOrMore": 743
+      },
+      {
+        "date": "2025-05-01",
+        "total": 1363,
+        "singleFamily": 624,
+        "twoToFour": 19,
+        "fiveOrMore": 720
+      },
+      {
+        "date": "2025-06-01",
+        "total": 1348,
+        "singleFamily": 625,
+        "twoToFour": 19,
+        "fiveOrMore": 704
+      },
+      {
+        "date": "2025-07-01",
+        "total": 1342,
+        "singleFamily": 624,
+        "twoToFour": 21,
+        "fiveOrMore": 697
+      },
+      {
+        "date": "2025-08-01",
+        "total": 1313,
+        "singleFamily": 610,
+        "twoToFour": 20,
+        "fiveOrMore": 683
+      },
+      {
+        "date": "2025-09-01",
+        "total": 1323,
+        "singleFamily": 604,
+        "twoToFour": 20,
+        "fiveOrMore": 699
+      },
+      {
+        "date": "2025-10-01",
+        "total": 1312,
+        "singleFamily": 596,
+        "twoToFour": 20,
+        "fiveOrMore": 696
+      },
+      {
+        "date": "2025-11-01",
+        "total": 1301,
+        "singleFamily": 589,
+        "twoToFour": 19,
+        "fiveOrMore": 693
+      },
+      {
+        "date": "2025-12-01",
+        "total": 1281,
+        "singleFamily": 584,
+        "twoToFour": 18,
+        "fiveOrMore": 679
+      },
+      {
+        "date": "2026-01-01",
+        "total": 1270,
+        "singleFamily": 578,
+        "twoToFour": 18,
+        "fiveOrMore": 674
+      },
+      {
+        "date": "2026-02-01",
+        "total": 1270,
+        "singleFamily": 579,
+        "twoToFour": 17,
+        "fiveOrMore": 674
+      },
+      {
+        "date": "2026-03-01",
+        "total": 1262,
+        "singleFamily": 591,
+        "twoToFour": 17,
+        "fiveOrMore": 654
+      },
+      {
+        "date": "2026-04-01",
+        "total": 1268,
+        "singleFamily": 591,
+        "twoToFour": 17,
+        "fiveOrMore": 660
+      },
+      {
+        "date": "2026-05-01",
+        "total": 1266,
+        "singleFamily": 589,
+        "twoToFour": 17,
+        "fiveOrMore": 660
+      },
+      {
+        "date": "2026-06-01",
+        "total": 1264,
+        "singleFamily": 582,
+        "twoToFour": 17,
+        "fiveOrMore": 665
+      }
+    ],
+    "completions": [
+      {
+        "date": "2021-01-01",
+        "total": 1364,
+        "singleFamily": 1049,
+        "twoToFour": 5,
+        "fiveOrMore": 310
+      },
+      {
+        "date": "2021-02-01",
+        "total": 1293,
+        "singleFamily": 968,
+        "twoToFour": 9,
+        "fiveOrMore": 316
+      },
+      {
+        "date": "2021-03-01",
+        "total": 1448,
+        "singleFamily": 1001,
+        "twoToFour": 6,
+        "fiveOrMore": 441
+      },
+      {
+        "date": "2021-04-01",
+        "total": 1398,
+        "singleFamily": 973,
+        "twoToFour": 2,
+        "fiveOrMore": 423
+      },
+      {
+        "date": "2021-05-01",
+        "total": 1320,
+        "singleFamily": 960,
+        "twoToFour": 5,
+        "fiveOrMore": 355
+      },
+      {
+        "date": "2021-06-01",
+        "total": 1294,
+        "singleFamily": 916,
+        "twoToFour": 7,
+        "fiveOrMore": 371
+      },
+      {
+        "date": "2021-07-01",
+        "total": 1358,
+        "singleFamily": 938,
+        "twoToFour": 13,
+        "fiveOrMore": 407
+      },
+      {
+        "date": "2021-08-01",
+        "total": 1329,
+        "singleFamily": 964,
+        "twoToFour": 6,
+        "fiveOrMore": 359
+      },
+      {
+        "date": "2021-09-01",
+        "total": 1243,
+        "singleFamily": 942,
+        "twoToFour": 8,
+        "fiveOrMore": 293
+      },
+      {
+        "date": "2021-10-01",
+        "total": 1292,
+        "singleFamily": 962,
+        "twoToFour": 15,
+        "fiveOrMore": 315
+      },
+      {
+        "date": "2021-11-01",
+        "total": 1412,
+        "singleFamily": 955,
+        "twoToFour": 10,
+        "fiveOrMore": 447
+      },
+      {
+        "date": "2021-12-01",
+        "total": 1334,
+        "singleFamily": 1016,
+        "twoToFour": 6,
+        "fiveOrMore": 312
+      },
+      {
+        "date": "2022-01-01",
+        "total": 1271,
+        "singleFamily": 960,
+        "twoToFour": 13,
+        "fiveOrMore": 298
+      },
+      {
+        "date": "2022-02-01",
+        "total": 1336,
+        "singleFamily": 1040,
+        "twoToFour": 8,
+        "fiveOrMore": 288
+      },
+      {
+        "date": "2022-03-01",
+        "total": 1347,
+        "singleFamily": 1044,
+        "twoToFour": 11,
+        "fiveOrMore": 292
+      },
+      {
+        "date": "2022-04-01",
+        "total": 1327,
+        "singleFamily": 997,
+        "twoToFour": 15,
+        "fiveOrMore": 315
+      },
+      {
+        "date": "2022-05-01",
+        "total": 1427,
+        "singleFamily": 1049,
+        "twoToFour": 5,
+        "fiveOrMore": 373
+      },
+      {
+        "date": "2022-06-01",
+        "total": 1377,
+        "singleFamily": 996,
+        "twoToFour": 6,
+        "fiveOrMore": 375
+      },
+      {
+        "date": "2022-07-01",
+        "total": 1407,
+        "singleFamily": 997,
+        "twoToFour": 5,
+        "fiveOrMore": 405
+      },
+      {
+        "date": "2022-08-01",
+        "total": 1365,
+        "singleFamily": 1024,
+        "twoToFour": 7,
+        "fiveOrMore": 334
+      },
+      {
+        "date": "2022-09-01",
+        "total": 1457,
+        "singleFamily": 1057,
+        "twoToFour": 3,
+        "fiveOrMore": 397
+      },
+      {
+        "date": "2022-10-01",
+        "total": 1387,
+        "singleFamily": 989,
+        "twoToFour": 18,
+        "fiveOrMore": 380
+      },
+      {
+        "date": "2022-11-01",
+        "total": 1558,
+        "singleFamily": 1099,
+        "twoToFour": 10,
+        "fiveOrMore": 449
+      },
+      {
+        "date": "2022-12-01",
+        "total": 1390,
+        "singleFamily": 997,
+        "twoToFour": 14,
+        "fiveOrMore": 379
+      },
+      {
+        "date": "2023-01-01",
+        "total": 1395,
+        "singleFamily": 1054,
+        "twoToFour": 8,
+        "fiveOrMore": 333
+      },
+      {
+        "date": "2023-02-01",
+        "total": 1527,
+        "singleFamily": 1014,
+        "twoToFour": 5,
+        "fiveOrMore": 508
+      },
+      {
+        "date": "2023-03-01",
+        "total": 1513,
+        "singleFamily": 1033,
+        "twoToFour": 12,
+        "fiveOrMore": 468
+      },
+      {
+        "date": "2023-04-01",
+        "total": 1390,
+        "singleFamily": 962,
+        "twoToFour": 17,
+        "fiveOrMore": 411
+      },
+      {
+        "date": "2023-05-01",
+        "total": 1506,
+        "singleFamily": 1000,
+        "twoToFour": 18,
+        "fiveOrMore": 488
+      },
+      {
+        "date": "2023-06-01",
+        "total": 1477,
+        "singleFamily": 999,
+        "twoToFour": 7,
+        "fiveOrMore": 471
+      },
+      {
+        "date": "2023-07-01",
+        "total": 1339,
+        "singleFamily": 1000,
+        "twoToFour": 9,
+        "fiveOrMore": 330
+      },
+      {
+        "date": "2023-08-01",
+        "total": 1360,
+        "singleFamily": 941,
+        "twoToFour": 11,
+        "fiveOrMore": 408
+      },
+      {
+        "date": "2023-09-01",
+        "total": 1488,
+        "singleFamily": 1003,
+        "twoToFour": 9,
+        "fiveOrMore": 476
+      },
+      {
+        "date": "2023-10-01",
+        "total": 1398,
+        "singleFamily": 1002,
+        "twoToFour": 13,
+        "fiveOrMore": 383
+      },
+      {
+        "date": "2023-11-01",
+        "total": 1453,
+        "singleFamily": 945,
+        "twoToFour": 17,
+        "fiveOrMore": 491
+      },
+      {
+        "date": "2023-12-01",
+        "total": 1555,
+        "singleFamily": 1043,
+        "twoToFour": 11,
+        "fiveOrMore": 501
+      },
+      {
+        "date": "2024-01-01",
+        "total": 1505,
+        "singleFamily": 908,
+        "twoToFour": 19,
+        "fiveOrMore": 578
+      },
+      {
+        "date": "2024-02-01",
+        "total": 1692,
+        "singleFamily": 1064,
+        "twoToFour": 13,
+        "fiveOrMore": 615
+      },
+      {
+        "date": "2024-03-01",
+        "total": 1495,
+        "singleFamily": 960,
+        "twoToFour": 26,
+        "fiveOrMore": 509
+      },
+      {
+        "date": "2024-04-01",
+        "total": 1655,
+        "singleFamily": 1132,
+        "twoToFour": 15,
+        "fiveOrMore": 508
+      },
+      {
+        "date": "2024-05-01",
+        "total": 1548,
+        "singleFamily": 1011,
+        "twoToFour": 13,
+        "fiveOrMore": 524
+      },
+      {
+        "date": "2024-06-01",
+        "total": 1719,
+        "singleFamily": 1085,
+        "twoToFour": 20,
+        "fiveOrMore": 614
+      },
+      {
+        "date": "2024-07-01",
+        "total": 1654,
+        "singleFamily": 1084,
+        "twoToFour": 6,
+        "fiveOrMore": 564
+      },
+      {
+        "date": "2024-08-01",
+        "total": 1733,
+        "singleFamily": 1010,
+        "twoToFour": 18,
+        "fiveOrMore": 705
+      },
+      {
+        "date": "2024-09-01",
+        "total": 1695,
+        "singleFamily": 1020,
+        "twoToFour": 12,
+        "fiveOrMore": 663
+      },
+      {
+        "date": "2024-10-01",
+        "total": 1653,
+        "singleFamily": 978,
+        "twoToFour": 16,
+        "fiveOrMore": 659
+      },
+      {
+        "date": "2024-11-01",
+        "total": 1602,
+        "singleFamily": 1004,
+        "twoToFour": 18,
+        "fiveOrMore": 580
+      },
+      {
+        "date": "2024-12-01",
+        "total": 1526,
+        "singleFamily": 937,
+        "twoToFour": 25,
+        "fiveOrMore": 564
+      },
+      {
+        "date": "2025-01-01",
+        "total": 1648,
+        "singleFamily": 1005,
+        "twoToFour": 18,
+        "fiveOrMore": 625
+      },
+      {
+        "date": "2025-02-01",
+        "total": 1565,
+        "singleFamily": 1033,
+        "twoToFour": 13,
+        "fiveOrMore": 519
+      },
+      {
+        "date": "2025-03-01",
+        "total": 1584,
+        "singleFamily": 1080,
+        "twoToFour": 20,
+        "fiveOrMore": 484
+      },
+      {
+        "date": "2025-04-01",
+        "total": 1479,
+        "singleFamily": 971,
+        "twoToFour": 11,
+        "fiveOrMore": 497
+      },
+      {
+        "date": "2025-05-01",
+        "total": 1530,
+        "singleFamily": 1048,
+        "twoToFour": 17,
+        "fiveOrMore": 465
+      },
+      {
+        "date": "2025-06-01",
+        "total": 1372,
+        "singleFamily": 914,
+        "twoToFour": 23,
+        "fiveOrMore": 435
+      },
+      {
+        "date": "2025-07-01",
+        "total": 1456,
+        "singleFamily": 1007,
+        "twoToFour": 7,
+        "fiveOrMore": 442
+      },
+      {
+        "date": "2025-08-01",
+        "total": 1548,
+        "singleFamily": 1059,
+        "twoToFour": 19,
+        "fiveOrMore": 470
+      },
+      {
+        "date": "2025-09-01",
+        "total": 1386,
+        "singleFamily": 944,
+        "twoToFour": 16,
+        "fiveOrMore": 426
+      },
+      {
+        "date": "2025-10-01",
+        "total": 1419,
+        "singleFamily": 1008,
+        "twoToFour": 13,
+        "fiveOrMore": 398
+      },
+      {
+        "date": "2025-11-01",
+        "total": 1443,
+        "singleFamily": 1007,
+        "twoToFour": 15,
+        "fiveOrMore": 421
+      },
+      {
+        "date": "2025-12-01",
+        "total": 1463,
+        "singleFamily": 973,
+        "twoToFour": 20,
+        "fiveOrMore": 470
+      },
+      {
+        "date": "2026-01-01",
+        "total": 1439,
+        "singleFamily": 929,
+        "twoToFour": 25,
+        "fiveOrMore": 485
+      },
+      {
+        "date": "2026-02-01",
+        "total": 1324,
+        "singleFamily": 924,
+        "twoToFour": 14,
+        "fiveOrMore": 386
+      },
+      {
+        "date": "2026-03-01",
+        "total": 1373,
+        "singleFamily": 901,
+        "twoToFour": 17,
+        "fiveOrMore": 455
+      },
+      {
+        "date": "2026-04-01",
+        "total": 1454,
+        "singleFamily": 899,
+        "twoToFour": 15,
+        "fiveOrMore": 540
+      },
+      {
+        "date": "2026-05-01",
+        "total": 1347,
+        "singleFamily": 904,
+        "twoToFour": 15,
+        "fiveOrMore": 428
+      },
+      {
+        "date": "2026-06-01",
+        "total": 1392,
+        "singleFamily": 964,
+        "twoToFour": 15,
+        "fiveOrMore": 413
+      }
+    ]
+  }
+}

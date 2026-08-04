@@ -79,6 +79,7 @@ import {
   deriveHousingStartsCompactData,
   formatHousingStartsHistoricalPosition,
 } from '../utils/housingStartsData'
+import { HousingConstructionDetails } from './HousingConstructionDetails'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -782,6 +783,8 @@ export function EconomicSeriesSummary({
           </Suspense>
         </section>
       )}
+
+      {series.slug === 'housing-starts' && <HousingConstructionDetails />}
 
       <div className="series-explanations">
         <section>

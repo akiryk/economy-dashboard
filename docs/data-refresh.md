@@ -156,6 +156,29 @@ Every current configuration uses `historyPolicy: { type: "full" }`. The client t
 
 The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, PCE, unemployment, prime-age employment, LMCI, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, personal saving, household debt service, housing starts, population, manufacturing output, manufacturing employment, real business investment, and industrial capacity utilization. Domain transformation metadata separately records provider values and local calculations.
 
+### Housing construction detail
+
+The committed `housing-construction-details.json` dataset extends the national
+housing-start card with New Residential Construction series from Census and HUD,
+distributed through FRED. Regional starts use HOUSTNE, HOUSTMW, HOUSTS, and
+HOUSTW (monthly, thousands of housing units, seasonally adjusted annual rate,
+available since 1959). Their population denominators are CNERPOP, CMWRPOP,
+CSOUPOP, and CWSTPOP (annual July 1 Census estimates, thousands of residents,
+not seasonally adjusted). A calendar year's annual population estimate is used
+for each month in that calendar year; no value is extrapolated into a year for
+which Census has not published an estimate.
+
+The national pipeline uses PERMIT/PERMIT1/PERMIT24/PERMIT5, HOUST/HOUST1F/
+HOUST2F/HOUST5F, UNDCONTSA/UNDCON1USA/UNDCON24USA/UNDCON5MUSA, and COMPUTSA/
+COMPU1USA/COMPU24USA/COMPU5MUSA. These are housing-unit series, never structure
+counts. Permits, starts, and completions are monthly seasonally adjusted annual
+rates in thousands; under-construction observations are a seasonally adjusted
+inventory in thousands and are therefore shown separately without a common
+rate axis. Census revises preliminary observations in later releases. HOUST5F
+includes 2–4-unit buildings before August 1963, but the committed detail window
+starts in 2021 and is unaffected. The February 2005 permit-universe expansion
+is outside the displayed window but remains a documented source break.
+
 ## BEA saving-rate distribution
 
 The annual income-decile dataset comes from BEA and BLS's ongoing **Distribution

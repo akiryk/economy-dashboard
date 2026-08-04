@@ -1366,6 +1366,11 @@ describe('DashboardPage economic series', () => {
     await user.click(within(cards[1]!).getByRole('button', { name: /More/ }))
     expect(within(cards[1]!).getByText('Housing starts per 1,000 residents')).toBeVisible()
     expect(within(cards[1]!).getByText(/annualized pace is not the literal number/)).toBeVisible()
+    expect(within(cards[1]!).getByRole('heading', { name: 'Where is housing being started?' })).toBeVisible()
+    expect(within(cards[1]!).getByRole('heading', { name: 'What is moving through the construction pipeline?' })).toBeVisible()
+    expect(within(cards[1]!).getByRole('table', { name: /Latest shared regional housing-start comparison/ })).toHaveTextContent('Northeast')
+    expect(within(cards[1]!).getByRole('table', { name: /Pipeline by housing-unit category/ })).toHaveTextContent('Under construction')
+    expect(within(cards[1]!).getByText(/Values are housing units, not structures/)).toBeVisible()
     await user.click(within(cards[1]!).getByRole('button', { name: 'Maximum' }))
     await waitFor(() => {
       const calls = chartPropsSpy.mock.calls.map((call) => call[0] as {
