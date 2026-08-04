@@ -8,7 +8,7 @@ The current product is intentionally broad and nonpartisan. It does not forecast
 
 The dashboard contains 26 visible cards in nine sections. Most cards use nonsmoothed time-series line charts. Relationship cards use two aligned lines; the manufacturing comparison normalizes two differently scaled series to a common selected-range baseline.
 
-The `/secondary` route retains indicators that are not currently part of the main dashboard for possible future review. It contains the productivity-level card, the household-resources card, and the household debt-burden card, “How much of household income is going toward required debt payments?” The primary navigation links to this page as Secondary indicators.
+The `/secondary` route retains indicators that are not currently part of the main dashboard for possible future review. It contains the productivity-level card, household-resources card, household debt-burden card, and the manufacturing output-versus-employment relationship card. The primary navigation links to this page as Secondary indicators.
 
 The non-default `/briefing` preview currently adds one compact Labor tile. Its activity bar and momentum arrow show full-history percentile positions of the Kansas City Fed Labor Market Conditions Indicators; raw LMCI readings and the existing unemployment, payroll, prime-age employment, and claims measures appear only under More. The supporting measures cannot override the LMCI headline tiers.
 
@@ -58,10 +58,16 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 
 | Card | Displayed measure and chart | Why it is here |
 |---|---|---|
-| Are manufacturing output and jobs moving together? | Monthly real manufacturing output and manufacturing payroll employment, each normalized to 100 at the selected range’s first shared observation. | Makes their relative paths comparable without mixing native units or implying that divergence has one cause. |
+| Are U.S. manufacturers producing more goods? | Year-over-year percentage change in a complete trailing three-month average of the Federal Reserve real manufacturing-production index, with a five-year compact line, zero reference, and trailing 25-year historical bands. | “Producing more goods” means the inflation-adjusted volume of manufacturing production is higher than the same three-month period one year earlier. It does not mean employment, productivity, nominal sales, prices, profits, capacity use, or manufacturing’s economic share increased. **More** keeps raw index and derived growth histories separate. |
 | Are businesses increasing investment in productive capacity? | Quarterly real private nonresidential fixed investment, year-over-year growth. | Tracks inflation-adjusted spending on structures, equipment, and intellectual property used in production. |
 | Are corporate profits growing relative to the economy? | Quarterly adjusted after-tax corporate profits divided by nominal GDP. | Scales national-account profits to the economy for historical comparison instead of showing a raw dollar total. It is an economy-wide profit share, not an S&P 500 or company revenue margin. |
 | How fully is industrial capacity being used? | Monthly industrial capacity utilization. | Shows operating intensity and spare capacity across manufacturing, mining, and utilities. |
+
+#### Secondary business and manufacturing research
+
+| Card | Displayed measure and chart | Why it is secondary |
+|---|---|---|
+| Are manufacturing output and jobs moving together? | Monthly real manufacturing output and manufacturing payroll employment, each normalized to 100 at the selected range’s first shared observation. | Preserves the prior relationship research view without mixing employment into the main output-direction question. Its indexing, range controls, interactions, sources, explanations, and accessibility behavior remain unchanged. |
 
 ### Financial conditions
 

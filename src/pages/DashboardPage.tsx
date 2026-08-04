@@ -33,7 +33,6 @@ const headlineMomentumSupportingSlugs = [
   'core-cpi-inflation',
   'core-cpi-three-month-annualized',
 ] as const
-const manufacturingEmploymentSupportingSlugs = ['manufacturing-employment'] as const
 const treasuryYieldSupportingSlugs = ['ten-year-treasury-yield'] as const
 const housingStartsSupportingSlugs = ['us-population-monthly'] as const
 
@@ -230,10 +229,9 @@ export function DashboardPage() {
         description="Business and manufacturing indicators show how production, employment, capital spending, and industrial operating intensity are changing. These measures can diverge because they describe different parts and time horizons of business activity."
       >
         <EconomicSeriesCard
+          collapsible
           slug="manufacturing-output"
-          supportingSlugs={manufacturingEmploymentSupportingSlugs}
-          label="manufacturing output versus employment"
-          variant="manufacturing-comparison"
+          label="manufacturing production growth"
           onSeriesLoaded={handleSeriesLoaded}
         />
         <EconomicSeriesCard

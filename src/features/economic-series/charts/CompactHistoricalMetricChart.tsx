@@ -22,6 +22,8 @@ interface CompactHistoricalMetricChartProps {
   visuallyHideSummary?: boolean
   accessibleSummaryOverride?: string
   pairedObservations?: readonly EconomicObservation[]
+  pairedObservationLabel?: string
+  pairedValueFormatter?: (value: number | null) => string
 }
 
 export function CompactHistoricalMetricChart({
@@ -31,6 +33,8 @@ export function CompactHistoricalMetricChart({
   visuallyHideSummary = false,
   accessibleSummaryOverride,
   pairedObservations = [],
+  pairedObservationLabel = 'Three-month-average annualized starts',
+  pairedValueFormatter = formatAnnualizedHousingUnits,
 }: CompactHistoricalMetricChartProps) {
   const ready = model.status === 'ready' ? model : null
   const accessibleSummary = accessibleSummaryOverride ?? (ready
@@ -99,7 +103,7 @@ export function CompactHistoricalMetricChart({
                     : formatSignedPercentagePoints(observation.value - threshold.value)}</span>
                 </>}
                 {pairedObservations.length > 0 && <>
-                  <span>Three-month-average annualized starts: {formatAnnualizedHousingUnits(pairedValuesByDate.get(observation.date) ?? null)}</span>
+                  <span>{pairedObservationLabel}: {pairedValueFormatter(pairedValuesByDate.get(observation.date) ?? null)}</span>
                   <span>Historical position: {(() => {
                     if (!ready) return 'unavailable'
                     const position = classifyHistoricalBandPosition(observation.value, ready)

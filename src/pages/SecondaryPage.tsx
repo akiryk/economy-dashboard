@@ -4,6 +4,7 @@ import { EconomicSeriesCard } from '../features/economic-series/components/Econo
 const householdSpendingSupportingSlugs = [
   'quarterly-real-consumer-spending-per-capita-growth',
 ] as const
+const manufacturingEmploymentSupportingSlugs = ['manufacturing-employment'] as const
 
 export function SecondaryPage() {
   return (
@@ -25,6 +26,19 @@ export function SecondaryPage() {
           slug="labor-productivity-level"
           label="labor productivity level"
           variant="productivity-level"
+        />
+      </EconomicSection>
+
+      <EconomicSection
+        id="secondary-business-manufacturing"
+        title="Business and manufacturing"
+        description="Additional production and employment relationships retained for research."
+      >
+        <EconomicSeriesCard
+          slug="manufacturing-output"
+          supportingSlugs={manufacturingEmploymentSupportingSlugs}
+          label="manufacturing output versus employment"
+          variant="manufacturing-comparison"
         />
       </EconomicSection>
 

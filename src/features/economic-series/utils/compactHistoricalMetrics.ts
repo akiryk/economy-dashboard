@@ -2,6 +2,7 @@ import type { EconomicFrequency } from '../models/economicSeries'
 import {
   formatObservationPeriod,
   formatPercentage,
+  formatSignedPercentage,
   formatSignedThousands,
 } from './economicSeries'
 import {
@@ -137,6 +138,15 @@ CompactHistoricalMetricDefinition['positionDescriptions'] = {
   insideInnerBand: 'typical by historical standards',
   betweenInnerAndOuterHigh: 'high by historical standards',
   aboveOuterBand: 'very high by historical standards',
+}
+
+const manufacturingOutputPositionDescriptions:
+CompactHistoricalMetricDefinition['positionDescriptions'] = {
+  belowOuterBand: 'very weak by the standards of the past 25 years',
+  betweenOuterAndInnerLow: 'weak by the standards of the past 25 years',
+  insideInnerBand: 'typical by the standards of the past 25 years',
+  betweenInnerAndOuterHigh: 'strong by the standards of the past 25 years',
+  aboveOuterBand: 'very strong by the standards of the past 25 years',
 }
 
 export const realGdpCompactDefinition: CompactHistoricalMetricDefinition = {
@@ -395,6 +405,30 @@ CompactHistoricalMetricDefinition = {
   positionDescriptions: housingStartsPositionDescriptions,
 }
 
+export const manufacturingOutputCompactDefinition:
+CompactHistoricalMetricDefinition = {
+  seriesLabel: 'Three-month-average manufacturing production growth',
+  frequency: 'monthly',
+  historicalBands: {
+    recentObservationCount: 61,
+    comparisonWindow: { kind: 'trailing-years', years: 25 },
+    innerPercentiles: [25, 75],
+    outerPercentiles: [10, 90],
+    minimumFiniteObservations: 60,
+    latestObservationPolicy: 'latest-finite',
+  },
+  showZeroLine: true,
+  showLatestMarker: true,
+  interactiveDetails: true,
+  valueFormatter: formatSignedPercentage,
+  helpText: {
+    heading: 'Inflation-adjusted manufacturing production',
+    description: 'The line estimates the inflation-adjusted volume of goods produced across U.S. manufacturing industries. Because vehicles, machinery, chemicals, food, semiconductors, and other products are unlike, the Federal Reserve combines production estimates in an index rather than counting identical items. The card compares a complete three-month average with the same period one year earlier. Positive values mean real output increased, negative values mean it decreased, and zero means it matched its year-earlier level. Output can rise while employment falls because productivity, automation, hours, outsourcing, and product mix can change. This is not employment, productivity, sales revenue, prices, profits, capacity use, or manufacturing’s GDP share; the bands describe historical frequency, not a target or forecast.',
+  },
+  zeroLineMeaning: 'Zero = inflation-adjusted manufacturing production matched its year-earlier level',
+  positionDescriptions: manufacturingOutputPositionDescriptions,
+}
+
 const compactDefinitions: Readonly<
   Partial<Record<string, CompactHistoricalMetricDefinition>>
 > = {
@@ -408,6 +442,7 @@ const compactDefinitions: Readonly<
   'personal-saving-rate': savingRateCompactDefinition,
   'home-ownership-cost-share': homeOwnershipCostCompactDefinition,
   'housing-starts': housingStartsCompactDefinition,
+  'manufacturing-output': manufacturingOutputCompactDefinition,
 }
 
 export function getCompactHistoricalMetricDefinition(

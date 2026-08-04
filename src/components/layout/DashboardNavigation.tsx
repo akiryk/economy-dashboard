@@ -83,7 +83,7 @@ const navigationGroups = [
     cards: [
       {
         id: 'manufacturing-output-versus-employment-card',
-        title: 'Are manufacturing output and jobs moving together?',
+        title: 'Are U.S. manufacturers producing more goods?',
       },
       {
         id: 'real-business-investment-growth-card',

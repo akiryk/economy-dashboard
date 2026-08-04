@@ -7,6 +7,7 @@ import savingRateData from '../data/personal-saving-rate.json'
 import homeOwnershipData from '../data/home-ownership-cost-share.json'
 import housingStartsData from '../data/housing-starts.json'
 import populationData from '../data/us-population-monthly.json'
+import manufacturingOutputData from '../data/manufacturing-output.json'
 import type { EconomicObservation } from '../models/economicSeries'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import {
@@ -15,9 +16,11 @@ import {
   savingRateCompactDefinition,
   homeOwnershipCostCompactDefinition,
   housingStartsCompactDefinition,
+  manufacturingOutputCompactDefinition,
 } from '../utils/compactHistoricalMetrics'
 import { deriveHistoricalBandContext } from '../utils/historicalBandContext'
 import { deriveHousingStartsCompactData } from '../utils/housingStartsData'
+import { deriveManufacturingOutputGrowth } from '../utils/manufacturingOutputGrowth'
 import { CompactHistoricalMetricChart } from './CompactHistoricalMetricChart'
 
 vi.mock('./HistoricalBandChart', () => ({
@@ -51,6 +54,8 @@ vi.mock('./HistoricalBandChart', () => ({
           ? { date: '2026-03-01', value: 42 }
           : props.caption.startsWith('Housing starts')
           ? { date: '2026-06-01', value: 3.93 }
+          : props.caption.startsWith('Three-month-average manufacturing')
+          ? { date: '2026-06-01', value: 1.3 }
           : { date: '2026-06-01', value: 2.7 },
       )}
       {props.showReferenceLineLabels && props.referenceLines?.map(({ label }) => (
@@ -196,5 +201,27 @@ describe('CompactHistoricalMetricChart', () => {
     expect(chart).toHaveAttribute('data-latest-marker', 'true')
     expect(chart).toHaveTextContent('Three-month-average annualized starts: 1.35 million')
     expect(chart).toHaveTextContent('Historical position: typical by historical standards')
+  })
+
+  it('shows manufacturing growth, its paired index level, zero line, and exact point state', () => {
+    const series = validateEconomicSeries(manufacturingOutputData)
+    const derived = deriveManufacturingOutputGrowth(series.observations)
+    const model = deriveHistoricalBandContext(
+      derived.growth,
+      manufacturingOutputCompactDefinition.historicalBands,
+    )
+    render(<CompactHistoricalMetricChart
+      model={model}
+      definition={manufacturingOutputCompactDefinition}
+      observations={derived.growth}
+      pairedObservations={derived.averages}
+      pairedObservationLabel="Three-month-average production index"
+      pairedValueFormatter={(value) => value?.toFixed(1) ?? 'Unavailable'}
+    />)
+    const chart = screen.getByTestId('historical-band-chart')
+    expect(chart).toHaveAttribute('data-zero-line', 'true')
+    expect(chart).toHaveAttribute('data-latest-marker', 'true')
+    expect(chart).toHaveTextContent('Three-month-average production index: 98.7')
+    expect(chart).toHaveTextContent('Historical position: typical by the standards of the past 25 years')
   })
 })

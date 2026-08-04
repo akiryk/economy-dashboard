@@ -63,4 +63,19 @@ describe('SecondaryPage', () => {
     expect(within(card).getByLabelText('Latest household debt-service ratio'))
       .toHaveTextContent('11.2%')
   })
+
+  it('retains the manufacturing output-versus-employment research card', async () => {
+    const user = userEvent.setup()
+    render(<SecondaryPage />)
+    const section = screen.getByRole('region', { name: 'Business and manufacturing' })
+    const card = await within(section).findByRole('article', {
+      name: 'Are manufacturing output and jobs moving together?',
+    })
+    expect(within(card).getByText(/Both lines begin at 100/)).toBeVisible()
+    expect(within(card).getByRole('button', { name: '20 years' })).toHaveAttribute('aria-pressed', 'true')
+    await user.click(within(card).getByRole('button', { name: 'Maximum' }))
+    expect(within(card).getByText(/Since January 1972/)).toBeVisible()
+    await user.click(within(card).getByText('Recent observations'))
+    expect(within(card).getByRole('table', { name: /Twelve most recent aligned manufacturing observations/ })).toBeVisible()
+  })
 })

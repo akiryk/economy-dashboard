@@ -7,6 +7,7 @@ import {
   formatDate,
   formatObservationPeriod,
   formatPercentage,
+  formatSignedPercentage,
   formatSignedPercentagePoints,
   formatAnnualizedHousingUnits,
   selectMostRecentObservations,
@@ -79,6 +80,12 @@ import {
   deriveHousingStartsCompactData,
   formatHousingStartsHistoricalPosition,
 } from '../utils/housingStartsData'
+import {
+  createManufacturingAccessibleSummary,
+  deriveManufacturingOutputGrowth,
+  formatManufacturingDirection,
+  formatManufacturingHistoricalPosition,
+} from '../utils/manufacturingOutputGrowth'
 import { HousingConstructionDetails } from './HousingConstructionDetails'
 
 const EconomicTimeSeriesChart = lazy(
@@ -169,8 +176,14 @@ export function EconomicSeriesSummary({
       : null,
     [populationSeries, series.observations, series.slug],
   )
+  const manufacturingOutputGrowth = useMemo(
+    () => series.slug === 'manufacturing-output'
+      ? deriveManufacturingOutputGrowth(series.observations)
+      : null,
+    [series.observations, series.slug],
+  )
   const compactObservations = housingStartsCompactData?.normalizedAverages ??
-    series.observations
+    manufacturingOutputGrowth?.growth ?? series.observations
   const housingNormalizedPresetObservations = useMemo(() => {
     if (!housingStartsCompactData || presetObservations.length === 0) return []
     const start = presetObservations[0]!.date
@@ -179,8 +192,18 @@ export function EconomicSeriesSummary({
       ({ date }) => date >= start && date <= end,
     )
   }, [housingStartsCompactData, presetObservations])
+  const manufacturingGrowthPresetObservations = useMemo(() => {
+    if (!manufacturingOutputGrowth || presetObservations.length === 0) return []
+    const start = presetObservations[0]!.date
+    const end = presetObservations.at(-1)!.date
+    return manufacturingOutputGrowth.growth.filter(
+      ({ date }) => date >= start && date <= end,
+    )
+  }, [manufacturingOutputGrowth, presetObservations])
   const headlineObservation = housingStartsCompactData
     ? findLatestNonNullObservation(housingStartsCompactData.rawAverages)
+    : manufacturingOutputGrowth
+    ? findLatestNonNullObservation(manufacturingOutputGrowth.growth)
     : latestObservation
   const coreCpiSeries = supportingSeries?.find(
     ({ slug }) => slug === 'core-cpi-inflation',
@@ -303,6 +326,10 @@ export function EconomicSeriesSummary({
         housingStartsCompactData.rawAverages,
       )
     : null
+  const manufacturingAccessibleLabel = manufacturingOutputGrowth &&
+    compactModel?.status === 'ready'
+    ? createManufacturingAccessibleSummary(compactModel)
+    : null
 
   const latestValueContent = (
     <div
@@ -311,6 +338,7 @@ export function EconomicSeriesSummary({
         productivityAccessibleLabel ??
         cpiAccessibleLabel ??
         housingStartsAccessibleLabel ??
+        manufacturingAccessibleLabel ??
         (unemploymentContext
           ? createUnemploymentAccessibleSummary(unemploymentContext)
           : null) ??
@@ -340,6 +368,8 @@ export function EconomicSeriesSummary({
               ? formatLendingStandardsCallout(latestObservation?.value ?? null)
               : series.slug === 'housing-starts'
               ? formatAnnualizedHousingUnits(headlineObservation?.value ?? null)
+              : series.slug === 'manufacturing-output'
+              ? formatSignedPercentage(headlineObservation?.value ?? null)
               : formatValue(latestObservation?.value ?? null)}
           </span>
         </p>
@@ -376,6 +406,8 @@ export function EconomicSeriesSummary({
             ? 'Estimated share of median household income needed to own the median-priced home'
             : series.slug === 'housing-starts'
             ? 'Three-month average annualized pace'
+            : series.slug === 'manufacturing-output'
+            ? 'Change in inflation-adjusted manufacturing production from a year earlier'
             : presentation.latestValueLabel}
         </p>
         <p className="series-current__period">
@@ -388,6 +420,8 @@ export function EconomicSeriesSummary({
           {' · '}
           {series.slug === 'labor-productivity-growth'
             ? 'Percent change from year ago'
+            : series.slug === 'manufacturing-output'
+            ? 'Three-month average'
             : series.units}
         </p>
         {series.slug === 'labor-productivity-growth' &&
@@ -476,6 +510,23 @@ export function EconomicSeriesSummary({
             )}
           </>
         )}
+        {manufacturingOutputGrowth && (
+          <>
+            <p className="series-current__answer">
+              {formatManufacturingDirection(headlineObservation?.value ?? null)}
+            </p>
+            {compactModel?.status === 'ready' && (
+              <p className="series-current__comparison">
+                The current growth rate is{' '}
+                {formatManufacturingHistoricalPosition(
+                  compactModel.latestObservation.value,
+                  compactModel,
+                )}{' '}
+                by the standards of the past 25 years.
+              </p>
+            )}
+          </>
+        )}
     </div>
   )
   const compactVisual = compactModel && compactDefinition ? (
@@ -491,6 +542,13 @@ export function EconomicSeriesSummary({
         definition={compactDefinition}
         observations={compactObservations}
         pairedObservations={housingStartsCompactData?.rawAverages}
+        {...(manufacturingOutputGrowth ? {
+          pairedObservations: manufacturingOutputGrowth.averages,
+          pairedObservationLabel: 'Three-month-average production index',
+          pairedValueFormatter: (value: number | null) => value === null
+            ? 'Unavailable'
+            : value.toFixed(1),
+        } : {})}
         accessibleSummaryOverride={housingStartsAccessibleLabel ?? undefined}
         visuallyHideSummary
       />
@@ -507,9 +565,13 @@ export function EconomicSeriesSummary({
         ? 'Are households saving less of their income?'
         : series.slug === 'home-ownership-cost-share'
         ? 'How much of a median household’s income would it take to own a typical home?'
+        : series.slug === 'manufacturing-output'
+        ? 'Are U.S. manufacturers producing more goods?'
         : series.question}
       measureLabel={series.slug === 'home-ownership-cost-share'
         ? 'Estimated share of median household income needed to own the median-priced home'
+        : series.slug === 'manufacturing-output'
+        ? 'Inflation-adjusted manufacturing production'
         : series.title}
       latestValue={latestValueContent}
       compactVisual={compactVisual}
@@ -776,6 +838,34 @@ export function EconomicSeriesSummary({
               transformation="Three-month average of exact-month housing starts divided by population"
               includeZero={false}
               valueFormat="index"
+              zoomStartDate={visibleObservations[0]?.date ?? ''}
+              zoomEndDate={visibleObservations.at(-1)?.date ?? ''}
+              onZoomChange={zoom.onChartZoom}
+            />
+          </Suspense>
+        </section>
+      )}
+
+      {manufacturingGrowthPresetObservations.length > 0 && (
+        <section aria-labelledby="manufacturing-output-growth-heading">
+          <h4 id="manufacturing-output-growth-heading">
+            Inflation-adjusted manufacturing production growth
+          </h4>
+          <p>
+            This separate view compares each complete three-month average of the
+            production index with the complete three-month average 12 months earlier.
+          </p>
+          <Suspense fallback={<p className="chart-state" role="status">Loading manufacturing growth chart…</p>}>
+            <EconomicTimeSeriesChart
+              key={`manufacturing-growth-${selectedRange}`}
+              kind="single"
+              observations={manufacturingGrowthPresetObservations}
+              seriesName="Three-month-average manufacturing production growth"
+              frequency="monthly"
+              units="Percent change from year ago"
+              transformation="Year-over-year percentage change in trailing three-month average"
+              includeZero
+              valueFormat="signed-percentage"
               zoomStartDate={visibleObservations[0]?.date ?? ''}
               zoomEndDate={visibleObservations.at(-1)?.date ?? ''}
               onZoomChange={zoom.onChartZoom}

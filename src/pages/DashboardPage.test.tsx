@@ -203,7 +203,7 @@ describe('DashboardPage economic series', () => {
       'Are households saving less of their income?',
       'How much of a median household’s income would it take to own a typical home?',
       'How much new housing is being started?',
-      'Are manufacturing output and jobs moving together?',
+      'Are U.S. manufacturers producing more goods?',
       'Are businesses increasing investment in productive capacity?',
       'Are corporate profits growing relative to the economy?',
       'How fully is industrial capacity being used?',
@@ -1419,41 +1419,61 @@ describe('DashboardPage economic series', () => {
     const housing = screen.getByRole('region', { name: 'Housing' })
     const manufacturing = screen.getByRole('region', { name: 'Business and manufacturing' })
     expect(housing.compareDocumentPosition(manufacturing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    const card = await within(manufacturing).findByRole('article', { name: 'Are manufacturing output and jobs moving together?' })
+    const card = await within(manufacturing).findByRole('article', { name: 'Are U.S. manufacturers producing more goods?' })
     expect(within(manufacturing).getAllByRole('article')).toHaveLength(4)
-    expect(within(card).getByText(/Both lines begin at 100/)).toBeVisible()
-    expect(within(card).getByText(/do not directly measure productivity/)).toBeVisible()
-    expect(within(card).getByText(/Since June 2006/)).toBeVisible()
-    expect(within(card).getByText(/Through June 2026/)).toBeVisible()
+    expect(within(card).getByText('+1.3%')).toBeVisible()
+    expect(within(card).getByText(/Yes — U.S. manufacturers are producing more/)).toBeVisible()
+    expect(within(card).getByText(/current growth rate is typical/)).toBeVisible()
+    expect(within(card).getByTestId('production-compact-chart')).toHaveAttribute('data-show-zero', 'true')
+    expect(within(card).queryByText(/Both lines begin at 100/)).not.toBeInTheDocument()
+    const compactCall = compactChartPropsSpy.mock.calls
+      .map((call) => call[0] as {
+        definition: CompactHistoricalMetricDefinition
+        model: HistoricalBandResult
+      })
+      .find(({ definition }) => definition.seriesLabel === 'Three-month-average manufacturing production growth')
+    expect(compactCall?.definition).toMatchObject({
+      showZeroLine: true,
+      showLatestMarker: true,
+      interactiveDetails: true,
+      zeroLineMeaning: 'Zero = inflation-adjusted manufacturing production matched its year-earlier level',
+      historicalBands: {
+        recentObservationCount: 61,
+        comparisonWindow: { kind: 'trailing-years', years: 25 },
+      },
+    })
+    expect(compactCall?.model).toMatchObject({ status: 'ready', recentObservationCount: 61 })
 
+    await user.click(within(card).getByRole('button', { name: /More/ }))
+    expect(within(card).getByText(/reflects the volume of production/)).toBeVisible()
+    expect(within(card).getByText(/Manufacturing output versus employment \(Secondary indicators\)/)).toBeVisible()
     await user.click(within(card).getByRole('button', { name: 'Maximum' }))
-    expect(await within(card).findByText(/Since January 1972/)).toBeVisible()
     await waitFor(() => {
       const props = chartPropsSpy.mock.calls.map((call) => call[0] as {
-        kind: string
-        outputObservations?: EconomicObservation[]
-        employmentObservations?: EconomicObservation[]
-      }).filter((candidate) => candidate.kind === 'manufacturing-comparison').at(-1)
-      expect(props?.outputObservations).toHaveLength(654)
-      expect(props?.employmentObservations).toHaveLength(654)
-      expect(props?.outputObservations?.[0]).toEqual({ date: '1972-01-01', value: 100 })
-      expect(props?.employmentObservations?.[0]).toEqual({ date: '1972-01-01', value: 100 })
+        seriesName?: string
+        observations?: EconomicObservation[]
+        includeZero?: boolean
+      }).reverse().find((candidate) => candidate.seriesName === 'Three-month-average manufacturing production growth')
+      expect(props?.includeZero).toBe(true)
+      expect(props?.observations).toEqual(expect.arrayContaining([
+        expect.objectContaining({ date: '1973-03-01' }),
+      ]))
     })
 
     await user.click(within(card).getByText('Recent observations'))
-    expect(within(card).getByRole('table', { name: /Twelve most recent aligned manufacturing observations/ })).toBeVisible()
+    expect(within(card).getByRole('table', { name: /Twelve most recent manufacturing-output index observations/ })).toBeVisible()
   })
 
-  it.each(['manufacturing-output', 'manufacturing-employment'])('isolates a %s failure from every existing section', async (failedSlug) => {
+  it('isolates a manufacturing-output failure from every existing section', async () => {
     const originalGetBySlug = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
     vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
-      if (slug === failedSlug) throw new Error('Invalid manufacturing fixture')
+      if (slug === 'manufacturing-output') throw new Error('Invalid manufacturing fixture')
       return originalGetBySlug(slug)
     })
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
     render(<DashboardPage />)
 
-    expect(await screen.findByText('The manufacturing output versus employment data could not be loaded.')).toBeVisible()
+    expect(await screen.findByText('The manufacturing production growth data could not be loaded.')).toBeVisible()
     expect(await screen.findByRole('article', { name: 'How much new housing is being started?' })).toBeVisible()
     expect(await screen.findByRole('article', { name: 'Is the U.S. economy growing?' })).toBeVisible()
   })
@@ -1532,7 +1552,7 @@ describe('DashboardPage economic series', () => {
     expect(await screen.findByText(message)).toBeVisible()
     expect(await screen.findByRole('article', { name: survivor })).toBeVisible()
     expect(await screen.findByRole('article', {
-      name: 'Are manufacturing output and jobs moving together?',
+      name: 'Are U.S. manufacturers producing more goods?',
     })).toBeVisible()
   })
 

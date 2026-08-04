@@ -156,6 +156,15 @@ Every current configuration uses `historyPolicy: { type: "full" }`. The client t
 
 The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, PCE, unemployment, prime-age employment, LMCI, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, personal saving, household debt service, housing starts, population, manufacturing output, manufacturing employment, real business investment, and industrial capacity utilization. Domain transformation metadata separately records provider values and local calculations.
 
+The main manufacturing card derives growth locally from IPMAN, the Federal
+Reserve index of inflation-adjusted manufacturing production volume. For every
+month it first requires three consecutive finite monthly index observations,
+then compares that trailing average with the exact three-month average ending
+12 months earlier. Missing inputs produce nulls; the transformation never uses
+partial averages, interpolation, or carry-forward. The committed provider-level
+IPMAN file and its refresh behavior are unchanged. The original IPMAN/MANEMP
+selected-range relationship view remains on `/secondary`.
+
 ### Housing construction detail
 
 The committed `housing-construction-details.json` dataset extends the national

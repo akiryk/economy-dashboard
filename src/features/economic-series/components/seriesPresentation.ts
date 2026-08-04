@@ -433,6 +433,27 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     summaryFormat: "job-change",
     recentTable: "payroll-changes",
   },
+  "manufacturing-output": {
+    topicLabel: "Business and manufacturing",
+    latestValueLabel: "Change in inflation-adjusted manufacturing production from a year earlier",
+    whatThisTellsYou:
+      "This measure shows whether U.S. manufacturers are collectively producing more or fewer goods than a year earlier after removing the effect of price changes. It reflects the volume of production, not the number of workers used or the dollar value received for what was produced.",
+    whatThisLeavesOut:
+      "The measure does not show manufacturing employment, productivity, profitability, prices, capacity utilization, industry composition, trade exposure, or manufacturing’s share of the overall economy.",
+    relatedIndicators: [
+      "Manufacturing output versus employment (Secondary indicators)",
+      "Labor productivity",
+      "Real business investment",
+    ],
+    recentObservationCount: 12,
+    recentObservationsCaption: "Twelve most recent manufacturing-output index observations",
+    valueColumnLabel: "Manufacturing production index",
+    includeZeroInChart: false,
+    reportBelowZero: false,
+    valueFormat: "index",
+    summaryFormat: "numeric-range",
+    recentTable: "single-value",
+  },
 };
 
 export function getEconomicSeriesPresentation(
