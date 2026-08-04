@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { validateHousingConstructionDetails } from '../src/features/economic-series/utils/housingConstructionDetails'
+import { validatePriceDistributions } from '../src/features/economic-series/utils/housingSupplyComposition'
 import { writeJsonGroupAtomically } from './writeJsonGroupAtomically'
 
 const graphUrl = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id='
@@ -11,6 +12,8 @@ const sources = {
   starts: ['HOUST', 'HOUST1F', 'HOUST2F', 'HOUST5F'],
   underConstruction: ['UNDCONTSA', 'UNDCON1USA', 'UNDCON24USA', 'UNDCON5MUSA'],
   completions: ['COMPUTSA', 'COMPU1USA', 'COMPU24USA', 'COMPU5MUSA'],
+  prices: ['NHSUSSPU30AP', 'NHSUSSP30T39AP', 'NHSUSSP40T49AP', 'NHSUSSP50T59AP', 'NHSUSSP60T79AP', 'NHSUSSP80T99AP', 'NHSUSSP100OAP'],
+  completedSize: ['COMPSFLAM1FQ'],
 } as const
 
 type SourceName = keyof typeof sources
@@ -37,6 +40,7 @@ function numberOrNull(value: string): number | null {
 }
 
 export async function refreshHousingConstructionDetails(options: {
+  compositionOutputPath?: string
   fetchImplementation?: typeof fetch
   outputPath: string
   retrievedAt: string
@@ -76,13 +80,37 @@ export async function refreshHousingConstructionDetails(options: {
     })),
     pipeline: Object.fromEntries(pipeline),
   })
-  await writeJsonGroupAtomically([{ outputPath: options.outputPath, value }])
+  const prices = validatePriceDistributions(rows.prices.map((row) => ({
+    year: Number(row.observation_date.slice(0, 4)),
+    under300: numberOrNull(row.NHSUSSPU30AP),
+    from300To399: numberOrNull(row.NHSUSSP30T39AP),
+    from400To499: numberOrNull(row.NHSUSSP40T49AP),
+    from500To599: numberOrNull(row.NHSUSSP50T59AP),
+    from600To799: numberOrNull(row.NHSUSSP60T79AP),
+    from800To999: numberOrNull(row.NHSUSSP80T99AP),
+    millionOrMore: numberOrNull(row.NHSUSSP100OAP),
+  })))
+  const composition = {
+    retrievedAt: options.retrievedAt,
+    priceBucketMethod: '2020-current',
+    prices,
+    completedSingleFamilyMedianSquareFeet: rows.completedSize
+      .filter((row) => row.observation_date >= '2015-01-01')
+      .map((row) => ({ date: row.observation_date, value: numberOrNull(row.COMPSFLAM1FQ) })),
+  }
+  await writeJsonGroupAtomically([
+    { outputPath: options.outputPath, value },
+    ...(options.compositionOutputPath
+      ? [{ outputPath: options.compositionOutputPath, value: composition }]
+      : []),
+  ])
 }
 
 const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : ''
 if (invokedPath === fileURLToPath(import.meta.url)) {
   await refreshHousingConstructionDetails({
     outputPath: path.resolve('src/features/economic-series/data/housing-construction-details.json'),
+    compositionOutputPath: path.resolve('src/features/economic-series/data/housing-supply-composition.json'),
     retrievedAt: new Date().toISOString().slice(0, 10),
   })
   console.log('Updated housing construction details.')

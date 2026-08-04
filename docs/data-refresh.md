@@ -179,6 +179,24 @@ includes 2–4-unit buildings before August 1963, but the committed detail windo
 starts in 2021 and is unaffected. The February 2005 permit-universe expansion
 is outside the displayed window but remains a documented source break.
 
+The same atomic refresh writes `housing-supply-composition.json`. Construction
+composition reuses the compatible national HOUST1F, HOUST2F, and HOUST5F
+housing-unit series. Completed-home characteristics use COMPSFLAM1FQ (quarterly,
+seasonally adjusted median square feet of completed one-family units); it is not
+treated as a proxy for price or affordability.
+
+The price distribution is annual, nominal, and not seasonally adjusted. It uses
+NHSUSSPU30AP, NHSUSSP30T39AP, NHSUSSP40T49AP, NHSUSSP50T59AP,
+NHSUSSP60T79AP, NHSUSSP80T99AP, and NHSUSSP100OAP. These source fields describe
+new single-family homes sold, not starts, multifamily rentals, existing homes, or
+all completions. Census introduced the current detailed bucket family beginning
+in 2020. The dashboard therefore begins in 2020 and does not splice it to the
+incompatible discontinued pre-2024 buckets. Published shares are computed from
+unrounded values, so rounded components can differ slightly from 100%. Annual
+estimates may be revised; the refresh validates bucket order, years, finite
+shares, and approximate totals before atomically replacing either housing detail
+file, preserving both prior files on any download, parsing, or validation failure.
+
 ## BEA saving-rate distribution
 
 The annual income-decile dataset comes from BEA and BLS's ongoing **Distribution

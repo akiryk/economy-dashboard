@@ -1,5 +1,6 @@
 import { lazy, Suspense, useMemo } from 'react'
 import rawData from '../data/housing-construction-details.json'
+import compositionRawData from '../data/housing-supply-composition.json'
 import {
   createRegionalHousingAccessibleSummary,
   deriveRegionalHousingStarts,
@@ -11,10 +12,16 @@ import {
   type HousingPipelineStage,
 } from '../utils/housingConstructionDetails'
 import { formatObservationPeriod } from '../utils/economicSeries'
+import {
+  calculateCompositionShares,
+  priceBuckets,
+  validatePriceDistributions,
+} from '../utils/housingSupplyComposition'
 import './HousingConstructionDetails.css'
 
 const EconomicTimeSeriesChart = lazy(() => import('../charts/EconomicTimeSeriesChart'))
 const data = validateHousingConstructionDetails(rawData)
+const priceDistributions = validatePriceDistributions(compositionRawData.prices)
 
 const stageLabels: Readonly<Record<HousingPipelineStage, string>> = {
   permits: 'Permits',
@@ -120,6 +127,91 @@ export function HousingConstructionDetails() {
         multifamily projects can make starts volatile because all units are recorded
         when one building starts. Current estimates are preliminary and prior months
         may be revised by Census and HUD.
+      </p>
+    </section>
+
+    <section aria-labelledby="housing-kind-heading">
+      <h4 id="housing-kind-heading">What kind of housing is being built?</h4>
+      <p>
+        The construction view counts housing units started—not buildings—and keeps
+        single-family, units in 2–4-unit buildings, and units in buildings with
+        5 or more units in their source-defined categories.
+      </p>
+      <div className="housing-details__grid housing-details__grid--three">
+        {([
+          ['singleFamily', 'Single-family'],
+          ['twoToFour', 'Units in 2–4-unit buildings'],
+          ['fiveOrMore', 'Units in buildings with 5+ units'],
+        ] as const).map(([key, label]) => {
+          const observations = data.pipeline.starts.map(({ date, [key]: value }) => ({ date, value }))
+          return <section key={key} aria-labelledby={`housing-composition-${key}`}>
+            <h5 id={`housing-composition-${key}`}>{label}</h5>
+            <Suspense fallback={<p role="status">Loading composition chart…</p>}>
+              <EconomicTimeSeriesChart kind="single" observations={observations}
+                seriesName={`${label} starts`} frequency="monthly"
+                units="Thousands of housing units, seasonally adjusted annual rate"
+                transformation="Provider-published level" includeZero={false}
+                valueFormat="thousands-units" zoomStartDate={observations[0]?.date ?? ''}
+                zoomEndDate={observations.at(-1)?.date ?? ''} onZoomChange={() => undefined} />
+            </Suspense>
+          </section>
+        })}
+      </div>
+      {(() => {
+        const latest = data.pipeline.starts.at(-1)
+        const shares = latest ? calculateCompositionShares(latest) : null
+        return latest && shares ? <p aria-label={`Latest starts composition: single-family ${shares.singleFamily.toFixed(1)} percent; 2–4 units ${shares.twoToFour.toFixed(1)} percent; 5 or more units ${shares.fiveOrMore.toFixed(1)} percent.`}>
+          In {formatObservationPeriod(latest.date, 'monthly')}, the annualized starts
+          mix was {shares.singleFamily.toFixed(1)}% single-family,{' '}
+          {shares.twoToFour.toFixed(1)}% in 2–4-unit buildings, and{' '}
+          {shares.fiveOrMore.toFixed(1)}% in buildings with 5 or more units.
+        </p> : null
+      })()}
+
+      <h5>Median floor area of completed single-family homes</h5>
+      <p>
+        This separate quarterly characteristics series describes completed
+        single-family homes; it is not a measure of multifamily unit size or affordability.
+      </p>
+      <Suspense fallback={<p role="status">Loading home-characteristics chart…</p>}>
+        <EconomicTimeSeriesChart kind="single"
+          observations={compositionRawData.completedSingleFamilyMedianSquareFeet}
+          seriesName="Median floor area of completed single-family homes"
+          frequency="quarterly" units="Square feet" transformation="Provider-published median"
+          includeZero={false} valueFormat="index"
+          zoomStartDate={compositionRawData.completedSingleFamilyMedianSquareFeet[0]?.date ?? ''}
+          zoomEndDate={compositionRawData.completedSingleFamilyMedianSquareFeet.at(-1)?.date ?? ''}
+          onZoomChange={() => undefined} />
+      </Suspense>
+
+      <h5>Sales prices of new single-family homes sold</h5>
+      <p>
+        Annual nominal-dollar shares use only the comparable Census/HUD buckets
+        published from 2020 onward. Earlier discontinued bins are not joined to
+        this view. Percentages are calculated from unrounded source values and may
+        not sum to exactly 100 because published components are rounded.
+      </p>
+      <div className="housing-price-distribution" role="group" aria-label="Annual nominal sales-price distribution of new single-family homes sold">
+        {priceDistributions.map((row) => <div className="housing-price-distribution__row" key={row.year}>
+          <strong>{row.year}</strong>
+          <div className="housing-price-distribution__bar">
+            {priceBuckets.map(([key, label]) => <button key={key} type="button"
+              className={`housing-price-distribution__segment housing-price-distribution__segment--${key}`}
+              style={{ width: `${row[key]}%` }}
+              title={`${row.year}: ${label}, ${row[key]}%`}
+              aria-label={`${row.year}, ${label}: ${row[key]} percent`} />)}
+          </div>
+        </div>)}
+      </div>
+      <ul className="housing-price-distribution__legend">
+        {priceBuckets.map(([key, label]) => <li key={key}><span className={`housing-price-distribution__swatch housing-price-distribution__segment--${key}`} />{label}</li>)}
+      </ul>
+      <p>
+        Sale-price data cover new single-family homes sold—not multifamily rentals,
+        all starts, existing-home sales, subsidized housing, or every completed home.
+        Smaller homes are not necessarily affordable, and neither size nor price
+        composition shows affordability to local households. This is not an
+        affordable-versus-luxury classification.
       </p>
     </section>
   </div>

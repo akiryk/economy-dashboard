@@ -1371,6 +1371,11 @@ describe('DashboardPage economic series', () => {
     expect(within(cards[1]!).getByRole('table', { name: /Latest shared regional housing-start comparison/ })).toHaveTextContent('Northeast')
     expect(within(cards[1]!).getByRole('table', { name: /Pipeline by housing-unit category/ })).toHaveTextContent('Under construction')
     expect(within(cards[1]!).getByText(/Values are housing units, not structures/)).toBeVisible()
+    expect(within(cards[1]!).getByRole('heading', { name: 'What kind of housing is being built?' })).toBeVisible()
+    expect(within(cards[1]!).getByRole('heading', { name: 'Sales prices of new single-family homes sold' })).toBeVisible()
+    expect(within(cards[1]!).getByRole('group', { name: /Annual nominal sales-price distribution/ })).toBeVisible()
+    expect(within(cards[1]!).getByRole('button', { name: '2025, Under $300,000: 18 percent' })).toBeVisible()
+    expect(within(cards[1]!).getByText(/not an affordable-versus-luxury classification/)).toBeVisible()
     await user.click(within(cards[1]!).getByRole('button', { name: 'Maximum' }))
     await waitFor(() => {
       const calls = chartPropsSpy.mock.calls.map((call) => call[0] as {
