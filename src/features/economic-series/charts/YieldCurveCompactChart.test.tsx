@@ -1,6 +1,6 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { YieldCurveCompactChart } from './YieldCurveCompactChart'
 import type { YieldCurveObservation } from '../utils/yieldCurveData'
 
@@ -19,11 +19,29 @@ describe('YieldCurveCompactChart', () => {
     expect(screen.getByText('Zero = 10-year and 3-month rates are equal')).toBeVisible()
     expect(screen.getByText('Inverted')).toBeVisible()
     expect(screen.getByText('10-year yield higher')).toBeVisible()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
     const chart = screen.getByLabelText(/Use left and right arrow keys/)
     chart.focus()
     await user.keyboard('{ArrowLeft}')
     expect(screen.getByText('May 2026')).toBeVisible()
     expect(screen.getByText('State: nearly flat')).toBeVisible()
+  })
+
+  it('positions details at the hovered observation and hides them on pointer leave', () => {
+    render(<YieldCurveCompactChart observations={observations} />)
+    const chart = screen.getByLabelText(/Use left and right arrow keys/)
+    vi.spyOn(chart, 'getBoundingClientRect').mockReturnValue({
+      left: 100,
+      width: 300,
+    } as DOMRect)
+
+    fireEvent.pointerMove(chart, { clientX: 250, pointerType: 'mouse' })
+    const tooltip = screen.getByRole('status')
+    expect(tooltip).toHaveTextContent('May 2026')
+    expect(tooltip).toHaveStyle({ left: '50%' })
+
+    fireEvent.pointerLeave(chart, { pointerType: 'mouse' })
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 
   it('opens the probabilistic-signal help', async () => {

@@ -1210,5 +1210,6 @@ p {
 .yield-curve-compact-chart__positive-label { top: .2rem; left: .5rem; }
 .yield-curve-compact-chart__negative-label { bottom: 2.1rem; left: .5rem; }
 .yield-curve-compact-chart__zero-label { right: .3rem; top: 48%; background: var(--color-surface, white); padding: .1rem .2rem; }
-.yield-curve-compact-chart__tooltip { position: absolute; right: .4rem; top: .4rem; display: grid; gap: .1rem; padding: .45rem; max-width: 16rem; background: var(--color-surface, white); border: 1px solid currentColor; font-size: .75rem; }
+.yield-curve-compact-chart__tooltip { position: absolute; z-index: 3; display: grid; width: 10rem; gap: .1rem; padding: .45rem; background: var(--color-surface, white); border: 1px solid currentColor; border-radius: var(--radius-small); box-shadow: 0 .25rem .75rem rgb(23 32 42 / 14%); font-size: .75rem; line-height: 1.35; pointer-events: none; transform: translate(-50%, calc(-100% - var(--space-2))); }
+.yield-curve-compact-chart__tooltip--below { transform: translate(-50%, var(--space-2)); }
 .yield-curve-compact-chart__dates { display: flex; justify-content: space-between; font-size: .75rem; }
