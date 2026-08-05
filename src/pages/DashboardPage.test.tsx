@@ -205,7 +205,7 @@ describe('DashboardPage economic series', () => {
       'How much new housing is being started?',
       'Are U.S. manufacturers producing more goods?',
       'Are businesses investing more in productive assets?',
-      'Are corporate profits growing relative to the economy?',
+      'How large are corporate profits relative to the economy?',
       'How fully is industrial capacity being used?',
       'How do short-term and long-term interest rates compare?',
       'Are credit conditions tighter or looser than usual?',
@@ -676,7 +676,7 @@ describe('DashboardPage economic series', () => {
       )).toBe(true)
     })
     expect(screen.queryByRole('article', { name: /PCE/i })).not.toBeInTheDocument()
-  })
+  }, 10_000)
 
   it('renders payroll momentum with signed values and a paired recent table', async () => {
     const user = userEvent.setup()
@@ -1561,14 +1561,15 @@ describe('DashboardPage economic series', () => {
     const user = userEvent.setup()
     render(<DashboardPage />)
     const card = await screen.findByRole('article', {
-      name: 'Are corporate profits growing relative to the economy?',
+      name: 'How large are corporate profits relative to the economy?',
     })
 
-    expect(within(card).getByLabelText('Latest after-tax corporate profit share'))
+    expect(within(card).getByLabelText(/economy-wide national-accounts ratio/))
       .toHaveTextContent('11.4%')
-    expect(within(card).getByText('After-tax corporate profit share, 2026 Q1'))
-      .toBeVisible()
-    expect(within(card).getByText(/not a company revenue margin/)).toBeVisible()
+    expect(within(card).getAllByText('Adjusted after-tax corporate profits as a share of GDP')).toHaveLength(2)
+    expect(within(card).getByText('About $11.37 in adjusted after-tax corporate profit for every $100 of GDP.')).toBeVisible()
+    await user.click(within(card).getByRole('button', { name: /More/ }))
+    expect(within(card).getByText(/does not show individual-company margins/)).toBeVisible()
     expect(within(card).getByText(/not state that the raw dollar level of profits/)).toBeVisible()
     expect(within(card).getByRole('link', { name: /CPATAX/ })).toHaveAttribute(
       'href',

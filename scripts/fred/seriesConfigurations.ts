@@ -627,12 +627,12 @@ export const corporateProfitShareConfiguration: CorporateProfitShareConfig = {
   profitsSource: {
     dataHandling: 'provider-level', id: 'corporate-profits-after-tax-source', slug: 'corporate-profits-after-tax-source', outputFile: '',
     providerSeriesId: 'CPATAX', frequency: 'quarterly', fredFrequency: 'q', historyPolicy: { type: 'full' }, minimumUsableObservations: 250,
-    title: 'Corporate Profits After Tax with IVA and CCAdj', shortTitle: 'Adjusted after-tax corporate profits', description: 'After-tax corporate profits with inventory valuation and capital consumption adjustments.', question: 'Are corporate profits growing relative to the economy?', units: 'Billions of dollars, seasonally adjusted annual rate', seasonalAdjustment: 'Seasonally adjusted annual rate', transformation: 'Provider-published level', sourceName: 'U.S. Bureau of Economic Analysis via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/CPATAX',
+    title: 'Corporate Profits After Tax with IVA and CCAdj', shortTitle: 'Adjusted after-tax corporate profits', description: 'After-tax corporate profits with inventory valuation and capital consumption adjustments.', question: 'How large are corporate profits relative to the economy?', units: 'Billions of dollars, seasonally adjusted annual rate', seasonalAdjustment: 'Seasonally adjusted annual rate', transformation: 'Provider-published level', sourceName: 'U.S. Bureau of Economic Analysis via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/CPATAX',
   },
   gdpSource: {
     dataHandling: 'provider-level', id: 'nominal-gdp-source', slug: 'nominal-gdp-source', outputFile: '',
     providerSeriesId: 'GDP', frequency: 'quarterly', fredFrequency: 'q', historyPolicy: { type: 'full' }, minimumUsableObservations: 250,
-    title: 'Gross Domestic Product', shortTitle: 'Nominal GDP', description: 'Current-dollar gross domestic product.', question: 'Are corporate profits growing relative to the economy?', units: 'Billions of dollars, seasonally adjusted annual rate', seasonalAdjustment: 'Seasonally adjusted annual rate', transformation: 'Provider-published level', sourceName: 'U.S. Bureau of Economic Analysis via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/GDP',
+    title: 'Gross Domestic Product', shortTitle: 'Nominal GDP', description: 'Current-dollar gross domestic product.', question: 'How large are corporate profits relative to the economy?', units: 'Billions of dollars, seasonally adjusted annual rate', seasonalAdjustment: 'Seasonally adjusted annual rate', transformation: 'Provider-published level', sourceName: 'U.S. Bureau of Economic Analysis via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/GDP',
   },
   outputFile: 'src/features/economic-series/data/corporate-profit-share.json',
 }

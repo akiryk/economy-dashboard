@@ -91,7 +91,7 @@ const navigationGroups = [
       },
       {
         id: 'corporate-profit-share-card',
-        title: 'Are corporate profits growing relative to the economy?',
+        title: 'How large are corporate profits relative to the economy?',
       },
       {
         id: 'industrial-capacity-utilization-card',

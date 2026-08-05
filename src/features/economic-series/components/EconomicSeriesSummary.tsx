@@ -93,6 +93,12 @@ import {
   formatBusinessInvestmentHistoricalPosition,
   formatBusinessInvestmentInterpretation,
 } from '../utils/businessInvestmentContext'
+import {
+  createCorporateProfitShareAccessibleSummary,
+  formatCorporateProfitSharePosition,
+  formatCorporateProfitStructuralInterpretation,
+  formatProfitPerHundred,
+} from '../utils/corporateProfitShareContext'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -342,6 +348,9 @@ export function EconomicSeriesSummary({
   const businessInvestmentAccessibleLabel = series.slug === 'real-business-investment-growth' && compactModel?.status === 'ready'
     ? createBusinessInvestmentAccessibleSummary(compactModel)
     : null
+  const corporateProfitAccessibleLabel = series.slug === 'corporate-profit-share' && compactModel?.status === 'ready'
+    ? createCorporateProfitShareAccessibleSummary(compactModel)
+    : null
 
   const latestValueContent = (
     <div
@@ -352,6 +361,7 @@ export function EconomicSeriesSummary({
         housingStartsAccessibleLabel ??
         manufacturingAccessibleLabel ??
         businessInvestmentAccessibleLabel ??
+        corporateProfitAccessibleLabel ??
         (unemploymentContext
           ? createUnemploymentAccessibleSummary(unemploymentContext)
           : null) ??
@@ -403,8 +413,8 @@ export function EconomicSeriesSummary({
                 : latestObservation.value < 0
                   ? 'Looser than average'
                   : 'Near average'
-            : series.slug === 'corporate-profit-share' && latestObservation
-            ? `After-tax corporate profit share, ${formatObservationPeriod(latestObservation.date, series.frequency)}`
+            : series.slug === 'corporate-profit-share'
+            ? 'Adjusted after-tax corporate profits as a share of GDP'
             : series.slug === 'labor-productivity-growth'
             ? formatProductivityAnswer(productivityAnswer!)
             : series.slug === 'headline-cpi-inflation'
@@ -551,6 +561,15 @@ export function EconomicSeriesSummary({
             {compactModel?.status === 'ready' && <p className="series-current__comparison">The current growth rate is {formatBusinessInvestmentHistoricalPosition(compactModel)} relative to the available history.</p>}
           </>
         )}
+        {series.slug === 'corporate-profit-share' && (
+          <>
+            <p className="series-current__answer">{formatProfitPerHundred(latestObservation?.value ?? null)}</p>
+            {compactModel?.status === 'ready' && <>
+              <p className="series-current__comparison">The current corporate-profit share is {formatCorporateProfitSharePosition(compactModel)} by the standards of the past 25 years.</p>
+              <p className="series-current__comparison">{formatCorporateProfitStructuralInterpretation(compactModel)}</p>
+            </>}
+          </>
+        )}
     </div>
   )
   const compactVisual = compactModel && compactDefinition ? (
@@ -578,7 +597,12 @@ export function EconomicSeriesSummary({
           pairedObservationLabel: 'Underlying real investment level',
           pairedValueFormatter: (value: number | null) => value === null ? 'Unavailable' : `${value.toFixed(1)} billion chained 2017 dollars, annualized`,
         } : {})}
-        accessibleSummaryOverride={housingStartsAccessibleLabel ?? businessInvestmentAccessibleLabel ?? undefined}
+        {...(series.slug === 'corporate-profit-share' ? {
+          pairedObservations: series.observations,
+          pairedObservationLabel: 'Equivalent adjusted after-tax profit per $100 of GDP',
+          pairedValueFormatter: (value: number | null) => value === null ? 'Unavailable' : `$${value.toFixed(2)}`,
+        } : {})}
+        accessibleSummaryOverride={housingStartsAccessibleLabel ?? businessInvestmentAccessibleLabel ?? corporateProfitAccessibleLabel ?? undefined}
         visuallyHideSummary
       />
     </Suspense>
@@ -598,6 +622,8 @@ export function EconomicSeriesSummary({
         ? 'Are U.S. manufacturers producing more goods?'
         : series.slug === 'real-business-investment-growth'
         ? 'Are businesses investing more in productive assets?'
+        : series.slug === 'corporate-profit-share'
+        ? 'How large are corporate profits relative to the economy?'
         : series.question}
       measureLabel={series.slug === 'home-ownership-cost-share'
         ? 'Estimated share of median household income needed to own the median-priced home'
@@ -605,6 +631,8 @@ export function EconomicSeriesSummary({
         ? 'Inflation-adjusted manufacturing production'
         : series.slug === 'real-business-investment-growth'
         ? 'Real private nonresidential fixed investment'
+        : series.slug === 'corporate-profit-share'
+        ? 'Adjusted after-tax corporate profits as a share of GDP'
         : series.title}
       latestValue={latestValueContent}
       compactVisual={compactVisual}
@@ -909,6 +937,8 @@ export function EconomicSeriesSummary({
 
       {series.slug === 'housing-starts' && <HousingConstructionDetails />}
 
+      {series.slug === 'corporate-profit-share' && <section className="series-context" aria-labelledby="corporate-profit-structural-heading"><h4 id="corporate-profit-structural-heading">Long-run structural context</h4><p>The postwar history shows a long period in which the after-tax corporate-profit share fluctuated mostly within a lower range, followed by a sustained rise beginning in the 1990s and becoming especially pronounced after 2000. This indicates that a larger share of U.S. economic output is now recorded as after-tax corporate profit than was typical during much of the postwar era.</p><p><strong>Descriptive guide:</strong> long postwar lower-profit-share range → broad rise beginning in the 1990s → current elevated range. These labels describe the chart; they do not infer a causal break date.</p></section>}
+
       <div className="series-explanations">
         <section>
           <h4>What this tells you</h4>
@@ -917,10 +947,13 @@ export function EconomicSeriesSummary({
               ? 'The unemployment rate measures the current level of joblessness among people in the labor force. The compact historical classification and the separate 12-month movement describe level and direction without combining them into one score.'
               : series.slug === 'real-business-investment-growth'
               ? 'This measure shows whether private businesses are increasing or reducing inflation-adjusted spending on equipment, nonresidential structures, software, and research. These investments can support future production and productivity, but the measure records spending rather than the eventual results.'
+              : series.slug === 'corporate-profit-share'
+              ? 'This measure shows the share of total U.S. output recorded as adjusted after-tax corporate profit. It is useful for understanding the relative profitability of the corporate sector and long-run changes in how much of national output is recorded as corporate profit.'
               : presentation.whatThisTellsYou}
           </p>
         </section>
         {series.slug === 'real-business-investment-growth' && <section><h4>What this may suggest</h4><p>Rising investment can suggest that firms expect enough future demand to justify new or upgraded assets. Falling investment can suggest greater caution, weaker expected demand, tighter financing, or completion of earlier projects. These are plausible interpretations, not direct observations of confidence or intent.</p></section>}
+        {series.slug === 'corporate-profit-share' && <section><h4>What this may suggest</h4><p>A persistently high profit share may be consistent with stronger markups, lower tax or interest burdens, globalization, technology and intangible capital, industry concentration, or productivity gains not fully matched by compensation growth. These are plausible explanations rather than conclusions established by the ratio alone.</p></section>}
         <section>
           <h4>What this leaves out</h4>
           <p>
@@ -928,6 +961,8 @@ export function EconomicSeriesSummary({
               ? 'The labor force includes employed people and unemployed people who are available and have recently looked for work. People who want work but are not actively looking are not counted as unemployed. The rate does not measure job creation, layoffs, job quality, hours, pay, or differences across groups.'
               : series.slug === 'real-business-investment-growth'
               ? 'The aggregate does not show net investment after depreciation, the existing capital stock, profitability, financing costs, business confidence, or whether future output and productivity actually rise. It can also conceal different trends across structures, equipment, and intellectual-property products.'
+              : series.slug === 'corporate-profit-share'
+              ? 'The measure does not show individual-company margins, profit distribution across firms, labor’s full share of income, proprietors’ income, interest and rental income, shareholder payouts, stock valuations, or household welfare.'
               : presentation.whatThisLeavesOut}
           </p>
         </section>

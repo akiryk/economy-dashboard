@@ -157,6 +157,14 @@ const businessInvestmentPositionDescriptions: CompactHistoricalMetricDefinition[
   aboveOuterBand: 'very strong relative to the available history',
 }
 
+const corporateProfitSharePositionDescriptions: CompactHistoricalMetricDefinition['positionDescriptions'] = {
+  belowOuterBand: 'very low by the standards of the past 25 years',
+  betweenOuterAndInnerLow: 'low by the standards of the past 25 years',
+  insideInnerBand: 'typical by the standards of the past 25 years',
+  betweenInnerAndOuterHigh: 'high by the standards of the past 25 years',
+  aboveOuterBand: 'very high by the standards of the past 25 years',
+}
+
 export const realGdpCompactDefinition: CompactHistoricalMetricDefinition = {
   seriesLabel: 'Real GDP growth',
   frequency: 'quarterly',
@@ -460,6 +468,28 @@ export const businessInvestmentCompactDefinition: CompactHistoricalMetricDefinit
   positionDescriptions: businessInvestmentPositionDescriptions,
 }
 
+export const corporateProfitShareCompactDefinition: CompactHistoricalMetricDefinition = {
+  seriesLabel: 'Adjusted after-tax corporate-profit share of GDP',
+  frequency: 'quarterly',
+  historicalBands: {
+    recentObservationCount: 21,
+    comparisonWindow: { kind: 'trailing-years', years: 25 },
+    innerPercentiles: [25, 75], outerPercentiles: [10, 90],
+    minimumFiniteObservations: 80,
+    latestObservationPolicy: 'latest-finite',
+  },
+  showZeroLine: false,
+  showLatestMarker: true,
+  interactiveDetails: true,
+  valueFormatter: formatPercentage,
+  helpText: {
+    heading: 'Adjusted after-tax corporate profits as a share of GDP',
+    description: 'This measure compares adjusted after-tax corporate profits with total U.S. GDP. A rising share means profits are growing faster than the economy overall, or declining more slowly; a falling share means profits are lagging GDP. The ratio can change because of taxes, interest costs, wages, productivity, prices, industry mix, globalization, or market power. It does not show why the share changed, how profits are distributed across firms, or whether workers and households are better or worse off. The numerator includes inventory-valuation and capital-consumption adjustments intended to better reflect profits from current production.',
+  },
+  zeroLineMeaning: 'No zero line is shown because zero is not a useful reference for this ratio.',
+  positionDescriptions: corporateProfitSharePositionDescriptions,
+}
+
 const compactDefinitions: Readonly<
   Partial<Record<string, CompactHistoricalMetricDefinition>>
 > = {
@@ -475,6 +505,7 @@ const compactDefinitions: Readonly<
   'housing-starts': housingStartsCompactDefinition,
   'manufacturing-output': manufacturingOutputCompactDefinition,
   'real-business-investment-growth': businessInvestmentCompactDefinition,
+  'corporate-profit-share': corporateProfitShareCompactDefinition,
 }
 
 export function getCompactHistoricalMetricDefinition(

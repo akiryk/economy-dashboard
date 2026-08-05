@@ -39,7 +39,7 @@ export function deriveCorporateProfitShareSeries(
     shortTitle: 'After-tax corporate profit share',
     description:
       'Adjusted after-tax corporate profits divided by nominal gross domestic product.',
-    question: 'Are corporate profits growing relative to the economy?',
+    question: 'How large are corporate profits relative to the economy?',
     units: 'Percent of GDP',
     frequency: 'quarterly',
     seasonalAdjustment: 'Seasonally adjusted annual rate (both source levels)',

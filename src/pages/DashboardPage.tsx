@@ -242,6 +242,7 @@ export function DashboardPage() {
           onSeriesLoaded={handleSeriesLoaded}
         />
         <EconomicSeriesCard
+          collapsible
           slug="corporate-profit-share"
           label="corporate profit share"
           onSeriesLoaded={handleSeriesLoaded}

@@ -180,6 +180,7 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
       "Capacity utilization",
       "Bank lending standards",
       "Wages",
+      "Labor share of income",
     ],
     recentObservationCount: 8,
     recentObservationsCaption:
