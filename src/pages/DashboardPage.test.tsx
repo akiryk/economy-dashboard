@@ -9,8 +9,17 @@ import type { CompactHistoricalMetricDefinition } from '../features/economic-ser
 import type { HistoricalBandResult } from '../features/economic-series/utils/historicalBandContext'
 import type { InflationDriversSupportingTrendsModel } from '../features/economic-series/utils/inflationCategoryTrends'
 import type { RealWageGrowthModel } from '../features/economic-series/utils/realWageGrowth'
+import joltsLayoffsData from '../features/economic-series/data/jolts-layoffs-and-discharges-rate.json'
+import { validateEconomicSeries } from '../features/economic-series/models/validateEconomicSeries'
 import { localEconomicSeriesRepository } from '../features/economic-series/repositories/localEconomicSeriesRepository'
+import { formatObservationPeriod } from '../features/economic-series/utils/economicSeries'
 import { DashboardPage } from './DashboardPage'
+
+const joltsLayoffsSeries = validateEconomicSeries(joltsLayoffsData)
+const latestJoltsLayoffsPeriod = formatObservationPeriod(
+  joltsLayoffsSeries.observations.at(-1)?.date ?? '',
+  'monthly',
+)
 
 const chartPropsSpy = vi.hoisted(() => vi.fn())
 const compactChartPropsSpy = vi.hoisted(() => vi.fn())
@@ -1004,7 +1013,7 @@ describe('DashboardPage economic series', () => {
     })
 
     expect(within(card).getByText('1.1%')).toBeVisible()
-    expect(within(card).getByText('May 2026')).toBeVisible()
+    expect(within(card).getByText(latestJoltsLayoffsPeriod)).toBeVisible()
     expect(within(card).getByText(
       'No — layoffs are not beginning to rise.',
     )).toBeVisible()

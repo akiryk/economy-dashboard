@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import data from '../data/jolts-layoffs-and-discharges-rate.json'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import { deriveJoltsHistoricalContext } from '../utils/joltsLayoffsContext'
+import { formatObservationPeriod } from '../utils/economicSeries'
 import { JoltsLayoffsChart } from './JoltsLayoffsChart'
 
 vi.mock('./HistoricalBandChart', () => ({
@@ -28,12 +29,20 @@ describe('JoltsLayoffsChart', () => {
   it('shows five continuous years, historical bands, interaction, and no zero line', () => {
     const series = validateEconomicSeries(data)
     const model = deriveJoltsHistoricalContext(series.observations)
+    const firstPeriod = formatObservationPeriod(
+      model.recentObservations[0]?.date ?? '',
+      'monthly',
+    )
+    const latestPeriod = formatObservationPeriod(
+      model.recentObservations.at(-1)?.date ?? '',
+      'monthly',
+    )
     render(<JoltsLayoffsChart model={model} />)
 
     const chart = screen.getByTestId('historical-band-chart')
     expect(chart).toHaveAttribute(
       'data-caption',
-      'JOLTS layoffs rate · May 2021–May 2026',
+      `JOLTS layoffs rate · ${firstPeriod}–${latestPeriod}`,
     )
     expect(chart).toHaveAttribute('data-zero-line', 'false')
     expect(chart).toHaveAttribute('data-latest-marker', 'true')
