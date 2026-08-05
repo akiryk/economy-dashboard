@@ -51,6 +51,7 @@ import {
 } from '../utils/compactHistoricalMetrics'
 import { deriveHistoricalBandContext } from '../utils/historicalBandContext'
 import { CompactMetricCardLayout } from './CompactMetricCardLayout'
+import { CompactContextDisclosure } from './CompactContextDisclosure'
 import {
   classifyCpiAssessment,
   formatCpiAssessment,
@@ -578,8 +579,10 @@ export function EconomicSeriesSummary({
         {series.slug === 'real-business-investment-growth' && (
           <>
             <p className="series-current__answer">{formatBusinessInvestmentAnswer(latestObservation?.value ?? null)}</p>
-            <p className="series-current__comparison">{formatBusinessInvestmentInterpretation(latestObservation?.value ?? null)}</p>
             {compactModel?.status === 'ready' && <p className="series-current__comparison">The current growth rate is {formatBusinessInvestmentHistoricalPosition(compactModel)} relative to the available history.</p>}
+            <CompactContextDisclosure accessibleSubject="business investment">
+              <p>{formatBusinessInvestmentInterpretation(latestObservation?.value ?? null)}</p>
+            </CompactContextDisclosure>
           </>
         )}
         {series.slug === 'corporate-profit-share' && (
@@ -587,7 +590,9 @@ export function EconomicSeriesSummary({
             <p className="series-current__answer">{formatProfitPerHundred(latestObservation?.value ?? null)}</p>
             {compactModel?.status === 'ready' && <>
               <p className="series-current__comparison">The current corporate-profit share is {formatCorporateProfitSharePosition(compactModel)} by the standards of the past 25 years.</p>
-              <p className="series-current__comparison">{formatCorporateProfitStructuralInterpretation(compactModel)}</p>
+              <CompactContextDisclosure accessibleSubject="corporate profits">
+                <p>{formatCorporateProfitStructuralInterpretation(compactModel)}</p>
+              </CompactContextDisclosure>
             </>}
           </>
         )}

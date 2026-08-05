@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { classifyYieldCurve, deriveYieldCurveObservations, formatYieldCurveAnswer, formatYieldCurveInterpretation } from './yieldCurveData'
+import { classifyYieldCurve, deriveYieldCurveObservations, formatYieldCurveAnswer, formatYieldCurveInterpretation, formatYieldCurveVisibleContext } from './yieldCurveData'
 
 describe('yield curve data', () => {
   it('aligns exact months, calculates spreads, and requires three consecutive values', () => {
@@ -20,7 +20,19 @@ describe('yield curve data', () => {
     expect(formatYieldCurveInterpretation(-1)).toContain('do not guarantee')
     expect(formatYieldCurveInterpretation(0)).toContain('not by itself a recession forecast')
     expect(formatYieldCurveInterpretation(1)).toContain('does not rule out recession')
-    expect(formatYieldCurveInterpretation(1)).toContain('rates is typical')
     expect(formatYieldCurveInterpretation(1)).not.toContain('more typical configuration')
+  })
+
+  it('separates concise visible context from state-specific disclosure copy', () => {
+    expect(formatYieldCurveVisibleContext(1)).toBe(
+      'Long-term Treasury yields being above short-term rates is typical.',
+    )
+    expect(formatYieldCurveInterpretation(1)).toBe(
+      'A positive spread does not rule out recession, but the curve is not currently giving an inversion signal.',
+    )
+    expect(formatYieldCurveVisibleContext(-1)).toContain('short-term Treasury rates are above')
+    expect(formatYieldCurveInterpretation(-1)).toContain('do not guarantee one')
+    expect(formatYieldCurveVisibleContext(0)).toContain('same yield')
+    expect(formatYieldCurveInterpretation(0)).toContain('uncertainty')
   })
 })

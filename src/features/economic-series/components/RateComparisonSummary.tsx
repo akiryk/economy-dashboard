@@ -2,8 +2,9 @@ import { lazy, Suspense, useMemo, useState } from 'react'
 import type { EconomicSeries } from '../models/economicSeries'
 import { calculateChartSummary, filterObservationsByTimeRange, type TimeRange } from '../utils/chartData'
 import { findLatestNonNullObservation, formatDate, formatObservationPeriod, selectMostRecentObservations } from '../utils/economicSeries'
-import { classifyYieldCurve, deriveYieldCurveObservations, formatYieldCurveAnswer, formatYieldCurveInterpretation, formatYieldCurveSpread } from '../utils/yieldCurveData'
+import { classifyYieldCurve, deriveYieldCurveObservations, formatYieldCurveAnswer, formatYieldCurveInterpretation, formatYieldCurveSpread, formatYieldCurveVisibleContext } from '../utils/yieldCurveData'
 import { CompactMetricCardLayout } from './CompactMetricCardLayout'
+import { CompactContextDisclosure } from './CompactContextDisclosure'
 import { HistoricalZoomControls } from './HistoricalZoomControls'
 import { TimeRangeControl } from './TimeRangeControl'
 import { useHistoricalZoom } from './useHistoricalZoom'
@@ -30,7 +31,10 @@ export function RateComparisonSummary({ tenYear, threeMonth, federalFunds }: { t
     <p className="series-current__label">10-year yield minus 3-month Treasury rate</p>
     <p className="series-current__period">{latest ? formatObservationPeriod(latest.date, 'monthly') : 'Unavailable'} · Three-month average</p>
     <p className="series-current__answer">{formatYieldCurveAnswer(latest?.value ?? null)}</p>
-    <p className="series-current__comparison">{formatYieldCurveInterpretation(latest?.value ?? null)}</p>
+    <p className="series-current__comparison">{formatYieldCurveVisibleContext(latest?.value ?? null)}</p>
+    <CompactContextDisclosure accessibleSubject="the yield curve">
+      <p>{formatYieldCurveInterpretation(latest?.value ?? null)}</p>
+    </CompactContextDisclosure>
   </div>
   return <CompactMetricCardLayout cardId="interest-rate-conditions" eyebrow="Interest-rate conditions" question="Is the yield curve inverted?" measureLabel="10-year Treasury yield minus 3-month Treasury bill rate" latestValue={headline} compactVisual={<YieldCurveCompactChart observations={derived} />} collapsible expandedContent={<>
     <TimeRangeControl selectedRange={selectedRange} onRangeChange={zoom.selectPreset} contextLabel="10-year minus 3-month Treasury spread" />

@@ -1501,6 +1501,19 @@ describe('DashboardPage economic series', () => {
     expect(within(investment).getByText('Change in inflation-adjusted business investment from a year ago').previousElementSibling)
       .toHaveTextContent(/%/)
     expect(within(investment).getAllByText(/\d{4} Q[1-4]/)).not.toHaveLength(0)
+    expect(within(investment).getByText(/Yes — businesses are spending more than a year ago/)).toBeVisible()
+    expect(within(investment).getByText('The current growth rate is typical relative to the available history.')).toBeVisible()
+    expect(within(investment).queryByText(/Higher investment often suggests/)).not.toBeInTheDocument()
+    const investmentContext = within(investment).getByRole('button', {
+      name: 'Why this matters for business investment',
+    })
+    expect(investmentContext).toHaveAttribute('aria-expanded', 'false')
+    await user.click(investmentContext)
+    expect(within(investment).getByText(/Higher investment often suggests/)).toBeVisible()
+    expect(within(investment).getByRole('button', {
+      name: 'Hide context for business investment',
+    })).toHaveAttribute('aria-expanded', 'true')
+    expect(within(investment).queryByRole('button', { name: 'Maximum' })).not.toBeInTheDocument()
     await user.click(within(investment).getByRole('button', { name: /More/ }))
     expect(within(investment).getByText(/does not show net investment after depreciation/)).toBeVisible()
     await user.click(within(investment).getByRole('button', { name: 'Maximum' }))
@@ -1555,6 +1568,16 @@ describe('DashboardPage economic series', () => {
       .toHaveTextContent('11.4%')
     expect(within(card).getAllByText('Adjusted after-tax corporate profits as a share of GDP')).toHaveLength(2)
     expect(within(card).getByText('About $11.37 in adjusted after-tax corporate profit for every $100 of GDP.')).toBeVisible()
+    expect(within(card).getByText('The current corporate-profit share is very high by the standards of the past 25 years.')).toBeVisible()
+    expect(within(card).queryByText(/sustained rise since the 1990s/)).not.toBeInTheDocument()
+    await user.click(within(card).getByRole('button', {
+      name: 'Why this matters for corporate profits',
+    }))
+    expect(within(card).getByText(/sustained rise since the 1990s/)).toBeVisible()
+    expect(within(card).getByRole('button', {
+      name: 'Hide context for corporate profits',
+    })).toBeVisible()
+    expect(within(card).queryByRole('button', { name: 'Maximum' })).not.toBeInTheDocument()
     await user.click(within(card).getByRole('button', { name: /More/ }))
     expect(within(card).getByText(/does not show individual-company margins/)).toBeVisible()
     expect(within(card).getByText(/not state that the raw dollar level of profits/)).toBeVisible()
@@ -1818,7 +1841,16 @@ describe('DashboardPage economic series', () => {
     expect(within(rates).getByText(
       formatYieldCurveAnswer(latestYieldCurve.value),
     )).toBeVisible()
+    expect(within(rates).getByText('Long-term Treasury yields being above short-term rates is typical.')).toBeVisible()
+    expect(within(rates).queryByText(/does not rule out recession/)).not.toBeInTheDocument()
+    await user.click(within(rates).getByRole('button', {
+      name: 'Why this matters for the yield curve',
+    }))
     expect(within(rates).getByText(/does not rule out recession/)).toBeVisible()
+    expect(within(rates).getByRole('button', {
+      name: 'Hide context for the yield curve',
+    })).toBeVisible()
+    expect(within(rates).queryByRole('button', { name: 'Maximum' })).not.toBeInTheDocument()
     expect(within(financial).queryByRole('article', {
       name: 'Are credit conditions tighter or looser than usual?',
     })).not.toBeInTheDocument()
