@@ -20,5 +20,7 @@ describe('yield curve data', () => {
     expect(formatYieldCurveInterpretation(-1)).toContain('do not guarantee')
     expect(formatYieldCurveInterpretation(0)).toContain('not by itself a recession forecast')
     expect(formatYieldCurveInterpretation(1)).toContain('does not rule out recession')
+    expect(formatYieldCurveInterpretation(1)).toContain('rates is typical')
+    expect(formatYieldCurveInterpretation(1)).not.toContain('more typical configuration')
   })
 })

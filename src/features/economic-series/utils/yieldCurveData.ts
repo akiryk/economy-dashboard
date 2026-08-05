@@ -58,7 +58,7 @@ export function formatYieldCurveInterpretation(value: number | null): string {
   const state = classifyYieldCurve(value)
   if (state === 'inverted') return 'An inversion means short-term Treasury rates are above long-term rates. This often occurs when monetary policy is restrictive and investors expect weaker growth, lower inflation, or future rate cuts. Inversions have historically preceded many U.S. recessions, but they do not guarantee one or determine its timing.'
   if (state === 'nearly-flat') return 'A nearly flat curve means investors receive about the same yield for short- and long-term Treasury lending. This can indicate uncertainty about future growth, inflation, and interest rates, but it is not by itself a recession forecast.'
-  if (state === 'upward-sloping') return 'Long-term Treasury yields being above short-term rates is the more typical configuration. A positive spread does not rule out recession, but the curve is not currently giving an inversion signal.'
+  if (state === 'upward-sloping') return 'Long-term Treasury yields being above short-term rates is typical. A positive spread does not rule out recession, but the curve is not currently giving an inversion signal.'
   return 'No current yield-curve interpretation is available.'
 }
 

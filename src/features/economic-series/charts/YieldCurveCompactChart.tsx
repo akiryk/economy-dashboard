@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { formatObservationPeriod, selectMostRecentObservations, sortObservationsChronologically } from '../utils/economicSeries'
-import { classifyYieldCurve, formatYieldCurveSpread, type YieldCurveObservation } from '../utils/yieldCurveData'
+import { formatYieldCurveSpread, type YieldCurveObservation } from '../utils/yieldCurveData'
 import { adjacentFiniteObservationIndex, nearestFiniteObservationIndex } from '../utils/inflationCategoryTrendInteraction'
 import { CompactChartHelp } from '../components/CompactChartHelp'
 
@@ -8,6 +8,9 @@ export function YieldCurveCompactChart({ observations }: { observations: readonl
   const recent = useMemo(() => sortObservationsChronologically(selectMostRecentObservations(observations, 61)) as YieldCurveObservation[], [observations])
   const valid = recent.filter((item): item is YieldCurveObservation & { value: number } => item.value !== null)
   const [active, setActive] = useState<number | null>(null)
+  const [pinned, setPinned] = useState(false)
+  const plotRef = useRef<HTMLDivElement>(null)
+  const tooltipId = useId()
   const values = valid.map(({ value }) => value)
   const minimum = Math.min(...values, 0)
   const maximum = Math.max(...values, 0)
@@ -24,22 +27,55 @@ export function YieldCurveCompactChart({ observations }: { observations: readonl
   const selected = active === null ? null : recent[active]
   const first = recent[0]
   const last = recent.at(-1)
-  const state = selected ? classifyYieldCurve(selected.value).replace('-', ' ') : 'unavailable'
+  const indexFromPointer = (clientX: number): number | null => {
+    const bounds = plotRef.current?.getBoundingClientRect()
+    if (!bounds || bounds.width === 0) return null
+    return nearestFiniteObservationIndex(
+      recent,
+      (clientX - bounds.left) / bounds.width,
+    )
+  }
+  useEffect(() => {
+    if (!pinned) return
+    const dismiss = (event: PointerEvent) => {
+      if (!plotRef.current?.contains(event.target as Node)) {
+        setPinned(false)
+        setActive(null)
+      }
+    }
+    document.addEventListener('pointerdown', dismiss)
+    return () => document.removeEventListener('pointerdown', dismiss)
+  }, [pinned])
   return <figure className="yield-curve-compact-chart">
-    <CompactChartHelp buttonLabel="Explain the yield curve spread" dialogLabel="Yield curve spread explanation" heading="10-year minus 3-month Treasury spread"><p>This card compares the 10-year Treasury yield with the 3-month Treasury bill rate. Normally, longer-term Treasury yields are higher because investors commit money for longer. When the 3-month rate rises above the 10-year yield, the curve is inverted. Inversions often occur when short-term monetary policy is tight and investors expect slower growth, lower inflation, or future rate cuts. They have historically preceded many U.S. recessions, but the signal is probabilistic and its lead time varies.</p><p>Other yield-curve measures, such as the 10-year yield minus the 2-year yield, are also widely followed. This card uses the 10-year-minus-3-month spread because it is the conventional spread used in the New York Fed’s recession-probability framework.</p></CompactChartHelp>
-    <figcaption className="visually-hidden">Three-month-average 10-year minus 3-month Treasury spread from {first ? formatObservationPeriod(first.date, 'monthly') : 'unavailable'} through {last ? formatObservationPeriod(last.date, 'monthly') : 'unavailable'}. Negative values indicate inversion.</figcaption>
-    <div className="yield-curve-compact-chart__plot" tabIndex={0} aria-label="Yield curve spread chart. Use left and right arrow keys for exact monthly values." onFocus={() => {
+    <CompactChartHelp buttonLabel="Explain the yield curve spread" dialogLabel="Yield curve spread explanation" heading="10-year minus 3-month Treasury spread"><p>This card compares the 10-year Treasury yield with the 3-month Treasury bill rate. Positive values mean the 10-year yield is higher, negative values mean the curve is inverted, and zero means the two component rates are equal. Inversions often occur when short-term monetary policy is tight and investors expect slower growth, lower inflation, or future rate cuts. They have historically preceded many U.S. recessions, but the signal is probabilistic and its lead time varies.</p><p>Other yield-curve measures, such as the 10-year yield minus the 2-year yield, are also widely followed. This card uses the 10-year-minus-3-month spread because it is the conventional spread used in the New York Fed’s recession-probability framework.</p></CompactChartHelp>
+    <figcaption className="visually-hidden">Three-month-average 10-year minus 3-month Treasury spread from {first ? formatObservationPeriod(first.date, 'monthly') : 'unavailable'} through {last ? formatObservationPeriod(last.date, 'monthly') : 'unavailable'}. Positive values mean the 10-year yield is higher, negative values mean the curve is inverted, and zero means the component rates are equal.</figcaption>
+    <span className="yield-curve-compact-chart__region-label">10-year yield higher</span>
+    <div ref={plotRef} className="yield-curve-compact-chart__plot" tabIndex={0} aria-label="Yield curve spread chart. Use left and right arrow keys for exact monthly values." aria-describedby={selected ? tooltipId : undefined} onFocus={() => {
       if (active === null) setActive(nearestFiniteObservationIndex(recent, 1))
     }} onBlur={() => {
-      setActive(null)
+      if (!pinned) setActive(null)
     }} onPointerMove={(event) => {
-      if (event.pointerType === 'touch') return
-      const bounds = event.currentTarget.getBoundingClientRect()
-      const ratio = Math.max(0, Math.min(1, (event.clientX - bounds.left) / Math.max(bounds.width, 1)))
-      setActive(nearestFiniteObservationIndex(recent, ratio))
+      if (!pinned && event.pointerType !== 'touch') {
+        setActive(indexFromPointer(event.clientX))
+      }
     }} onPointerLeave={(event) => {
-      if (event.pointerType !== 'touch') setActive(null)
+      if (!pinned && event.pointerType !== 'touch') setActive(null)
+    }} onPointerDown={(event) => {
+      if (event.pointerType !== 'touch') return
+      const index = indexFromPointer(event.clientX)
+      if (pinned && index === active) {
+        setPinned(false)
+        setActive(null)
+      } else {
+        setActive(index)
+        setPinned(true)
+      }
     }} onKeyDown={(event) => {
+      if (event.key === 'Escape') {
+        setPinned(false)
+        setActive(null)
+        return
+      }
       if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
       event.preventDefault()
       setActive((current) => adjacentFiniteObservationIndex(
@@ -55,18 +91,17 @@ export function YieldCurveCompactChart({ observations }: { observations: readonl
         {paths.map((value, index) => <path key={index} d={value} className="yield-curve-compact-chart__line" />)}
         {last?.value !== null && last?.value !== undefined && <circle cx={x(recent.length - 1)} cy={y(last.value)} r="2" className="yield-curve-compact-chart__latest" />}
       </svg>
-      <span className="yield-curve-compact-chart__positive-label">10-year yield higher</span>
-      <span className="yield-curve-compact-chart__negative-label">Inverted</span>
-      <span className="yield-curve-compact-chart__zero-label">Zero = 10-year and 3-month rates are equal</span>
       {selected?.value !== null && selected && <div
         className={`yield-curve-compact-chart__tooltip${y(selected.value) < 32 ? ' yield-curve-compact-chart__tooltip--below' : ''}`}
+        id={tooltipId}
         role="status"
         style={{
-          left: `${Math.max(10, Math.min(90, x(active!)))}%`,
+          '--yield-curve-tooltip-position': `${x(active!)}%`,
           top: `${y(selected.value) / 92 * 100}%`,
-        }}
-      ><strong>{formatObservationPeriod(selected.date, 'monthly')}</strong><span>Three-month-average spread: {formatYieldCurveSpread(selected.value)}</span><span>10-year Treasury yield: {selected.tenYearYield?.toFixed(2) ?? 'Unavailable'}%</span><span>3-month Treasury rate: {selected.threeMonthRate?.toFixed(2) ?? 'Unavailable'}%</span><span>State: {state}</span></div>}
+        } as CSSProperties}
+      ><strong className="yield-curve-compact-chart__tooltip-date">{formatObservationPeriod(selected.date, 'monthly')}</strong><span className="yield-curve-compact-chart__tooltip-spread"><span>Spread</span> <strong>{formatYieldCurveSpread(selected.value)}</strong></span><span className="yield-curve-compact-chart__tooltip-rates"><span><span>10Y</span> {selected.tenYearYield?.toFixed(2) ?? 'Unavailable'}%</span><span aria-hidden="true"> · </span><span><span>3M</span> {selected.threeMonthRate?.toFixed(2) ?? 'Unavailable'}%</span></span></div>}
     </div>
+    <span className="yield-curve-compact-chart__region-label">Inverted</span>
     <div className="yield-curve-compact-chart__dates"><span>{first ? formatObservationPeriod(first.date, 'monthly') : ''}</span><span>{last ? formatObservationPeriod(last.date, 'monthly') : ''}</span></div>
   </figure>
 }
