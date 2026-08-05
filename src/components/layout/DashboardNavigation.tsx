@@ -99,8 +99,6 @@ const navigationGroups = [
     title: 'Financial conditions',
     cards: [
       { id: 'interest-rate-conditions-card', title: 'Is the yield curve inverted?' },
-      { id: 'broad-credit-conditions-card', title: 'Are credit conditions tighter or looser than usual?' },
-      { id: 'bank-lending-standards-card', title: 'Are banks making it harder to borrow?' },
     ],
   },
   {

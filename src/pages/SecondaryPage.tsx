@@ -54,6 +54,21 @@ export function SecondaryPage() {
       </EconomicSection>
 
       <EconomicSection
+        id="secondary-financial-conditions"
+        title="Financial conditions"
+        description="Additional credit-condition measures retained for research."
+      >
+        <EconomicSeriesCard
+          slug="broad-credit-conditions"
+          label="broad credit conditions"
+        />
+        <EconomicSeriesCard
+          slug="bank-lending-standards"
+          label="bank lending standards"
+        />
+      </EconomicSection>
+
+      <EconomicSection
         id="secondary-households"
         title="Households"
         description="Additional household measures retained for future evaluation."

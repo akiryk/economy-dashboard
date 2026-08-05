@@ -265,16 +265,6 @@ export function DashboardPage() {
           variant="rate-comparison"
           onSeriesLoaded={handleSeriesLoaded}
         />
-        <EconomicSeriesCard
-          slug="broad-credit-conditions"
-          label="broad credit conditions"
-          onSeriesLoaded={handleSeriesLoaded}
-        />
-        <EconomicSeriesCard
-          slug="bank-lending-standards"
-          label="bank lending standards"
-          onSeriesLoaded={handleSeriesLoaded}
-        />
       </EconomicSection>
 
       <EconomicSection

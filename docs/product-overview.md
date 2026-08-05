@@ -8,7 +8,7 @@ The current product is intentionally broad and nonpartisan. It does not forecast
 
 The dashboard contains 25 visible cards in nine sections. Most cards use nonsmoothed time-series line charts. Relationship cards use two aligned lines; the manufacturing comparison normalizes two differently scaled series to a common selected-range baseline.
 
-The `/secondary` route retains indicators that are not currently part of the main dashboard for possible future review. It contains the productivity-level card, household-resources card, household debt-burden card, manufacturing output-versus-employment relationship card, and industrial-capacity-utilization card. The primary navigation links to this page as Secondary indicators.
+The `/secondary` route retains indicators that are not currently part of the main dashboard for possible future review. It contains the productivity-level card, household-resources card, household debt-burden card, manufacturing output-versus-employment relationship card, industrial-capacity-utilization card, broad credit-conditions card, and bank lending-standards card. The primary navigation links to this page as Secondary indicators.
 
 The non-default `/briefing` preview currently adds one compact Labor tile. Its activity bar and momentum arrow show full-history percentile positions of the Kansas City Fed Labor Market Conditions Indicators; raw LMCI readings and the existing unemployment, payroll, prime-age employment, and claims measures appear only under More. The supporting measures cannot override the LMCI headline tiers.
 
@@ -79,6 +79,11 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 | Card | Displayed measure and chart | Why it is here |
 |---|---|---|
 | Is the yield curve inverted? | Trailing three-month average of the monthly 10-year Treasury yield minus the 3-month Treasury bill rate, with a five-year compact spread chart and prominent zero line. | A negative spread is an inversion. Inversions have historically preceded many U.S. recessions, but the relationship is probabilistic and does not determine whether or when a recession will occur. The federal funds rate remains secondary monetary-policy context under **More**. |
+
+#### Secondary financial-conditions research
+
+| Card | Displayed measure and chart | Why it is secondary |
+|---|---|---|
 | Are credit conditions tighter or looser than usual? | Weekly Chicago Fed NFCI credit subindex relative to its historical average. | Adds broad credit availability and risk conditions not captured by Treasury yields alone. |
 | Are banks making it harder to borrow? | Quarterly net percentage of domestic banks reporting tighter C&I lending standards for large and middle-market firms. | Adds a direct SLOOS survey measure for one borrower class, distinct from the NFCI composite and from loan demand or denial rates. |
 

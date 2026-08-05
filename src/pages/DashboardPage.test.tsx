@@ -18,7 +18,6 @@ import {
   formatYieldCurveAnswer,
   formatYieldCurveSpread,
 } from '../features/economic-series/utils/yieldCurveData'
-import { formatLendingStandardsCallout } from '../features/economic-series/utils/lendingStandardsData'
 import { DashboardPage } from './DashboardPage'
 
 const joltsLayoffsSeries = validateEconomicSeries(joltsLayoffsData)
@@ -201,7 +200,7 @@ describe('DashboardPage economic series', () => {
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(25)
+    expect(links).toHaveLength(23)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -222,8 +221,6 @@ describe('DashboardPage economic series', () => {
       'Are businesses investing more in productive assets?',
       'How large are corporate profits relative to the economy?',
       'Is the yield curve inverted?',
-      'Are credit conditions tighter or looser than usual?',
-      'Are banks making it harder to borrow?',
       'How large is the federal budget deficit or surplus relative to the economy?',
       'How large is federal debt held by the public relative to the economy?',
       'How large is the U.S. trade balance relative to the economy?',
@@ -452,7 +449,7 @@ describe('DashboardPage economic series', () => {
       'Is job growth keeping up with the labor force?',
       'Are layoffs beginning to rise?',
     ])
-    expect(screen.getAllByRole('article')).toHaveLength(25)
+    expect(screen.getAllByRole('article')).toHaveLength(23)
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'personal-saving-rate-question',
     ])
@@ -1798,31 +1795,23 @@ describe('DashboardPage economic series', () => {
     },
   )
 
-  it('renders the three Financial conditions cards after Business and manufacturing', async () => {
+  it('keeps only the yield-curve card in primary Financial conditions', async () => {
     const user = userEvent.setup()
-    const [tenYear, threeMonth, lendingStandards] = await Promise.all([
+    const [tenYear, threeMonth] = await Promise.all([
       localEconomicSeriesRepository.getBySlug('ten-year-treasury-yield'),
       localEconomicSeriesRepository.getBySlug('three-month-treasury-bill-rate'),
-      localEconomicSeriesRepository.getBySlug('bank-lending-standards'),
     ])
     const yieldCurve = deriveYieldCurveObservations(
       tenYear!.observations,
       threeMonth!.observations,
     )
     const latestYieldCurve = yieldCurve.at(-1)!
-    const latestLendingStandards = lendingStandards!.observations.at(-1)!
-    const latestLendingStandardsPeriod = formatObservationPeriod(
-      latestLendingStandards.date,
-      'quarterly',
-    )
     render(<DashboardPage />)
     const business = screen.getByRole('region', { name: 'Business and manufacturing' })
     const financial = screen.getByRole('region', { name: 'Financial conditions' })
     expect(business.compareDocumentPosition(financial) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     const rates = await within(financial).findByRole('article', { name: 'Is the yield curve inverted?' })
-    const credit = await within(financial).findByRole('article', { name: 'Are credit conditions tighter or looser than usual?' })
-    const lending = await within(financial).findByRole('article', { name: 'Are banks making it harder to borrow?' })
-    expect(within(financial).getAllByRole('article')).toHaveLength(3)
+    expect(within(financial).getAllByRole('article')).toHaveLength(1)
     expect(within(rates).getByText(
       formatYieldCurveSpread(latestYieldCurve.value),
     )).toBeVisible()
@@ -1830,34 +1819,17 @@ describe('DashboardPage economic series', () => {
       formatYieldCurveAnswer(latestYieldCurve.value),
     )).toBeVisible()
     expect(within(rates).getByText(/does not rule out recession/)).toBeVisible()
-    expect(within(credit).getByLabelText('Latest broad credit-conditions index')).toHaveTextContent(/-?\d+\.\d+/)
-    expect(within(credit).getByText('Looser than average')).toBeVisible()
-    expect(within(credit).getByText(/not a percentage/)).toBeVisible()
-    expect(within(credit).getAllByText(/Week of .+ 2026/)).not.toHaveLength(0)
-    expect(within(lending).getByLabelText('Latest bank lending standards'))
-      .toHaveTextContent(formatLendingStandardsCallout(latestLendingStandards.value))
-    expect(within(lending).getAllByText(latestLendingStandardsPeriod))
-      .not.toHaveLength(0)
-    expect(within(lending).getByText(/not a denial rate/)).toBeVisible()
-    expect(within(lending).getByText(/loan demand/i)).toBeVisible()
+    expect(within(financial).queryByRole('article', {
+      name: 'Are credit conditions tighter or looser than usual?',
+    })).not.toBeInTheDocument()
+    expect(within(financial).queryByRole('article', {
+      name: 'Are banks making it harder to borrow?',
+    })).not.toBeInTheDocument()
     await user.click(within(rates).getByRole('button', { name: /More/ }))
     await user.click(within(rates).getByRole('button', { name: 'Maximum' }))
-    await user.click(within(credit).getByRole('button', { name: 'Maximum' }))
-    await user.click(within(lending).getByRole('button', { name: 'Maximum' }))
     expect(within(rates).getByText(
       `Visible period: ${formatObservationPeriod(yieldCurve[0]!.date, 'monthly')}–${formatObservationPeriod(latestYieldCurve.date, 'monthly')}`,
     )).toBeVisible()
-    expect(within(credit).getByText(/Visible period: Week of Jan 8, 1971–Week of .+/)).toBeVisible()
-    expect(within(lending).getByText(
-      `Visible period: 1990 Q2–${latestLendingStandardsPeriod}`,
-    )).toBeVisible()
-    await user.click(within(credit).getByRole('button', { name: 'Zoom in' }))
-    expect(within(credit).getByRole('button', { name: 'Reset zoom' })).toBeVisible()
-    await user.click(within(lending).getByText('Recent observations'))
-    expect(within(lending).getByRole('table', { name: 'Eight most recent bank lending-standards observations' })).toBeVisible()
-    await user.click(within(lending).getByText('Series details'))
-    expect(within(lending).getByText('DRTSCILM')).toBeVisible()
-    expect(within(lending).getByText('Not seasonally adjusted')).toBeVisible()
   })
 
   it('renders annual budget balance and quarterly debt held by the public after Financial conditions', async () => {
@@ -1883,25 +1855,6 @@ describe('DashboardPage economic series', () => {
     expect(within(debt).getByText('Visible period: 1970 Q1–2026 Q1')).toBeVisible()
     await user.click(within(budget).getByRole('button', { name: 'Zoom in' }))
     expect(within(budget).getByRole('button', { name: 'Reset zoom' })).toBeVisible()
-  })
-
-  it('isolates a bank lending-standards card load failure', async () => {
-    const original = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
-    vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
-      if (slug === 'bank-lending-standards') throw new Error('Invalid SLOOS fixture')
-      return original(slug)
-    })
-    vi.spyOn(console, 'error').mockImplementation(() => undefined)
-
-    render(<DashboardPage />)
-
-    expect(await screen.findByText('The bank lending standards data could not be loaded.')).toBeVisible()
-    expect(await screen.findByRole('article', {
-      name: 'Are credit conditions tighter or looser than usual?',
-    })).toBeVisible()
-    expect(await screen.findByRole('article', {
-      name: 'Is the yield curve inverted?',
-    })).toBeVisible()
   })
 
   it.each([
@@ -1961,10 +1914,9 @@ describe('DashboardPage economic series', () => {
   })
 
   it.each([
-    ['effective-federal-funds-rate', 'The yield curve data could not be loaded.', 'Are credit conditions tighter or looser than usual?'],
-    ['ten-year-treasury-yield', 'The yield curve data could not be loaded.', 'Are credit conditions tighter or looser than usual?'],
-    ['three-month-treasury-bill-rate', 'The yield curve data could not be loaded.', 'Are credit conditions tighter or looser than usual?'],
-    ['broad-credit-conditions', 'The broad credit conditions data could not be loaded.', 'Is the yield curve inverted?'],
+    ['effective-federal-funds-rate', 'The yield curve data could not be loaded.', 'How large is the federal budget deficit or surplus relative to the economy?'],
+    ['ten-year-treasury-yield', 'The yield curve data could not be loaded.', 'How large is the federal budget deficit or surplus relative to the economy?'],
+    ['three-month-treasury-bill-rate', 'The yield curve data could not be loaded.', 'How large is the federal budget deficit or surplus relative to the economy?'],
   ])('isolates a %s failure within Financial conditions', async (failedSlug, message, survivor) => {
     const original = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
     vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {

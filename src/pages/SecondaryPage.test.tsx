@@ -96,4 +96,23 @@ describe('SecondaryPage', () => {
     expect(within(card).getByRole('link', { name: /79.4%/ })).toHaveAttribute('href', 'https://www.federalreserve.gov/releases/g17/current/table0.htm')
     expect(within(card).getByRole('link', { name: /Board of Governors/ })).toHaveAttribute('href', 'https://fred.stlouisfed.org/series/TCU')
   })
+
+  it('retains broad credit and bank lending standards under Financial conditions', async () => {
+    render(<SecondaryPage />)
+    const section = screen.getByRole('region', { name: 'Financial conditions' })
+    const credit = await within(section).findByRole('article', {
+      name: 'Are credit conditions tighter or looser than usual?',
+    })
+    const lending = await within(section).findByRole('article', {
+      name: 'Are banks making it harder to borrow?',
+    })
+
+    expect(within(section).getAllByRole('article')).toHaveLength(2)
+    expect(within(credit).getByLabelText('Latest broad credit-conditions index'))
+      .toHaveTextContent(/-?\d+\.\d+/)
+    expect(within(credit).getByText(/not a percentage/)).toBeVisible()
+    expect(within(lending).getByLabelText('Latest bank lending standards'))
+      .toBeVisible()
+    expect(within(lending).getByText(/not a denial rate/)).toBeVisible()
+  })
 })
