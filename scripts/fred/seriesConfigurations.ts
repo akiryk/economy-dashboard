@@ -385,7 +385,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     shortTitle: 'Real business investment growth',
     description:
       'Year-over-year growth in inflation-adjusted private nonresidential fixed investment in structures, equipment, and intellectual-property products.',
-    question: 'Are businesses increasing investment in productive capacity?',
+    question: 'Are businesses investing more in productive assets?',
     units: 'Percent change from year ago',
     seasonalAdjustment:
       'Seasonally adjusted annual rate (underlying real investment level)',
@@ -393,6 +393,26 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
       'Exact-quarter percent change from year ago, calculated by the application',
     sourceName:
       'U.S. Bureau of Economic Analysis via FRED; growth calculated by the application',
+    sourceUrl: 'https://fred.stlouisfed.org/series/PNFIC1',
+  },
+  {
+    dataHandling: 'provider-level',
+    id: 'real-business-investment-level',
+    slug: 'real-business-investment-level',
+    outputFile: 'src/features/economic-series/data/real-business-investment-level.json',
+    providerSeriesId: 'PNFIC1',
+    frequency: 'quarterly',
+    fredFrequency: 'q',
+    historyPolicy: { type: 'full' },
+    minimumUsableObservations: 70,
+    title: 'Real Private Nonresidential Fixed Investment',
+    shortTitle: 'Real business investment level',
+    description: 'Inflation-adjusted private nonresidential fixed investment in structures, equipment, and intellectual-property products.',
+    question: 'Are businesses investing more in productive assets?',
+    units: 'Billions of chained 2017 dollars',
+    seasonalAdjustment: 'Seasonally adjusted annual rate',
+    transformation: 'Provider-published level',
+    sourceName: 'U.S. Bureau of Economic Analysis via FRED',
     sourceUrl: 'https://fred.stlouisfed.org/series/PNFIC1',
   },
   {

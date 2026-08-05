@@ -87,6 +87,12 @@ import {
   formatManufacturingHistoricalPosition,
 } from '../utils/manufacturingOutputGrowth'
 import { HousingConstructionDetails } from './HousingConstructionDetails'
+import {
+  createBusinessInvestmentAccessibleSummary,
+  formatBusinessInvestmentAnswer,
+  formatBusinessInvestmentHistoricalPosition,
+  formatBusinessInvestmentInterpretation,
+} from '../utils/businessInvestmentContext'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -166,6 +172,9 @@ export function EconomicSeriesSummary({
   )
   const populationSeries = supportingSeries?.find(
     ({ slug }) => slug === 'us-population-monthly',
+  )
+  const businessInvestmentLevel = supportingSeries?.find(
+    ({ slug }) => slug === 'real-business-investment-level',
   )
   const housingStartsCompactData = useMemo(
     () => series.slug === 'housing-starts' && populationSeries
@@ -330,6 +339,9 @@ export function EconomicSeriesSummary({
     compactModel?.status === 'ready'
     ? createManufacturingAccessibleSummary(compactModel)
     : null
+  const businessInvestmentAccessibleLabel = series.slug === 'real-business-investment-growth' && compactModel?.status === 'ready'
+    ? createBusinessInvestmentAccessibleSummary(compactModel)
+    : null
 
   const latestValueContent = (
     <div
@@ -339,6 +351,7 @@ export function EconomicSeriesSummary({
         cpiAccessibleLabel ??
         housingStartsAccessibleLabel ??
         manufacturingAccessibleLabel ??
+        businessInvestmentAccessibleLabel ??
         (unemploymentContext
           ? createUnemploymentAccessibleSummary(unemploymentContext)
           : null) ??
@@ -368,8 +381,10 @@ export function EconomicSeriesSummary({
               ? formatLendingStandardsCallout(latestObservation?.value ?? null)
               : series.slug === 'housing-starts'
               ? formatAnnualizedHousingUnits(headlineObservation?.value ?? null)
-              : series.slug === 'manufacturing-output'
+            : series.slug === 'manufacturing-output'
               ? formatSignedPercentage(headlineObservation?.value ?? null)
+              : series.slug === 'real-business-investment-growth'
+              ? formatSignedPercentage(latestObservation?.value ?? null)
               : formatValue(latestObservation?.value ?? null)}
           </span>
         </p>
@@ -408,6 +423,8 @@ export function EconomicSeriesSummary({
             ? 'Three-month average annualized pace'
             : series.slug === 'manufacturing-output'
             ? 'Change in inflation-adjusted manufacturing production from a year earlier'
+            : series.slug === 'real-business-investment-growth'
+            ? 'Change in inflation-adjusted business investment from a year ago'
             : presentation.latestValueLabel}
         </p>
         <p className="series-current__period">
@@ -527,6 +544,13 @@ export function EconomicSeriesSummary({
             )}
           </>
         )}
+        {series.slug === 'real-business-investment-growth' && (
+          <>
+            <p className="series-current__answer">{formatBusinessInvestmentAnswer(latestObservation?.value ?? null)}</p>
+            <p className="series-current__comparison">{formatBusinessInvestmentInterpretation(latestObservation?.value ?? null)}</p>
+            {compactModel?.status === 'ready' && <p className="series-current__comparison">The current growth rate is {formatBusinessInvestmentHistoricalPosition(compactModel)} relative to the available history.</p>}
+          </>
+        )}
     </div>
   )
   const compactVisual = compactModel && compactDefinition ? (
@@ -549,7 +573,12 @@ export function EconomicSeriesSummary({
             ? 'Unavailable'
             : value.toFixed(1),
         } : {})}
-        accessibleSummaryOverride={housingStartsAccessibleLabel ?? undefined}
+        {...(businessInvestmentLevel ? {
+          pairedObservations: businessInvestmentLevel.observations,
+          pairedObservationLabel: 'Underlying real investment level',
+          pairedValueFormatter: (value: number | null) => value === null ? 'Unavailable' : `${value.toFixed(1)} billion chained 2017 dollars, annualized`,
+        } : {})}
+        accessibleSummaryOverride={housingStartsAccessibleLabel ?? businessInvestmentAccessibleLabel ?? undefined}
         visuallyHideSummary
       />
     </Suspense>
@@ -567,11 +596,15 @@ export function EconomicSeriesSummary({
         ? 'How much of a median household’s income would it take to own a typical home?'
         : series.slug === 'manufacturing-output'
         ? 'Are U.S. manufacturers producing more goods?'
+        : series.slug === 'real-business-investment-growth'
+        ? 'Are businesses investing more in productive assets?'
         : series.question}
       measureLabel={series.slug === 'home-ownership-cost-share'
         ? 'Estimated share of median household income needed to own the median-priced home'
         : series.slug === 'manufacturing-output'
         ? 'Inflation-adjusted manufacturing production'
+        : series.slug === 'real-business-investment-growth'
+        ? 'Real private nonresidential fixed investment'
         : series.title}
       latestValue={latestValueContent}
       compactVisual={compactVisual}
@@ -882,14 +915,19 @@ export function EconomicSeriesSummary({
           <p>
             {series.slug === 'unemployment-rate'
               ? 'The unemployment rate measures the current level of joblessness among people in the labor force. The compact historical classification and the separate 12-month movement describe level and direction without combining them into one score.'
+              : series.slug === 'real-business-investment-growth'
+              ? 'This measure shows whether private businesses are increasing or reducing inflation-adjusted spending on equipment, nonresidential structures, software, and research. These investments can support future production and productivity, but the measure records spending rather than the eventual results.'
               : presentation.whatThisTellsYou}
           </p>
         </section>
+        {series.slug === 'real-business-investment-growth' && <section><h4>What this may suggest</h4><p>Rising investment can suggest that firms expect enough future demand to justify new or upgraded assets. Falling investment can suggest greater caution, weaker expected demand, tighter financing, or completion of earlier projects. These are plausible interpretations, not direct observations of confidence or intent.</p></section>}
         <section>
           <h4>What this leaves out</h4>
           <p>
             {series.slug === 'unemployment-rate'
               ? 'The labor force includes employed people and unemployed people who are available and have recently looked for work. People who want work but are not actively looking are not counted as unemployed. The rate does not measure job creation, layoffs, job quality, hours, pay, or differences across groups.'
+              : series.slug === 'real-business-investment-growth'
+              ? 'The aggregate does not show net investment after depreciation, the existing capital stock, profitability, financing costs, business confidence, or whether future output and productivity actually rise. It can also conceal different trends across structures, equipment, and intellectual-property products.'
               : presentation.whatThisLeavesOut}
           </p>
         </section>

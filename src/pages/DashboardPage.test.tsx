@@ -204,7 +204,7 @@ describe('DashboardPage economic series', () => {
       'How much of a median household’s income would it take to own a typical home?',
       'How much new housing is being started?',
       'Are U.S. manufacturers producing more goods?',
-      'Are businesses increasing investment in productive capacity?',
+      'Are businesses investing more in productive assets?',
       'Are corporate profits growing relative to the economy?',
       'How fully is industrial capacity being used?',
       'How do short-term and long-term interest rates compare?',
@@ -1484,16 +1484,17 @@ describe('DashboardPage economic series', () => {
 
     const business = screen.getByRole('region', { name: 'Business and manufacturing' })
     const investment = await within(business).findByRole('article', {
-      name: 'Are businesses increasing investment in productive capacity?',
+      name: 'Are businesses investing more in productive assets?',
     })
     const capacity = await within(business).findByRole('article', {
       name: 'How fully is industrial capacity being used?',
     })
 
-    expect(within(investment).getByLabelText('Latest real business investment growth'))
+    expect(within(investment).getByText('Change in inflation-adjusted business investment from a year ago').previousElementSibling)
       .toHaveTextContent(/%/)
     expect(within(investment).getAllByText(/\d{4} Q[1-4]/)).not.toHaveLength(0)
-    expect(within(investment).getByText(/not purchases of stocks, bonds/)).toBeVisible()
+    await user.click(within(investment).getByRole('button', { name: /More/ }))
+    expect(within(investment).getByText(/does not show net investment after depreciation/)).toBeVisible()
     expect(within(capacity).getByLabelText('Latest industrial capacity utilization'))
       .toHaveTextContent('76.1%')
     expect(within(capacity).getAllByText('June 2026')).not.toHaveLength(0)
@@ -1538,7 +1539,7 @@ describe('DashboardPage economic series', () => {
 
   it.each([
     ['real-business-investment-growth', 'The real business investment growth data could not be loaded.', 'How fully is industrial capacity being used?'],
-    ['industrial-capacity-utilization', 'The industrial capacity utilization data could not be loaded.', 'Are businesses increasing investment in productive capacity?'],
+    ['industrial-capacity-utilization', 'The industrial capacity utilization data could not be loaded.', 'Are businesses investing more in productive assets?'],
   ])('isolates a %s failure from the other business cards', async (failedSlug, message, survivor) => {
     const originalGetBySlug = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
     vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
@@ -1612,7 +1613,7 @@ describe('DashboardPage economic series', () => {
 
     expect(await screen.findByText('The corporate profit share data could not be loaded.')).toBeVisible()
     expect(await screen.findByRole('article', {
-      name: 'Are businesses increasing investment in productive capacity?',
+      name: 'Are businesses investing more in productive assets?',
     })).toBeVisible()
     expect(await screen.findByRole('article', {
       name: 'How fully is industrial capacity being used?',

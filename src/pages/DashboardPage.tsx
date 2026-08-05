@@ -235,7 +235,9 @@ export function DashboardPage() {
           onSeriesLoaded={handleSeriesLoaded}
         />
         <EconomicSeriesCard
+          collapsible
           slug="real-business-investment-growth"
+          supportingSlugs={['real-business-investment-level']}
           label="real business investment growth"
           onSeriesLoaded={handleSeriesLoaded}
         />

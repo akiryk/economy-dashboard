@@ -87,7 +87,7 @@ const navigationGroups = [
       },
       {
         id: 'real-business-investment-growth-card',
-        title: 'Are businesses increasing investment in productive capacity?',
+        title: 'Are businesses investing more in productive assets?',
       },
       {
         id: 'corporate-profit-share-card',

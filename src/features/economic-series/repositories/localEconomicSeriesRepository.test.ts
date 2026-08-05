@@ -7,6 +7,7 @@ describe('localEconomicSeriesRepository', () => {
     ['real-gdp-per-capita-growth', 'A939RX0Q048SBEA'],
     ['labor-productivity-growth', 'OPHNFB'],
     ['labor-productivity-level', 'OPHNFB'],
+    ['real-business-investment-level', 'PNFIC1'],
     ['real-business-investment-growth', 'PNFIC1'],
     ['household-debt-service-ratio', 'TDSP'],
     ['quarterly-real-disposable-income-per-capita-growth', 'A229RX0Q048SBEA'],

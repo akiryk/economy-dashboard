@@ -149,6 +149,14 @@ CompactHistoricalMetricDefinition['positionDescriptions'] = {
   aboveOuterBand: 'very strong by the standards of the past 25 years',
 }
 
+const businessInvestmentPositionDescriptions: CompactHistoricalMetricDefinition['positionDescriptions'] = {
+  belowOuterBand: 'very weak relative to the available history',
+  betweenOuterAndInnerLow: 'weak relative to the available history',
+  insideInnerBand: 'typical relative to the available history',
+  betweenInnerAndOuterHigh: 'strong relative to the available history',
+  aboveOuterBand: 'very strong relative to the available history',
+}
+
 export const realGdpCompactDefinition: CompactHistoricalMetricDefinition = {
   seriesLabel: 'Real GDP growth',
   frequency: 'quarterly',
@@ -429,6 +437,29 @@ CompactHistoricalMetricDefinition = {
   positionDescriptions: manufacturingOutputPositionDescriptions,
 }
 
+export const businessInvestmentCompactDefinition: CompactHistoricalMetricDefinition = {
+  seriesLabel: 'Real business investment growth',
+  frequency: 'quarterly',
+  historicalBands: {
+    recentObservationCount: 21,
+    comparisonWindow: { kind: 'all-available' },
+    innerPercentiles: [25, 75], outerPercentiles: [10, 90],
+    minimumFiniteObservations: 20,
+    latestObservationPolicy: 'latest-finite',
+  },
+  showZeroLine: true,
+  showLatestMarker: true,
+  interactiveDetails: true,
+  valueFormatter: formatSignedPercentage,
+  comparisonLabel: () => 'Available history since 2008',
+  helpText: {
+    heading: 'Real private nonresidential fixed investment',
+    description: 'This measure tracks inflation-adjusted private business spending on equipment, nonresidential structures, software, and research. Rising investment often suggests that firms expect future demand to justify expanding or upgrading productive assets, but it may also reflect replacement, automation, policy incentives, or previously planned projects. Lower investment may indicate delayed or reduced projects, but can also follow unusually strong prior investment. The measure tracks new spending, not the total capital stock, net investment after depreciation, business confidence, or guaranteed future production.',
+  },
+  zeroLineMeaning: 'Zero = real business investment matched its year-earlier level',
+  positionDescriptions: businessInvestmentPositionDescriptions,
+}
+
 const compactDefinitions: Readonly<
   Partial<Record<string, CompactHistoricalMetricDefinition>>
 > = {
@@ -443,6 +474,7 @@ const compactDefinitions: Readonly<
   'home-ownership-cost-share': homeOwnershipCostCompactDefinition,
   'housing-starts': housingStartsCompactDefinition,
   'manufacturing-output': manufacturingOutputCompactDefinition,
+  'real-business-investment-growth': businessInvestmentCompactDefinition,
 }
 
 export function getCompactHistoricalMetricDefinition(
