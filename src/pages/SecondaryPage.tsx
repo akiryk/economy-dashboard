@@ -30,6 +30,17 @@ export function SecondaryPage() {
       </EconomicSection>
 
       <EconomicSection
+        id="secondary-industrial-activity"
+        title="Industrial Activity"
+        description="Industrial output relative to the Federal Reserve’s estimate of sustainable capacity."
+      >
+        <EconomicSeriesCard
+          slug="industrial-capacity-utilization"
+          label="industrial capacity utilization"
+        />
+      </EconomicSection>
+
+      <EconomicSection
         id="secondary-business-manufacturing"
         title="Business and manufacturing"
         description="Additional production and employment relationships retained for research."

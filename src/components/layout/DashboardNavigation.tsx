@@ -93,10 +93,6 @@ const navigationGroups = [
         id: 'corporate-profit-share-card',
         title: 'How large are corporate profits relative to the economy?',
       },
-      {
-        id: 'industrial-capacity-utilization-card',
-        title: 'How fully is industrial capacity being used?',
-      },
     ],
   },
   {
@@ -133,7 +129,7 @@ export function DashboardNavigation() {
         <summary>
           <span id="dashboard-navigation-heading">Explore all indicators</span>
           <span className="dashboard-navigation__summary-detail">
-            26 cards in 9 categories
+            25 cards in 9 categories
           </span>
         </summary>
         <div className="dashboard-navigation__groups">

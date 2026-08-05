@@ -99,6 +99,13 @@ import {
   formatCorporateProfitStructuralInterpretation,
   formatProfitPerHundred,
 } from '../utils/corporateProfitShareContext'
+import {
+  formatCapacityUtilizationAnswer,
+  formatCapacityUtilizationComparison,
+  industrialCapacityBenchmarkPeriod,
+  industrialCapacityBenchmarkUrl,
+  industrialCapacityLongRunAverage,
+} from '../utils/capacityUtilizationContext'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -433,6 +440,8 @@ export function EconomicSeriesSummary({
             ? 'Three-month average annualized pace'
             : series.slug === 'manufacturing-output'
             ? 'Change in inflation-adjusted manufacturing production from a year earlier'
+            : series.slug === 'industrial-capacity-utilization'
+            ? 'Industrial capacity currently in use'
             : series.slug === 'real-business-investment-growth'
             ? 'Change in inflation-adjusted business investment from a year ago'
             : presentation.latestValueLabel}
@@ -568,6 +577,12 @@ export function EconomicSeriesSummary({
               <p className="series-current__comparison">The current corporate-profit share is {formatCorporateProfitSharePosition(compactModel)} by the standards of the past 25 years.</p>
               <p className="series-current__comparison">{formatCorporateProfitStructuralInterpretation(compactModel)}</p>
             </>}
+          </>
+        )}
+        {series.slug === 'industrial-capacity-utilization' && (
+          <>
+            <p className="series-current__answer">{formatCapacityUtilizationAnswer(latestObservation?.value ?? null)}</p>
+            <p className="series-current__comparison">{formatCapacityUtilizationComparison(latestObservation?.value ?? null)}</p>
           </>
         )}
     </div>
@@ -1027,6 +1042,7 @@ export function EconomicSeriesSummary({
               <dt>Transformation</dt>
               <dd>{series.transformation}</dd>
             </div>
+            {series.slug === 'industrial-capacity-utilization' && <div><dt>Long-run average</dt><dd><a href={industrialCapacityBenchmarkUrl} target="_blank" rel="noreferrer">{industrialCapacityLongRunAverage.toFixed(1)}% ({industrialCapacityBenchmarkPeriod}, Federal Reserve G.17)</a>; values within ±0.5 percentage points are described as about usual.</dd></div>}
             <div>
               <dt>Retrieved</dt>
               <dd>{formatDate(series.retrievedAt)}</dd>

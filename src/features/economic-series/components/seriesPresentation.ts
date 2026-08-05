@@ -196,9 +196,9 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     topicLabel: "Industrial activity",
     latestValueLabel: "Latest industrial capacity utilization",
     whatThisTellsYou:
-      "Capacity utilization estimates industrial output as a share of the Federal Reserve estimate of sustainable maximum output for manufacturing, mining, and electric and gas utilities. Higher values mean less spare industrial capacity, not necessarily a healthier economy.",
+      "Capacity utilization compares current industrial production with the Federal Reserve’s estimate of the maximum output that factories, mines, and electric and gas utilities could sustain under realistic operating conditions. A lower rate means more estimated spare industrial capacity; a higher rate means less.",
     whatThisLeavesOut:
-      "This measure covers the industrial sector rather than the whole economy and does not directly measure investment. High utilization can accompany strong demand, bottlenecks, or price pressure; low utilization can reflect weak output or newly added capacity. No particular value is treated as a target or a verdict.",
+      "The measure covers the industrial sector rather than the whole economy. Low utilization can reflect weak demand or newly added capacity. High utilization can reflect strong demand, bottlenecks, or price pressure. No particular rate is automatically good or bad, and the measure does not directly show business investment or explain why utilization changed.",
     relatedIndicators: [
       "Manufacturing output",
       "Business investment",

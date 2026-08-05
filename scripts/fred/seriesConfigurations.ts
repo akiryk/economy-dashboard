@@ -430,7 +430,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     shortTitle: 'Industrial capacity utilization',
     description:
       'Industrial output as a percentage of the Federal Reserve estimate of sustainable maximum output for manufacturing, mining, and utilities.',
-    question: 'How fully is industrial capacity being used?',
+    question: 'How much spare industrial capacity is there?',
     units: 'Percent',
     seasonalAdjustment: 'Seasonally adjusted',
     transformation: 'Provider-published level',

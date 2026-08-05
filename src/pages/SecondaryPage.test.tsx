@@ -78,4 +78,22 @@ describe('SecondaryPage', () => {
     await user.click(within(card).getByText('Recent observations'))
     expect(within(card).getByRole('table', { name: /Twelve most recent aligned manufacturing observations/ })).toBeVisible()
   })
+
+  it('moves capacity utilization into Industrial Activity with its research controls', async () => {
+    const user = userEvent.setup()
+    render(<SecondaryPage />)
+    const section = screen.getByRole('region', { name: 'Industrial Activity' })
+    const card = await within(section).findByRole('article', {
+      name: 'How much spare industrial capacity is there?',
+    })
+
+    expect(within(card).getByLabelText('Latest industrial capacity utilization')).toHaveTextContent('76.1%')
+    expect(within(card).getByText('Industrial capacity currently in use')).toBeVisible()
+    expect(within(card).getByText(/leaving more spare capacity than normal/)).toBeVisible()
+    expect(within(card).getByText('76.1% in use, about 3.3 percentage points below the 1972–2025 long-run average of 79.4%.')).toBeVisible()
+    expect(within(card).getByRole('button', { name: 'Maximum' })).toBeVisible()
+    await user.click(within(card).getByText('Series details'))
+    expect(within(card).getByRole('link', { name: /79.4%/ })).toHaveAttribute('href', 'https://www.federalreserve.gov/releases/g17/current/table0.htm')
+    expect(within(card).getByRole('link', { name: /Board of Governors/ })).toHaveAttribute('href', 'https://fred.stlouisfed.org/series/TCU')
+  })
 })
