@@ -18,6 +18,7 @@ import {
   formatYieldCurveAnswer,
   formatYieldCurveSpread,
 } from '../features/economic-series/utils/yieldCurveData'
+import { formatLendingStandardsCallout } from '../features/economic-series/utils/lendingStandardsData'
 import { DashboardPage } from './DashboardPage'
 
 const joltsLayoffsSeries = validateEconomicSeries(joltsLayoffsData)
@@ -1799,15 +1800,21 @@ describe('DashboardPage economic series', () => {
 
   it('renders the three Financial conditions cards after Business and manufacturing', async () => {
     const user = userEvent.setup()
-    const [tenYear, threeMonth] = await Promise.all([
+    const [tenYear, threeMonth, lendingStandards] = await Promise.all([
       localEconomicSeriesRepository.getBySlug('ten-year-treasury-yield'),
       localEconomicSeriesRepository.getBySlug('three-month-treasury-bill-rate'),
+      localEconomicSeriesRepository.getBySlug('bank-lending-standards'),
     ])
     const yieldCurve = deriveYieldCurveObservations(
       tenYear!.observations,
       threeMonth!.observations,
     )
     const latestYieldCurve = yieldCurve.at(-1)!
+    const latestLendingStandards = lendingStandards!.observations.at(-1)!
+    const latestLendingStandardsPeriod = formatObservationPeriod(
+      latestLendingStandards.date,
+      'quarterly',
+    )
     render(<DashboardPage />)
     const business = screen.getByRole('region', { name: 'Business and manufacturing' })
     const financial = screen.getByRole('region', { name: 'Financial conditions' })
@@ -1827,8 +1834,10 @@ describe('DashboardPage economic series', () => {
     expect(within(credit).getByText('Looser than average')).toBeVisible()
     expect(within(credit).getByText(/not a percentage/)).toBeVisible()
     expect(within(credit).getAllByText(/Week of .+ 2026/)).not.toHaveLength(0)
-    expect(within(lending).getByLabelText('Latest bank lending standards')).toHaveTextContent('8.1% net tightening')
-    expect(within(lending).getAllByText('2026 Q2')).not.toHaveLength(0)
+    expect(within(lending).getByLabelText('Latest bank lending standards'))
+      .toHaveTextContent(formatLendingStandardsCallout(latestLendingStandards.value))
+    expect(within(lending).getAllByText(latestLendingStandardsPeriod))
+      .not.toHaveLength(0)
     expect(within(lending).getByText(/not a denial rate/)).toBeVisible()
     expect(within(lending).getByText(/loan demand/i)).toBeVisible()
     await user.click(within(rates).getByRole('button', { name: /More/ }))
@@ -1839,7 +1848,9 @@ describe('DashboardPage economic series', () => {
       `Visible period: ${formatObservationPeriod(yieldCurve[0]!.date, 'monthly')}–${formatObservationPeriod(latestYieldCurve.date, 'monthly')}`,
     )).toBeVisible()
     expect(within(credit).getByText(/Visible period: Week of Jan 8, 1971–Week of .+/)).toBeVisible()
-    expect(within(lending).getByText('Visible period: 1990 Q2–2026 Q2')).toBeVisible()
+    expect(within(lending).getByText(
+      `Visible period: 1990 Q2–${latestLendingStandardsPeriod}`,
+    )).toBeVisible()
     await user.click(within(credit).getByRole('button', { name: 'Zoom in' }))
     expect(within(credit).getByRole('button', { name: 'Reset zoom' })).toBeVisible()
     await user.click(within(lending).getByText('Recent observations'))
