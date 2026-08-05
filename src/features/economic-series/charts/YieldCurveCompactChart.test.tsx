@@ -21,6 +21,8 @@ describe('YieldCurveCompactChart', () => {
     expect(screen.getByText('10-year yield higher')).toHaveClass('yield-curve-compact-chart__region-label')
     expect(container.querySelector('.yield-curve-compact-chart__zero'))
       .toHaveClass('yield-curve-compact-chart__zero')
+    expect(container.querySelector('.yield-curve-compact-chart__latest'))
+      .toHaveStyle({ width: '.4rem', height: '.4rem' })
     expect(container.querySelector('.yield-curve-compact-chart__dates'))
       .toHaveTextContent('April 2026June 2026')
     expect(container.querySelector('figcaption')).toHaveTextContent(

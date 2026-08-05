@@ -89,8 +89,17 @@ export function YieldCurveCompactChart({ observations }: { observations: readonl
         <rect x="4" y={y(0)} width="92" height={Math.max(0, 78 - y(0))} className="yield-curve-compact-chart__negative" />
         <line x1="4" x2="96" y1={y(0)} y2={y(0)} className="yield-curve-compact-chart__zero" />
         {paths.map((value, index) => <path key={index} d={value} className="yield-curve-compact-chart__line" />)}
-        {last?.value !== null && last?.value !== undefined && <circle cx={x(recent.length - 1)} cy={y(last.value)} r="2" className="yield-curve-compact-chart__latest" />}
       </svg>
+      {last?.value !== null && last?.value !== undefined && <span
+        aria-hidden="true"
+        className="yield-curve-compact-chart__latest"
+        style={{
+          left: `${x(recent.length - 1)}%`,
+          top: `${y(last.value) / 92 * 100}%`,
+          width: '.4rem',
+          height: '.4rem',
+        }}
+      />}
       {selected?.value !== null && selected && <div
         className={`yield-curve-compact-chart__tooltip${y(selected.value) < 32 ? ' yield-curve-compact-chart__tooltip--below' : ''}`}
         id={tooltipId}
