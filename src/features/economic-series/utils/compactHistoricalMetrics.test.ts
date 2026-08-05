@@ -7,6 +7,7 @@ import unemploymentData from '../data/unemployment-rate.json'
 import primeAgeEmploymentData from '../data/prime-age-employment-ratio.json'
 import payrollGrowthData from '../data/payroll-growth.json'
 import homeOwnershipData from '../data/home-ownership-cost-share.json'
+import budgetBalanceData from '../data/federal-budget-balance.json'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import { deriveHistoricalBandContext } from './historicalBandContext'
 import {
@@ -20,6 +21,7 @@ import {
   primeAgeEmploymentCompactDefinition,
   payrollGrowthCompactDefinition,
   homeOwnershipCostCompactDefinition,
+  federalBudgetBalanceCompactDefinition,
 } from './compactHistoricalMetrics'
 
 describe('compact historical metric definitions', () => {
@@ -217,5 +219,24 @@ describe('compact historical metric definitions', () => {
     ])
     expect(createCompactHistoricalAccessibleSummary(model, homeOwnershipCostCompactDefinition))
       .toContain('above the 30% affordability threshold')
+  })
+
+  it('configures federal budget balance with five annual readings and postwar bands', () => {
+    const series = validateEconomicSeries(budgetBalanceData)
+    const postwar = series.observations.filter(({ date }) => date >= '1946-01-01')
+    const model = deriveHistoricalBandContext(
+      postwar,
+      federalBudgetBalanceCompactDefinition.historicalBands,
+    )
+    expect(model.status).toBe('ready')
+    if (model.status !== 'ready') return
+    expect(model.recentObservations).toHaveLength(5)
+    expect(model.recentObservations[0]?.date).toBe('2021-01-01')
+    expect(model.comparisonStart).toBe('1946-01-01')
+    expect(federalBudgetBalanceCompactDefinition.showZeroLine).toBe(true)
+    expect(federalBudgetBalanceCompactDefinition.showLatestMarker).toBe(true)
+    expect(federalBudgetBalanceCompactDefinition.interactiveDetails).toBe(true)
+    expect(federalBudgetBalanceCompactDefinition.interactionStateLabel?.(-5.8))
+      .toBe('Deficit')
   })
 })

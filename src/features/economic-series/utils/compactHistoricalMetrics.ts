@@ -17,6 +17,7 @@ import {
   formatHomeOwnershipHistoricalPosition,
   homeOwnershipAffordabilityThreshold,
 } from './homeOwnershipAffordability'
+import { formatBudgetBalanceTooltipState } from './budgetBalanceContext'
 
 export interface HistoricalBandHelpText {
   heading: string
@@ -30,6 +31,7 @@ export interface CompactHistoricalMetricDefinition {
   showZeroLine: boolean
   showLatestMarker: boolean
   interactiveDetails?: boolean
+  interactionStateLabel?: (value: number | null) => string
   pointComparison?: {
     months: number
     label: string
@@ -163,6 +165,14 @@ const corporateProfitSharePositionDescriptions: CompactHistoricalMetricDefinitio
   insideInnerBand: 'typical by the standards of the past 25 years',
   betweenInnerAndOuterHigh: 'high by the standards of the past 25 years',
   aboveOuterBand: 'very high by the standards of the past 25 years',
+}
+
+const budgetBalancePositionDescriptions: CompactHistoricalMetricDefinition['positionDescriptions'] = {
+  belowOuterBand: 'very large deficit relative to postwar history',
+  betweenOuterAndInnerLow: 'large deficit relative to postwar history',
+  insideInnerBand: 'typical balance relative to postwar history',
+  betweenInnerAndOuterHigh: 'large surplus relative to postwar history',
+  aboveOuterBand: 'very large surplus relative to postwar history',
 }
 
 export const realGdpCompactDefinition: CompactHistoricalMetricDefinition = {
@@ -490,6 +500,30 @@ export const corporateProfitShareCompactDefinition: CompactHistoricalMetricDefin
   positionDescriptions: corporateProfitSharePositionDescriptions,
 }
 
+export const federalBudgetBalanceCompactDefinition: CompactHistoricalMetricDefinition = {
+  seriesLabel: 'Federal budget balance as a share of GDP',
+  frequency: 'annual',
+  historicalBands: {
+    recentObservationCount: 5,
+    comparisonWindow: { kind: 'all-available' },
+    innerPercentiles: [25, 75], outerPercentiles: [10, 90],
+    minimumFiniteObservations: 40,
+    latestObservationPolicy: 'latest-finite',
+  },
+  showZeroLine: true,
+  showLatestMarker: true,
+  interactiveDetails: true,
+  interactionStateLabel: formatBudgetBalanceTooltipState,
+  valueFormatter: formatSignedPercentage,
+  comparisonLabel: () => 'Available postwar annual history since 1946',
+  helpText: {
+    heading: 'Federal budget balance as a share of GDP',
+    description: 'The budget balance compares federal revenue with federal spending. Negative values indicate deficits; positive values indicate surpluses. The measure is shown relative to GDP so different years can be compared more meaningfully. This is the annual deficit or surplus, not the total federal debt.',
+  },
+  zeroLineMeaning: 'Zero means federal revenue and spending were equal.',
+  positionDescriptions: budgetBalancePositionDescriptions,
+}
+
 const compactDefinitions: Readonly<
   Partial<Record<string, CompactHistoricalMetricDefinition>>
 > = {
@@ -506,6 +540,7 @@ const compactDefinitions: Readonly<
   'manufacturing-output': manufacturingOutputCompactDefinition,
   'real-business-investment-growth': businessInvestmentCompactDefinition,
   'corporate-profit-share': corporateProfitShareCompactDefinition,
+  'federal-budget-balance': federalBudgetBalanceCompactDefinition,
 }
 
 export function getCompactHistoricalMetricDefinition(

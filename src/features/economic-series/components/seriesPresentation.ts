@@ -61,9 +61,9 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     topicLabel: "Federal budget balance",
     latestValueLabel: "Latest federal budget balance",
     whatThisTellsYou:
-      "This annual flow is the federal surplus or deficit as a share of annual GDP. Negative values are deficits and positive values are surpluses. A deficit adds to borrowing needs, but it is not identical to the annual change in debt-to-GDP because GDP growth, timing, transactions, and classifications also matter.",
+      "This measure shows whether federal spending exceeded revenue or vice versa, relative to the size of the economy.",
     whatThisLeavesOut:
-      "The annual measure is not a real-time estimate of the current fiscal year and does not identify why a deficit or surplus occurred. A smaller negative value remains a deficit until the balance rises above zero.",
+      "The measure does not show why the deficit changed, whether the borrowing financed productive uses, how much debt has accumulated, or whether the current fiscal stance is appropriate for the economic cycle.",
     relatedIndicators: [
       "Debt held by the public",
       "Interest rates",

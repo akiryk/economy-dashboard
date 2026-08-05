@@ -8,6 +8,7 @@ import homeOwnershipData from '../data/home-ownership-cost-share.json'
 import housingStartsData from '../data/housing-starts.json'
 import populationData from '../data/us-population-monthly.json'
 import manufacturingOutputData from '../data/manufacturing-output.json'
+import budgetBalanceData from '../data/federal-budget-balance.json'
 import type { EconomicObservation } from '../models/economicSeries'
 import { validateEconomicSeries } from '../models/validateEconomicSeries'
 import {
@@ -17,6 +18,7 @@ import {
   homeOwnershipCostCompactDefinition,
   housingStartsCompactDefinition,
   manufacturingOutputCompactDefinition,
+  federalBudgetBalanceCompactDefinition,
 } from '../utils/compactHistoricalMetrics'
 import { deriveHistoricalBandContext } from '../utils/historicalBandContext'
 import { deriveHousingStartsCompactData } from '../utils/housingStartsData'
@@ -56,6 +58,8 @@ vi.mock('./HistoricalBandChart', () => ({
           ? { date: '2026-06-01', value: 3.93 }
           : props.caption.startsWith('Three-month-average manufacturing')
           ? { date: '2026-06-01', value: 1.3 }
+          : props.caption.startsWith('Federal budget balance')
+          ? { date: '2025-01-01', value: -5.8 }
           : { date: '2026-06-01', value: 2.7 },
       )}
       {props.showReferenceLineLabels && props.referenceLines?.map(({ label }) => (
@@ -119,6 +123,29 @@ describe('CompactHistoricalMetricChart', () => {
     expect(chart).toHaveAttribute('data-latest-marker', 'true')
     expect(chart).toHaveAttribute('data-interactive', 'true')
     expect(chart).toHaveAttribute('data-latest-value', '+111K')
+  })
+
+  it('shows concise annual budget balance details and zero mechanics', () => {
+    const series = validateEconomicSeries(budgetBalanceData)
+    const postwar = series.observations.filter(({ date }) => date >= '1946-01-01')
+    const model = deriveHistoricalBandContext(
+      postwar,
+      federalBudgetBalanceCompactDefinition.historicalBands,
+    )
+    render(<CompactHistoricalMetricChart
+      model={model}
+      definition={federalBudgetBalanceCompactDefinition}
+    />)
+    const chart = screen.getByTestId('historical-band-chart')
+    expect(chart).toHaveAttribute(
+      'data-caption',
+      'Federal budget balance as a share of GDP · 2021–2025',
+    )
+    expect(chart).toHaveAttribute('data-zero-line', 'true')
+    expect(chart).toHaveAttribute('data-latest-marker', 'true')
+    expect(chart).toHaveAttribute('data-interactive', 'true')
+    expect(chart).toHaveTextContent('2025−5.8%Deficit')
+    expect(chart).not.toHaveTextContent('Historical position')
   })
 
   it('adds saving-rate point details with the exact 12-month change', () => {

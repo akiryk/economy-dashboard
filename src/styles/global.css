@@ -1023,6 +1023,8 @@ p {
   color: var(--color-text-muted);
   font-size: 0.9375rem;
 }
+.series-current__context-toggle { justify-self: start; margin-top: var(--space-1); padding: 0; border: 0; background: none; color: var(--color-link); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: .15em; cursor: pointer; }
+.series-current__context { margin: var(--space-1) 0 0; color: var(--color-text-muted); font-size: .85rem; line-height: 1.45; }
 
 .series-metadata {
   display: grid;

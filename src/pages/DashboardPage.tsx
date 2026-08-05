@@ -272,7 +272,7 @@ export function DashboardPage() {
         title="Government finances"
         description="Federal budget balances show whether the government borrowed or saved during a year, while debt held by the public shows the accumulated federal obligations financed outside government accounts. Both are shown relative to GDP so they can be compared across periods of different economic size."
       >
-        <EconomicSeriesCard slug="federal-budget-balance" label="federal budget balance" onSeriesLoaded={handleSeriesLoaded} />
+        <EconomicSeriesCard collapsible slug="federal-budget-balance" label="federal budget balance" onSeriesLoaded={handleSeriesLoaded} />
         <EconomicSeriesCard slug="federal-debt-held-by-public" label="federal debt held by the public" onSeriesLoaded={handleSeriesLoaded} />
       </EconomicSection>
 

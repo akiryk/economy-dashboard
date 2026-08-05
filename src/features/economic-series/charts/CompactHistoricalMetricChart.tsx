@@ -83,7 +83,13 @@ export function CompactHistoricalMetricChart({
       showReferenceLineLabels={definition.showReferenceLineLabels}
       visuallyHideSummary={visuallyHideSummary}
       interactiveDetails={definition.interactiveDetails}
-      interactionDetails={pointComparison || threshold || pairedObservations.length > 0
+      interactionDetails={definition.interactionStateLabel
+        ? (observation) => <>
+            <strong>{formatObservationPeriod(observation.date, definition.frequency)}</strong>
+            <span>{valueFormatter(observation.value)}</span>
+            <span>{definition.interactionStateLabel!(observation.value)}</span>
+          </>
+        : pointComparison || threshold || pairedObservations.length > 0
         ? (observation) => {
             const comparison = pointComparison?.(observation) ?? null
             return (

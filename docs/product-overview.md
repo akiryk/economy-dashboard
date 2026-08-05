@@ -91,7 +91,7 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 
 | Card | Displayed measure and chart | Why it is here |
 |---|---|---|
-| How large is the federal budget deficit or surplus relative to the economy? | Annual federal budget balance as a signed percentage of GDP. | Scales yearly federal borrowing or saving to the size of the economy. |
+| How large is the federal budget deficit or surplus relative to the economy? | Latest annual federal budget balance as a signed percentage of GDP, with a five-year compact chart, dashed zero line, latest marker, and middle-50% and middle-80% bands from compatible postwar history. | Identifies a deficit, surplus, or approximate balance; translates the result into borrowing or excess revenue per $100 of economic output; and classifies it against postwar experience without treating deficits as automatically bad or surpluses as automatically good. Longer interpretation is behind **Why this matters**, while **More** preserves the full research view. This annual flow is distinct from accumulated federal debt. |
 | How large is federal debt held by the public relative to the economy? | Quarterly federal debt held by the public as a percentage of GDP. | Shows the accumulated federal obligations financed outside federal government accounts. |
 
 ### Trade and tariffs

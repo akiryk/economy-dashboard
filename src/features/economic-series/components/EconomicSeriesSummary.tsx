@@ -106,6 +106,12 @@ import {
   industrialCapacityBenchmarkUrl,
   industrialCapacityLongRunAverage,
 } from '../utils/capacityUtilizationContext'
+import {
+  createBudgetBalanceAccessibleSummary,
+  formatBudgetBalanceAnswer,
+  formatBudgetBalanceHistoricalPosition,
+  formatBudgetBalancePerHundred,
+} from '../utils/budgetBalanceContext'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -167,6 +173,7 @@ export function EconomicSeriesSummary({
   supportingSeries,
 }: EconomicSeriesSummaryProps) {
   const [selectedRange, setSelectedRange] = useState<TimeRange>('20y')
+  const [showBudgetContext, setShowBudgetContext] = useState(false)
   const presentation = getEconomicSeriesPresentation(series.slug)
   const latestObservation = findLatestNonNullObservation(series.observations)
   const chronologicalObservations = sortObservationsChronologically(
@@ -205,7 +212,10 @@ export function EconomicSeriesSummary({
     [series.observations, series.slug],
   )
   const compactObservations = housingStartsCompactData?.normalizedAverages ??
-    manufacturingOutputGrowth?.growth ?? series.observations
+    manufacturingOutputGrowth?.growth ??
+    (series.slug === 'federal-budget-balance'
+      ? series.observations.filter(({ date }) => date >= '1946-01-01')
+      : series.observations)
   const housingNormalizedPresetObservations = useMemo(() => {
     if (!housingStartsCompactData || presetObservations.length === 0) return []
     const start = presetObservations[0]!.date
@@ -358,6 +368,9 @@ export function EconomicSeriesSummary({
   const corporateProfitAccessibleLabel = series.slug === 'corporate-profit-share' && compactModel?.status === 'ready'
     ? createCorporateProfitShareAccessibleSummary(compactModel)
     : null
+  const budgetBalanceAccessibleLabel = series.slug === 'federal-budget-balance' && compactModel?.status === 'ready'
+    ? createBudgetBalanceAccessibleSummary(compactModel)
+    : null
 
   const latestValueContent = (
     <div
@@ -369,6 +382,7 @@ export function EconomicSeriesSummary({
         manufacturingAccessibleLabel ??
         businessInvestmentAccessibleLabel ??
         corporateProfitAccessibleLabel ??
+        budgetBalanceAccessibleLabel ??
         (unemploymentContext
           ? createUnemploymentAccessibleSummary(unemploymentContext)
           : null) ??
@@ -409,9 +423,7 @@ export function EconomicSeriesSummary({
           {series.slug === 'trade-balance-share-of-gdp'
             ? latestObservation?.value === null || latestObservation?.value === undefined ? 'Balance unavailable' : latestObservation.value < 0 ? 'Trade deficit' : latestObservation.value > 0 ? 'Trade surplus' : 'Balanced trade'
             : series.slug === 'federal-budget-balance'
-            ? latestObservation?.value === null || latestObservation?.value === undefined
-              ? 'Balance unavailable'
-              : latestObservation.value < 0 ? 'Deficit' : latestObservation.value > 0 ? 'Surplus' : 'Balanced'
+            ? 'Federal budget balance as a share of GDP'
             : series.slug === 'broad-credit-conditions'
             ? latestObservation?.value === null || latestObservation?.value === undefined
               ? 'Relative credit conditions unavailable'
@@ -585,6 +597,27 @@ export function EconomicSeriesSummary({
             <p className="series-current__comparison">{formatCapacityUtilizationComparison(latestObservation?.value ?? null)}</p>
           </>
         )}
+        {series.slug === 'federal-budget-balance' && (
+          <>
+            <p className="series-current__answer">{formatBudgetBalanceAnswer(latestObservation?.value ?? null)}</p>
+            <p className="series-current__comparison">{formatBudgetBalancePerHundred(latestObservation?.value ?? null)}</p>
+            <p className="series-current__comparison">{formatBudgetBalanceHistoricalPosition(
+              latestObservation?.value ?? null,
+              compactModel?.status === 'ready' ? compactModel : null,
+            )}</p>
+            <button
+              type="button"
+              className="series-current__context-toggle"
+              aria-expanded={showBudgetContext}
+              onClick={() => setShowBudgetContext((current) => !current)}
+            >
+              {showBudgetContext ? 'Hide context' : 'Why this matters'}
+            </button>
+            {showBudgetContext && <p className="series-current__context">
+              A larger deficit means the federal government is spending more than it collects and financing the difference through borrowing. Deficits can support demand during recessions or emergencies, but persistent large deficits add to federal debt and future interest costs. The economic meaning depends on why the deficit exists and the condition of the economy.
+            </p>}
+          </>
+        )}
     </div>
   )
   const compactVisual = compactModel && compactDefinition ? (
@@ -617,7 +650,7 @@ export function EconomicSeriesSummary({
           pairedObservationLabel: 'Equivalent adjusted after-tax profit per $100 of GDP',
           pairedValueFormatter: (value: number | null) => value === null ? 'Unavailable' : `$${value.toFixed(2)}`,
         } : {})}
-        accessibleSummaryOverride={housingStartsAccessibleLabel ?? businessInvestmentAccessibleLabel ?? corporateProfitAccessibleLabel ?? undefined}
+        accessibleSummaryOverride={housingStartsAccessibleLabel ?? businessInvestmentAccessibleLabel ?? corporateProfitAccessibleLabel ?? budgetBalanceAccessibleLabel ?? undefined}
         visuallyHideSummary
       />
     </Suspense>
@@ -648,6 +681,8 @@ export function EconomicSeriesSummary({
         ? 'Real private nonresidential fixed investment'
         : series.slug === 'corporate-profit-share'
         ? 'Adjusted after-tax corporate profits as a share of GDP'
+        : series.slug === 'federal-budget-balance'
+        ? 'Federal budget balance as a share of GDP'
         : series.title}
       latestValue={latestValueContent}
       compactVisual={compactVisual}
@@ -969,6 +1004,7 @@ export function EconomicSeriesSummary({
         </section>
         {series.slug === 'real-business-investment-growth' && <section><h4>What this may suggest</h4><p>Rising investment can suggest that firms expect enough future demand to justify new or upgraded assets. Falling investment can suggest greater caution, weaker expected demand, tighter financing, or completion of earlier projects. These are plausible interpretations, not direct observations of confidence or intent.</p></section>}
         {series.slug === 'corporate-profit-share' && <section><h4>What this may suggest</h4><p>A persistently high profit share may be consistent with stronger markups, lower tax or interest burdens, globalization, technology and intangible capital, industry concentration, or productivity gains not fully matched by compensation growth. These are plausible explanations rather than conclusions established by the ratio alone.</p></section>}
+        {series.slug === 'federal-budget-balance' && <section><h4>Why it matters</h4><p>Persistent deficits add to federal debt and future interest costs. During recessions or emergencies, larger deficits may also provide fiscal support.</p></section>}
         <section>
           <h4>What this leaves out</h4>
           <p>
