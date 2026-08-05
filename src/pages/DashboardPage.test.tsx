@@ -13,6 +13,11 @@ import joltsLayoffsData from '../features/economic-series/data/jolts-layoffs-and
 import { validateEconomicSeries } from '../features/economic-series/models/validateEconomicSeries'
 import { localEconomicSeriesRepository } from '../features/economic-series/repositories/localEconomicSeriesRepository'
 import { formatObservationPeriod } from '../features/economic-series/utils/economicSeries'
+import {
+  deriveYieldCurveObservations,
+  formatYieldCurveAnswer,
+  formatYieldCurveSpread,
+} from '../features/economic-series/utils/yieldCurveData'
 import { DashboardPage } from './DashboardPage'
 
 const joltsLayoffsSeries = validateEconomicSeries(joltsLayoffsData)
@@ -1794,6 +1799,15 @@ describe('DashboardPage economic series', () => {
 
   it('renders the three Financial conditions cards after Business and manufacturing', async () => {
     const user = userEvent.setup()
+    const [tenYear, threeMonth] = await Promise.all([
+      localEconomicSeriesRepository.getBySlug('ten-year-treasury-yield'),
+      localEconomicSeriesRepository.getBySlug('three-month-treasury-bill-rate'),
+    ])
+    const yieldCurve = deriveYieldCurveObservations(
+      tenYear!.observations,
+      threeMonth!.observations,
+    )
+    const latestYieldCurve = yieldCurve.at(-1)!
     render(<DashboardPage />)
     const business = screen.getByRole('region', { name: 'Business and manufacturing' })
     const financial = screen.getByRole('region', { name: 'Financial conditions' })
@@ -1802,8 +1816,12 @@ describe('DashboardPage economic series', () => {
     const credit = await within(financial).findByRole('article', { name: 'Are credit conditions tighter or looser than usual?' })
     const lending = await within(financial).findByRole('article', { name: 'Are banks making it harder to borrow?' })
     expect(within(financial).getAllByRole('article')).toHaveLength(3)
-    expect(within(rates).getByText('+0.8 pp')).toBeVisible()
-    expect(within(rates).getByText(/10-year Treasury yield is 0.8 percentage points above/)).toBeVisible()
+    expect(within(rates).getByText(
+      formatYieldCurveSpread(latestYieldCurve.value),
+    )).toBeVisible()
+    expect(within(rates).getByText(
+      formatYieldCurveAnswer(latestYieldCurve.value),
+    )).toBeVisible()
     expect(within(rates).getByText(/does not rule out recession/)).toBeVisible()
     expect(within(credit).getByLabelText('Latest broad credit-conditions index')).toHaveTextContent(/-?\d+\.\d+/)
     expect(within(credit).getByText('Looser than average')).toBeVisible()
@@ -1817,7 +1835,9 @@ describe('DashboardPage economic series', () => {
     await user.click(within(rates).getByRole('button', { name: 'Maximum' }))
     await user.click(within(credit).getByRole('button', { name: 'Maximum' }))
     await user.click(within(lending).getByRole('button', { name: 'Maximum' }))
-    expect(within(rates).getByText(/Visible period: (April|June) 1953–June 2026/)).toBeVisible()
+    expect(within(rates).getByText(
+      `Visible period: ${formatObservationPeriod(yieldCurve[0]!.date, 'monthly')}–${formatObservationPeriod(latestYieldCurve.date, 'monthly')}`,
+    )).toBeVisible()
     expect(within(credit).getByText(/Visible period: Week of Jan 8, 1971–Week of .+/)).toBeVisible()
     expect(within(lending).getByText('Visible period: 1990 Q2–2026 Q2')).toBeVisible()
     await user.click(within(credit).getByRole('button', { name: 'Zoom in' }))

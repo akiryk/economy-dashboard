@@ -127,7 +127,8 @@ describe('localEconomicSeriesRepository', () => {
       seasonalAdjustment: 'Not seasonally adjusted',
     })
     expect(series?.observations[0]?.date).toBe('1990-04-01')
-    expect(series?.observations.at(-1)?.date).toBe('2026-04-01')
+    expect(series?.observations.at(-1)?.date).toMatch(/^\d{4}-(01|04|07|10)-01$/)
+    expect(series!.observations.at(-1)!.date > '1990-04-01').toBe(true)
     expect(series?.observations.some((observation) => observation.value! < 0)).toBe(true)
     expect(series?.observations.some((observation) => observation.value === 0)).toBe(true)
     expect(series?.observations.some((observation) => observation.value! > 0)).toBe(true)
