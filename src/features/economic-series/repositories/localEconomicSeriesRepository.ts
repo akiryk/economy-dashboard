@@ -68,6 +68,8 @@ const localSeriesLoaders: Readonly<
     import('../data/effective-federal-funds-rate.json'),
   'ten-year-treasury-yield': () =>
     import('../data/ten-year-treasury-yield.json'),
+  'three-month-treasury-bill-rate': () =>
+    import('../data/three-month-treasury-bill-rate.json'),
   'broad-credit-conditions': () => import('../data/broad-credit-conditions.json'),
   'bank-lending-standards': () => import('../data/bank-lending-standards.json'),
   'federal-budget-balance': () => import('../data/federal-budget-balance.json'),

@@ -200,6 +200,7 @@ describe('refreshEconomicData', () => {
         'provider-level',
         'provider-level',
         'provider-level',
+        'provider-level',
       ])
     expect(payrollSeriesConfiguration).toMatchObject({
       dataHandling: 'locally-derived',
@@ -769,13 +770,13 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(27)
+    expect(outcomes).toHaveLength(28)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 15, 15, 3, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
+    ).toEqual([3, 15, 15, 3, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
@@ -797,6 +798,7 @@ describe('refreshEconomicData', () => {
       'TCU',
       'FEDFUNDS',
       'GS10',
+      'TB3MS',
       'NFCICREDIT',
       'DRTSCILM',
       'FYFSGDA188S',

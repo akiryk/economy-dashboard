@@ -6,7 +6,7 @@
   "title": "Federal Funds Effective Rate",
   "shortTitle": "Effective federal funds rate",
   "description": "The monthly average of the effective overnight federal funds rate.",
-  "question": "How do short-term and long-term interest rates compare?",
+  "question": "Is the yield curve inverted?",
   "units": "Percent",
   "frequency": "monthly",
   "seasonalAdjustment": "Not seasonally adjusted",

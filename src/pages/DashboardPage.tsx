@@ -33,7 +33,10 @@ const headlineMomentumSupportingSlugs = [
   'core-cpi-inflation',
   'core-cpi-three-month-annualized',
 ] as const
-const treasuryYieldSupportingSlugs = ['ten-year-treasury-yield'] as const
+const yieldCurveSupportingSlugs = [
+  'three-month-treasury-bill-rate',
+  'effective-federal-funds-rate',
+] as const
 const housingStartsSupportingSlugs = ['us-population-monthly'] as const
 
 export function DashboardPage() {
@@ -255,9 +258,10 @@ export function DashboardPage() {
         description="Interest rates and credit conditions affect borrowing costs and access to finance. Short- and long-term rates can move differently, while broader credit conditions can tighten or loosen for reasons not captured by Treasury yields alone."
       >
         <EconomicSeriesCard
-          slug="effective-federal-funds-rate"
-          supportingSlugs={treasuryYieldSupportingSlugs}
-          label="interest-rate conditions"
+          collapsible
+          slug="ten-year-treasury-yield"
+          supportingSlugs={yieldCurveSupportingSlugs}
+          label="yield curve"
           variant="rate-comparison"
           onSeriesLoaded={handleSeriesLoaded}
         />

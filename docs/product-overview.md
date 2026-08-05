@@ -78,7 +78,7 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 
 | Card | Displayed measure and chart | Why it is here |
 |---|---|---|
-| How do short-term and long-term interest rates compare? | Monthly effective federal funds rate and 10-year Treasury yield. | Compares a policy-linked short rate with a benchmark long rate without treating the curve as a mechanical recession forecast. |
+| Is the yield curve inverted? | Trailing three-month average of the monthly 10-year Treasury yield minus the 3-month Treasury bill rate, with a five-year compact spread chart and prominent zero line. | A negative spread is an inversion. Inversions have historically preceded many U.S. recessions, but the relationship is probabilistic and does not determine whether or when a recession will occur. The federal funds rate remains secondary monetary-policy context under **More**. |
 | Are credit conditions tighter or looser than usual? | Weekly Chicago Fed NFCI credit subindex relative to its historical average. | Adds broad credit availability and risk conditions not captured by Treasury yields alone. |
 | Are banks making it harder to borrow? | Quarterly net percentage of domestic banks reporting tighter C&I lending standards for large and middle-market firms. | Adds a direct SLOOS survey measure for one borrower class, distinct from the NFCI composite and from loan demand or denial rates. |
 

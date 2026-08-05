@@ -39,7 +39,7 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Real business investment (`PNFIC1`, quarterly source level), retained in `real-business-investment-level.json` for compact-chart details and derived into exact-quarter year-over-year growth in `real-business-investment-growth.json`.
 - After-tax corporate profit share, derived by exact quarter from adjusted after-tax corporate profits (`CPATAX`) divided by nominal GDP (`GDP`) and written to `corporate-profit-share.json`.
 - Industrial capacity utilization (`TCU`, monthly), written as the provider-published percentage level to `industrial-capacity-utilization.json`.
-- Effective federal funds rate and 10-year Treasury yield (`FEDFUNDS` and `GS10`, monthly), written as separate provider-published percentage levels and aligned only for presentation.
+- Effective federal funds rate, 10-year Treasury yield, and 3-month Treasury bill rate (`FEDFUNDS`, `GS10`, and `TB3MS`, monthly), written as separate provider-published percentage levels. The yield-curve card aligns `GS10` and `TB3MS` by exact month, calculates `GS10 − TB3MS` in percentage points, and then takes a trailing three-month average only when all three consecutive spreads are available. `TB3MS` is the secondary-market 3-month Treasury bill rate quoted on a discount basis; all three series are not seasonally adjusted monthly averages. The federal funds rate is supporting policy context and is not part of the spread.
 - Broad credit conditions (`NFCICREDIT`, weekly), written as the provider-published standardized index to `broad-credit-conditions.json`.
 - Bank lending standards (`DRTSCILM`, quarterly), written as the provider-published net percentage of domestic banks reporting tighter C&I standards for large and middle-market firms.
 - Federal budget balance (`FYFSGDA188S`, annual) and federal debt held by the public (`FYGFGDQ188S`, quarterly), written as separate provider-published percent-of-GDP ratios.
@@ -100,6 +100,9 @@ inflation-rate series may be used as a proxy.
 This is a small configuration boundary, not dynamic discovery or a plugin system.
 
 `NFCICREDIT` is the approved broad-credit-stress measure. It provides a long, redistributable Chicago Fed history focused on credit conditions. It replaces the Epic's contemplated corporate credit spread because current ICE BofA FRED exposure is short and licensed, Moody's terms restrict redistribution and storage, and a high-yield-only spread would cover only speculative-grade borrowers. The overall NFCI is not used because the separate rate card already covers interest-rate conditions.
+
+The yield-curve compact state uses the unrounded trailing three-month average: below −0.10 percentage points is inverted, −0.10 through +0.10 inclusive is nearly flat, and above +0.10 is upward sloping. Missing or unmatched months remain null; averages are never partial and gaps are not interpolated.
+`GS10` begins in April 1953, while `TB3MS` begins in January 1934; the coherent shared monthly history therefore begins in April 1953 and the first complete three-month average is June 1953. `GS10` is a constant-maturity par yield and `TB3MS` is a Treasury-bill discount rate, so the card documents rather than conceals that quotation-method difference. It does not splice another short-rate definition into the history, and provider revisions flow through the normal atomic refresh process.
 
 ## Provider requests
 

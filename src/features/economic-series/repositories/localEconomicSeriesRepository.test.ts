@@ -36,6 +36,7 @@ describe('localEconomicSeriesRepository', () => {
     ['manufacturing-output', 'IPMAN'],
     ['manufacturing-employment', 'MANEMP'],
     ['industrial-capacity-utilization', 'TCU'],
+    ['three-month-treasury-bill-rate', 'TB3MS'],
   ])('loads the Story 15 %s series', async (slug, providerSeriesId) => {
     await expect(localEconomicSeriesRepository.getBySlug(slug)).resolves.toMatchObject({
       slug,

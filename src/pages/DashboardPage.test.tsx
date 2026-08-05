@@ -206,7 +206,7 @@ describe('DashboardPage economic series', () => {
       'Are U.S. manufacturers producing more goods?',
       'Are businesses investing more in productive assets?',
       'How large are corporate profits relative to the economy?',
-      'How do short-term and long-term interest rates compare?',
+      'Is the yield curve inverted?',
       'Are credit conditions tighter or looser than usual?',
       'Are banks making it harder to borrow?',
       'How large is the federal budget deficit or surplus relative to the economy?',
@@ -1789,14 +1789,13 @@ describe('DashboardPage economic series', () => {
     const business = screen.getByRole('region', { name: 'Business and manufacturing' })
     const financial = screen.getByRole('region', { name: 'Financial conditions' })
     expect(business.compareDocumentPosition(financial) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    const rates = await within(financial).findByRole('article', { name: 'How do short-term and long-term interest rates compare?' })
+    const rates = await within(financial).findByRole('article', { name: 'Is the yield curve inverted?' })
     const credit = await within(financial).findByRole('article', { name: 'Are credit conditions tighter or looser than usual?' })
     const lending = await within(financial).findByRole('article', { name: 'Are banks making it harder to borrow?' })
     expect(within(financial).getAllByRole('article')).toHaveLength(3)
-    expect(within(rates).getByText('Federal funds rate: 3.6%')).toBeVisible()
-    expect(within(rates).getByText('10-year Treasury yield: 4.5%')).toBeVisible()
-    expect(within(rates).getAllByText(/above the federal funds rate/)).not.toHaveLength(0)
-    expect(within(rates).getByText(/does not mechanically predict a recession/)).toBeVisible()
+    expect(within(rates).getByText('+0.8 pp')).toBeVisible()
+    expect(within(rates).getByText(/10-year Treasury yield is 0.8 percentage points above/)).toBeVisible()
+    expect(within(rates).getByText(/does not rule out recession/)).toBeVisible()
     expect(within(credit).getByLabelText('Latest broad credit-conditions index')).toHaveTextContent(/-?\d+\.\d+/)
     expect(within(credit).getByText('Looser than average')).toBeVisible()
     expect(within(credit).getByText(/not a percentage/)).toBeVisible()
@@ -1805,10 +1804,11 @@ describe('DashboardPage economic series', () => {
     expect(within(lending).getAllByText('2026 Q2')).not.toHaveLength(0)
     expect(within(lending).getByText(/not a denial rate/)).toBeVisible()
     expect(within(lending).getByText(/loan demand/i)).toBeVisible()
+    await user.click(within(rates).getByRole('button', { name: /More/ }))
     await user.click(within(rates).getByRole('button', { name: 'Maximum' }))
     await user.click(within(credit).getByRole('button', { name: 'Maximum' }))
     await user.click(within(lending).getByRole('button', { name: 'Maximum' }))
-    expect(within(rates).getByText('Visible period: July 1954–June 2026')).toBeVisible()
+    expect(within(rates).getByText(/Visible period: (April|June) 1953–June 2026/)).toBeVisible()
     expect(within(credit).getByText(/Visible period: Week of Jan 8, 1971–Week of .+/)).toBeVisible()
     expect(within(lending).getByText('Visible period: 1990 Q2–2026 Q2')).toBeVisible()
     await user.click(within(credit).getByRole('button', { name: 'Zoom in' }))
@@ -1860,7 +1860,7 @@ describe('DashboardPage economic series', () => {
       name: 'Are credit conditions tighter or looser than usual?',
     })).toBeVisible()
     expect(await screen.findByRole('article', {
-      name: 'How do short-term and long-term interest rates compare?',
+      name: 'Is the yield curve inverted?',
     })).toBeVisible()
   })
 
@@ -1877,7 +1877,7 @@ describe('DashboardPage economic series', () => {
     render(<DashboardPage />)
     expect(await screen.findByText(message)).toBeVisible()
     expect(await screen.findByRole('article', { name: survivor })).toBeVisible()
-    expect(await screen.findByRole('article', { name: 'How do short-term and long-term interest rates compare?' })).toBeVisible()
+    expect(await screen.findByRole('article', { name: 'Is the yield curve inverted?' })).toBeVisible()
   })
 
   it('renders trade flows and effective tariff burden after Government finances', async () => {
@@ -1921,9 +1921,10 @@ describe('DashboardPage economic series', () => {
   })
 
   it.each([
-    ['effective-federal-funds-rate', 'The interest-rate conditions data could not be loaded.', 'Are credit conditions tighter or looser than usual?'],
-    ['ten-year-treasury-yield', 'The interest-rate conditions data could not be loaded.', 'Are credit conditions tighter or looser than usual?'],
-    ['broad-credit-conditions', 'The broad credit conditions data could not be loaded.', 'How do short-term and long-term interest rates compare?'],
+    ['effective-federal-funds-rate', 'The yield curve data could not be loaded.', 'Are credit conditions tighter or looser than usual?'],
+    ['ten-year-treasury-yield', 'The yield curve data could not be loaded.', 'Are credit conditions tighter or looser than usual?'],
+    ['three-month-treasury-bill-rate', 'The yield curve data could not be loaded.', 'Are credit conditions tighter or looser than usual?'],
+    ['broad-credit-conditions', 'The broad credit conditions data could not be loaded.', 'Is the yield curve inverted?'],
   ])('isolates a %s failure within Financial conditions', async (failedSlug, message, survivor) => {
     const original = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
     vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {

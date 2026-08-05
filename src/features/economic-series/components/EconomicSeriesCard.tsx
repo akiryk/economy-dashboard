@@ -163,7 +163,7 @@ export function EconomicSeriesCard({
   }
 
   if (variant === 'rate-comparison') {
-    return <RateComparisonSummary federalFunds={seriesState.series} treasury={seriesState.supportingSeries[0]!} />
+    return <RateComparisonSummary tenYear={seriesState.series} threeMonth={seriesState.supportingSeries[0]!} federalFunds={seriesState.supportingSeries[1]!} />
   }
 
   if (variant === 'claims-comparison') {

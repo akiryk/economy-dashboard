@@ -124,6 +124,7 @@ export type EconomicValueFormat =
   | 'index'
   | 'percentage'
   | 'signed-percentage'
+  | 'signed-percentage-points'
   | 'signed-thousands'
   | 'thousands-units'
 
@@ -158,6 +159,8 @@ export function formatEconomicValue(
       : value.toFixed(2)
     : format === 'signed-percentage'
       ? formatSignedPercentage(value)
+    : format === 'signed-percentage-points'
+      ? value === null ? 'Unavailable' : `${formatSignedPercentagePoints(value)} pp`
     : format === 'signed-thousands'
     ? formatSignedThousands(value)
     : format === 'thousands-units'

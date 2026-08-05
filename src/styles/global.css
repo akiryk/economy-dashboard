@@ -1198,3 +1198,17 @@ p {
     gap: var(--space-6);
   }
 }
+.yield-curve-compact-chart { margin: 0; min-width: 0; }
+.yield-curve-compact-chart__plot { position: relative; min-height: 13rem; outline-offset: .2rem; }
+.yield-curve-compact-chart__plot svg { width: 100%; height: 13rem; overflow: visible; }
+.yield-curve-compact-chart__positive { fill: color-mix(in srgb, var(--color-positive, #287a4d) 8%, transparent); }
+.yield-curve-compact-chart__negative { fill: color-mix(in srgb, var(--color-negative, #a33) 10%, transparent); }
+.yield-curve-compact-chart__zero { stroke: currentColor; stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.yield-curve-compact-chart__line { fill: none; stroke: var(--color-accent, #315d8a); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.yield-curve-compact-chart__latest { fill: var(--color-accent, #315d8a); vector-effect: non-scaling-stroke; }
+.yield-curve-compact-chart__positive-label,.yield-curve-compact-chart__negative-label,.yield-curve-compact-chart__zero-label { position: absolute; font-size: .72rem; }
+.yield-curve-compact-chart__positive-label { top: .2rem; left: .5rem; }
+.yield-curve-compact-chart__negative-label { bottom: 2.1rem; left: .5rem; }
+.yield-curve-compact-chart__zero-label { right: .3rem; top: 48%; background: var(--color-surface, white); padding: .1rem .2rem; }
+.yield-curve-compact-chart__tooltip { position: absolute; right: .4rem; top: .4rem; display: grid; gap: .1rem; padding: .45rem; max-width: 16rem; background: var(--color-surface, white); border: 1px solid currentColor; font-size: .75rem; }
+.yield-curve-compact-chart__dates { display: flex; justify-content: space-between; font-size: .75rem; }
