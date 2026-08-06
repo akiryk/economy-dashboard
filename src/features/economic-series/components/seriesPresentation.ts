@@ -83,12 +83,12 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     topicLabel: "Federal debt",
     latestValueLabel: "Latest federal debt held by the public",
     whatThisTellsYou:
-      "This stock-to-flow ratio compares federal debt held outside federal government accounts with the economy’s annual rate of output. Held-by-the-public debt includes private and foreign investors, banks, pension funds, state and local governments, and the Federal Reserve; it excludes intragovernmental holdings such as federal trust funds.",
+      "This measure shows the accumulated federal debt held outside federal government accounts relative to the size of the economy.",
     whatThisLeavesOut:
-      "This is not total public debt, gross federal debt, or the percentage of GDP spent on debt. The ratio can rise because debt increases, GDP growth slows, or both, and can fall while nominal debt rises if GDP grows faster. The chart does not determine whether debt is sustainable.",
+      "The ratio does not identify a precise crisis threshold, measure the current interest burden, show the maturity structure of the debt, or determine whether past borrowing financed productive uses.",
     relatedIndicators: [
-      "Federal budget balance",
-      "Interest rates",
+      "Federal deficit",
+      "Federal net interest expense",
       "Economic growth",
     ],
     recentObservationCount: 8,

@@ -118,6 +118,11 @@ import {
   formatBudgetBalanceQuestion,
   formatBudgetBalanceStateLabel,
 } from '../utils/budgetBalanceContext'
+import {
+  createFederalDebtAccessibleSummary,
+  deriveFederalDebtContext,
+  formatFederalDebtHistoricalPosition,
+} from '../utils/federalDebtContext'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -337,6 +342,12 @@ export function EconomicSeriesSummary({
       : null,
     [series.observations, series.slug],
   )
+  const federalDebtContext = useMemo(
+    () => series.slug === 'federal-debt-held-by-public'
+      ? deriveFederalDebtContext(series.observations)
+      : null,
+    [series.observations, series.slug],
+  )
   const formatValue = (value: number | null) =>
     formatEconomicValue(value, presentation.valueFormat)
   const productivityMomentum =
@@ -400,6 +411,9 @@ export function EconomicSeriesSummary({
         latestObservation?.value ?? null,
       )
     : null
+  const federalDebtAccessibleLabel = federalDebtContext && compactModel?.status === 'ready'
+    ? createFederalDebtAccessibleSummary(federalDebtContext, compactModel)
+    : null
 
   const latestValueContent = (
     <div
@@ -412,6 +426,7 @@ export function EconomicSeriesSummary({
         businessInvestmentAccessibleLabel ??
         corporateProfitAccessibleLabel ??
         budgetBalanceAccessibleLabel ??
+        federalDebtAccessibleLabel ??
         (unemploymentContext
           ? createUnemploymentAccessibleSummary(unemploymentContext)
           : null) ??
@@ -447,6 +462,8 @@ export function EconomicSeriesSummary({
               ? formatPercentage(latestObservation?.value === null || latestObservation?.value === undefined
                   ? null
                   : Math.abs(latestObservation.value))
+            : series.slug === 'federal-debt-held-by-public'
+              ? formatPercentage(latestObservation?.value ?? null)
             : series.slug === 'real-business-investment-growth'
               ? formatSignedPercentage(latestObservation?.value ?? null)
               : formatValue(latestObservation?.value ?? null)}
@@ -457,6 +474,8 @@ export function EconomicSeriesSummary({
             ? latestObservation?.value === null || latestObservation?.value === undefined ? 'Balance unavailable' : latestObservation.value < 0 ? 'Trade deficit' : latestObservation.value > 0 ? 'Trade surplus' : 'Balanced trade'
             : series.slug === 'federal-budget-balance'
             ? formatBudgetBalanceStateLabel(budgetBalanceState!)
+            : series.slug === 'federal-debt-held-by-public'
+            ? 'Federal debt held by the public'
             : series.slug === 'broad-credit-conditions'
             ? latestObservation?.value === null || latestObservation?.value === undefined
               ? 'Relative credit conditions unavailable'
@@ -655,6 +674,19 @@ export function EconomicSeriesSummary({
             </p>}
           </>
         )}
+        {federalDebtContext && (
+          <>
+            <p className="series-current__answer">{federalDebtContext.outputComparison}</p>
+            <p className="series-current__comparison">{formatFederalDebtHistoricalPosition(
+              compactModel?.status === 'ready' ? compactModel : null,
+            )}</p>
+            <p className="series-current__comparison">{federalDebtContext.directionStatement}</p>
+            <CompactContextDisclosure accessibleSubject="federal debt">
+              <p>A high debt ratio does not identify a precise crisis threshold. Its main significance is that higher interest rates become more costly, more of the federal budget may go toward servicing past borrowing, and the government has less fiscal flexibility during future recessions or emergencies. The risk is greater when debt continues rising faster than the economy.</p>
+              <p>The United States has unusual advantages, including borrowing in its own currency and deep demand for Treasury securities. Those advantages reduce immediate crisis risk, but they do not eliminate the long-run costs of persistently rising debt.</p>
+            </CompactContextDisclosure>
+          </>
+        )}
     </div>
   )
   const compactVisual = compactModel && compactDefinition ? (
@@ -687,7 +719,7 @@ export function EconomicSeriesSummary({
           pairedObservationLabel: 'Equivalent adjusted after-tax profit per $100 of GDP',
           pairedValueFormatter: (value: number | null) => value === null ? 'Unavailable' : `$${value.toFixed(2)}`,
         } : {})}
-        accessibleSummaryOverride={housingStartsAccessibleLabel ?? businessInvestmentAccessibleLabel ?? corporateProfitAccessibleLabel ?? budgetBalanceAccessibleLabel ?? undefined}
+        accessibleSummaryOverride={housingStartsAccessibleLabel ?? businessInvestmentAccessibleLabel ?? corporateProfitAccessibleLabel ?? budgetBalanceAccessibleLabel ?? federalDebtAccessibleLabel ?? undefined}
         visuallyHideSummary
       />
     </Suspense>
@@ -722,6 +754,8 @@ export function EconomicSeriesSummary({
         ? 'Adjusted after-tax corporate profits as a share of GDP'
         : series.slug === 'federal-budget-balance'
         ? compactDefinition?.seriesLabel ?? 'Federal budget balance as a share of GDP'
+        : series.slug === 'federal-debt-held-by-public'
+        ? 'Federal debt held by the public'
         : series.title}
       latestValue={latestValueContent}
       compactVisual={compactVisual}
@@ -1049,6 +1083,7 @@ export function EconomicSeriesSummary({
         {series.slug === 'real-business-investment-growth' && <section><h4>What this may suggest</h4><p>Rising investment can suggest that firms expect enough future demand to justify new or upgraded assets. Falling investment can suggest greater caution, weaker expected demand, tighter financing, or completion of earlier projects. These are plausible interpretations, not direct observations of confidence or intent.</p></section>}
         {series.slug === 'corporate-profit-share' && <section><h4>What this may suggest</h4><p>A persistently high profit share may be consistent with stronger markups, lower tax or interest burdens, globalization, technology and intangible capital, industry concentration, or productivity gains not fully matched by compensation growth. These are plausible explanations rather than conclusions established by the ratio alone.</p></section>}
         {series.slug === 'federal-budget-balance' && <section><h4>Why it matters</h4><p>Persistent deficits add to federal debt and future interest costs. During recessions or emergencies, larger deficits may also provide fiscal support.</p></section>}
+        {series.slug === 'federal-debt-held-by-public' && <section><h4>Why it matters</h4><p>High and rising debt increases sensitivity to interest rates and can reduce future fiscal flexibility. Over time, sustained debt growth may also increase borrowing costs and restrain private investment.</p></section>}
         <section>
           <h4>What this leaves out</h4>
           <p>

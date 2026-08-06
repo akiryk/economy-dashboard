@@ -180,6 +180,14 @@ const budgetBalancePositionDescriptions: CompactHistoricalMetricDefinition['posi
   aboveOuterBand: 'very large by historical standards',
 }
 
+const federalDebtPositionDescriptions: CompactHistoricalMetricDefinition['positionDescriptions'] = {
+  belowOuterBand: 'very low by postwar standards',
+  betweenOuterAndInnerLow: 'low by postwar standards',
+  insideInnerBand: 'typical by postwar standards',
+  betweenInnerAndOuterHigh: 'high by postwar standards',
+  aboveOuterBand: 'very high by postwar standards',
+}
+
 export const realGdpCompactDefinition: CompactHistoricalMetricDefinition = {
   seriesLabel: 'Real GDP growth',
   frequency: 'quarterly',
@@ -553,6 +561,29 @@ export function createFederalBudgetBalanceCompactDefinition(
 export const federalBudgetBalanceCompactDefinition =
   createFederalBudgetBalanceCompactDefinition('deficit')
 
+export const federalDebtCompactDefinition: CompactHistoricalMetricDefinition = {
+  seriesLabel: 'Federal debt held by the public',
+  frequency: 'quarterly',
+  historicalBands: {
+    recentObservationCount: 21,
+    comparisonWindow: { kind: 'all-available' },
+    innerPercentiles: [25, 75], outerPercentiles: [10, 90],
+    minimumFiniteObservations: 80,
+    latestObservationPolicy: 'latest-finite',
+  },
+  showZeroLine: false,
+  showLatestMarker: true,
+  interactiveDetails: true,
+  valueFormatter: formatPercentage,
+  comparisonLabel: (model) => `Postwar quarterly history since ${model.comparisonStart.slice(0, 4)}`,
+  helpText: {
+    heading: 'Federal debt held by the public',
+    description: 'Debt held by the public includes Treasury securities held outside federal government accounts, including holdings of investors, financial institutions, foreign governments, state and local governments, and the Federal Reserve. It excludes most debt held by federal trust funds. The ratio compares accumulated debt with annual GDP so different periods can be compared more meaningfully. This accumulated debt is distinct from the annual deficit, which measures new borrowing during one year. The historical bands describe frequency, not a safe or recommended range.',
+  },
+  zeroLineMeaning: 'No zero line is shown because zero is not a useful reference for this ratio.',
+  positionDescriptions: federalDebtPositionDescriptions,
+}
+
 const compactDefinitions: Readonly<
   Partial<Record<string, CompactHistoricalMetricDefinition>>
 > = {
@@ -570,6 +601,7 @@ const compactDefinitions: Readonly<
   'real-business-investment-growth': businessInvestmentCompactDefinition,
   'corporate-profit-share': corporateProfitShareCompactDefinition,
   'federal-budget-balance': federalBudgetBalanceCompactDefinition,
+  'federal-debt-held-by-public': federalDebtCompactDefinition,
 }
 
 export function getCompactHistoricalMetricDefinition(

@@ -273,7 +273,7 @@ export function DashboardPage() {
         description="Federal budget balances show whether the government borrowed or saved during a year, while debt held by the public shows the accumulated federal obligations financed outside government accounts. Both are shown relative to GDP so they can be compared across periods of different economic size."
       >
         <EconomicSeriesCard collapsible slug="federal-budget-balance" label="federal budget balance" onSeriesLoaded={handleSeriesLoaded} />
-        <EconomicSeriesCard slug="federal-debt-held-by-public" label="federal debt held by the public" onSeriesLoaded={handleSeriesLoaded} />
+        <EconomicSeriesCard collapsible slug="federal-debt-held-by-public" label="federal debt held by the public" onSeriesLoaded={handleSeriesLoaded} />
       </EconomicSection>
 
       <EconomicSection id="trade-and-tariffs" title="Trade and tariffs" description="Trade flows show exports and imports relative to the economy, while the effective tariff burden compares customs-duty receipts with imported goods. Neither measure is an overall judgment on trade policy.">
