@@ -292,8 +292,9 @@ downloaded automatically by Codex. After each new monthly CPI release:
    or attach it directly to the Codex conversation.
 
 5. Tell Codex to ingest the new Table 7 workbook, validate it, update the
-   committed inflation-contribution dataset, run all repository checks, and
-   commit the update locally without pushing.
+   committed inflation-contribution dataset, run all repository checks and
+   verification, commit the update, and push it to the current tracked remote
+   branch.
 
 Files for completed prior years may instead appear near the bottom of the page
 as annual archives named in this format:
@@ -310,79 +311,78 @@ Do not substitute another CPI table or a category inflation-rate series. Table
 # Story Completion
 
 A story is complete when the requested implementation and documentation have been
-verified and committed locally. Pushing is a separate follow-up action that
-requires the user's confirmation.
-
-Committed but unpushed work must never block starting the next story. At the
-start of a new story, inspect the working tree, preserve unrelated changes, and
-continue with the new work using the smallest safe scope. If earlier story
-commits have not been pushed, immediately show this commentary cue and then keep
-working:
-
-`ℹ️ PRIOR STORY COMMITS HAVE NOT BEEN PUSHED; STARTING THIS STORY LOCALLY.`
+verified, committed locally, and pushed successfully to the current tracked remote
+branch.
 
 Before completing a story:
 
 1. Review the story requirements and confirm that no requested work was omitted.
 2. Confirm that no out-of-scope work from future stories was added.
-3. Run all required quality checks, including:
-   - `npm run lint`
-   - `npm run typecheck`
-   - `npm test`
-   - `npm run build`
+3. Run the canonical repository verification command:
+   - `npm run verify`
+4. Run Git diff validation:
    - `git diff --check`
-4. Run any story-specific data-refresh, browser, or manual verification steps.
-5. Fix all errors and warnings that indicate an implementation problem.
-6. Stop any development servers or temporary processes started during verification.
-7. Inspect `git status` and the staged diff.
-8. Confirm that no secrets, `.env` files, generated temporary files, debug output, or unrelated changes are included.
-9. Update relevant documentation so it reflects the completed implementation.
-10. Create one focused conventional-style commit containing only the story
-    changes.
-11. Confirm the story commit exists locally and that unrelated working-tree
-    changes remain untouched.
+5. Run any story-specific data-refresh, browser, verifier, or manual verification steps.
+6. Fix all errors and warnings that indicate an implementation problem.
+7. Stop any development servers or temporary processes started during verification.
+8. Inspect `git status` and the staged diff.
+9. Confirm that the diff contains only work belonging to the current story.
+10. Confirm that no secrets, `.env` files, generated temporary files, debug output,
+    screenshots, logs, or unrelated changes are included.
+11. Update relevant documentation so it reflects the completed implementation.
+12. Create one focused conventional-style commit containing only the story changes.
+13. Confirm the story commit exists locally and unrelated working-tree changes remain untouched.
+14. Push the commit to the current tracked remote branch.
+15. Confirm that the remote push succeeded.
+16. Confirm the final working-tree status.
 
 Do not:
 
-- Commit work that does not pass the required checks.
+- Commit or push work that does not pass all required checks.
+- Push if the verifier reports unresolved problems.
 - Push secrets or local environment files.
-- use `--force` or `--force-with-lease` unless explicitly instructed.
+- Use `--force` or `--force-with-lease`.
 - Rewrite or squash existing shared history unless explicitly instructed.
+- Change branches unless the story explicitly requires it.
 - Commit unrelated changes merely because they are present in the working tree.
-- Leave verification-only files, screenshots, logs, temporary datasets, or running processes behind.
+- Leave verification-only files, screenshots, logs, temporary datasets, or running
+  processes behind.
+- Ask for permission to push after a story has passed all checks and verification.
 
 When the story implementation is verified:
 
-1. Mark it clearly with `ALL DONE WITH USER STORY [NUMBER]`.
-2. Report the local commit hash and message.
-3. Do not push unless the user explicitly asks.
-4. End with this compact, single-line cue so it remains visible in a small Codex
-   panel:
+1. Commit and push automatically.
+2. Mark completion clearly with:
 
-   `⚠️ STORY [NUMBER] DONE AND COMMITTED LOCALLY — NOT PUSHED. PUSH NOW?`
+   `ALL DONE WITH USER STORY [NUMBER]`
 
-5. If the user starts another story instead, begin it immediately. Preserve and
-   distinguish earlier local commits and unrelated working-tree changes; do not
-   stop to request a push.
+3. Report:
+   - What was implemented
+   - Important decisions or deviations
+   - Quality checks and verification results
+   - Verifier result
+   - Branch name
+   - Commit hash and message
+   - GitHub remote
+   - Push result
+   - Final working-tree status
+   - Any known limitations or concerns for the next story
 
-If pushing fails after the user requested it because of authentication,
-permissions, branch protection, a non-fast-forward update, or another remote issue:
+4. End with this compact, single-line cue:
+
+   `✅ STORY [NUMBER] DONE, VERIFIED, COMMITTED, AND PUSHED.`
+
+If pushing fails because of authentication, permissions, branch protection,
+a non-fast-forward update, or another remote issue:
 
 - Do not use a destructive Git command to bypass the problem.
 - Report the exact failure clearly.
 - Leave the verified local commit intact.
 - Explain what user action is required.
+- End with:
 
-The completion response must report:
+  `⚠️ STORY [NUMBER] DONE AND COMMITTED LOCALLY — PUSH FAILED.`
 
-- What was implemented
-- Important decisions or deviations
-- Quality checks and verification results
-- Branch name
-- Commit hash and message
-- GitHub remote and push result when applicable
-- Final working-tree status
-- Any known limitations or concerns for the next story
-- The compact push cue whenever the story commit has not been pushed
-- Finally, make it clear to the human reader that the story is done. Do this by
-  printing `ALL DONE WITH USER STORY [NUMBER]` in all caps so it stands out.
+If an earlier verified story commit remains unpushed because of a prior push failure,
+do not silently mix it into the current story. Report the situation before pushing
+and preserve commit boundaries.
