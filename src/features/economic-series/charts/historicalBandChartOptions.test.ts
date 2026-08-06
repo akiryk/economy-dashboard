@@ -78,6 +78,27 @@ describe('historical band chart options', () => {
     expect(disabled.markPoint).toBeUndefined()
   })
 
+  it('shows each observation as a circle and applies one interaction cursor', () => {
+    const series = (options({
+      showAllObservationMarkers: true,
+      cursor: 'pointer',
+    }).series as Array<{
+      showSymbol: boolean
+      symbol: string
+      symbolSize: number
+      cursor: string
+      markPoint?: { symbolSize: number }
+    }>)[0]!
+
+    expect(series).toMatchObject({
+      showSymbol: true,
+      symbol: 'circle',
+      symbolSize: 5,
+      cursor: 'pointer',
+    })
+    expect(series.markPoint?.symbolSize).toBe(8)
+  })
+
   it('renders an optional policy reference and includes it in the domain', () => {
     const configured = (options({
       referenceLines: [{ value: 5, label: 'Policy reference' }],

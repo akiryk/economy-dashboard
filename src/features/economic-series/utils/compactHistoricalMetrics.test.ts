@@ -235,6 +235,12 @@ describe('compact historical metric definitions', () => {
     expect(model.comparisonStart).toBe('1946-01-01')
     expect(federalBudgetBalanceCompactDefinition.showZeroLine).toBe(true)
     expect(federalBudgetBalanceCompactDefinition.showLatestMarker).toBe(true)
+    expect(federalBudgetBalanceCompactDefinition.showAllObservationMarkers).toBe(true)
+    expect(federalBudgetBalanceCompactDefinition.interactiveCursor).toBe('pointer')
+    expect(federalBudgetBalanceCompactDefinition.unifiedFooterLabels).toBe(true)
+    expect(federalBudgetBalanceCompactDefinition.comparisonLabel?.(model)).toBe(
+      'Historical bands use annual observations from 1946–2025',
+    )
     expect(federalBudgetBalanceCompactDefinition.interactiveDetails).toBe(true)
     expect(federalBudgetBalanceCompactDefinition.interactionStateLabel?.(-5.8))
       .toBe('Deficit')

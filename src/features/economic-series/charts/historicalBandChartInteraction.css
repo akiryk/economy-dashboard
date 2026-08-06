@@ -4,6 +4,11 @@
   cursor: crosshair;
 }
 
+.historical-band-chart__interaction--pointer,
+.historical-band-chart__interaction--pointer * {
+  cursor: pointer !important;
+}
+
 .historical-band-chart__interaction:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;

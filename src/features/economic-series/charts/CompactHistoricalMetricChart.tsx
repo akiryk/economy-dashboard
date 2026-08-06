@@ -46,7 +46,7 @@ export function CompactHistoricalMetricChart({
   const firstRecent = ready?.recentObservations[0]
   const valueFormatter = definition.valueFormatter ?? formatPercentage
   const caption = ready && firstRecent
-    ? `${definition.seriesLabel} · ${formatObservationPeriod(firstRecent.date, definition.frequency)}–${formatObservationPeriod(ready.latestObservation.date, definition.frequency)}`
+    ? `${definition.seriesLabel} · ${definition.displayedPeriodPrefix ?? ''}${formatObservationPeriod(firstRecent.date, definition.frequency)}–${formatObservationPeriod(ready.latestObservation.date, definition.frequency)}`
     : definition.seriesLabel
   const valuesByDate = new Map(observations.map(({ date, value }) => [date, value]))
   const pairedValuesByDate = new Map(pairedObservations.map(({ date, value }) => [date, value]))
@@ -79,10 +79,13 @@ export function CompactHistoricalMetricChart({
       caption={caption}
       showZeroLine={definition.showZeroLine}
       showLatestMarker={definition.showLatestMarker}
+      showAllObservationMarkers={definition.showAllObservationMarkers}
       referenceLines={definition.referenceLines}
       showReferenceLineLabels={definition.showReferenceLineLabels}
       visuallyHideSummary={visuallyHideSummary}
       interactiveDetails={definition.interactiveDetails}
+      interactiveCursor={definition.interactiveCursor}
+      unifiedFooterLabels={definition.unifiedFooterLabels}
       interactionDetails={definition.interactionStateLabel
         ? (observation) => <>
             <strong>{formatObservationPeriod(observation.date, definition.frequency)}</strong>

@@ -30,7 +30,11 @@ export interface CompactHistoricalMetricDefinition {
   historicalBands: HistoricalBandDefinition
   showZeroLine: boolean
   showLatestMarker: boolean
+  showAllObservationMarkers?: boolean
   interactiveDetails?: boolean
+  interactiveCursor?: 'crosshair' | 'pointer'
+  unifiedFooterLabels?: boolean
+  displayedPeriodPrefix?: string
   interactionStateLabel?: (value: number | null) => string
   pointComparison?: {
     months: number
@@ -512,10 +516,14 @@ export const federalBudgetBalanceCompactDefinition: CompactHistoricalMetricDefin
   },
   showZeroLine: true,
   showLatestMarker: true,
+  showAllObservationMarkers: true,
   interactiveDetails: true,
+  interactiveCursor: 'pointer',
+  unifiedFooterLabels: true,
+  displayedPeriodPrefix: 'Displayed: ',
   interactionStateLabel: formatBudgetBalanceTooltipState,
   valueFormatter: formatSignedPercentage,
-  comparisonLabel: () => 'Available postwar annual history since 1946',
+  comparisonLabel: (model) => `Historical bands use annual observations from ${model.comparisonStart.slice(0, 4)}–${model.comparisonEnd.slice(0, 4)}`,
   helpText: {
     heading: 'Federal budget balance as a share of GDP',
     description: 'The budget balance compares federal revenue with federal spending. Negative values indicate deficits; positive values indicate surpluses. The measure is shown relative to GDP so different years can be compared more meaningfully. This is the annual deficit or surplus, not the total federal debt.',

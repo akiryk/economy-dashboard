@@ -31,7 +31,10 @@ vi.mock('./HistoricalBandChart', () => ({
     accessibleSummary: string | null
     showZeroLine: boolean
     showLatestMarker: boolean
+    showAllObservationMarkers?: boolean
     interactiveDetails: boolean
+    interactiveCursor?: string
+    unifiedFooterLabels?: boolean
     valueFormatter: (value: number | null) => string
     interactionDetails?: (
       observation: EconomicObservation & { value: number },
@@ -46,7 +49,10 @@ vi.mock('./HistoricalBandChart', () => ({
       data-summary={props.accessibleSummary}
       data-zero-line={props.showZeroLine}
       data-latest-marker={props.showLatestMarker}
+      data-all-markers={props.showAllObservationMarkers}
       data-interactive={props.interactiveDetails}
+      data-cursor={props.interactiveCursor}
+      data-unified-footer={props.unifiedFooterLabels}
       data-reference-lines={JSON.stringify(props.referenceLines)}
       data-comparison-label={props.comparisonLabel}
       data-latest-value={props.valueFormatter(111.33333333333333)}
@@ -139,11 +145,18 @@ describe('CompactHistoricalMetricChart', () => {
     const chart = screen.getByTestId('historical-band-chart')
     expect(chart).toHaveAttribute(
       'data-caption',
-      'Federal budget balance as a share of GDP · 2021–2025',
+      'Federal budget balance as a share of GDP · Displayed: 2021–2025',
+    )
+    expect(chart).toHaveAttribute(
+      'data-comparison-label',
+      'Historical bands use annual observations from 1946–2025',
     )
     expect(chart).toHaveAttribute('data-zero-line', 'true')
     expect(chart).toHaveAttribute('data-latest-marker', 'true')
+    expect(chart).toHaveAttribute('data-all-markers', 'true')
     expect(chart).toHaveAttribute('data-interactive', 'true')
+    expect(chart).toHaveAttribute('data-cursor', 'pointer')
+    expect(chart).toHaveAttribute('data-unified-footer', 'true')
     expect(chart).toHaveTextContent('2025−5.8%Deficit')
     expect(chart).not.toHaveTextContent('Historical position')
   })

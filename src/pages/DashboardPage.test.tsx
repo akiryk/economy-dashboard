@@ -1878,7 +1878,7 @@ describe('DashboardPage economic series', () => {
       .not.toHaveLength(0)
     expect(within(budget).getByText(/2025 · Percent of GDP/)).toBeVisible()
     expect(within(budget).getByText('The federal government ran a deficit equal to 5.8% of GDP.')).toBeVisible()
-    expect(within(budget).getByText(/\$5\.77 of borrowing for every \$100/)).toBeVisible()
+    expect(within(budget).getByText(/\$5\.80 of borrowing for every \$100/)).toBeVisible()
     expect(within(budget).getByText(/relative to the available postwar history/)).toBeVisible()
     const compactProps = compactChartPropsSpy.mock.calls.find(
       ([props]) => props.definition.seriesLabel === 'Federal budget balance as a share of GDP',
@@ -1886,6 +1886,8 @@ describe('DashboardPage economic series', () => {
     expect(compactProps.model.recentObservations).toHaveLength(5)
     expect(compactProps.definition.showZeroLine).toBe(true)
     expect(compactProps.definition.showLatestMarker).toBe(true)
+    expect(compactProps.definition.showAllObservationMarkers).toBe(true)
+    expect(compactProps.definition.interactiveCursor).toBe('pointer')
     const contextToggle = within(budget).getByRole('button', { name: 'Why this matters' })
     expect(within(budget).queryByText(/persistent large deficits add/)).not.toBeInTheDocument()
     await user.click(contextToggle)

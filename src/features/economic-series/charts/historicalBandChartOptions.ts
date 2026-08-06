@@ -13,6 +13,8 @@ export interface HistoricalBandChartOptionsInput {
   latestPositionDescription: string
   showZeroLine: boolean
   showLatestMarker: boolean
+  showAllObservationMarkers?: boolean
+  cursor?: 'crosshair' | 'pointer'
   showTooltip?: boolean
   referenceLines?: readonly { value: number; label: string }[]
 }
@@ -50,6 +52,8 @@ export function createHistoricalBandChartOptions({
   latestPositionDescription,
   showZeroLine,
   showLatestMarker,
+  showAllObservationMarkers = false,
+  cursor,
   showTooltip = true,
   referenceLines = [],
 }: HistoricalBandChartOptionsInput): EChartsCoreOption {
@@ -91,8 +95,10 @@ export function createHistoricalBandChartOptions({
       data: model.recentObservations.map(({ date, value }) => [date, value]),
       connectNulls: false,
       smooth: false,
-      showSymbol: false,
+      showSymbol: showAllObservationMarkers,
       symbol: 'circle',
+      symbolSize: 5,
+      cursor,
       lineStyle: { color: compactChartTheme.line, width: 2.5 },
       itemStyle: {
         color: compactChartTheme.latestMarker,

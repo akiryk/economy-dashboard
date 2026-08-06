@@ -21,8 +21,11 @@ export function formatBudgetBalanceAnswer(value: number | null): string {
 
 export function formatBudgetBalancePerHundred(value: number | null): string {
   const state = classifyBudgetBalance(value)
-  if (state === 'deficit') return `That is about $${Math.abs(value!).toFixed(2)} of borrowing for every $100 of economic output.`
-  if (state === 'surplus') return `That is about $${Math.abs(value!).toFixed(2)} more in revenue than spending for every $100 of economic output.`
+  const displayedMagnitude = value === null
+    ? null
+    : Math.abs(Number(value.toFixed(1))).toFixed(2)
+  if (state === 'deficit') return `That is about $${displayedMagnitude} of borrowing for every $100 of economic output.`
+  if (state === 'surplus') return `That is about $${displayedMagnitude} more in revenue than spending for every $100 of economic output.`
   if (state === 'balanced') return 'Revenue and spending were within about 20 cents of each other for every $100 of economic output.'
   return 'The amount per $100 of economic output is unavailable.'
 }

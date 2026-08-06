@@ -55,6 +55,7 @@ interface HistoricalBandChartProps {
   caption: string
   showZeroLine?: boolean
   showLatestMarker?: boolean
+  showAllObservationMarkers?: boolean
   referenceLines?: readonly { value: number; label: string }[]
   showReferenceLineLabels?: boolean
   visuallyHideSummary?: boolean
@@ -64,6 +65,8 @@ interface HistoricalBandChartProps {
   }) => ReactNode
   zeroLineLabel?: string
   comparisonLabel?: string
+  interactiveCursor?: 'crosshair' | 'pointer'
+  unifiedFooterLabels?: boolean
 }
 
 export function HistoricalBandChart({
@@ -77,6 +80,7 @@ export function HistoricalBandChart({
   caption,
   showZeroLine = false,
   showLatestMarker = true,
+  showAllObservationMarkers = false,
   referenceLines = noReferenceLines,
   showReferenceLineLabels = false,
   visuallyHideSummary = false,
@@ -84,6 +88,8 @@ export function HistoricalBandChart({
   interactionDetails,
   zeroLineLabel,
   comparisonLabel,
+  interactiveCursor = 'crosshair',
+  unifiedFooterLabels = false,
 }: HistoricalBandChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const interactionRef = useRef<HTMLDivElement>(null)
@@ -97,13 +103,15 @@ export function HistoricalBandChart({
       ? createHistoricalBandChartOptions({
           model, seriesLabel, frequency, valueFormatter,
           latestPositionDescription, showZeroLine, showLatestMarker,
+          showAllObservationMarkers, cursor: interactiveCursor,
           referenceLines,
           showTooltip: !interactiveDetails,
         })
       : null,
     [
       frequency, latestPositionDescription, model, seriesLabel,
-      interactiveDetails, referenceLines, showLatestMarker, showZeroLine,
+      interactiveDetails, interactiveCursor, referenceLines,
+      showAllObservationMarkers, showLatestMarker, showZeroLine,
       valueFormatter,
     ],
   )
@@ -188,13 +196,13 @@ export function HistoricalBandChart({
 
   return (
     <figure
-      className="historical-band-chart"
+      className={`historical-band-chart${unifiedFooterLabels ? ' historical-band-chart--unified-footer' : ''}`}
       aria-labelledby={summaryId}
     >
       <div
         ref={interactiveDetails ? interactionRef : undefined}
         className={interactiveDetails
-          ? 'historical-band-chart__interaction'
+          ? `historical-band-chart__interaction historical-band-chart__interaction--${interactiveCursor}`
           : undefined}
         tabIndex={interactiveDetails ? 0 : undefined}
         aria-label={interactiveDetails
@@ -283,13 +291,18 @@ export function HistoricalBandChart({
             </div>
           )}
       </div>
-      <p className="historical-band-chart__title">{caption}</p>
+      {unifiedFooterLabels ? (
+        <div className="historical-band-chart__footer-lines">
+          {comparisonLabel && <p>{comparisonLabel}</p>}
+          <p>{caption}</p>
+        </div>
+      ) : <p className="historical-band-chart__title">{caption}</p>}
       {showReferenceLineLabels && referenceLines.map(({ value, label }) => (
         <p className="historical-band-chart__zero-label" key={`${value}-${label}`}>
           {label}
         </p>
       ))}
-      {comparisonLabel && (
+      {!unifiedFooterLabels && comparisonLabel && (
         <p className="historical-band-chart__zero-label">{comparisonLabel}</p>
       )}
       {zeroLineLabel && (

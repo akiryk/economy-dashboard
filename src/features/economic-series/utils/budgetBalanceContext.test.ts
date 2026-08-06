@@ -24,6 +24,7 @@ describe('budget balance context', () => {
   it('formats deterministic deficit, surplus, and balanced explanations', () => {
     expect(formatBudgetBalanceAnswer(-5.8)).toBe('The federal government ran a deficit equal to 5.8% of GDP.')
     expect(formatBudgetBalancePerHundred(-5.8)).toContain('$5.80 of borrowing')
+    expect(formatBudgetBalancePerHundred(-5.76906)).toContain('$5.80 of borrowing')
     expect(formatBudgetBalanceAnswer(1.2)).toContain('surplus equal to 1.2%')
     expect(formatBudgetBalancePerHundred(1.2)).toContain('$1.20 more in revenue')
     expect(formatBudgetBalanceAnswer(0.2)).toContain('approximately balanced')
