@@ -1,17 +1,21 @@
 import { describe, expect, it } from 'vitest'
 import {
   classifyBudgetBalance,
-  classifyBudgetBalanceHistory,
+  deriveBudgetBalanceCompactContext,
+  formatBudgetBalanceQuestion,
   formatBudgetBalanceAnswer,
   formatBudgetBalancePerHundred,
+  formatBudgetBalanceStateLabel,
 } from './budgetBalanceContext'
 
-const model = {
-  outerLower: -8,
-  innerLower: -4,
-  innerUpper: 1,
-  outerUpper: 3,
-} as const
+const bands = {
+  recentObservationCount: 5,
+  comparisonWindow: { kind: 'all-available' as const },
+  innerPercentiles: [25, 75] as const,
+  outerPercentiles: [10, 90] as const,
+  minimumFiniteObservations: 2,
+  latestObservationPolicy: 'latest-finite' as const,
+}
 
 describe('budget balance context', () => {
   it.each([
@@ -31,12 +35,35 @@ describe('budget balance context', () => {
     expect(formatBudgetBalancePerHundred(0.2)).toContain('within about 20 cents')
   })
 
-  it('uses five deterministic historical states', () => {
-    expect([-9, -5, 0, 2, 4].map((value) =>
-      classifyBudgetBalanceHistory(value, model),
-    )).toEqual([
-      'very large deficit', 'large deficit', 'typical balance',
-      'large surplus', 'very large surplus',
-    ])
+  it.each([
+    [-3, 'How large is the federal budget deficit relative to the economy?', 'Deficit'],
+    [1, 'How large is the federal budget surplus relative to the economy?', 'Surplus'],
+    [0, 'Is the federal budget approximately balanced?', 'Approximately balanced'],
+  ] as const)('uses state-dependent question and label for %s', (value, question, label) => {
+    const state = classifyBudgetBalance(value)
+    expect(formatBudgetBalanceQuestion(state)).toBe(question)
+    expect(formatBudgetBalanceStateLabel(state)).toBe(label)
+  })
+
+  it.each([
+    ['deficit', [8, 0, 4, 0, 3], 3],
+    ['surplus', [0, 2, 0, 1, 3], 3],
+    ['balanced', [8, 2, 4, 1, 0.1], 5],
+  ] as const)('transforms %s mode and uses only comparable history', (mode, expected, comparableCount) => {
+    const latest = mode === 'deficit' ? -3 : mode === 'surplus' ? 3 : 0.1
+    const context = deriveBudgetBalanceCompactContext([
+      { date: '2021-01-01', value: -8 },
+      { date: '2022-01-01', value: 2 },
+      { date: '2023-01-01', value: -4 },
+      { date: '2024-01-01', value: 1 },
+      { date: '2025-01-01', value: latest },
+    ], bands)
+    expect(context.state).toBe(mode)
+    expect(context.observations.map(({ value }) => value)).toEqual(expected)
+    expect(context.model.status).toBe('ready')
+    if (context.model.status === 'ready') {
+      expect(context.model.validObservationCount).toBe(comparableCount)
+      expect(context.model.recentObservations.map(({ value }) => value)).toEqual(expected)
+    }
   })
 })

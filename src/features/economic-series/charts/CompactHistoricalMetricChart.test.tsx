@@ -23,6 +23,7 @@ import {
 import { deriveHistoricalBandContext } from '../utils/historicalBandContext'
 import { deriveHousingStartsCompactData } from '../utils/housingStartsData'
 import { deriveManufacturingOutputGrowth } from '../utils/manufacturingOutputGrowth'
+import { deriveBudgetBalanceCompactContext } from '../utils/budgetBalanceContext'
 import { CompactHistoricalMetricChart } from './CompactHistoricalMetricChart'
 
 vi.mock('./HistoricalBandChart', () => ({
@@ -64,8 +65,8 @@ vi.mock('./HistoricalBandChart', () => ({
           ? { date: '2026-06-01', value: 3.93 }
           : props.caption.startsWith('Three-month-average manufacturing')
           ? { date: '2026-06-01', value: 1.3 }
-          : props.caption.startsWith('Federal budget balance')
-          ? { date: '2025-01-01', value: -5.8 }
+          : props.caption.startsWith('Federal deficit')
+          ? { date: '2025-01-01', value: 5.8 }
           : { date: '2026-06-01', value: 2.7 },
       )}
       {props.showReferenceLineLabels && props.referenceLines?.map(({ label }) => (
@@ -134,22 +135,23 @@ describe('CompactHistoricalMetricChart', () => {
   it('shows concise annual budget balance details and zero mechanics', () => {
     const series = validateEconomicSeries(budgetBalanceData)
     const postwar = series.observations.filter(({ date }) => date >= '1946-01-01')
-    const model = deriveHistoricalBandContext(
+    const context = deriveBudgetBalanceCompactContext(
       postwar,
       federalBudgetBalanceCompactDefinition.historicalBands,
     )
     render(<CompactHistoricalMetricChart
-      model={model}
+      model={context.model}
       definition={federalBudgetBalanceCompactDefinition}
+      observations={context.observations}
     />)
     const chart = screen.getByTestId('historical-band-chart')
     expect(chart).toHaveAttribute(
       'data-caption',
-      'Federal budget balance as a share of GDP · Displayed: 2021–2025',
+      'Federal deficit as a share of GDP · Displayed: 2021–2025',
     )
     expect(chart).toHaveAttribute(
       'data-comparison-label',
-      'Historical bands use annual observations from 1946–2025',
+      'Historical bands use annual federal deficit magnitudes from 1946–2025',
     )
     expect(chart).toHaveAttribute('data-zero-line', 'true')
     expect(chart).toHaveAttribute('data-latest-marker', 'true')
@@ -157,7 +159,7 @@ describe('CompactHistoricalMetricChart', () => {
     expect(chart).toHaveAttribute('data-interactive', 'true')
     expect(chart).toHaveAttribute('data-cursor', 'pointer')
     expect(chart).toHaveAttribute('data-unified-footer', 'true')
-    expect(chart).toHaveTextContent('2025−5.8%Deficit')
+    expect(chart).toHaveTextContent('2025Deficit 5.8% of GDP')
     expect(chart).not.toHaveTextContent('Historical position')
   })
 

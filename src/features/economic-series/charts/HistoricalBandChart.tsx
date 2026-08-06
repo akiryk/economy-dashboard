@@ -122,6 +122,7 @@ export function HistoricalBandChart({
     try {
       const chart = echarts.init(container)
       chart.setOption(options, { notMerge: true })
+      chart.getZr?.().setCursorStyle(interactiveCursor)
       const resize = () => chart.resize()
       const observer = typeof ResizeObserver === 'undefined'
         ? null
@@ -137,7 +138,7 @@ export function HistoricalBandChart({
       console.error(`Failed to initialize the compact ${seriesLabel} chart`, error)
       queueMicrotask(() => setChartError(true))
     }
-  }, [options, seriesLabel])
+  }, [interactiveCursor, options, seriesLabel])
 
   useEffect(() => {
     if (!pinned) return

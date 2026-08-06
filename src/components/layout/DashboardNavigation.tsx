@@ -104,7 +104,7 @@ const navigationGroups = [
   {
     title: 'Government finances',
     cards: [
-      { id: 'federal-budget-balance-card', title: 'How large is the federal budget deficit or surplus relative to the economy?' },
+      { id: 'federal-budget-balance-card', title: 'How large is the federal budget deficit relative to the economy?' },
       { id: 'federal-debt-held-by-public-card', title: 'How large is federal debt held by the public relative to the economy?' },
     ],
   },

@@ -89,8 +89,10 @@ export function CompactHistoricalMetricChart({
       interactionDetails={definition.interactionStateLabel
         ? (observation) => <>
             <strong>{formatObservationPeriod(observation.date, definition.frequency)}</strong>
-            <span>{valueFormatter(observation.value)}</span>
-            <span>{definition.interactionStateLabel!(observation.value)}</span>
+            <span>
+              <strong>{definition.interactionStateLabel!(observation.value)}</strong>
+              {' '}{valueFormatter(observation.value)}
+            </span>
           </>
         : pointComparison || threshold || pairedObservations.length > 0
         ? (observation) => {

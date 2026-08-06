@@ -1,6 +1,7 @@
-import type { HistoricalBandModel, HistoricalBandPosition } from './historicalBandContext'
-import { classifyHistoricalBandPosition } from './historicalBandContext'
-import { formatSignedPercentage } from './economicSeries'
+import type { EconomicObservation } from '../models/economicSeries'
+import type { HistoricalBandDefinition, HistoricalBandModel, HistoricalBandPosition, HistoricalBandResult } from './historicalBandContext'
+import { classifyHistoricalBandPosition, deriveHistoricalBandContext } from './historicalBandContext'
+import { formatPercentage, formatSignedPercentage, sortObservationsChronologically } from './economicSeries'
 
 export type BudgetBalanceState = 'deficit' | 'surplus' | 'balanced' | 'unavailable'
 
@@ -9,6 +10,83 @@ export function classifyBudgetBalance(value: number | null): BudgetBalanceState 
   if (value < -0.2) return 'deficit'
   if (value > 0.2) return 'surplus'
   return 'balanced'
+}
+
+export function formatBudgetBalanceQuestion(state: BudgetBalanceState): string {
+  if (state === 'deficit') return 'How large is the federal budget deficit relative to the economy?'
+  if (state === 'surplus') return 'How large is the federal budget surplus relative to the economy?'
+  if (state === 'balanced') return 'Is the federal budget approximately balanced?'
+  return 'Is the federal budget balance available?'
+}
+
+export function formatBudgetBalanceStateLabel(state: BudgetBalanceState): string {
+  if (state === 'deficit') return 'Deficit'
+  if (state === 'surplus') return 'Surplus'
+  if (state === 'balanced') return 'Approximately balanced'
+  return 'Unavailable'
+}
+
+export function budgetBalanceMagnitude(
+  value: number | null,
+  state: BudgetBalanceState,
+): number | null {
+  if (value === null) return null
+  if (state === 'deficit') return Math.max(0, -value)
+  if (state === 'surplus') return Math.max(0, value)
+  if (state === 'balanced') return Math.abs(value)
+  return null
+}
+
+function isComparableBudgetBalance(value: number, state: BudgetBalanceState): boolean {
+  if (state === 'deficit') return value < 0
+  if (state === 'surplus') return value > 0
+  return state === 'balanced'
+}
+
+export interface BudgetBalanceCompactContext {
+  state: BudgetBalanceState
+  observations: EconomicObservation[]
+  model: HistoricalBandResult
+}
+
+export function deriveBudgetBalanceCompactContext(
+  observations: readonly EconomicObservation[],
+  definition: HistoricalBandDefinition,
+): BudgetBalanceCompactContext {
+  const sorted = sortObservationsChronologically(observations)
+  const latest = [...sorted].reverse().find(({ value }) => value !== null)
+  const state = classifyBudgetBalance(latest?.value ?? null)
+  const transformed = sorted.map(({ date, value }) => ({
+    date,
+    value: budgetBalanceMagnitude(value, state),
+  }))
+  const displayModel = deriveHistoricalBandContext(transformed, definition)
+  const comparisonModel = deriveHistoricalBandContext(
+    sorted.map(({ date, value }) => ({
+      date,
+      value: value !== null && isComparableBudgetBalance(value, state)
+        ? budgetBalanceMagnitude(value, state)
+        : null,
+    })),
+    definition,
+  )
+
+  if (displayModel.status !== 'ready' || comparisonModel.status !== 'ready') {
+    return { state, observations: transformed, model: comparisonModel }
+  }
+  return {
+    state,
+    observations: transformed,
+    model: {
+      ...displayModel,
+      innerLower: comparisonModel.innerLower,
+      innerUpper: comparisonModel.innerUpper,
+      median: comparisonModel.median,
+      outerLower: comparisonModel.outerLower,
+      outerUpper: comparisonModel.outerUpper,
+      validObservationCount: comparisonModel.validObservationCount,
+    },
+  }
 }
 
 export function formatBudgetBalanceAnswer(value: number | null): string {
@@ -30,44 +108,34 @@ export function formatBudgetBalancePerHundred(value: number | null): string {
   return 'The amount per $100 of economic output is unavailable.'
 }
 
-const positionLabels: Record<Exclude<HistoricalBandPosition, 'unavailable'>, string> = {
-  belowOuterBand: 'very large deficit',
-  betweenOuterAndInnerLow: 'large deficit',
-  insideInnerBand: 'typical balance',
-  betweenInnerAndOuterHigh: 'large surplus',
-  aboveOuterBand: 'very large surplus',
-}
-
-export function classifyBudgetBalanceHistory(
-  value: number | null,
-  model: Pick<HistoricalBandModel, 'outerLower' | 'innerLower' | 'innerUpper' | 'outerUpper'>,
-): string {
-  const position = classifyHistoricalBandPosition(value, model)
-  return position === 'unavailable' ? 'unavailable' : positionLabels[position]
-}
-
 export function formatBudgetBalanceHistoricalPosition(
   value: number | null,
   model: HistoricalBandModel | null,
 ): string {
   if (!model || value === null) return 'Historical comparison is unavailable.'
-  const classification = classifyBudgetBalanceHistory(value, model)
   const state = classifyBudgetBalance(value)
-  const subject = state === 'deficit' ? 'deficit' : state === 'surplus' ? 'surplus' : 'balance'
-  const scale = classification.replace(/ (deficit|surplus|balance)$/, '')
-  return `The current ${subject} is ${scale} relative to the available postwar history.`
-}
-
-export function formatBudgetBalanceTooltipState(value: number | null): string {
-  const state = classifyBudgetBalance(value)
-  if (state === 'balanced') return 'Approximately balanced'
-  if (state === 'unavailable') return 'Unavailable'
-  return state.charAt(0).toUpperCase() + state.slice(1)
+  const magnitude = budgetBalanceMagnitude(value, state)
+  const position = classifyHistoricalBandPosition(magnitude, model)
+  const scale: Record<Exclude<HistoricalBandPosition, 'unavailable'>, string> = {
+    belowOuterBand: 'very small',
+    betweenOuterAndInnerLow: 'small',
+    insideInnerBand: 'typical',
+    betweenInnerAndOuterHigh: 'large',
+    aboveOuterBand: 'very large',
+  }
+  if (position === 'unavailable') return 'Historical comparison is unavailable.'
+  if (state === 'deficit') return `The current deficit is ${scale[position]} relative to historical deficits.`
+  if (state === 'surplus') return `The current surplus is ${scale[position]} relative to historical surpluses.`
+  return position === 'belowOuterBand' || position === 'betweenOuterAndInnerLow'
+    ? 'The current balance is close to zero by historical standards.'
+    : `The current absolute balance gap is ${scale[position]} by historical standards.`
 }
 
 export function createBudgetBalanceAccessibleSummary(
   model: HistoricalBandModel,
+  signedValue: number | null = model.latestObservation.value,
 ): string {
   const latest = model.latestObservation
-  return `${formatSignedPercentage(latest.value)} in ${latest.date.slice(0, 4)}. ${formatBudgetBalanceAnswer(latest.value)} ${formatBudgetBalancePerHundred(latest.value)} ${formatBudgetBalanceHistoricalPosition(latest.value, model)} The compact chart covers ${model.recentObservations[0]?.date.slice(0, 4)} through ${latest.date.slice(0, 4)}. Zero means federal revenue and spending were equal.`
+  const state = classifyBudgetBalance(signedValue)
+  return `${formatPercentage(latest.value)} in ${latest.date.slice(0, 4)}. ${formatBudgetBalanceAnswer(signedValue)} ${formatBudgetBalancePerHundred(signedValue)} ${formatBudgetBalanceHistoricalPosition(signedValue, model)} The compact chart covers ${model.recentObservations[0]?.date.slice(0, 4)} through ${latest.date.slice(0, 4)} and shows the positive ${state === 'balanced' ? 'absolute balance gap' : `${state} magnitude`}. The underlying signed value is ${formatSignedPercentage(signedValue)}; the expanded chart preserves signed balances.`
 }

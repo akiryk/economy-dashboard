@@ -47,6 +47,7 @@ import {
   medianLendingStandards,
 } from '../utils/lendingStandardsData'
 import {
+  createFederalBudgetBalanceCompactDefinition,
   getCompactHistoricalMetricDefinition,
 } from '../utils/compactHistoricalMetrics'
 import { deriveHistoricalBandContext } from '../utils/historicalBandContext'
@@ -108,10 +109,14 @@ import {
   industrialCapacityLongRunAverage,
 } from '../utils/capacityUtilizationContext'
 import {
+  classifyBudgetBalance,
   createBudgetBalanceAccessibleSummary,
+  deriveBudgetBalanceCompactContext,
   formatBudgetBalanceAnswer,
   formatBudgetBalanceHistoricalPosition,
   formatBudgetBalancePerHundred,
+  formatBudgetBalanceQuestion,
+  formatBudgetBalanceStateLabel,
 } from '../utils/budgetBalanceContext'
 
 const EconomicTimeSeriesChart = lazy(
@@ -276,17 +281,37 @@ export function EconomicSeriesSummary({
   const lendingCounts = lendingStandardsCounts(visibleObservations)
   const lendingMedian = medianLendingStandards(visibleObservations)
   const visibleMedian = medianObservationValue(visibleObservations)
-  const compactDefinition = collapsible
-    ? getCompactHistoricalMetricDefinition(series.slug)
+  const budgetBalanceState = series.slug === 'federal-budget-balance'
+    ? classifyBudgetBalance(latestObservation?.value ?? null)
     : null
-  const compactModel = useMemo(
-    () => compactDefinition
-      ? deriveHistoricalBandContext(
+  const compactDefinition = useMemo(() => {
+    if (!collapsible) return null
+    const fiscalState = series.slug === 'federal-budget-balance'
+      ? classifyBudgetBalance(
+          findLatestNonNullObservation(series.observations)?.value ?? null,
+        )
+      : null
+    return fiscalState
+      ? createFederalBudgetBalanceCompactDefinition(fiscalState)
+      : getCompactHistoricalMetricDefinition(series.slug)
+  }, [collapsible, series.observations, series.slug])
+  const budgetBalanceCompactContext = useMemo(
+    () => series.slug === 'federal-budget-balance' && compactDefinition
+      ? deriveBudgetBalanceCompactContext(
           compactObservations,
           compactDefinition.historicalBands,
         )
       : null,
-    [compactDefinition, compactObservations],
+    [compactDefinition, compactObservations, series.slug],
+  )
+  const compactModel = useMemo(
+    () => budgetBalanceCompactContext?.model ?? (compactDefinition
+      ? deriveHistoricalBandContext(
+          compactObservations,
+          compactDefinition.historicalBands,
+        )
+      : null),
+    [budgetBalanceCompactContext, compactDefinition, compactObservations],
   )
   const unemploymentContext = useMemo(
     () => series.slug === 'unemployment-rate'
@@ -370,7 +395,10 @@ export function EconomicSeriesSummary({
     ? createCorporateProfitShareAccessibleSummary(compactModel)
     : null
   const budgetBalanceAccessibleLabel = series.slug === 'federal-budget-balance' && compactModel?.status === 'ready'
-    ? createBudgetBalanceAccessibleSummary(compactModel)
+    ? createBudgetBalanceAccessibleSummary(
+        compactModel,
+        latestObservation?.value ?? null,
+      )
     : null
 
   const latestValueContent = (
@@ -415,7 +443,11 @@ export function EconomicSeriesSummary({
               ? formatAnnualizedHousingUnits(headlineObservation?.value ?? null)
             : series.slug === 'manufacturing-output'
               ? formatSignedPercentage(headlineObservation?.value ?? null)
-              : series.slug === 'real-business-investment-growth'
+            : series.slug === 'federal-budget-balance'
+              ? formatPercentage(latestObservation?.value === null || latestObservation?.value === undefined
+                  ? null
+                  : Math.abs(latestObservation.value))
+            : series.slug === 'real-business-investment-growth'
               ? formatSignedPercentage(latestObservation?.value ?? null)
               : formatValue(latestObservation?.value ?? null)}
           </span>
@@ -424,7 +456,7 @@ export function EconomicSeriesSummary({
           {series.slug === 'trade-balance-share-of-gdp'
             ? latestObservation?.value === null || latestObservation?.value === undefined ? 'Balance unavailable' : latestObservation.value < 0 ? 'Trade deficit' : latestObservation.value > 0 ? 'Trade surplus' : 'Balanced trade'
             : series.slug === 'federal-budget-balance'
-            ? 'Federal budget balance as a share of GDP'
+            ? formatBudgetBalanceStateLabel(budgetBalanceState!)
             : series.slug === 'broad-credit-conditions'
             ? latestObservation?.value === null || latestObservation?.value === undefined
               ? 'Relative credit conditions unavailable'
@@ -636,7 +668,7 @@ export function EconomicSeriesSummary({
       <CompactHistoricalMetricChart
         model={compactModel}
         definition={compactDefinition}
-        observations={compactObservations}
+        observations={budgetBalanceCompactContext?.observations ?? compactObservations}
         pairedObservations={housingStartsCompactData?.rawAverages}
         {...(manufacturingOutputGrowth ? {
           pairedObservations: manufacturingOutputGrowth.averages,
@@ -677,6 +709,8 @@ export function EconomicSeriesSummary({
         ? 'Are businesses investing more in productive assets?'
         : series.slug === 'corporate-profit-share'
         ? 'How large are corporate profits relative to the economy?'
+        : series.slug === 'federal-budget-balance'
+        ? formatBudgetBalanceQuestion(budgetBalanceState!)
         : series.question}
       measureLabel={series.slug === 'home-ownership-cost-share'
         ? 'Estimated share of median household income needed to own the median-priced home'
@@ -687,7 +721,7 @@ export function EconomicSeriesSummary({
         : series.slug === 'corporate-profit-share'
         ? 'Adjusted after-tax corporate profits as a share of GDP'
         : series.slug === 'federal-budget-balance'
-        ? 'Federal budget balance as a share of GDP'
+        ? compactDefinition?.seriesLabel ?? 'Federal budget balance as a share of GDP'
         : series.title}
       latestValue={latestValueContent}
       compactVisual={compactVisual}
@@ -750,6 +784,11 @@ export function EconomicSeriesSummary({
               onZoomChange={zoom.onChartZoom}
             />
           </Suspense>
+          {series.slug === 'federal-budget-balance' && (
+            <p className="chart-summary">
+              The compact chart shows the positive magnitude of the current fiscal state for easier reading. The expanded chart preserves the signed budget balance so deficits and surpluses can be compared across history.
+            </p>
+          )}
           {series.slug === 'corporate-profit-share' ? (
             <p className="chart-summary" aria-live="polite">
               From {firstVisibleObservation ? formatObservationPeriod(firstVisibleObservation.date, series.frequency) : 'an unavailable quarter'} to {chartSummary.latest ? formatObservationPeriod(chartSummary.latest.date, series.frequency) : 'an unavailable quarter'}, the after-tax corporate profit share {chartSummary.latest?.value !== null && chartSummary.latest?.value !== undefined && firstVisibleObservation?.value !== null && firstVisibleObservation?.value !== undefined && chartSummary.latest.value > firstVisibleObservation.value ? 'rose' : chartSummary.latest?.value === firstVisibleObservation?.value ? 'was unchanged' : 'fell'} from {formatValue(firstVisibleObservation?.value ?? null)} to {formatValue(chartSummary.latest?.value ?? null)} of GDP. This means adjusted after-tax profits {chartSummary.latest?.value !== null && chartSummary.latest?.value !== undefined && firstVisibleObservation?.value !== null && firstVisibleObservation?.value !== undefined && chartSummary.latest.value >= firstVisibleObservation.value ? 'expanded' : 'were compressed'} relative to the economy; it does not state that the raw dollar level of profits {chartSummary.latest?.value !== null && chartSummary.latest?.value !== undefined && firstVisibleObservation?.value !== null && firstVisibleObservation?.value !== undefined && chartSummary.latest.value >= firstVisibleObservation.value ? 'rose' : 'fell'}. The visible range ran from {formatValue(chartSummary.minimum?.value ?? null)} to {formatValue(chartSummary.maximum?.value ?? null)}, and the latest share was {visibleMedian !== null && chartSummary.latest?.value !== null && chartSummary.latest?.value !== undefined && chartSummary.latest.value >= visibleMedian ? 'at or above' : 'below'} its visible-range median.

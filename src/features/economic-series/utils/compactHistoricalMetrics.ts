@@ -17,7 +17,8 @@ import {
   formatHomeOwnershipHistoricalPosition,
   homeOwnershipAffordabilityThreshold,
 } from './homeOwnershipAffordability'
-import { formatBudgetBalanceTooltipState } from './budgetBalanceContext'
+import type { BudgetBalanceState } from './budgetBalanceContext'
+import { formatBudgetBalanceStateLabel } from './budgetBalanceContext'
 
 export interface HistoricalBandHelpText {
   heading: string
@@ -172,11 +173,11 @@ const corporateProfitSharePositionDescriptions: CompactHistoricalMetricDefinitio
 }
 
 const budgetBalancePositionDescriptions: CompactHistoricalMetricDefinition['positionDescriptions'] = {
-  belowOuterBand: 'very large deficit relative to postwar history',
-  betweenOuterAndInnerLow: 'large deficit relative to postwar history',
-  insideInnerBand: 'typical balance relative to postwar history',
-  betweenInnerAndOuterHigh: 'large surplus relative to postwar history',
-  aboveOuterBand: 'very large surplus relative to postwar history',
+  belowOuterBand: 'very small by historical standards',
+  betweenOuterAndInnerLow: 'small by historical standards',
+  insideInnerBand: 'typical by historical standards',
+  betweenInnerAndOuterHigh: 'large by historical standards',
+  aboveOuterBand: 'very large by historical standards',
 }
 
 export const realGdpCompactDefinition: CompactHistoricalMetricDefinition = {
@@ -504,14 +505,28 @@ export const corporateProfitShareCompactDefinition: CompactHistoricalMetricDefin
   positionDescriptions: corporateProfitSharePositionDescriptions,
 }
 
-export const federalBudgetBalanceCompactDefinition: CompactHistoricalMetricDefinition = {
-  seriesLabel: 'Federal budget balance as a share of GDP',
+export function createFederalBudgetBalanceCompactDefinition(
+  state: BudgetBalanceState,
+): CompactHistoricalMetricDefinition {
+  const stateLabel = formatBudgetBalanceStateLabel(state)
+  const seriesLabel = state === 'deficit'
+    ? 'Federal deficit as a share of GDP'
+    : state === 'surplus'
+      ? 'Federal surplus as a share of GDP'
+      : 'Absolute federal budget balance as a share of GDP'
+  const historicalSubject = state === 'deficit'
+    ? 'federal deficit magnitudes'
+    : state === 'surplus'
+      ? 'federal surplus magnitudes'
+      : 'absolute budget-balance magnitudes'
+  return {
+  seriesLabel,
   frequency: 'annual',
   historicalBands: {
     recentObservationCount: 5,
     comparisonWindow: { kind: 'all-available' },
     innerPercentiles: [25, 75], outerPercentiles: [10, 90],
-    minimumFiniteObservations: 40,
+    minimumFiniteObservations: 5,
     latestObservationPolicy: 'latest-finite',
   },
   showZeroLine: true,
@@ -521,16 +536,22 @@ export const federalBudgetBalanceCompactDefinition: CompactHistoricalMetricDefin
   interactiveCursor: 'pointer',
   unifiedFooterLabels: true,
   displayedPeriodPrefix: 'Displayed: ',
-  interactionStateLabel: formatBudgetBalanceTooltipState,
-  valueFormatter: formatSignedPercentage,
-  comparisonLabel: (model) => `Historical bands use annual observations from ${model.comparisonStart.slice(0, 4)}–${model.comparisonEnd.slice(0, 4)}`,
+  interactionStateLabel: () => state === 'balanced' ? 'Balance gap' : stateLabel,
+  valueFormatter: (value) => value === null ? 'Unavailable' : `${value.toFixed(1)}% of GDP`,
+  comparisonLabel: (model) => `Historical bands use annual ${historicalSubject} from 1946–${model.comparisonEnd.slice(0, 4)}`,
   helpText: {
-    heading: 'Federal budget balance as a share of GDP',
-    description: 'The budget balance compares federal revenue with federal spending. Negative values indicate deficits; positive values indicate surpluses. The measure is shown relative to GDP so different years can be compared more meaningfully. This is the annual deficit or surplus, not the total federal debt.',
+    heading: seriesLabel,
+    description: 'The compact card shows deficit or surplus magnitude as a positive number. The expanded chart uses the signed budget balance, where deficits are negative and surpluses are positive. This is the annual deficit or surplus, not the total federal debt.',
   },
-  zeroLineMeaning: 'Zero means federal revenue and spending were equal.',
+  zeroLineMeaning: state === 'balanced'
+    ? 'Zero means perfect balance; higher values are farther from balance.'
+    : `Zero means no ${state}; higher values mean a larger ${state}.`,
   positionDescriptions: budgetBalancePositionDescriptions,
+  }
 }
+
+export const federalBudgetBalanceCompactDefinition =
+  createFederalBudgetBalanceCompactDefinition('deficit')
 
 const compactDefinitions: Readonly<
   Partial<Record<string, CompactHistoricalMetricDefinition>>

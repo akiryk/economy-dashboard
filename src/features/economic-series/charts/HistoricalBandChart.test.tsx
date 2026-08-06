@@ -4,7 +4,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { HistoricalBandModel } from '../utils/historicalBandContext'
 import { HistoricalBandChart } from './HistoricalBandChart'
 
-const chart = vi.hoisted(() => ({ setOption: vi.fn(), resize: vi.fn(), dispose: vi.fn() }))
+const setCursorStyle = vi.hoisted(() => vi.fn())
+const chart = vi.hoisted(() => ({
+  setOption: vi.fn(), resize: vi.fn(), dispose: vi.fn(),
+  getZr: vi.fn(() => ({ setCursorStyle })),
+}))
 const init = vi.hoisted(() => vi.fn(() => chart))
 
 vi.mock('echarts/core', () => ({ init, use: vi.fn() }))
@@ -53,6 +57,7 @@ describe('HistoricalBandChart', () => {
     expect(screen.getByText('Example accessible summary')).toHaveClass('visually-hidden')
     expect(screen.getByText('Example growth · 2021 Q2–2026 Q1')).toBeVisible()
     expect(init).toHaveBeenCalledOnce()
+    expect(setCursorStyle).toHaveBeenCalledWith('crosshair')
     rerender(<HistoricalBandChart {...defaultProps} visuallyHideSummary />)
     expect(init).toHaveBeenCalledOnce()
     expect(chart.dispose).not.toHaveBeenCalled()

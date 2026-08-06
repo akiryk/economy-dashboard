@@ -221,7 +221,7 @@ describe('DashboardPage economic series', () => {
       'Are businesses investing more in productive assets?',
       'How large are corporate profits relative to the economy?',
       'Is the yield curve inverted?',
-      'How large is the federal budget deficit or surplus relative to the economy?',
+      'How large is the federal budget deficit relative to the economy?',
       'How large is federal debt held by the public relative to the economy?',
       'How large is the U.S. trade balance relative to the economy?',
       'What share of imported goods is collected as customs duties?',
@@ -1870,18 +1870,19 @@ describe('DashboardPage economic series', () => {
     const financial = screen.getByRole('region', { name: 'Financial conditions' })
     const government = screen.getByRole('region', { name: 'Government finances' })
     expect(financial.compareDocumentPosition(government) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    const budget = await within(government).findByRole('article', { name: 'How large is the federal budget deficit or surplus relative to the economy?' })
+    const budget = await within(government).findByRole('article', { name: 'How large is the federal budget deficit relative to the economy?' })
     const debt = await within(government).findByRole('article', { name: 'How large is federal debt held by the public relative to the economy?' })
     expect(within(government).getAllByRole('article')).toHaveLength(2)
-    expect(within(budget).getByText('−5.8%')).toBeVisible()
-    expect(within(budget).getAllByText('Federal budget balance as a share of GDP'))
+    expect(within(budget).getByText('5.8%')).toBeVisible()
+    expect(within(budget).getByText('Deficit')).toBeVisible()
+    expect(within(budget).getAllByText('Federal deficit as a share of GDP'))
       .not.toHaveLength(0)
     expect(within(budget).getByText(/2025 · Percent of GDP/)).toBeVisible()
     expect(within(budget).getByText('The federal government ran a deficit equal to 5.8% of GDP.')).toBeVisible()
     expect(within(budget).getByText(/\$5\.80 of borrowing for every \$100/)).toBeVisible()
-    expect(within(budget).getByText(/relative to the available postwar history/)).toBeVisible()
+    expect(within(budget).getByText(/relative to historical deficits/)).toBeVisible()
     const compactProps = compactChartPropsSpy.mock.calls.find(
-      ([props]) => props.definition.seriesLabel === 'Federal budget balance as a share of GDP',
+      ([props]) => props.definition.seriesLabel === 'Federal deficit as a share of GDP',
     )?.[0]
     expect(compactProps.model.recentObservations).toHaveLength(5)
     expect(compactProps.definition.showZeroLine).toBe(true)
@@ -1912,7 +1913,7 @@ describe('DashboardPage economic series', () => {
 
   it.each([
     ['federal-budget-balance', 'The federal budget balance data could not be loaded.', 'How large is federal debt held by the public relative to the economy?'],
-    ['federal-debt-held-by-public', 'The federal debt held by the public data could not be loaded.', 'How large is the federal budget deficit or surplus relative to the economy?'],
+    ['federal-debt-held-by-public', 'The federal debt held by the public data could not be loaded.', 'How large is the federal budget deficit relative to the economy?'],
   ])('isolates a %s failure within Government finances', async (failedSlug, message, survivor) => {
     const original = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
     vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
@@ -1967,9 +1968,9 @@ describe('DashboardPage economic series', () => {
   })
 
   it.each([
-    ['effective-federal-funds-rate', 'The yield curve data could not be loaded.', 'How large is the federal budget deficit or surplus relative to the economy?'],
-    ['ten-year-treasury-yield', 'The yield curve data could not be loaded.', 'How large is the federal budget deficit or surplus relative to the economy?'],
-    ['three-month-treasury-bill-rate', 'The yield curve data could not be loaded.', 'How large is the federal budget deficit or surplus relative to the economy?'],
+    ['effective-federal-funds-rate', 'The yield curve data could not be loaded.', 'How large is the federal budget deficit relative to the economy?'],
+    ['ten-year-treasury-yield', 'The yield curve data could not be loaded.', 'How large is the federal budget deficit relative to the economy?'],
+    ['three-month-treasury-bill-rate', 'The yield curve data could not be loaded.', 'How large is the federal budget deficit relative to the economy?'],
   ])('isolates a %s failure within Financial conditions', async (failedSlug, message, survivor) => {
     const original = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
     vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {

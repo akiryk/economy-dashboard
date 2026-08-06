@@ -21,6 +21,7 @@ import {
   primeAgeEmploymentCompactDefinition,
   payrollGrowthCompactDefinition,
   homeOwnershipCostCompactDefinition,
+  createFederalBudgetBalanceCompactDefinition,
   federalBudgetBalanceCompactDefinition,
 } from './compactHistoricalMetrics'
 
@@ -239,10 +240,21 @@ describe('compact historical metric definitions', () => {
     expect(federalBudgetBalanceCompactDefinition.interactiveCursor).toBe('pointer')
     expect(federalBudgetBalanceCompactDefinition.unifiedFooterLabels).toBe(true)
     expect(federalBudgetBalanceCompactDefinition.comparisonLabel?.(model)).toBe(
-      'Historical bands use annual observations from 1946–2025',
+      'Historical bands use annual federal deficit magnitudes from 1946–2025',
     )
     expect(federalBudgetBalanceCompactDefinition.interactiveDetails).toBe(true)
     expect(federalBudgetBalanceCompactDefinition.interactionStateLabel?.(-5.8))
       .toBe('Deficit')
+  })
+
+  it.each([
+    ['surplus', 'Federal surplus as a share of GDP', 'annual federal surplus magnitudes'],
+    ['balanced', 'Absolute federal budget balance as a share of GDP', 'annual absolute budget-balance magnitudes'],
+  ] as const)('uses %s-specific chart and historical wording', (state, label, historicalSubject) => {
+    const definition = createFederalBudgetBalanceCompactDefinition(state)
+    expect(definition.seriesLabel).toBe(label)
+    expect(definition.comparisonLabel?.({
+      comparisonEnd: '2025-01-01',
+    } as never)).toContain(historicalSubject)
   })
 })
