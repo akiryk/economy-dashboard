@@ -14,6 +14,10 @@ describe('localEconomicSeriesRepository', () => {
     ['quarterly-real-consumer-spending-per-capita-growth', 'A794RX0Q048SBEA'],
     ['federal-debt-held-by-public', 'FYGFGDQ188S'],
     ['trade-balance-share-of-gdp', 'A019RE1Q156NBEA'],
+    ['trade-goods-exports', 'A253RC1Q027SBEA'],
+    ['trade-goods-imports', 'A255RC1Q027SBEA'],
+    ['trade-services-exports', 'A646RC1Q027SBEA'],
+    ['trade-services-imports', 'B656RC1Q027SBEA'],
     ['effective-tariff-burden', 'B235RC1Q027SBEA / A255RC1Q027SBEA'],
     ['corporate-profit-share', 'CPATAX / GDP'],
   ])('loads %s as a quarterly series', async (slug, providerSeriesId) => {

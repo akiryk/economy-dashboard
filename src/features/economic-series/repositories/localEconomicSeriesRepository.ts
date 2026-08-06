@@ -75,6 +75,10 @@ const localSeriesLoaders: Readonly<
   'federal-budget-balance': () => import('../data/federal-budget-balance.json'),
   'federal-debt-held-by-public': () => import('../data/federal-debt-held-by-public.json'),
   'trade-balance-share-of-gdp': () => import('../data/trade-balance-share-of-gdp.json'),
+  'trade-goods-exports': () => import('../data/trade-goods-exports.json'),
+  'trade-goods-imports': () => import('../data/trade-goods-imports.json'),
+  'trade-services-exports': () => import('../data/trade-services-exports.json'),
+  'trade-services-imports': () => import('../data/trade-services-imports.json'),
   'effective-tariff-burden': () => import('../data/effective-tariff-burden.json'),
 }
 

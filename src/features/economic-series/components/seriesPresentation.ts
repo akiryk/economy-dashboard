@@ -21,14 +21,10 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     topicLabel: "Trade flows",
     latestValueLabel: "Latest net exports share of GDP",
     whatThisTellsYou:
-      "Net exports equal exports minus imports of goods and services. Negative values mean imports exceeded exports; positive values mean exports exceeded imports. Expressing the balance relative to GDP supports historical comparison.",
+      "The signed trade balance equals exports minus imports of goods and services. Negative values mean imports exceeded exports; positive values mean exports exceeded imports. Expressing the balance relative to GDP supports historical comparison.",
     whatThisLeavesOut:
       "A trade deficit is not automatically evidence of weakness, and a surplus is not automatically evidence of strength. Exports, imports, domestic and foreign demand, prices, exchange rates, and other factors can move the balance.",
-    relatedIndicators: [
-      "Economic growth",
-      "Effective tariff burden",
-      "Exchange rates",
-    ],
+    relatedIndicators: ["Goods balance", "Services balance", "Exports and imports"],
     recentObservationCount: 8,
     recentObservationsCaption:
       "Eight most recent net-exports-share observations",

@@ -223,7 +223,7 @@ describe('DashboardPage economic series', () => {
       'Is the yield curve inverted?',
       'How large is the federal budget deficit relative to the economy?',
       'How large is federal debt held by the public relative to the economy?',
-      'How large is the U.S. trade balance relative to the economy?',
+      'How large is the U.S. trade deficit relative to the economy?',
       'What share of imported goods is collected as customs duties?',
     ])
 
@@ -1951,14 +1951,26 @@ describe('DashboardPage economic series', () => {
     const government = screen.getByRole('region', { name: 'Government finances' })
     const trade = screen.getByRole('region', { name: 'Trade and tariffs' })
     expect(government.compareDocumentPosition(trade) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    const balance = await within(trade).findByRole('article', { name: 'How large is the U.S. trade balance relative to the economy?' })
+    const balance = await within(trade).findByRole('article', { name: 'How large is the U.S. trade deficit relative to the economy?' })
     const tariff = await within(trade).findByRole('article', { name: 'What share of imported goods is collected as customs duties?' })
     expect(within(trade).getAllByRole('article')).toHaveLength(2)
-    expect(within(balance).getByLabelText('Latest net exports share of GDP')).toHaveTextContent(/−\d+\.\d%/)
+    expect(within(balance).getByLabelText(/compact chart shows the positive deficit magnitude/)).toHaveTextContent('2.7%')
     expect(within(balance).getByText('Trade deficit')).toBeVisible()
+    expect(within(balance).getByText(/\$2\.70 more in imports than exports/)).toBeVisible()
+    expect(within(balance).getByText(/trade deficit has narrowed by 0\.8 percentage points/)).toBeVisible()
+    const tradeCompactProps = compactChartPropsSpy.mock.calls.find(([props]) => props.definition.seriesLabel === 'U.S. trade deficit as a share of GDP')?.[0]
+    expect(tradeCompactProps.definition.interactiveCursor).toBe('pointer')
+    expect(tradeCompactProps.model.recentObservations).toHaveLength(21)
+    expect(tradeCompactProps.model.recentObservations.every(({ value }: EconomicObservation) => value === null || value >= 0)).toBe(true)
+    const context = within(balance).getByRole('button', { name: 'Why this matters for the U.S. trade balance' })
+    await user.click(context)
+    expect(within(balance).getByText(/not automatically a sign of economic weakness/)).toBeVisible()
     expect(within(tariff).getByLabelText('Latest effective tariff burden')).toHaveTextContent(/\d+\.\d%/)
     expect(within(tariff).getByText(/not a statutory tariff schedule/)).toBeVisible()
     expect(within(tariff).getByText(/identify who bears the economic cost/)).toBeVisible()
+    await user.click(within(balance).getByRole('button', { name: /More/ }))
+    expect(within(balance).getByRole('table', { name: 'Recent goods, services, and total trade balances' })).toBeVisible()
+    expect(within(balance).getByRole('table', { name: 'Recent exports and imports of goods and services' })).toBeVisible()
     await user.click(within(balance).getByText('Recent observations'))
     expect(within(balance).getByRole('table', { name: 'Eight most recent trade-balance observations' })).toHaveTextContent('Deficit')
     await user.click(within(balance).getByRole('button', { name: 'Maximum' }))
@@ -1971,7 +1983,7 @@ describe('DashboardPage economic series', () => {
 
   it.each([
     ['trade-balance-share-of-gdp', 'The trade balance data could not be loaded.', 'What share of imported goods is collected as customs duties?'],
-    ['effective-tariff-burden', 'The effective tariff burden data could not be loaded.', 'How large is the U.S. trade balance relative to the economy?'],
+    ['effective-tariff-burden', 'The effective tariff burden data could not be loaded.', 'How large is the U.S. trade deficit relative to the economy?'],
   ])('isolates a %s failure within Trade and tariffs', async (failedSlug, message, survivor) => {
     const original = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
     vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {

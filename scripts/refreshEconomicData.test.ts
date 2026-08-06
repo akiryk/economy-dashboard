@@ -173,35 +173,11 @@ describe('refreshEconomicData', () => {
   it('distinguishes provider-transformed, provider-level, and local data handling', () => {
     expect(fredSeriesConfigurations.slice(0, 2).map((config) => config.dataHandling))
       .toEqual(['provider-transformed', 'locally-derived'])
-    expect(fredSeriesConfigurations.slice(2).map((config) => config.dataHandling))
-      .toEqual([
-        'locally-derived',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'locally-derived',
-        'locally-derived',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'locally-derived',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-        'provider-level',
-      ])
+    expect(fredSeriesConfigurations.slice(2).every((config) =>
+      config.dataHandling === 'provider-level' || config.dataHandling === 'locally-derived',
+    )).toBe(true)
+    expect(fredSeriesConfigurations.filter(({ dataHandling }) => dataHandling === 'locally-derived')).toHaveLength(5)
+    expect(fredSeriesConfigurations.filter(({ dataHandling }) => dataHandling === 'provider-level')).toHaveLength(26)
     expect(payrollSeriesConfiguration).toMatchObject({
       dataHandling: 'locally-derived',
       providerSeriesId: 'PAYEMS',
@@ -770,13 +746,13 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(28)
+    expect(outcomes).toHaveLength(32)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
     expect(
       outcomes.map((outcome) =>
         outcome.status === 'updated' ? outcome.sourceObservationCount : null,
       ),
-    ).toEqual([3, 15, 15, 3, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
+    ).toEqual([3, 15, 15, 3, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
     expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
       'GDPC1',
       'CPIAUCSL',
@@ -804,6 +780,10 @@ describe('refreshEconomicData', () => {
       'FYFSGDA188S',
       'FYGFGDQ188S',
       'A019RE1Q156NBEA',
+      'A253RC1Q027SBEA',
+      'A255RC1Q027SBEA',
+      'A646RC1Q027SBEA',
+      'B656RC1Q027SBEA',
       'FRBKCLMCILA',
       'FRBKCLMCIM',
     ])

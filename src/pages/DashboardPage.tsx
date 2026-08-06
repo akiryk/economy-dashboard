@@ -277,7 +277,7 @@ export function DashboardPage() {
       </EconomicSection>
 
       <EconomicSection id="trade-and-tariffs" title="Trade and tariffs" description="Trade flows show exports and imports relative to the economy, while the effective tariff burden compares customs-duty receipts with imported goods. Neither measure is an overall judgment on trade policy.">
-        <EconomicSeriesCard slug="trade-balance-share-of-gdp" label="trade balance" onSeriesLoaded={handleSeriesLoaded} />
+        <EconomicSeriesCard collapsible slug="trade-balance-share-of-gdp" supportingSlugs={['trade-goods-exports', 'trade-goods-imports', 'trade-services-exports', 'trade-services-imports']} label="trade balance" onSeriesLoaded={handleSeriesLoaded} />
         <EconomicSeriesCard slug="effective-tariff-burden" label="effective tariff burden" onSeriesLoaded={handleSeriesLoaded} />
       </EconomicSection>
     </div>

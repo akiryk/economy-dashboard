@@ -48,6 +48,7 @@ import {
 } from '../utils/lendingStandardsData'
 import {
   createFederalBudgetBalanceCompactDefinition,
+  createTradeBalanceCompactDefinition,
   getCompactHistoricalMetricDefinition,
 } from '../utils/compactHistoricalMetrics'
 import { deriveHistoricalBandContext } from '../utils/historicalBandContext'
@@ -123,6 +124,18 @@ import {
   deriveFederalDebtContext,
   formatFederalDebtHistoricalPosition,
 } from '../utils/federalDebtContext'
+import {
+  classifyTradeBalance,
+  createTradeBalanceAccessibleSummary,
+  deriveTradeBalanceCompactContext,
+  formatTradeBalanceAnswer,
+  formatTradeBalanceDirection,
+  formatTradeBalanceHistoricalPosition,
+  formatTradeBalancePerHundred,
+  formatTradeBalanceQuestion,
+  formatTradeBalanceStateLabel,
+} from '../utils/tradeBalanceContext'
+import { TradeCompositionDetails } from './TradeCompositionDetails'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -289,6 +302,9 @@ export function EconomicSeriesSummary({
   const budgetBalanceState = series.slug === 'federal-budget-balance'
     ? classifyBudgetBalance(latestObservation?.value ?? null)
     : null
+  const tradeBalanceState = series.slug === 'trade-balance-share-of-gdp'
+    ? classifyTradeBalance(latestObservation?.value ?? null)
+    : null
   const compactDefinition = useMemo(() => {
     if (!collapsible) return null
     const fiscalState = series.slug === 'federal-budget-balance'
@@ -296,8 +312,13 @@ export function EconomicSeriesSummary({
           findLatestNonNullObservation(series.observations)?.value ?? null,
         )
       : null
+    const tradeState = series.slug === 'trade-balance-share-of-gdp'
+      ? classifyTradeBalance(findLatestNonNullObservation(series.observations)?.value ?? null)
+      : null
     return fiscalState
       ? createFederalBudgetBalanceCompactDefinition(fiscalState)
+      : tradeState
+      ? createTradeBalanceCompactDefinition(tradeState)
       : getCompactHistoricalMetricDefinition(series.slug)
   }, [collapsible, series.observations, series.slug])
   const budgetBalanceCompactContext = useMemo(
@@ -309,14 +330,20 @@ export function EconomicSeriesSummary({
       : null,
     [compactDefinition, compactObservations, series.slug],
   )
+  const tradeBalanceCompactContext = useMemo(
+    () => series.slug === 'trade-balance-share-of-gdp' && compactDefinition
+      ? deriveTradeBalanceCompactContext(compactObservations, compactDefinition.historicalBands)
+      : null,
+    [compactDefinition, compactObservations, series.slug],
+  )
   const compactModel = useMemo(
-    () => budgetBalanceCompactContext?.model ?? (compactDefinition
+    () => budgetBalanceCompactContext?.model ?? tradeBalanceCompactContext?.model ?? (compactDefinition
       ? deriveHistoricalBandContext(
           compactObservations,
           compactDefinition.historicalBands,
         )
       : null),
-    [budgetBalanceCompactContext, compactDefinition, compactObservations],
+    [budgetBalanceCompactContext, tradeBalanceCompactContext, compactDefinition, compactObservations],
   )
   const unemploymentContext = useMemo(
     () => series.slug === 'unemployment-rate'
@@ -414,6 +441,12 @@ export function EconomicSeriesSummary({
   const federalDebtAccessibleLabel = federalDebtContext && compactModel?.status === 'ready'
     ? createFederalDebtAccessibleSummary(federalDebtContext, compactModel)
     : null
+  const tradeBalanceDirection = series.slug === 'trade-balance-share-of-gdp'
+    ? formatTradeBalanceDirection(series.observations)
+    : null
+  const tradeBalanceAccessibleLabel = series.slug === 'trade-balance-share-of-gdp' && compactModel?.status === 'ready'
+    ? createTradeBalanceAccessibleSummary(compactModel, latestObservation?.value ?? null, tradeBalanceDirection!)
+    : null
 
   const latestValueContent = (
     <div
@@ -427,6 +460,7 @@ export function EconomicSeriesSummary({
         corporateProfitAccessibleLabel ??
         budgetBalanceAccessibleLabel ??
         federalDebtAccessibleLabel ??
+        tradeBalanceAccessibleLabel ??
         (unemploymentContext
           ? createUnemploymentAccessibleSummary(unemploymentContext)
           : null) ??
@@ -462,6 +496,8 @@ export function EconomicSeriesSummary({
               ? formatPercentage(latestObservation?.value === null || latestObservation?.value === undefined
                   ? null
                   : Math.abs(latestObservation.value))
+            : series.slug === 'trade-balance-share-of-gdp'
+              ? formatPercentage(latestObservation?.value === null || latestObservation?.value === undefined ? null : Math.abs(latestObservation.value))
             : series.slug === 'federal-debt-held-by-public'
               ? formatPercentage(latestObservation?.value ?? null)
             : series.slug === 'real-business-investment-growth'
@@ -471,7 +507,7 @@ export function EconomicSeriesSummary({
         </p>
         <p className="series-current__label">
           {series.slug === 'trade-balance-share-of-gdp'
-            ? latestObservation?.value === null || latestObservation?.value === undefined ? 'Balance unavailable' : latestObservation.value < 0 ? 'Trade deficit' : latestObservation.value > 0 ? 'Trade surplus' : 'Balanced trade'
+            ? formatTradeBalanceStateLabel(tradeBalanceState!)
             : series.slug === 'federal-budget-balance'
             ? formatBudgetBalanceStateLabel(budgetBalanceState!)
             : series.slug === 'federal-debt-held-by-public'
@@ -674,6 +710,17 @@ export function EconomicSeriesSummary({
             </p>}
           </>
         )}
+        {series.slug === 'trade-balance-share-of-gdp' && (
+          <>
+            <p className="series-current__answer">{formatTradeBalanceAnswer(latestObservation?.value ?? null)}</p>
+            <p className="series-current__comparison">{formatTradeBalancePerHundred(latestObservation?.value ?? null)}</p>
+            <p className="series-current__comparison">{formatTradeBalanceHistoricalPosition(latestObservation?.value ?? null, compactModel?.status === 'ready' ? compactModel : null)}</p>
+            <p className="series-current__comparison">{tradeBalanceDirection}</p>
+            <CompactContextDisclosure accessibleSubject="the U.S. trade balance">
+              {tradeBalanceState === 'surplus' ? <p>A trade surplus is not automatically a sign of economic strength. It can reflect competitive exports and strong foreign demand, but it can also accompany weak domestic demand and subdued imports. The economic meaning depends on what is driving exports and imports.</p> : <><p>A trade deficit is not automatically a sign of economic weakness. It can reflect strong U.S. demand and foreign willingness to invest in U.S. assets. But persistent deficits can expose some industries and regions to import competition and require continued foreign financing. A narrowing deficit can result from stronger exports or weaker imports, which have very different economic meanings.</p><p>The United States does not simply “run out of money” because it imports more than it exports. The corresponding dollars generally return through foreign purchases of U.S. assets and financial claims. The long-run question is how the deficit is financed and whether the associated capital flows support productive investment or mainly consumption.</p></>}
+            </CompactContextDisclosure>
+          </>
+        )}
         {federalDebtContext && (
           <>
             <p className="series-current__answer">{federalDebtContext.outputComparison}</p>
@@ -700,7 +747,7 @@ export function EconomicSeriesSummary({
       <CompactHistoricalMetricChart
         model={compactModel}
         definition={compactDefinition}
-        observations={budgetBalanceCompactContext?.observations ?? compactObservations}
+        observations={budgetBalanceCompactContext?.observations ?? tradeBalanceCompactContext?.observations ?? compactObservations}
         pairedObservations={housingStartsCompactData?.rawAverages}
         {...(manufacturingOutputGrowth ? {
           pairedObservations: manufacturingOutputGrowth.averages,
@@ -719,7 +766,7 @@ export function EconomicSeriesSummary({
           pairedObservationLabel: 'Equivalent adjusted after-tax profit per $100 of GDP',
           pairedValueFormatter: (value: number | null) => value === null ? 'Unavailable' : `$${value.toFixed(2)}`,
         } : {})}
-        accessibleSummaryOverride={housingStartsAccessibleLabel ?? businessInvestmentAccessibleLabel ?? corporateProfitAccessibleLabel ?? budgetBalanceAccessibleLabel ?? federalDebtAccessibleLabel ?? undefined}
+        accessibleSummaryOverride={housingStartsAccessibleLabel ?? businessInvestmentAccessibleLabel ?? corporateProfitAccessibleLabel ?? budgetBalanceAccessibleLabel ?? federalDebtAccessibleLabel ?? tradeBalanceAccessibleLabel ?? undefined}
         visuallyHideSummary
       />
     </Suspense>
@@ -743,6 +790,8 @@ export function EconomicSeriesSummary({
         ? 'How large are corporate profits relative to the economy?'
         : series.slug === 'federal-budget-balance'
         ? formatBudgetBalanceQuestion(budgetBalanceState!)
+        : series.slug === 'trade-balance-share-of-gdp'
+        ? formatTradeBalanceQuestion(tradeBalanceState!)
         : series.question}
       measureLabel={series.slug === 'home-ownership-cost-share'
         ? 'Estimated share of median household income needed to own the median-priced home'
@@ -756,6 +805,8 @@ export function EconomicSeriesSummary({
         ? compactDefinition?.seriesLabel ?? 'Federal budget balance as a share of GDP'
         : series.slug === 'federal-debt-held-by-public'
         ? 'Federal debt held by the public'
+        : series.slug === 'trade-balance-share-of-gdp'
+        ? compactDefinition?.seriesLabel ?? 'U.S. trade balance as a share of GDP'
         : series.title}
       latestValue={latestValueContent}
       compactVisual={compactVisual}
@@ -822,6 +873,9 @@ export function EconomicSeriesSummary({
             <p className="chart-summary">
               The compact chart shows the positive magnitude of the current fiscal state for easier reading. The expanded chart preserves the signed budget balance so deficits and surpluses can be compared across history.
             </p>
+          )}
+          {series.slug === 'trade-balance-share-of-gdp' && (
+            <p className="chart-summary">The compact chart shows the positive magnitude of the current trade state for easier reading. The expanded chart preserves the signed balance so deficits and surpluses can be compared across history.</p>
           )}
           {series.slug === 'corporate-profit-share' ? (
             <p className="chart-summary" aria-live="polite">
@@ -1064,6 +1118,7 @@ export function EconomicSeriesSummary({
       )}
 
       {series.slug === 'housing-starts' && <HousingConstructionDetails />}
+      {series.slug === 'trade-balance-share-of-gdp' && supportingSeries && <TradeCompositionDetails series={supportingSeries} />}
 
       {series.slug === 'corporate-profit-share' && <section className="series-context" aria-labelledby="corporate-profit-structural-heading"><h4 id="corporate-profit-structural-heading">Long-run structural context</h4><p>The postwar history shows a long period in which the after-tax corporate-profit share fluctuated mostly within a lower range, followed by a sustained rise beginning in the 1990s and becoming especially pronounced after 2000. This indicates that a larger share of U.S. economic output is now recorded as after-tax corporate profit than was typical during much of the postwar era.</p><p><strong>Descriptive guide:</strong> long postwar lower-profit-share range → broad rise beginning in the 1990s → current elevated range. These labels describe the chart; they do not infer a causal break date.</p></section>}
 

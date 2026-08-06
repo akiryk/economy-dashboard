@@ -19,6 +19,8 @@ import {
 } from './homeOwnershipAffordability'
 import type { BudgetBalanceState } from './budgetBalanceContext'
 import { formatBudgetBalanceStateLabel } from './budgetBalanceContext'
+import type { TradeBalanceState } from './tradeBalanceContext'
+import { formatTradeBalanceStateLabel } from './tradeBalanceContext'
 
 export interface HistoricalBandHelpText {
   heading: string
@@ -582,6 +584,24 @@ export const federalDebtCompactDefinition: CompactHistoricalMetricDefinition = {
   },
   zeroLineMeaning: 'No zero line is shown because zero is not a useful reference for this ratio.',
   positionDescriptions: federalDebtPositionDescriptions,
+}
+
+export function createTradeBalanceCompactDefinition(state: TradeBalanceState): CompactHistoricalMetricDefinition {
+  const stateLabel = formatTradeBalanceStateLabel(state)
+  const seriesLabel = state === 'deficit' ? 'U.S. trade deficit as a share of GDP' : state === 'surplus' ? 'U.S. trade surplus as a share of GDP' : 'U.S. trade-balance magnitude'
+  const subject = state === 'deficit' ? 'trade-deficit' : state === 'surplus' ? 'trade-surplus' : 'absolute trade-balance'
+  return {
+    seriesLabel, frequency: 'quarterly',
+    historicalBands: { recentObservationCount: 21, comparisonWindow: { kind: 'all-available' }, innerPercentiles: [25, 75], outerPercentiles: [10, 90], minimumFiniteObservations: 20, latestObservationPolicy: 'latest-finite' },
+    showZeroLine: true, showLatestMarker: true, interactiveDetails: true,
+    interactiveCursor: 'pointer', unifiedFooterLabels: true, displayedPeriodPrefix: 'Displayed: ',
+    interactionStateLabel: () => stateLabel,
+    valueFormatter: (value) => value === null ? 'Unavailable' : `${value.toFixed(1)}% of GDP`,
+    comparisonLabel: (model) => `Historical bands use quarterly U.S. ${subject} magnitudes from ${model.comparisonStart.slice(0, 4)}–${model.comparisonEnd.slice(0, 4)}`,
+    helpText: { heading: seriesLabel, description: 'The trade balance equals exports minus imports of goods and services. Negative signed values indicate a deficit; positive signed values indicate a surplus. The compact card shows the positive magnitude of the current state, while the expanded chart preserves the signed balance. Services include software, finance, consulting, transportation, travel, research, intellectual property, film, television, music, and other audiovisual services. Historical bands describe frequency, not a judgment that a deficit or surplus is inherently good or bad.' },
+    zeroLineMeaning: state === 'balanced' ? 'Zero means perfect balance; higher values are farther from balance.' : `Zero means no ${state}; higher values mean a larger ${state}.`,
+    positionDescriptions: budgetBalancePositionDescriptions,
+  }
 }
 
 const compactDefinitions: Readonly<
