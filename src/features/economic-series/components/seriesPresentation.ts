@@ -39,9 +39,9 @@ const presentations: Readonly<Record<string, EconomicSeriesPresentation>> = {
     topicLabel: "Tariffs",
     latestValueLabel: "Latest effective tariff burden",
     whatThisTellsYou:
-      "This ratio divides federal customs-duty receipts by imports of goods. Both inputs are quarterly seasonally adjusted annual rates from the BEA national accounts. It is an average effective customs-duty burden, not a statutory tariff schedule.",
+      "This ratio divides federal customs-duty receipts by goods imports. Both inputs are quarterly seasonally adjusted annual rates from the BEA national accounts. It measures the average customs-duty amount actually collected for every $100 of imported goods.",
     whatThisLeavesOut:
-      "The ratio can change with collections, import composition and value, exemptions, timing, or policy. It does not show rates for every product or country, identify who bears the economic cost, or describe nontariff barriers.",
+      "This realized average burden is not the rate on every product, the announced tariff schedule, a tariff-caused consumer-price increase, or a payment by foreign governments. Importers generally remit duties at the border; the ultimate cost may be distributed among foreign suppliers, U.S. businesses, and consumers. Collection and import-value timing may not align perfectly.",
     relatedIndicators: ["Trade balance", "Imports", "Inflation"],
     recentObservationCount: 8,
     recentObservationsCaption:

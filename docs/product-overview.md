@@ -99,7 +99,7 @@ The non-default `/briefing` preview currently adds one compact Labor tile. Its a
 | Card | Displayed measure and chart | Why it is here |
 |---|---|---|
 | How large is the U.S. trade deficit relative to the economy? | The question and unsigned hero adapt to deficit, surplus, or approximate balance. The compact five-year quarterly chart shows the positive active-state magnitude against bands drawn only from comparable historical states, plus exact five-year direction and accessible details. | Covers goods and services without treating deficits as automatically bad or surpluses as automatically good. **Why this matters** holds cautious interpretation; **More** preserves the signed total history and adds aligned goods/services and exports/imports component tables. |
-| What share of imported goods is collected as customs duties? | Quarterly customs-duty receipts divided by goods imports. | Provides an average effective customs-duty burden while distinguishing it from statutory tariff schedules and economic incidence. |
+| How heavily are imported goods being taxed? | Quarterly customs-duty receipts divided by goods imports, with aligned core-goods PCE inflation context under More. | Translates the realized average burden into dollars per $100 imported, compares it with history, and presents Federal Reserve price-effect research without treating chart co-movement as causal proof. |
 
 ## Shared interpretation rules
 

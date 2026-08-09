@@ -136,6 +136,13 @@ import {
   formatTradeBalanceStateLabel,
 } from '../utils/tradeBalanceContext'
 import { TradeCompositionDetails } from './TradeCompositionDetails'
+import { TariffPriceContext } from './TariffPriceContext'
+import {
+  createTariffAccessibleSummary,
+  formatTariffDirection,
+  formatTariffHistoricalPosition,
+  formatTariffPerHundred,
+} from '../utils/tariffBurdenContext'
 
 const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
@@ -219,6 +226,9 @@ export function EconomicSeriesSummary({
   )
   const businessInvestmentLevel = supportingSeries?.find(
     ({ slug }) => slug === 'real-business-investment-level',
+  )
+  const coreGoodsPceSeries = supportingSeries?.find(
+    ({ slug }) => slug === 'core-goods-pce-inflation',
   )
   const housingStartsCompactData = useMemo(
     () => series.slug === 'housing-starts' && populationSeries
@@ -447,6 +457,12 @@ export function EconomicSeriesSummary({
   const tradeBalanceAccessibleLabel = series.slug === 'trade-balance-share-of-gdp' && compactModel?.status === 'ready'
     ? createTradeBalanceAccessibleSummary(compactModel, latestObservation?.value ?? null, tradeBalanceDirection!)
     : null
+  const tariffDirection = series.slug === 'effective-tariff-burden'
+    ? formatTariffDirection(series.observations)
+    : null
+  const tariffAccessibleLabel = series.slug === 'effective-tariff-burden' && compactModel?.status === 'ready'
+    ? createTariffAccessibleSummary(compactModel, tariffDirection!)
+    : null
 
   const latestValueContent = (
     <div
@@ -461,6 +477,7 @@ export function EconomicSeriesSummary({
         budgetBalanceAccessibleLabel ??
         federalDebtAccessibleLabel ??
         tradeBalanceAccessibleLabel ??
+        tariffAccessibleLabel ??
         (unemploymentContext
           ? createUnemploymentAccessibleSummary(unemploymentContext)
           : null) ??
@@ -512,6 +529,8 @@ export function EconomicSeriesSummary({
             ? formatBudgetBalanceStateLabel(budgetBalanceState!)
             : series.slug === 'federal-debt-held-by-public'
             ? 'Federal debt held by the public'
+            : series.slug === 'effective-tariff-burden'
+            ? 'Realized tariff burden'
             : series.slug === 'broad-credit-conditions'
             ? latestObservation?.value === null || latestObservation?.value === undefined
               ? 'Relative credit conditions unavailable'
@@ -721,6 +740,17 @@ export function EconomicSeriesSummary({
             </CompactContextDisclosure>
           </>
         )}
+        {series.slug === 'effective-tariff-burden' && (
+          <>
+            <p className="series-current__answer">{formatTariffPerHundred(latestObservation?.value ?? null)}</p>
+            <p className="series-current__comparison">{formatTariffHistoricalPosition(compactModel?.status === 'ready' ? compactModel : null)}</p>
+            <p className="series-current__comparison">{tariffDirection}</p>
+            <CompactContextDisclosure accessibleSubject="tariffs">
+              <p>Tariffs can protect selected domestic industries and raise federal revenue, but they also increase the cost of imported consumer goods and business inputs. Those costs may be absorbed by foreign suppliers, U.S. businesses, or households. The realized tariff burden measures the intervention itself, not its full effect on prices, investment, trade, or output.</p>
+              <p>A higher realized burden does not translate one-for-one into consumer inflation. Price effects depend on product exposure, exemptions, exchange rates, supplier margins, substitution, inventory timing, and how quickly businesses pass costs through.</p>
+            </CompactContextDisclosure>
+          </>
+        )}
         {federalDebtContext && (
           <>
             <p className="series-current__answer">{federalDebtContext.outputComparison}</p>
@@ -766,7 +796,7 @@ export function EconomicSeriesSummary({
           pairedObservationLabel: 'Equivalent adjusted after-tax profit per $100 of GDP',
           pairedValueFormatter: (value: number | null) => value === null ? 'Unavailable' : `$${value.toFixed(2)}`,
         } : {})}
-        accessibleSummaryOverride={housingStartsAccessibleLabel ?? businessInvestmentAccessibleLabel ?? corporateProfitAccessibleLabel ?? budgetBalanceAccessibleLabel ?? federalDebtAccessibleLabel ?? tradeBalanceAccessibleLabel ?? undefined}
+        accessibleSummaryOverride={housingStartsAccessibleLabel ?? businessInvestmentAccessibleLabel ?? corporateProfitAccessibleLabel ?? budgetBalanceAccessibleLabel ?? federalDebtAccessibleLabel ?? tradeBalanceAccessibleLabel ?? tariffAccessibleLabel ?? undefined}
         visuallyHideSummary
       />
     </Suspense>
@@ -792,6 +822,8 @@ export function EconomicSeriesSummary({
         ? formatBudgetBalanceQuestion(budgetBalanceState!)
         : series.slug === 'trade-balance-share-of-gdp'
         ? formatTradeBalanceQuestion(tradeBalanceState!)
+        : series.slug === 'effective-tariff-burden'
+        ? 'How heavily are imported goods being taxed?'
         : series.question}
       measureLabel={series.slug === 'home-ownership-cost-share'
         ? 'Estimated share of median household income needed to own the median-priced home'
@@ -807,6 +839,8 @@ export function EconomicSeriesSummary({
         ? 'Federal debt held by the public'
         : series.slug === 'trade-balance-share-of-gdp'
         ? compactDefinition?.seriesLabel ?? 'U.S. trade balance as a share of GDP'
+        : series.slug === 'effective-tariff-burden'
+        ? 'Customs duties collected as a share of imported-goods value'
         : series.title}
       latestValue={latestValueContent}
       compactVisual={compactVisual}
@@ -1119,6 +1153,9 @@ export function EconomicSeriesSummary({
 
       {series.slug === 'housing-starts' && <HousingConstructionDetails />}
       {series.slug === 'trade-balance-share-of-gdp' && supportingSeries && <TradeCompositionDetails series={supportingSeries} />}
+      {series.slug === 'effective-tariff-burden' && coreGoodsPceSeries && visibleObservations.length > 0 && (
+        <TariffPriceContext tariff={series} coreGoods={coreGoodsPceSeries} startDate={visibleObservations[0]!.date} endDate={visibleObservations.at(-1)!.date} onZoomChange={zoom.onChartZoom} />
+      )}
 
       {series.slug === 'corporate-profit-share' && <section className="series-context" aria-labelledby="corporate-profit-structural-heading"><h4 id="corporate-profit-structural-heading">Long-run structural context</h4><p>The postwar history shows a long period in which the after-tax corporate-profit share fluctuated mostly within a lower range, followed by a sustained rise beginning in the 1990s and becoming especially pronounced after 2000. This indicates that a larger share of U.S. economic output is now recorded as after-tax corporate profit than was typical during much of the postwar era.</p><p><strong>Descriptive guide:</strong> long postwar lower-profit-share range → broad rise beginning in the 1990s → current elevated range. These labels describe the chart; they do not infer a causal break date.</p></section>}
 

@@ -80,6 +80,7 @@ const localSeriesLoaders: Readonly<
   'trade-services-exports': () => import('../data/trade-services-exports.json'),
   'trade-services-imports': () => import('../data/trade-services-imports.json'),
   'effective-tariff-burden': () => import('../data/effective-tariff-burden.json'),
+  'core-goods-pce-inflation': () => import('../data/core-goods-pce-inflation.json'),
 }
 
 export const localEconomicSeriesRepository: EconomicSeriesRepository = {

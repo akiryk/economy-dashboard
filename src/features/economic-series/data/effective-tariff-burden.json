@@ -6,7 +6,7 @@
   "title": "Effective Tariff Burden",
   "shortTitle": "Effective tariff burden",
   "description": "Federal customs-duty receipts divided by imports of goods.",
-  "question": "What share of imported goods is collected as customs duties?",
+  "question": "How heavily are imported goods being taxed?",
   "units": "Percent of goods-import value",
   "frequency": "quarterly",
   "seasonalAdjustment": "Seasonally adjusted annual rate (both source levels)",

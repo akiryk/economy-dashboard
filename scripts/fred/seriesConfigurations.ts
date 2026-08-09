@@ -679,12 +679,12 @@ export const tariffBurdenConfiguration: TariffBurdenConfig = {
   customsSource: {
     dataHandling: 'provider-level', id: 'customs-duties-source', slug: 'customs-duties-source', outputFile: '',
     providerSeriesId: 'B235RC1Q027SBEA', frequency: 'quarterly', fredFrequency: 'q', historyPolicy: { type: 'full' }, minimumUsableObservations: 200,
-    title: 'Federal Government Current Receipts: Customs Duties', shortTitle: 'Customs duties', description: 'Federal customs-duty receipts.', question: 'What share of imported goods is collected as customs duties?', units: 'Billions of dollars, seasonally adjusted annual rate', seasonalAdjustment: 'Seasonally adjusted annual rate', transformation: 'Provider-published level', sourceName: 'U.S. Bureau of Economic Analysis via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/B235RC1Q027SBEA',
+    title: 'Federal Government Current Receipts: Customs Duties', shortTitle: 'Customs duties', description: 'Federal customs-duty receipts.', question: 'How heavily are imported goods being taxed?', units: 'Billions of dollars, seasonally adjusted annual rate', seasonalAdjustment: 'Seasonally adjusted annual rate', transformation: 'Provider-published level', sourceName: 'U.S. Bureau of Economic Analysis via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/B235RC1Q027SBEA',
   },
   importsSource: {
     dataHandling: 'provider-level', id: 'goods-imports-source', slug: 'goods-imports-source', outputFile: '',
     providerSeriesId: 'A255RC1Q027SBEA', frequency: 'quarterly', fredFrequency: 'q', historyPolicy: { type: 'full' }, minimumUsableObservations: 200,
-    title: 'Imports of Goods', shortTitle: 'Goods imports', description: 'Imports of goods.', question: 'What share of imported goods is collected as customs duties?', units: 'Billions of dollars, seasonally adjusted annual rate', seasonalAdjustment: 'Seasonally adjusted annual rate', transformation: 'Provider-published level', sourceName: 'U.S. Bureau of Economic Analysis via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/A255RC1Q027SBEA',
+    title: 'Imports of Goods', shortTitle: 'Goods imports', description: 'Imports of goods.', question: 'How heavily are imported goods being taxed?', units: 'Billions of dollars, seasonally adjusted annual rate', seasonalAdjustment: 'Seasonally adjusted annual rate', transformation: 'Provider-published level', sourceName: 'U.S. Bureau of Economic Analysis via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/A255RC1Q027SBEA',
   },
   outputFile: 'src/features/economic-series/data/effective-tariff-burden.json',
 }

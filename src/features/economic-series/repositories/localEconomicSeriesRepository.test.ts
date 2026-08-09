@@ -53,6 +53,7 @@ describe('localEconomicSeriesRepository', () => {
     ['headline-cpi-inflation', 'CPIAUCSL'],
     ['headline-pce-inflation', 'PCEPI'],
     ['core-cpi-inflation', 'CPILFESL'],
+    ['core-goods-pce-inflation', 'FEDS Notes 2026-04-08 Figure 5, Published'],
     ['headline-cpi-three-month-annualized', 'CPIAUCSL'],
     ['core-cpi-three-month-annualized', 'CPILFESL'],
     ['unemployment-rate', 'UNRATE'],
@@ -70,7 +71,9 @@ describe('localEconomicSeriesRepository', () => {
       providerSeriesId,
       frequency: 'monthly',
     })
-    if (providerSeriesId.startsWith('FRBKCLMCI')) {
+    if (slug === 'core-goods-pce-inflation') {
+      expect(series?.transformation).toContain('Published 12-month')
+    } else if (providerSeriesId.startsWith('FRBKCLMCI')) {
       expect(series?.units).toBe('Index')
       expect(series?.transformation).toContain('full-history percentile')
     } else if (['UNRATE', 'LNS12300060', 'JTSLDR'].includes(providerSeriesId)) {

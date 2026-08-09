@@ -586,6 +586,18 @@ export const federalDebtCompactDefinition: CompactHistoricalMetricDefinition = {
   positionDescriptions: federalDebtPositionDescriptions,
 }
 
+export const tariffBurdenCompactDefinition: CompactHistoricalMetricDefinition = {
+  seriesLabel: 'Realized tariff burden', frequency: 'quarterly',
+  historicalBands: { recentObservationCount: 21, comparisonWindow: { kind: 'all-available' }, innerPercentiles: [25, 75], outerPercentiles: [10, 90], minimumFiniteObservations: 80, latestObservationPolicy: 'latest-finite' },
+  showZeroLine: false, showLatestMarker: true, interactiveDetails: true,
+  interactiveCursor: 'pointer', valueFormatter: formatPercentage,
+  interactionStateLabel: (value) => value === null ? 'Tariff burden unavailable' : `Tariff burden ${formatPercentage(value)} · Collected per $100 imported $${Number(value.toFixed(1)).toFixed(2)}`,
+  comparisonLabel: (model) => `Available quarterly realized-burden history since ${model.comparisonStart.slice(0, 4)}`,
+  helpText: { heading: 'Realized tariff burden', description: 'This measure divides customs duties actually collected by the value of imported goods. It is an average realized burden across imports, not the tariff rate charged on every product. Announced tariff rates can differ from realized collections because of exemptions, product and supplier changes, import timing, and collection lags. The historical bands describe frequency, not an economically preferred tariff rate.' },
+  zeroLineMeaning: 'No zero line is shown because zero is not needed to interpret the observed variation.',
+  positionDescriptions: federalDebtPositionDescriptions,
+}
+
 export function createTradeBalanceCompactDefinition(state: TradeBalanceState): CompactHistoricalMetricDefinition {
   const stateLabel = formatTradeBalanceStateLabel(state)
   const seriesLabel = state === 'deficit' ? 'U.S. trade deficit as a share of GDP' : state === 'surplus' ? 'U.S. trade surplus as a share of GDP' : 'U.S. trade-balance magnitude'
@@ -622,6 +634,7 @@ const compactDefinitions: Readonly<
   'corporate-profit-share': corporateProfitShareCompactDefinition,
   'federal-budget-balance': federalBudgetBalanceCompactDefinition,
   'federal-debt-held-by-public': federalDebtCompactDefinition,
+  'effective-tariff-burden': tariffBurdenCompactDefinition,
 }
 
 export function getCompactHistoricalMetricDefinition(

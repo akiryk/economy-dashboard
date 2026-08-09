@@ -45,6 +45,9 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Federal budget balance (`FYFSGDA188S`, annual) and federal debt held by the public (`FYGFGDQ188S`, quarterly), written as separate provider-published percent-of-GDP ratios.
 - Trade balance as a share of GDP (`A019RE1Q156NBEA`, quarterly), written as the provider-published signed ratio.
 - Effective tariff burden, derived from quarterly customs-duty receipts (`B235RC1Q027SBEA`) divided by goods imports (`A255RC1Q027SBEA`) and written to `effective-tariff-burden.json`.
+- Core-goods PCE inflation, parsed from the Federal Reserve Board's published Figure 5 data in its April 8, 2026 FEDS Note and written to `core-goods-pce-inflation.json`. Run `npm run data:refresh-core-goods-pce` to refresh this source independently. The series is the published 12-month percent change; February 2026 is a Federal Reserve staff estimate.
+
+The realized tariff burden uses BEA quarterly seasonally adjusted annual-rate customs-duty receipts (`B235RC1Q027SBEA`) as the numerator and goods-only imports (`A255RC1Q027SBEA`) as the denominator. The application aligns observations by quarter and calculates duties divided by goods imports times 100. Because collections and recorded imports can occur on different schedules, the ratio may contain a timing mismatch and should be read as an average realized burden rather than a product-level statutory rate.
 
 The narrow `scripts/atlantaFed/hoamWorkbook.ts` path downloads the official national HOAM workbook and writes `home-ownership-cost-share.json`; it is intentionally separate from the FRED configuration list.
 

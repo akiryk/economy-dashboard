@@ -112,7 +112,7 @@ const navigationGroups = [
     title: 'Trade and tariffs',
     cards: [
       { id: 'trade-balance-share-of-gdp-card', title: 'How large is the U.S. trade deficit relative to the economy?' },
-      { id: 'effective-tariff-burden-card', title: 'What share of imported goods is collected as customs duties?' },
+      { id: 'effective-tariff-burden-card', title: 'How heavily are imported goods being taxed?' },
     ],
   },
 ] as const

@@ -1,0 +1,555 @@
+{
+  "id": "core-goods-pce-inflation",
+  "slug": "core-goods-pce-inflation",
+  "provider": "Board of Governors of the Federal Reserve System",
+  "providerSeriesId": "FEDS Notes 2026-04-08 Figure 5, Published",
+  "title": "Core Goods PCE Inflation",
+  "shortTitle": "Core goods PCE inflation",
+  "description": "Twelve-month percent change in core-goods prices in the personal consumption expenditures price index.",
+  "question": "How quickly are prices for core consumer goods changing?",
+  "units": "Percent change from year ago",
+  "frequency": "monthly",
+  "seasonalAdjustment": "Underlying PCE price indexes are seasonally adjusted",
+  "transformation": "Published 12-month core-goods PCE inflation rate; February 2026 is a Federal Reserve staff estimate.",
+  "sourceName": "Federal Reserve Board FEDS Notes, based on Bureau of Economic Analysis data",
+  "sourceUrl": "https://www.federalreserve.gov/econres/notes/feds-notes/detecting-tariff-effects-on-consumer-prices-in-real-time-part-II-accessible-20260408.htm",
+  "retrievedAt": "2026-08-09",
+  "observations": [
+    {
+      "date": "2015-01-01",
+      "value": -1.031
+    },
+    {
+      "date": "2015-02-01",
+      "value": -0.776
+    },
+    {
+      "date": "2015-03-01",
+      "value": -0.595
+    },
+    {
+      "date": "2015-04-01",
+      "value": -0.511
+    },
+    {
+      "date": "2015-05-01",
+      "value": -0.504
+    },
+    {
+      "date": "2015-06-01",
+      "value": -0.734
+    },
+    {
+      "date": "2015-07-01",
+      "value": -0.893
+    },
+    {
+      "date": "2015-08-01",
+      "value": -0.827
+    },
+    {
+      "date": "2015-09-01",
+      "value": -0.78
+    },
+    {
+      "date": "2015-10-01",
+      "value": -0.974
+    },
+    {
+      "date": "2015-11-01",
+      "value": -0.765
+    },
+    {
+      "date": "2015-12-01",
+      "value": -0.703
+    },
+    {
+      "date": "2016-01-01",
+      "value": -0.545
+    },
+    {
+      "date": "2016-02-01",
+      "value": -0.549
+    },
+    {
+      "date": "2016-03-01",
+      "value": -0.72
+    },
+    {
+      "date": "2016-04-01",
+      "value": -0.608
+    },
+    {
+      "date": "2016-05-01",
+      "value": -0.776
+    },
+    {
+      "date": "2016-06-01",
+      "value": -0.845
+    },
+    {
+      "date": "2016-07-01",
+      "value": -0.846
+    },
+    {
+      "date": "2016-08-01",
+      "value": -0.588
+    },
+    {
+      "date": "2016-09-01",
+      "value": -0.583
+    },
+    {
+      "date": "2016-10-01",
+      "value": -0.507
+    },
+    {
+      "date": "2016-11-01",
+      "value": -0.867
+    },
+    {
+      "date": "2016-12-01",
+      "value": -0.899
+    },
+    {
+      "date": "2017-01-01",
+      "value": -0.534
+    },
+    {
+      "date": "2017-02-01",
+      "value": -0.581
+    },
+    {
+      "date": "2017-03-01",
+      "value": -0.592
+    },
+    {
+      "date": "2017-04-01",
+      "value": -0.926
+    },
+    {
+      "date": "2017-05-01",
+      "value": -0.962
+    },
+    {
+      "date": "2017-06-01",
+      "value": -0.787
+    },
+    {
+      "date": "2017-07-01",
+      "value": -0.66
+    },
+    {
+      "date": "2017-08-01",
+      "value": -0.942
+    },
+    {
+      "date": "2017-09-01",
+      "value": -1.267
+    },
+    {
+      "date": "2017-10-01",
+      "value": -0.99
+    },
+    {
+      "date": "2017-11-01",
+      "value": -0.875
+    },
+    {
+      "date": "2017-12-01",
+      "value": -0.837
+    },
+    {
+      "date": "2018-01-01",
+      "value": -0.756
+    },
+    {
+      "date": "2018-02-01",
+      "value": -0.821
+    },
+    {
+      "date": "2018-03-01",
+      "value": -0.666
+    },
+    {
+      "date": "2018-04-01",
+      "value": -0.375
+    },
+    {
+      "date": "2018-05-01",
+      "value": -0.136
+    },
+    {
+      "date": "2018-06-01",
+      "value": -0.358
+    },
+    {
+      "date": "2018-07-01",
+      "value": -0.453
+    },
+    {
+      "date": "2018-08-01",
+      "value": -0.671
+    },
+    {
+      "date": "2018-09-01",
+      "value": -0.491
+    },
+    {
+      "date": "2018-10-01",
+      "value": -0.552
+    },
+    {
+      "date": "2018-11-01",
+      "value": -0.224
+    },
+    {
+      "date": "2018-12-01",
+      "value": -0.258
+    },
+    {
+      "date": "2019-01-01",
+      "value": -0.242
+    },
+    {
+      "date": "2019-02-01",
+      "value": -0.435
+    },
+    {
+      "date": "2019-03-01",
+      "value": -0.621
+    },
+    {
+      "date": "2019-04-01",
+      "value": -0.885
+    },
+    {
+      "date": "2019-05-01",
+      "value": -0.898
+    },
+    {
+      "date": "2019-06-01",
+      "value": -0.499
+    },
+    {
+      "date": "2019-07-01",
+      "value": -0.576
+    },
+    {
+      "date": "2019-08-01",
+      "value": -0.162
+    },
+    {
+      "date": "2019-09-01",
+      "value": -0.265
+    },
+    {
+      "date": "2019-10-01",
+      "value": -0.338
+    },
+    {
+      "date": "2019-11-01",
+      "value": -0.494
+    },
+    {
+      "date": "2019-12-01",
+      "value": -0.459
+    },
+    {
+      "date": "2020-01-01",
+      "value": -0.795
+    },
+    {
+      "date": "2020-02-01",
+      "value": -0.455
+    },
+    {
+      "date": "2020-03-01",
+      "value": -0.65
+    },
+    {
+      "date": "2020-04-01",
+      "value": -1.256
+    },
+    {
+      "date": "2020-05-01",
+      "value": -1.535
+    },
+    {
+      "date": "2020-06-01",
+      "value": -1.674
+    },
+    {
+      "date": "2020-07-01",
+      "value": -0.954
+    },
+    {
+      "date": "2020-08-01",
+      "value": -0.409
+    },
+    {
+      "date": "2020-09-01",
+      "value": -0.409
+    },
+    {
+      "date": "2020-10-01",
+      "value": -0.458
+    },
+    {
+      "date": "2020-11-01",
+      "value": -0.158
+    },
+    {
+      "date": "2020-12-01",
+      "value": 0.096
+    },
+    {
+      "date": "2021-01-01",
+      "value": 0.376
+    },
+    {
+      "date": "2021-02-01",
+      "value": 0.073
+    },
+    {
+      "date": "2021-03-01",
+      "value": 0.571
+    },
+    {
+      "date": "2021-04-01",
+      "value": 2.435
+    },
+    {
+      "date": "2021-05-01",
+      "value": 3.658
+    },
+    {
+      "date": "2021-06-01",
+      "value": 4.307
+    },
+    {
+      "date": "2021-07-01",
+      "value": 4.022
+    },
+    {
+      "date": "2021-08-01",
+      "value": 3.919
+    },
+    {
+      "date": "2021-09-01",
+      "value": 4.153
+    },
+    {
+      "date": "2021-10-01",
+      "value": 5.209
+    },
+    {
+      "date": "2021-11-01",
+      "value": 5.591
+    },
+    {
+      "date": "2021-12-01",
+      "value": 6.231
+    },
+    {
+      "date": "2022-01-01",
+      "value": 6.902
+    },
+    {
+      "date": "2022-02-01",
+      "value": 7.663
+    },
+    {
+      "date": "2022-03-01",
+      "value": 7.48
+    },
+    {
+      "date": "2022-04-01",
+      "value": 6.352
+    },
+    {
+      "date": "2022-05-01",
+      "value": 5.722
+    },
+    {
+      "date": "2022-06-01",
+      "value": 5.72
+    },
+    {
+      "date": "2022-07-01",
+      "value": 5.503
+    },
+    {
+      "date": "2022-08-01",
+      "value": 5.597
+    },
+    {
+      "date": "2022-09-01",
+      "value": 5.73
+    },
+    {
+      "date": "2022-10-01",
+      "value": 4.688
+    },
+    {
+      "date": "2022-11-01",
+      "value": 3.931
+    },
+    {
+      "date": "2022-12-01",
+      "value": 3.174
+    },
+    {
+      "date": "2023-01-01",
+      "value": 2.675
+    },
+    {
+      "date": "2023-02-01",
+      "value": 2.283
+    },
+    {
+      "date": "2023-03-01",
+      "value": 2.512
+    },
+    {
+      "date": "2023-04-01",
+      "value": 2.504
+    },
+    {
+      "date": "2023-05-01",
+      "value": 2.501
+    },
+    {
+      "date": "2023-06-01",
+      "value": 1.699
+    },
+    {
+      "date": "2023-07-01",
+      "value": 1.183
+    },
+    {
+      "date": "2023-08-01",
+      "value": 0.56
+    },
+    {
+      "date": "2023-09-01",
+      "value": 0.231
+    },
+    {
+      "date": "2023-10-01",
+      "value": 0.381
+    },
+    {
+      "date": "2023-11-01",
+      "value": 0.225
+    },
+    {
+      "date": "2023-12-01",
+      "value": -0.038
+    },
+    {
+      "date": "2024-01-01",
+      "value": -0.523
+    },
+    {
+      "date": "2024-02-01",
+      "value": -0.397
+    },
+    {
+      "date": "2024-03-01",
+      "value": -0.499
+    },
+    {
+      "date": "2024-04-01",
+      "value": -0.517
+    },
+    {
+      "date": "2024-05-01",
+      "value": -1.021
+    },
+    {
+      "date": "2024-06-01",
+      "value": -0.796
+    },
+    {
+      "date": "2024-07-01",
+      "value": -0.414
+    },
+    {
+      "date": "2024-08-01",
+      "value": -0.472
+    },
+    {
+      "date": "2024-09-01",
+      "value": -0.334
+    },
+    {
+      "date": "2024-10-01",
+      "value": -0.433
+    },
+    {
+      "date": "2024-11-01",
+      "value": -0.185
+    },
+    {
+      "date": "2024-12-01",
+      "value": -0.203
+    },
+    {
+      "date": "2025-01-01",
+      "value": 0.232
+    },
+    {
+      "date": "2025-02-01",
+      "value": 0.33
+    },
+    {
+      "date": "2025-03-01",
+      "value": -0.037
+    },
+    {
+      "date": "2025-04-01",
+      "value": 0.195
+    },
+    {
+      "date": "2025-05-01",
+      "value": 0.649
+    },
+    {
+      "date": "2025-06-01",
+      "value": 0.994
+    },
+    {
+      "date": "2025-07-01",
+      "value": 1.054
+    },
+    {
+      "date": "2025-08-01",
+      "value": 1.071
+    },
+    {
+      "date": "2025-09-01",
+      "value": 1.207
+    },
+    {
+      "date": "2025-10-01",
+      "value": 1.144
+    },
+    {
+      "date": "2025-11-01",
+      "value": 1.246
+    },
+    {
+      "date": "2025-12-01",
+      "value": 1.966
+    },
+    {
+      "date": "2026-01-01",
+      "value": 1.864
+    },
+    {
+      "date": "2026-02-01",
+      "value": 2.322
+    }
+  ]
+}

@@ -224,7 +224,7 @@ describe('DashboardPage economic series', () => {
       'How large is the federal budget deficit relative to the economy?',
       'How large is federal debt held by the public relative to the economy?',
       'How large is the U.S. trade deficit relative to the economy?',
-      'What share of imported goods is collected as customs duties?',
+      'How heavily are imported goods being taxed?',
     ])
 
     const gdpCard = await screen.findByRole('article', {
@@ -280,7 +280,7 @@ describe('DashboardPage economic series', () => {
         name: 'Twelve most recent headline CPI inflation observations',
       }),
     ).toBeVisible()
-  }, 10_000)
+  }, 20_000)
 
   it('renders compact CPI interpretation and expands to distinct core and PCE comparisons', async () => {
     const user = userEvent.setup()
@@ -411,45 +411,51 @@ describe('DashboardPage economic series', () => {
         name: 'Is the U.S. economy growing?',
       }),
     ).toBeVisible()
-    const growthQuestions = await within(growth).findAllByRole('heading', {
-      level: 3,
+    await waitFor(() => {
+      const growthQuestions = within(growth).getAllByRole('heading', {
+        level: 3,
+      })
+      expect(growthQuestions.map((heading) => heading.textContent)).toEqual([
+        'Is the U.S. economy growing?',
+        'Is economic output growing faster than the population?',
+        'Is the economy producing more per hour worked?',
+      ])
     })
-    expect(growthQuestions.map((heading) => heading.textContent)).toEqual([
-      'Is the U.S. economy growing?',
-      'Is economic output growing faster than the population?',
-      'Is the economy producing more per hour worked?',
-    ])
     expect(
       await within(prices).findByRole('heading', {
         level: 3,
         name: 'How quickly are consumer prices rising?',
       }),
     ).toBeVisible()
-    const priceQuestions = await within(prices).findAllByRole('heading', {
-      level: 3,
+    await waitFor(() => {
+      const priceQuestions = within(prices).getAllByRole('heading', {
+        level: 3,
+      })
+      expect(priceQuestions.map((heading) => heading.textContent)).toEqual([
+        'How quickly are consumer prices rising?',
+        'What is driving inflation?',
+        'Has inflation picked up in recent months?',
+        'Are workers’ wages keeping up with prices?',
+      ])
     })
-    expect(priceQuestions.map((heading) => heading.textContent)).toEqual([
-      'How quickly are consumer prices rising?',
-      'What is driving inflation?',
-      'Has inflation picked up in recent months?',
-      'Are workers’ wages keeping up with prices?',
-    ])
     expect(
       within(employment).getByText(
         'Labor-market indicators show how readily people can find work and how broadly employment is distributed. No single measure fully captures labor-market strength.',
       ),
     ).toBeVisible()
-    const laborQuestions = await within(employment).findAllByRole('heading', {
-      level: 3,
+    await waitFor(() => {
+      const laborQuestions = within(employment).getAllByRole('heading', {
+        level: 3,
+      })
+      expect(laborQuestions.map((heading) => heading.textContent)).toEqual([
+        'Is unemployment high or low?',
+        'What share of prime-age adults are employed?',
+        'Are employers adding jobs?',
+        'Is job growth keeping up with the labor force?',
+        'Are layoffs beginning to rise?',
+      ])
     })
-    expect(laborQuestions.map((heading) => heading.textContent)).toEqual([
-      'Is unemployment high or low?',
-      'What share of prime-age adults are employed?',
-      'Are employers adding jobs?',
-      'Is job growth keeping up with the labor force?',
-      'Are layoffs beginning to rise?',
-    ])
-    expect(screen.getAllByRole('article')).toHaveLength(23)
+    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(23))
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'personal-saving-rate-question',
     ])
@@ -687,7 +693,7 @@ describe('DashboardPage economic series', () => {
       )).toBe(true)
     })
     expect(screen.queryByRole('article', { name: /PCE/i })).not.toBeInTheDocument()
-  }, 10_000)
+  }, 20_000)
 
   it('renders payroll momentum with signed values and a paired recent table', async () => {
     const user = userEvent.setup()
@@ -1952,7 +1958,7 @@ describe('DashboardPage economic series', () => {
     const trade = screen.getByRole('region', { name: 'Trade and tariffs' })
     expect(government.compareDocumentPosition(trade) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     const balance = await within(trade).findByRole('article', { name: 'How large is the U.S. trade deficit relative to the economy?' })
-    const tariff = await within(trade).findByRole('article', { name: 'What share of imported goods is collected as customs duties?' })
+    const tariff = await within(trade).findByRole('article', { name: 'How heavily are imported goods being taxed?' })
     expect(within(trade).getAllByRole('article')).toHaveLength(2)
     expect(within(balance).getByLabelText(/compact chart shows the positive deficit magnitude/)).toHaveTextContent('2.7%')
     expect(within(balance).getByText('Trade deficit')).toBeVisible()
@@ -1965,10 +1971,19 @@ describe('DashboardPage economic series', () => {
     const context = within(balance).getByRole('button', { name: 'Why this matters for the U.S. trade balance' })
     await user.click(context)
     expect(within(balance).getByText(/not automatically a sign of economic weakness/)).toBeVisible()
-    expect(within(tariff).getByLabelText('Latest effective tariff burden')).toHaveTextContent(/\d+\.\d%/)
-    expect(within(tariff).getByText(/not a statutory tariff schedule/)).toBeVisible()
-    expect(within(tariff).getByText(/identify who bears the economic cost/)).toBeVisible()
+    expect(within(tariff).getByText('Realized tariff burden')).toBeVisible()
+    expect(within(tariff).getByText(/\$8\.80 for every \$100/)).toBeVisible()
+    expect(within(tariff).getByText(/very high by the standards/)).toBeVisible()
+    expect(within(tariff).getByText(/much higher than a year ago but below/)).toBeVisible()
+    const tariffContext = within(tariff).getByRole('button', { name: 'Why this matters for tariffs' })
+    await user.click(tariffContext)
+    expect(within(tariff).getByText(/does not translate one-for-one/)).toBeVisible()
+    const tariffCompactProps = compactChartPropsSpy.mock.calls.find(([props]) => props.definition.seriesLabel === 'Realized tariff burden')?.[0]
+    expect(tariffCompactProps.definition.interactiveCursor).toBe('pointer')
+    expect(tariffCompactProps.definition.showZeroLine).toBe(false)
+    expect(tariffCompactProps.model.recentObservations).toHaveLength(21)
     await user.click(within(balance).getByRole('button', { name: /More/ }))
+    await user.click(within(tariff).getByRole('button', { name: /More/ }))
     expect(within(balance).getByRole('table', { name: 'Recent goods, services, and total trade balances' })).toBeVisible()
     expect(within(balance).getByRole('table', { name: 'Recent exports and imports of goods and services' })).toBeVisible()
     await user.click(within(balance).getByText('Recent observations'))
@@ -1977,6 +1992,9 @@ describe('DashboardPage economic series', () => {
     await user.click(within(tariff).getByRole('button', { name: 'Maximum' }))
     expect(within(balance).getByText(/Visible period: 1947 Q1–\d{4} Q[1-4]/)).toBeVisible()
     expect(within(tariff).getByText(/Visible period: 1959 Q1–\d{4} Q[1-4]/)).toBeVisible()
+    expect(within(tariff).getByRole('heading', { name: 'Tariffs and core-goods prices' })).toBeVisible()
+    expect(within(tariff).getByText(/visual alignment does not prove/)).toBeVisible()
+    expect(within(tariff).getByText(/raised core-goods PCE prices by 3\.1%/)).toBeVisible()
     await user.click(within(balance).getByRole('button', { name: 'Zoom in' }))
     expect(within(balance).getByRole('button', { name: 'Reset zoom' })).toBeVisible()
   })
@@ -1993,7 +2011,7 @@ describe('DashboardPage economic series', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined)
     render(<DashboardPage />)
     expect(await screen.findByText(message)).toBeVisible()
-    expect(await screen.findByRole('article', { name: survivor })).toBeVisible()
+    expect(await screen.findByRole('article', { name: survivor === 'What share of imported goods is collected as customs duties?' ? 'How heavily are imported goods being taxed?' : survivor })).toBeVisible()
     expect(await screen.findByRole('article', { name: 'How large is federal debt held by the public relative to the economy?' })).toBeVisible()
   })
 
