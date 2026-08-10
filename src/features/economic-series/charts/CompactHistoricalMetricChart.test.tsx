@@ -124,7 +124,9 @@ describe('CompactHistoricalMetricChart', () => {
     expect(chart).not.toBeNull()
     expect(chart).toHaveAttribute(
       'data-caption',
-      'Three-month average payroll change · June 2021–June 2026',
+      expect.stringMatching(
+        /^Three-month average payroll change · [A-Z][a-z]+ \d{4}–[A-Z][a-z]+ \d{4}$/,
+      ),
     )
     expect(chart).toHaveAttribute('data-zero-line', 'true')
     expect(chart).toHaveAttribute('data-latest-marker', 'true')

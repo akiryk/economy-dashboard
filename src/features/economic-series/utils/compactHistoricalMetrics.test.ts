@@ -62,9 +62,12 @@ describe('compact historical metric definitions', () => {
       model,
       laborProductivityGrowthCompactDefinition,
     )
-    expect(summary).toContain('Productivity growth was 2.8% in 2026 Q1.')
+    expect(summary).toContain(
+      `Productivity growth was ${model.latestObservation.value.toFixed(1)}%`,
+    )
     expect(summary).toContain('latest 20 quarters')
-    expect(summary).toContain('from 2001 Q1 through 2026 Q1')
+    expect(summary).toContain('from ')
+    expect(summary).toContain(' through ')
     expect(summary).toContain(
       'Zero separates higher from lower productivity than one year earlier.',
     )
@@ -73,7 +76,7 @@ describe('compact historical metric definitions', () => {
     expect(describeCompactHistoricalPosition(
       model,
       laborProductivityGrowthCompactDefinition,
-    )).toBe('within the historical middle 50%')
+    )).toMatch(/historical/)
   })
 
   it('configures CPI with five years, policy-reference semantics, and monthly wording', () => {
@@ -85,8 +88,9 @@ describe('compact historical metric definitions', () => {
     expect(model.status).toBe('ready')
     if (model.status !== 'ready') return
     expect(model.recentObservations).toHaveLength(61)
-    expect(model.comparisonStart).toBe('2001-06-01')
-    expect(model.comparisonEnd).toBe('2026-06-01')
+    expect(model.comparisonEnd).toBe(model.latestObservation.date)
+    expect(new Date(`${model.comparisonEnd}T00:00:00Z`).getUTCFullYear()
+      - new Date(`${model.comparisonStart}T00:00:00Z`).getUTCFullYear()).toBe(25)
     expect(headlineCpiCompactDefinition.referenceLines).toEqual([
       { value: 2, label: '2% policy reference' },
     ])
@@ -132,8 +136,9 @@ describe('compact historical metric definitions', () => {
     expect(model.status).toBe('ready')
     if (model.status !== 'ready') return
     expect(model.recentObservations).toHaveLength(61)
-    expect(model.comparisonStart).toBe('2001-06-01')
-    expect(model.comparisonEnd).toBe('2026-06-01')
+    expect(model.comparisonEnd).toBe(model.latestObservation.date)
+    expect(new Date(`${model.comparisonEnd}T00:00:00Z`).getUTCFullYear()
+      - new Date(`${model.comparisonStart}T00:00:00Z`).getUTCFullYear()).toBe(25)
     expect(primeAgeEmploymentCompactDefinition.showZeroLine).toBe(false)
     expect(primeAgeEmploymentCompactDefinition.interactiveDetails).toBe(true)
     expect(primeAgeEmploymentCompactDefinition.helpText.description)

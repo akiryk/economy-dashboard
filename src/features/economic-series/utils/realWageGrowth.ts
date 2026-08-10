@@ -52,7 +52,7 @@ export const realWageGrowthHistoricalBandDefinition: HistoricalBandDefinition = 
   innerPercentiles: [25, 75],
   outerPercentiles: [10, 90],
   minimumFiniteObservations: 60,
-  latestObservationPolicy: 'last-observation',
+  latestObservationPolicy: 'latest-finite',
 }
 
 export function classifyRealWageGrowth(value: number | null): Pick<
@@ -264,13 +264,11 @@ export function deriveRealWageGrowthModel({
         : null,
     }
   })
-  const latestDate = dates.at(-1)
-  const latest = latestDate
-    ? observations.find(({ date }) => date === latestDate) ?? null
-    : null
-  const latestObservation = latest && finite(latest.value)
-    ? { ...latest, value: latest.value }
-    : null
+  const latestObservation = [...observations].reverse().find(
+    (observation): observation is EconomicObservation & { value: number } =>
+      finite(observation.value),
+  ) ?? null
+  const latestDate = latestObservation?.date
   const recentObservations = latestDate
     ? observations.filter(({ date }) =>
         date >= recentWindowStart(latestDate) && date <= latestDate)
