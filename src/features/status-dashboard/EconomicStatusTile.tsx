@@ -27,6 +27,7 @@ interface EconomicStatusTileProps {
   reservedRangeDescription?: string
   backContent: DashboardCardBackContent
   sparklineWindow?: string
+  className?: string
 }
 
 export function EconomicStatusTile({
@@ -47,6 +48,7 @@ export function EconomicStatusTile({
   reservedRangeDescription,
   backContent,
   sparklineWindow,
+  className,
 }: EconomicStatusTileProps) {
   const [flipped, setFlipped] = useState(false)
   const labelId = useId()
@@ -65,7 +67,7 @@ export function EconomicStatusTile({
 
   return (
     <article
-      className="status-tile status-tile--flippable"
+      className={`status-tile status-tile--flippable${className ? ` ${className}` : ''}`}
       data-state={state}
       data-flipped={flipped ? 'true' : 'false'}
       aria-labelledby={labelId}

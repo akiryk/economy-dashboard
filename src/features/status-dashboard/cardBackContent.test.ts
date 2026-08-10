@@ -3,10 +3,13 @@ import {
   getClaimsBackContent,
   getGdpBackContent,
   getInflationBackContent,
+  getHighYieldSpreadBackContent,
+  getLongRatesBackContent,
   getExpectedInflationBackContent,
   getFedFundsBackContent,
   getPayrollBackContent,
   getSahmBackContent,
+  getSp500BackContent,
   getUnemploymentBackContent,
   getYieldCurveBackContent,
 } from './cardBackContent'
@@ -96,5 +99,32 @@ describe('dashboard card back content', () => {
     const positive = getYieldCurveBackContent(0.58, 0.34)
     expect(positive.whatItShows).toContain('10-year Treasury yield is 58 basis points above')
     expect(positive.howToReadIt).toContain('does not rule out recession')
+  })
+
+  it('keeps rate dates distinct and mortgage-spread context valence-free', () => {
+    const content = getLongRatesBackContent(
+      4.65, 'Aug 7, 2026', 6.69, 'Aug 6, 2026', 204, 'wide',
+    )
+    expect(content.whatItShows).toContain('4.65% on Aug 7, 2026')
+    expect(content.whatItShows).toContain('6.69% on Aug 6, 2026')
+    expect(content.howToReadIt).toContain('wide relative to its available history')
+    expect(content.howToReadIt).not.toMatch(/good|bad|favorable|unfavorable/i)
+  })
+
+  it('limits S&P claims to available FRED history', () => {
+    const content = getSp500BackContent(-4.2, 6_340, 7.8, 'Modest pullback')
+    expect(content.whatItShows).toContain('available FRED history')
+    expect(content.howToReadIt).toContain('not necessarily an all-time drawdown')
+    expect(content.howToReadIt).toContain('pulled back modestly')
+  })
+
+  it('explains high-yield risk premiums without deterministic safety or recession claims', () => {
+    const calm = getHighYieldSpreadBackContent(312, 'Calm', 8)
+    expect(calm.whatItShows).toContain('after option adjustment')
+    expect(calm.howToReadIt).toContain('unusually low')
+    expect(calm.howToReadIt).toContain('do not eliminate default risk')
+    const stressed = getHighYieldSpreadBackContent(550, 'Stressed', 95)
+    expect(stressed.howToReadIt).toContain('substantially more compensation')
+    expect(stressed.howToReadIt).toContain('do not guarantee recession')
   })
 })

@@ -43,6 +43,30 @@ function seriesForSlug(slug: string): EconomicSeries {
     'dashboard-fed-target-upper-bound': 4.5,
     'dashboard-yield-spread-10y-2y': -0.42,
     'dashboard-yield-spread-10y-3m': 0.34,
+    'dashboard-ten-year-treasury-yield': 4.65,
+    'dashboard-mortgage-rate-30-year': 6.69,
+    'dashboard-sp500': 105,
+    'dashboard-high-yield-credit-spread': 2.7,
+  }
+  if (slug === 'dashboard-sp500') {
+    const result = series(slug, [100, 110, 105])
+    result.observations[0]!.date = '2025-12-31'
+    result.observations[1]!.date = '2026-01-02'
+    result.observations[2]!.date = '2026-08-07'
+    return result
+  }
+  if (slug === 'dashboard-ten-year-treasury-yield') {
+    const result = series(slug, [4, 4.5, 4.65])
+    result.observations[0]!.date = '2025-08-07'
+    result.observations[1]!.date = '2026-08-06'
+    result.observations[2]!.date = '2026-08-07'
+    return result
+  }
+  if (slug === 'dashboard-mortgage-rate-30-year') {
+    const result = series(slug, [6.5, 6.69])
+    result.observations[0]!.date = '2025-08-07'
+    result.observations[1]!.date = '2026-08-06'
+    return result
   }
   return slug === 'dashboard-payroll-change'
     ? series(slug, [40, 20, -23])
@@ -77,7 +101,7 @@ describe('StatusDashboardPage', () => {
     expect(tile).toHaveTextContent('As of Jan 2026')
     expect(tile).toHaveTextContent('Elevated')
     expect(tile).toHaveAttribute('data-state', 'normal')
-    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(9))
+    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(12))
     expect(screen.getAllByRole('article').map((article) => article.textContent)).toEqual([
       expect.stringContaining('GDP growth'),
       expect.stringContaining('Unemployment'),
@@ -88,6 +112,9 @@ describe('StatusDashboardPage', () => {
       expect.stringContaining('Fed funds'),
       expect.stringContaining('Yield curve'),
       expect.stringContaining('Sahm Rule'),
+      expect.stringContaining('Long rates'),
+      expect.stringContaining('S&P 500'),
+      expect.stringContaining('High-yield spread'),
     ])
     expect(screen.getByRole('article', { name: 'GDP growth' })).toHaveTextContent('GDP $32.5T')
     expect(screen.getByRole('article', { name: 'Unemployment' })).not.toHaveTextContent(/jobs/i)
@@ -114,7 +141,21 @@ describe('StatusDashboardPage', () => {
     expect(yieldCurve).toHaveTextContent('10y−3m +34 bps')
     expect(yieldCurve).toHaveTextContent('Inverted')
     expect(yieldCurve).toHaveAttribute('data-state', 'notable-bad')
-    expect(dashboardEconomicSeriesRepository.getBySlug).toHaveBeenCalledTimes(14)
+    const longRates = screen.getByRole('article', { name: 'Long rates' })
+    expect(longRates).toHaveTextContent('4.65%')
+    expect(longRates).toHaveTextContent('Mortgage 6.69% · +204 bps')
+    expect(longRates).toHaveAttribute('data-state', 'normal')
+    const sp500 = screen.getByRole('article', { name: 'S&P 500' })
+    expect(sp500).toHaveTextContent('−4.5%')
+    expect(sp500).toHaveTextContent('105 · YTD +5.0%')
+    expect(sp500).toHaveClass('status-tile--wide')
+    expect(within(sp500).queryByRole('button', { name: /Historical/ }))
+      .not.toBeInTheDocument()
+    const highYield = screen.getByRole('article', { name: 'High-yield spread' })
+    expect(highYield).toHaveTextContent('270 bps')
+    expect(highYield).toHaveTextContent('Calm')
+    expect(highYield).toHaveAttribute('data-state', 'notable-good')
+    expect(dashboardEconomicSeriesRepository.getBySlug).toHaveBeenCalledTimes(18)
   })
 
   it('keeps the headline tile when core CPI fails without inventing a value', async () => {
@@ -183,6 +224,41 @@ describe('StatusDashboardPage', () => {
     expect(screen.getByRole('article', { name: 'Inflation' })).toHaveTextContent('3.5%')
     expect(screen.getByRole('article', { name: 'Expected inflation' })).toHaveTextContent('2.7%')
     expect(screen.getByRole('article', { name: 'Yield curve' })).toHaveTextContent('−42 bps')
+  })
+
+  it('keeps market tile failures isolated from the final row', async () => {
+    vi.mocked(dashboardEconomicSeriesRepository.getBySlug)
+      .mockImplementation(async (slug) => {
+        if (slug === 'dashboard-sp500') throw new Error('Unavailable')
+        return seriesForSlug(slug)
+      })
+    render(<StatusDashboardPage />)
+    expect(await screen.findByRole('article', { name: 'S&P 500' }))
+      .toHaveTextContent('Data temporarily unavailable.')
+    expect(screen.getByRole('article', { name: 'Long rates' }))
+      .toHaveTextContent('4.65%')
+    expect(screen.getByRole('article', { name: 'High-yield spread' }))
+      .toHaveTextContent('270 bps')
+  })
+
+  it('reports independent market dates and honest available-history context on card backs', async () => {
+    const user = userEvent.setup()
+    render(<StatusDashboardPage />)
+    const longRates = (await screen.findByText('4.65%')).closest('article')!
+    await user.click(longRates)
+    expect(longRates).toHaveTextContent('Aug 7, 2026')
+    expect(longRates).toHaveTextContent('Aug 6, 2026')
+    expect(longRates).toHaveTextContent('Difference: 204 basis points')
+
+    const sp500 = screen.getByRole('article', { name: 'S&P 500' })
+    await user.click(sp500)
+    expect(sp500).toHaveTextContent('available FRED history')
+    expect(sp500).toHaveTextContent('not necessarily an all-time drawdown')
+
+    const highYield = screen.getByRole('article', { name: 'High-yield spread' })
+    await user.click(highYield)
+    expect(highYield).toHaveTextContent('after option adjustment')
+    expect(highYield).toHaveTextContent('do not guarantee recession')
   })
 
   it('flips cards independently by pointer and keyboard without visible controls', async () => {

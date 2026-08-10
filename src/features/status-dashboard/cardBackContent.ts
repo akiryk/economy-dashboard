@@ -181,3 +181,65 @@ export function getYieldCurveBackContent(
     howToReadIt: interpretation,
   }
 }
+
+export function getLongRatesBackContent(
+  treasury: number,
+  treasuryDate: string,
+  mortgage: number,
+  mortgageDate: string,
+  spreadBasisPoints: number,
+  spreadState: 'narrow' | 'typical' | 'wide',
+): DashboardCardBackContent {
+  const spreadDescription = spreadState === 'wide'
+    ? 'The current mortgage spread is wide relative to its available history.'
+    : spreadState === 'narrow'
+      ? 'The current mortgage spread is narrow relative to its available history.'
+      : 'The current mortgage spread is within a typical historical range.'
+  return {
+    whatItShows: `10-year Treasury: ${treasury.toFixed(2)}% on ${treasuryDate}. 30-year mortgage: ${mortgage.toFixed(2)}% on ${mortgageDate}. Difference: ${Math.round(spreadBasisPoints)} basis points.`,
+    howToReadIt: `The Treasury is a benchmark long-term rate. Mortgages add a spread for market, prepayment, and risk conditions. ${spreadDescription} This spread does not diagnose stress.`,
+  }
+}
+
+export function getSp500BackContent(
+  drawdown: number,
+  level: number,
+  yearToDateChange: number | null,
+  stateLabel: string,
+): DashboardCardBackContent {
+  const whatItShows = drawdown === 0
+    ? `The S&P 500 is at its highest level in the available FRED history. The index is ${level.toLocaleString('en-US', { maximumFractionDigits: 2 })}${yearToDateChange === null ? '' : `, with a year-to-date change of ${yearToDateChange.toFixed(1)}%`}.`
+    : `The S&P 500 is ${Math.abs(drawdown).toFixed(1)}% below its highest level in the available FRED history. The index is ${level.toLocaleString('en-US', { maximumFractionDigits: 2 })}${yearToDateChange === null ? '' : `, with a year-to-date change of ${yearToDateChange.toFixed(1)}%`}.`
+  const interpretations: Record<string, string> = {
+    'At high': 'The market is trading at its recent-history peak.',
+    'Near high': 'The market is trading near its recent-history peak.',
+    'Modest pullback': 'The market has pulled back modestly from its recent-history peak.',
+    'Meaningful pullback': "The market is meaningfully below its recent-history peak, but not yet past the dashboard's correction threshold.",
+    'Correction or worse': 'The market is more than 10% below its recent-history peak.',
+  }
+  return {
+    whatItShows,
+    howToReadIt: `${interpretations[stateLabel]} FRED provides only limited S&P history here, so this is not necessarily an all-time drawdown. Equity-market movement does not establish economic causation.`,
+  }
+}
+
+export function getHighYieldSpreadBackContent(
+  basisPoints: number,
+  stateLabel: string,
+  percentile: number,
+): DashboardCardBackContent {
+  const interpretations: Record<string, string> = {
+    Calm: 'Spreads are relatively tight, so investors demand a small extra risk premium for lower-rated corporate debt.',
+    'Normal risk premium': 'Credit spreads are within a broadly typical range.',
+    Stressed: 'Spreads are wide, so investors demand substantially more compensation for credit risk.',
+  }
+  const historical = percentile <= 10
+    ? ' The current spread is unusually low relative to the available history.'
+    : percentile >= 90
+      ? ' The current spread is unusually high relative to the available history.'
+      : ''
+  return {
+    whatItShows: `High-yield corporate bonds offer about ${Math.round(basisPoints)} basis points more yield than comparable Treasury securities after option adjustment.`,
+    howToReadIt: `${interpretations[stateLabel]}${historical} Low spreads do not eliminate default risk, and high spreads do not guarantee recession.`,
+  }
+}

@@ -5,6 +5,7 @@ import { CpiTile } from '../features/status-dashboard/CpiTile'
 import { createCpiTileModel } from '../features/status-dashboard/cpiTileModel'
 import { GrowthLaborTiles, SahmStatusTile } from '../features/status-dashboard/GrowthLaborTiles'
 import { PricesRatesTiles } from '../features/status-dashboard/PricesRatesTiles'
+import { MarketsCreditTiles } from '../features/status-dashboard/MarketsCreditTiles'
 import { useDashboardTheme } from '../features/status-dashboard/useDashboardTheme'
 import type { DashboardThemePreference } from '../features/status-dashboard/useDashboardTheme'
 import '../styles/statusDashboard.css'
@@ -81,6 +82,7 @@ export function StatusDashboardPage() {
         })()}
         <PricesRatesTiles theme={resolvedTheme} />
         <SahmStatusTile theme={resolvedTheme} />
+        <MarketsCreditTiles theme={resolvedTheme} />
       </section>
     </div>
   )
