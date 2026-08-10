@@ -8,6 +8,7 @@ interface HistoricalRangeStripProps {
   state: DashboardThresholdState
   valueFormatter: (value: number) => string
   dateFormatter: (date: string) => string
+  sparklineWindow?: string
 }
 
 function formatOrdinal(value: number): string {
@@ -39,6 +40,7 @@ export function HistoricalRangeStrip({
   state,
   valueFormatter,
   dateFormatter,
+  sparklineWindow = '5 years',
 }: HistoricalRangeStripProps) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -97,7 +99,7 @@ export function HistoricalRangeStrip({
           <span>History: {dateFormatter(historical.historyStart)}–{dateFormatter(historical.historyEnd)}</span>
           <span>Low: {valueFormatter(historical.minimum.value)} · {dateFormatter(historical.minimum.date)}</span>
           <span>High: {valueFormatter(historical.maximum.value)} · {dateFormatter(historical.maximum.date)}</span>
-          <span>Sparkline: 5 years</span>
+          <span>Sparkline: {sparklineWindow}</span>
         </div>
       )}
     </div>

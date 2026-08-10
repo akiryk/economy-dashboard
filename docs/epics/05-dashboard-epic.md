@@ -85,7 +85,7 @@ Series: `CPIAUCSL`, `CPILFESL`, both requested with `units=pc1` so FRED returns 
 
 Hero: 10-year breakeven rate.
 
-*Why:* the market's forecast of average inflation over the next decade, sitting directly beside realized inflation in tile 5. The pairing — what happened versus what is priced — is the most informative adjacency on the page.
+*Why:* the market-implied average inflation rate over roughly the next decade, sitting directly beside realized inflation in tile 6. It is derived from nominal and inflation-protected Treasury yields, not a guaranteed forecast.
 
 Series: `T10YIE`.
 
@@ -99,7 +99,7 @@ Series: `DFF`, `DFEDTARU`.
 
 **9. Yield curve**
 
-Hero: 10y − 2y spread in basis points, with a state word: "Inverted by 42 bps" / "Normal, +58 bps." Secondary: 10y − 3m.
+Hero: 10y − 2y spread in basis points, with a state word: "Inverted" / "Positive slope." Secondary: 10y − 3m. Do not call a positive curve "Normal."
 
 *Why:* the best-known recession signal in markets. 10y−2y is the version people recognize; 10y−3m has the stronger historical record and underpins the NY Fed's recession-probability model, so it earns the secondary slot.
 
@@ -426,10 +426,11 @@ Suggested order for breaking this into stories. Each slice leaves the page in a 
 2. **One tile, end to end — implemented in Story 85.** `/dashboard` now contains the CPI vertical slice with real committed headline/core CPI, the complete tile anatomy, exact thresholds, five-year sparkline, full-history percentile strip and accessible details, both themes, and responsive grid foundation. Review and refine this tile before slice 3.
 3. **The grid — in progress after Story 86A.** `/dashboard` now contains six tiles: GDP growth, unemployment, dedicated payroll growth, initial claims, the Sahm Rule, and CPI. Payroll growth uses a three-month average, retains the latest month as secondary context, and no longer appears under unemployment. The remaining six tiles are not implemented. The established grid responds at four, two, and one columns without placeholders.
 4. **Contextual backs — implemented in Story 86B.** Every implemented metric tile retains its glanceable front and adds a same-size contextual back. Deterministic metric functions turn current values, states, thresholds, and historical positions into concise explanations. The Y-axis flip supports pointer, touch, keyboard, independent card state, and reduced motion without interfering with range-strip details.
-5. **Threshold states** — the config object, state computation, state colors, state words.
-6. **History and range strips** — the second fetch, percentile computation, strip rendering, record markers, the two exclusions.
-7. **Hover** — panels, focus handling, touch behaviour, aria labels.
-8. **Freshness** — as-of dates, next-release dates via `fred/releases/dates`, stale flags.
+5. **Prices and rates — implemented in Story 87.** The wide second row now reads Inflation, Expected inflation, Fed funds, and Yield curve. The three additions use committed local daily histories, one-year sparklines, full-history range strips, and contextual backs. Expected inflation uses banded price-stability language, Fed funds remains valence-free, and only an inverted yield curve receives an adverse color. Nine of the planned 12 tiles are implemented; the markets-and-credit tiles remain future work.
+6. **Threshold states** — the config object, state computation, state colors, state words.
+7. **History and range strips** — the second fetch, percentile computation, strip rendering, record markers, the two exclusions.
+8. **Hover** — panels, focus handling, touch behaviour, aria labels.
+9. **Freshness** — as-of dates, next-release dates via `fred/releases/dates`, stale flags.
 
 Threshold states and history are independently valuable and can swap order. Hover depends on history. Freshness can land any time after the grid.
 

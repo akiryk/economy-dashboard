@@ -38,6 +38,11 @@ function seriesForSlug(slug: string): EconomicSeries {
     'dashboard-sahm-rule-gap': -0.03,
     'dashboard-headline-cpi-inflation': 3.46353,
     'dashboard-core-cpi-inflation': 2.56579,
+    'dashboard-expected-inflation-10-year': 2.7,
+    'dashboard-effective-federal-funds-rate': 4.33,
+    'dashboard-fed-target-upper-bound': 4.5,
+    'dashboard-yield-spread-10y-2y': -0.42,
+    'dashboard-yield-spread-10y-3m': 0.34,
   }
   return slug === 'dashboard-payroll-change'
     ? series(slug, [40, 20, -23])
@@ -72,14 +77,17 @@ describe('StatusDashboardPage', () => {
     expect(tile).toHaveTextContent('As of Jan 2026')
     expect(tile).toHaveTextContent('Elevated')
     expect(tile).toHaveAttribute('data-state', 'normal')
-    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(6))
+    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(9))
     expect(screen.getAllByRole('article').map((article) => article.textContent)).toEqual([
       expect.stringContaining('GDP growth'),
       expect.stringContaining('Unemployment'),
       expect.stringContaining('Payroll growth'),
       expect.stringContaining('Initial claims'),
-      expect.stringContaining('Sahm Rule'),
       expect.stringContaining('Inflation'),
+      expect.stringContaining('Expected inflation'),
+      expect.stringContaining('Fed funds'),
+      expect.stringContaining('Yield curve'),
+      expect.stringContaining('Sahm Rule'),
     ])
     expect(screen.getByRole('article', { name: 'GDP growth' })).toHaveTextContent('GDP $32.5T')
     expect(screen.getByRole('article', { name: 'Unemployment' })).not.toHaveTextContent(/jobs/i)
@@ -93,7 +101,20 @@ describe('StatusDashboardPage', () => {
       .not.toBeInTheDocument()
     expect(within(sahm).getByText(/recession indicator, not a forecast/))
       .toHaveClass('visually-hidden')
-    expect(dashboardEconomicSeriesRepository.getBySlug).toHaveBeenCalledTimes(9)
+    const expected = screen.getByRole('article', { name: 'Expected inflation' })
+    expect(expected).toHaveTextContent('2.7%')
+    expect(expected).toHaveTextContent('Elevated')
+    expect(expected).toHaveAttribute('data-state', 'normal')
+    const fedFunds = screen.getByRole('article', { name: 'Fed funds' })
+    expect(fedFunds).toHaveTextContent('4.33%')
+    expect(fedFunds).toHaveTextContent('Target upper 4.50%')
+    expect(fedFunds).toHaveAttribute('data-state', 'normal')
+    const yieldCurve = screen.getByRole('article', { name: 'Yield curve' })
+    expect(yieldCurve).toHaveTextContent('−42 bps')
+    expect(yieldCurve).toHaveTextContent('10y−3m +34 bps')
+    expect(yieldCurve).toHaveTextContent('Inverted')
+    expect(yieldCurve).toHaveAttribute('data-state', 'notable-bad')
+    expect(dashboardEconomicSeriesRepository.getBySlug).toHaveBeenCalledTimes(14)
   })
 
   it('keeps the headline tile when core CPI fails without inventing a value', async () => {
@@ -148,6 +169,20 @@ describe('StatusDashboardPage', () => {
     expect(screen.getByRole('article', { name: 'Unemployment' }))
       .not.toHaveTextContent(/payroll|jobs/i)
     expect(screen.getByRole('article', { name: 'Inflation' })).toHaveTextContent('3.5%')
+  })
+
+  it('isolates a prices-and-rates tile failure from the completed row', async () => {
+    vi.mocked(dashboardEconomicSeriesRepository.getBySlug)
+      .mockImplementation(async (slug) => {
+        if (slug === 'dashboard-effective-federal-funds-rate') throw new Error('Unavailable')
+        return seriesForSlug(slug)
+      })
+    render(<StatusDashboardPage />)
+    expect(await screen.findByRole('article', { name: 'Fed funds' }))
+      .toHaveTextContent('Data temporarily unavailable.')
+    expect(screen.getByRole('article', { name: 'Inflation' })).toHaveTextContent('3.5%')
+    expect(screen.getByRole('article', { name: 'Expected inflation' })).toHaveTextContent('2.7%')
+    expect(screen.getByRole('article', { name: 'Yield curve' })).toHaveTextContent('−42 bps')
   })
 
   it('flips cards independently by pointer and keyboard without visible controls', async () => {

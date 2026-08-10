@@ -3,7 +3,8 @@ import type { EconomicSeries } from '../features/economic-series/models/economic
 import { dashboardEconomicSeriesRepository } from '../features/economic-series/repositories/dashboardEconomicSeriesRepository'
 import { CpiTile } from '../features/status-dashboard/CpiTile'
 import { createCpiTileModel } from '../features/status-dashboard/cpiTileModel'
-import { GrowthLaborTiles } from '../features/status-dashboard/GrowthLaborTiles'
+import { GrowthLaborTiles, SahmStatusTile } from '../features/status-dashboard/GrowthLaborTiles'
+import { PricesRatesTiles } from '../features/status-dashboard/PricesRatesTiles'
 import { useDashboardTheme } from '../features/status-dashboard/useDashboardTheme'
 import type { DashboardThemePreference } from '../features/status-dashboard/useDashboardTheme'
 import '../styles/statusDashboard.css'
@@ -78,6 +79,8 @@ export function StatusDashboardPage() {
             )
           }
         })()}
+        <PricesRatesTiles theme={resolvedTheme} />
+        <SahmStatusTile theme={resolvedTheme} />
       </section>
     </div>
   )

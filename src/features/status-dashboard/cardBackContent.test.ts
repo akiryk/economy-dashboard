@@ -3,9 +3,12 @@ import {
   getClaimsBackContent,
   getGdpBackContent,
   getInflationBackContent,
+  getExpectedInflationBackContent,
+  getFedFundsBackContent,
   getPayrollBackContent,
   getSahmBackContent,
   getUnemploymentBackContent,
+  getYieldCurveBackContent,
 } from './cardBackContent'
 
 describe('dashboard card back content', () => {
@@ -69,5 +72,29 @@ describe('dashboard card back content', () => {
     const shrinking = getPayrollBackContent(-10, 25, 'Shrinking')
     expect(shrinking.whatItShows).toContain('lost an average of 10,000')
     expect(shrinking.howToReadIt).toContain('is shrinking')
+  })
+
+  it('describes expected inflation as market-implied rather than guaranteed', () => {
+    const content = getExpectedInflationBackContent(2.7, 'Elevated')
+    expect(content.whatItShows).toContain('market-implied')
+    expect(content.howToReadIt).toContain('elevated')
+    expect(content.howToReadIt).toContain('not a guaranteed forecast')
+  })
+
+  it('keeps Fed funds factual and valence-free', () => {
+    const content = getFedFundsBackContent(4.33, 4.5, 'Within target range')
+    expect(content.whatItShows).toContain('4.33%')
+    expect(content.whatItShows).toContain('4.50%')
+    expect(content.howToReadIt).toContain('raise borrowing costs')
+    expect(content.howToReadIt).not.toMatch(/good|bad|favorable|unfavorable/i)
+  })
+
+  it('uses grammatical yield-curve direction without deterministic recession claims', () => {
+    const inverted = getYieldCurveBackContent(-0.42, 0.34)
+    expect(inverted.whatItShows).toContain('2-year Treasury yield is 42 basis points above')
+    expect(inverted.howToReadIt).toContain('do not determine whether or when')
+    const positive = getYieldCurveBackContent(0.58, 0.34)
+    expect(positive.whatItShows).toContain('10-year Treasury yield is 58 basis points above')
+    expect(positive.howToReadIt).toContain('does not rule out recession')
   })
 })

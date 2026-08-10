@@ -226,6 +226,5 @@ export function GrowthLaborTiles({ theme }: GrowthLaborTileProps) {
     <UnemploymentStatusTile theme={theme} />
     <PayrollStatusTile theme={theme} />
     <InitialClaimsStatusTile theme={theme} />
-    <SahmStatusTile theme={theme} />
   </>
 }

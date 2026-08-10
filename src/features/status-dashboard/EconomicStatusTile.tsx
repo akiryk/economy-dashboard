@@ -26,6 +26,7 @@ interface EconomicStatusTileProps {
   reference?: DashboardSparklineReference
   reservedRangeDescription?: string
   backContent: DashboardCardBackContent
+  sparklineWindow?: string
 }
 
 export function EconomicStatusTile({
@@ -45,6 +46,7 @@ export function EconomicStatusTile({
   reference,
   reservedRangeDescription,
   backContent,
+  sparklineWindow,
 }: EconomicStatusTileProps) {
   const [flipped, setFlipped] = useState(false)
   const labelId = useId()
@@ -95,6 +97,7 @@ export function EconomicStatusTile({
                 state={state}
                 valueFormatter={historicalValueFormatter}
                 dateFormatter={dateFormatter}
+                sparklineWindow={sparklineWindow}
               />
             : <div className="historical-range historical-range--reserved">
                 {reservedRangeDescription && (

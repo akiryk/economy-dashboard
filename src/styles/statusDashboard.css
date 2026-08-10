@@ -288,7 +288,7 @@
   position: absolute;
   z-index: 2;
   top: 3rem;
-  left: 0;
+  right: 0;
   display: grid;
   gap: 0.25rem;
   width: min(16rem, calc(100vw - 6rem));
