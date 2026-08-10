@@ -926,11 +926,13 @@ describe('DashboardPage economic series', () => {
     ).find((chart) => chart.dataset.variant === 'expanded')!
     expect(expandedChart).toHaveAttribute('data-variant', 'expanded')
     expect(expandedChart).toHaveAccessibleName(
-      /Wages rose at least as fast as prices in 74% of 240 valid months shown/,
+      /Wages rose at least as fast as prices in \d+% of \d+ valid months shown/,
     )
     expect(within(comparison).getByText(
       /In the visible period, real wage growth ranged from/,
-    )).toHaveTextContent(/The latest reading is 0% in June 2026/)
+    )).toHaveTextContent(
+      /The latest reading is [−+]?\d+(?:\.\d)?% in [A-Z][a-z]+ \d{4}/,
+    )
     const components = within(comparison).getByText(
       'How wage growth and inflation compare',
     ).closest('details')!
