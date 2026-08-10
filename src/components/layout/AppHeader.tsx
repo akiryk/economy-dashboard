@@ -9,7 +9,10 @@ export function AppHeader() {
         </NavLink>
         <nav aria-label="Primary navigation">
           <NavLink className="app-header__nav-link" to="/" end>
-            Dashboard
+            Research dashboard
+          </NavLink>
+          <NavLink className="app-header__nav-link" to="/dashboard">
+            Status dashboard
           </NavLink>
           <NavLink className="app-header__nav-link" to="/secondary">
             Secondary indicators

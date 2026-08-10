@@ -12,6 +12,8 @@ The `/secondary` route retains indicators that are not currently part of the mai
 
 The non-default `/briefing` preview currently adds one compact Labor tile. Its activity bar and momentum arrow show full-history percentile positions of the Kansas City Fed Labor Market Conditions Indicators; raw LMCI readings and the existing unemployment, payroll, prime-age employment, and claims measures appear only under More. The supporting measures cannot override the LMCI headline tiers.
 
+The separate `/dashboard` route is a simplified status board. Story 85 implements only its first production vertical slice: a headline CPI tile with core CPI context, a five-year sparkline, full-history rarity, and accessible details. It does not replace the research-oriented home page, and the remaining dashboard tiles are not yet shipped.
+
 ## What the dashboard shows
 
 ### Growth

@@ -411,8 +411,8 @@ FRED currently retains only about ten years for `SP500`; a future tile cannot ho
 
 Suggested order for breaking this into stories. Each slice leaves the page in a working state.
 
-1. **Data layer** — extend the existing offline FRED configuration for all 18 sources, preserve three compatible existing datasets, validate and atomically commit full useful histories, and expose them through the local asynchronous repository. `FRED_API_KEY` remains refresh-only. No `/dashboard` UI or page-load provider fetch.
-2. **One tile, end to end** — CPI. Full anatomy, both themes, real data. This is where the design tokens get established, so it is worth building carefully and reviewing before slice 3.
+1. **Data layer — implemented in Story 84.** The existing offline FRED configuration covers all 18 sources, preserves three compatible existing datasets, validates and atomically commits full useful histories, and exposes them through the local asynchronous repository. `FRED_API_KEY` remains refresh-only.
+2. **One tile, end to end — implemented in Story 85.** `/dashboard` now contains the CPI vertical slice with real committed headline/core CPI, the complete tile anatomy, exact thresholds, five-year sparkline, full-history percentile strip and accessible details, both themes, and responsive grid foundation. Review and refine this tile before slice 3.
 3. **The grid** — remaining ten tiles using the established component, layout, and responsive breakpoints. Largely mechanical once slice 2 is settled.
 4. **Threshold states** — the config object, state computation, state colors, state words.
 5. **History and range strips** — the second fetch, percentile computation, strip rendering, record markers, the two exclusions.

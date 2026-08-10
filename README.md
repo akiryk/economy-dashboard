@@ -4,7 +4,7 @@ An information-first web application for understanding the U.S. economy through 
 
 Phase 1 is complete. The dashboard currently presents 27 cards in nine categories: growth, prices, employment and income, households, housing, business and manufacturing, financial conditions, government finances, and trade and tariffs. A non-default `/secondary` route retains cards that are not currently part of the main dashboard for possible future review.
 
-A non-default `/briefing` preview now presents a compact, visual Labor Market summary driven by the Kansas City Fed LMCI Activity and Momentum indexes. The full research dashboard remains the default experience.
+A non-default `/briefing` preview presents a compact, visual Labor Market summary driven by the Kansas City Fed LMCI Activity and Momentum indexes. A separate `/dashboard` route begins a simplified status-board presentation with one production CPI tile; the full research dashboard remains the default experience.
 
 See:
 
@@ -89,8 +89,8 @@ The production application is published with GitHub Pages at:
 
 Vite builds production assets with `/economy-dashboard/` as the base path, and
 React Router uses that same basename. The Pages artifact also includes a
-`404.html` SPA fallback so direct visits to routes such as `/secondary` and
-`/briefing` load correctly.
+`404.html` SPA fallback so direct visits to routes such as `/dashboard`,
+`/secondary`, and `/briefing` load correctly.
 
 The coordinated [refresh and deployment workflow](.github/workflows/refresh-and-deploy.yml)
 runs every day at **09:17 UTC** and can be started manually:
