@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, type RouteObject } from 'react-router-dom'
 import { App } from './App'
 import { DashboardPage } from '../pages/DashboardPage'
 import { BriefingPage } from '../pages/BriefingPage'
@@ -7,8 +7,7 @@ import { GdpCompactChartPreviewRoute } from '../pages/GdpCompactChartPreviewRout
 import { SecondaryPage } from '../pages/SecondaryPage'
 import { StatusDashboardPage } from '../pages/StatusDashboardPage'
 
-export const router = createBrowserRouter(
-  [
+export const appRoutes: RouteObject[] = [
     {
       path: '/',
       element: <App />,
@@ -24,6 +23,9 @@ export const router = createBrowserRouter(
         { path: '*', element: <NotFoundPage /> },
       ],
     },
-  ],
+  ]
+
+export const router = createBrowserRouter(
+  appRoutes,
   { basename: import.meta.env.BASE_URL },
 )
