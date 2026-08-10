@@ -39,7 +39,9 @@ function seriesForSlug(slug: string): EconomicSeries {
     'dashboard-headline-cpi-inflation': 3.46353,
     'dashboard-core-cpi-inflation': 2.56579,
   }
-  return series(slug, [values[slug]])
+  return slug === 'dashboard-payroll-change'
+    ? series(slug, [40, 20, -23])
+    : series(slug, [values[slug]])
 }
 
 beforeEach(() => {
@@ -70,16 +72,20 @@ describe('StatusDashboardPage', () => {
     expect(tile).toHaveTextContent('As of Jan 2026')
     expect(tile).toHaveTextContent('Elevated')
     expect(tile).toHaveAttribute('data-state', 'normal')
-    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(5))
+    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(6))
     expect(screen.getAllByRole('article').map((article) => article.textContent)).toEqual([
       expect.stringContaining('GDP growth'),
       expect.stringContaining('Unemployment'),
+      expect.stringContaining('Payroll growth'),
       expect.stringContaining('Initial claims'),
       expect.stringContaining('Sahm Rule'),
       expect.stringContaining('Inflation'),
     ])
     expect(screen.getByRole('article', { name: 'GDP growth' })).toHaveTextContent('GDP $32.5T')
-    expect(screen.getByRole('article', { name: 'Unemployment' })).toHaveTextContent('−23k jobs')
+    expect(screen.getByRole('article', { name: 'Unemployment' })).not.toHaveTextContent(/jobs/i)
+    const payroll = screen.getByRole('article', { name: 'Payroll growth' })
+    expect(payroll).toHaveTextContent('+12k/mo')
+    expect(payroll).toHaveTextContent('Latest −23k')
     expect(screen.getByRole('article', { name: 'Initial claims' })).toHaveTextContent('Latest 228k')
     const sahm = screen.getByRole('article', { name: 'Sahm Rule' })
     expect(sahm).toHaveTextContent('Trigger 0.50')
@@ -116,7 +122,7 @@ describe('StatusDashboardPage', () => {
     expect(screen.getByRole('article', { name: 'GDP growth' })).toHaveTextContent('1.5%')
   })
 
-  it('isolates one growth tile failure from the other four tiles', async () => {
+  it('isolates one growth tile failure from the other five tiles', async () => {
     vi.mocked(dashboardEconomicSeriesRepository.getBySlug)
       .mockImplementation(async (slug) => {
         if (slug === 'dashboard-real-gdp-growth') throw new Error('Unavailable')
@@ -126,6 +132,21 @@ describe('StatusDashboardPage', () => {
     expect(await screen.findByRole('article', { name: 'GDP growth' }))
       .toHaveTextContent('Data temporarily unavailable.')
     expect(screen.getByRole('article', { name: 'Unemployment' })).toHaveTextContent('4.1%')
+    expect(screen.getByRole('article', { name: 'Inflation' })).toHaveTextContent('3.5%')
+  })
+
+  it('isolates a payroll tile failure without restoring payrolls under unemployment', async () => {
+    vi.mocked(dashboardEconomicSeriesRepository.getBySlug)
+      .mockImplementation(async (slug) => {
+        if (slug === 'dashboard-payroll-change') throw new Error('Unavailable')
+        return seriesForSlug(slug)
+      })
+    render(<StatusDashboardPage />)
+    expect(await screen.findByRole('article', { name: 'Payroll growth' }))
+      .toHaveTextContent('Data temporarily unavailable.')
+    expect(screen.getByRole('article', { name: 'Unemployment' })).toHaveTextContent('4.1%')
+    expect(screen.getByRole('article', { name: 'Unemployment' }))
+      .not.toHaveTextContent(/payroll|jobs/i)
     expect(screen.getByRole('article', { name: 'Inflation' })).toHaveTextContent('3.5%')
   })
 

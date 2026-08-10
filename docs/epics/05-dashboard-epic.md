@@ -2,13 +2,13 @@
 
 ## Summary
 
-A single-screen dashboard showing 11 tiles covering the current state of the US economy, rates, and markets. Unlike the existing 20-card page, this is not a question-and-answer format — it is a glanceable status board. No help text on the face of the tile, no per-card narrative. All data sourced from the FRED API.
+A single-screen dashboard showing 12 tiles covering the current state of the US economy, rates, and markets. Unlike the existing research-card page, this is not a question-and-answer format — it is a glanceable status board. No help text on the face of the tile, no per-card narrative. All data sourced from the FRED API.
 
 ## Motivation
 
-The existing dashboard answers 20 discrete questions well, but answering a question is a different job from checking a status. When the goal is "what is the state of things right now," 20 cards is too much surface area to scan and the question-framing adds reading overhead to every tile.
+The existing dashboard answers many discrete questions well, but answering a question is a different job from checking a status. When the goal is "what is the state of things right now," the research-card inventory is too much surface area to scan and the question-framing adds reading overhead to every tile.
 
-This page optimizes for a five-second read: every tile has one hero number, one direction indicator, and one small chart. Interpretation moves to hover/tooltip. The tile set is deliberately capped — if a twelfth tile seems necessary, something should come off first.
+This page optimizes for a five-second read: every tile has one hero number, one direction indicator, and one small chart. Interpretation moves to hover/tooltip. The tile set is deliberately capped — if a thirteenth tile seems necessary, something should come off first.
 
 ## Non-goals
 
@@ -37,13 +37,21 @@ Series: `A191RL1Q225SBEA` (real GDP, % change from preceding period, SAAR). Leve
 
 **2. Unemployment rate**
 
-Hero: `UNRATE`. Secondary: monthly change in nonfarm payrolls.
+Hero: `UNRATE`. No secondary measure.
 
-*Why:* the most recognized labor number, though it lags. Payrolls turn earlier, which is why they ride along.
+*Why:* the most recognized labor number. Keeping it standalone prevents the stock of unemployed workers from being conflated with the separate monthly flow of payroll jobs.
 
-Series: `UNRATE`, `PAYEMS` (request with `units=chg` to get the monthly delta directly rather than differencing the level).
+Series: `UNRATE`.
 
-**3. Initial jobless claims**
+**3. Payroll growth**
+
+Hero: trailing three-month average of monthly payroll changes. Secondary: latest single-month payroll change. Show both as explicit signed thousands of jobs per month.
+
+*Why:* payroll employment answers whether employers are adding or cutting jobs. The three-month average reduces the influence of one noisy report while the latest month preserves the newest signal.
+
+Series: `PAYEMS`, requested with `units=chg`. Derive the trailing average only from three consecutive valid calendar months; do not interpolate gaps or compute partial windows. Compare the latest average with the full available history of the same derived measure: negative is "Shrinking," zero is "Flat," and positive values are "Growing slowly," "Growing," or "Growing strongly" at below the 25th percentile, from the 25th through 75th percentile, or above the 75th percentile, respectively. Negative is notable-bad; only positive growth above the 75th percentile is notable-good.
+
+**4. Initial jobless claims**
 
 Hero: 4-week moving average. Secondary: latest weekly figure.
 
@@ -51,7 +59,7 @@ Hero: 4-week moving average. Secondary: latest weekly figure.
 
 Series: `IC4WSA`, `ICSA`.
 
-**4. Sahm Rule gap**
+**5. Sahm Rule gap**
 
 Hero: current value with a state label — "0.23 — below trigger" / "0.57 — triggered."
 
@@ -63,7 +71,7 @@ Series: `SAHMREALTIME`. Use the real-time variant, not `SAHMCURRENT` — the lat
 
 ### Row 2 — Prices and rates
 
-**5. Inflation (CPI)**
+**6. Inflation (CPI)**
 
 Hero: CPI year-over-year. Secondary: core CPI year-over-year.
 
@@ -71,7 +79,7 @@ Hero: CPI year-over-year. Secondary: core CPI year-over-year.
 
 Series: `CPIAUCSL`, `CPILFESL`, both requested with `units=pc1` so FRED returns the year-over-year percent change directly.
 
-**6. Expected inflation**
+**7. Expected inflation**
 
 Hero: 10-year breakeven rate.
 
@@ -79,7 +87,7 @@ Hero: 10-year breakeven rate.
 
 Series: `T10YIE`.
 
-**7. Fed funds rate**
+**8. Fed funds rate**
 
 Hero: effective rate. Secondary: target range upper bound.
 
@@ -87,7 +95,7 @@ Hero: effective rate. Secondary: target range upper bound.
 
 Series: `DFF`, `DFEDTARU`.
 
-**8. Yield curve**
+**9. Yield curve**
 
 Hero: 10y − 2y spread in basis points, with a state word: "Inverted by 42 bps" / "Normal, +58 bps." Secondary: 10y − 3m.
 
@@ -99,7 +107,7 @@ Series: `T10Y2Y`, `T10Y3M` — both pre-computed by FRED, no subtraction needed.
 
 ### Row 3 — Markets and credit
 
-**9. Long rates and mortgages**
+**10. Long rates and mortgages**
 
 Hero: 10-year Treasury yield. Secondary: 30-year fixed mortgage rate, plus the spread between them.
 
@@ -109,7 +117,7 @@ Series: `DGS10`, `MORTGAGE30US`.
 
 *Note:* mortgage data is weekly (Thursday), Treasury is daily. Timestamp them separately.
 
-**10. S&P 500** *(double-width tile)*
+**11. S&P 500** *(double-width tile)*
 
 Hero: percent drawdown from all-time high. Secondary: index level, year-to-date percent change.
 
@@ -119,7 +127,7 @@ Series: `SP500`.
 
 *Note:* FRED only retains 10 years of this series. Either compute the peak against a longer history from another source, or label the tile "from 10-year high" and be honest about it.
 
-**11. High-yield credit spread**
+**12. High-yield credit spread**
 
 Hero: ICE BofA US High Yield OAS, in basis points.
 
@@ -240,7 +248,7 @@ Every tile is the same height and uses the same six vertical zones in the same o
 └──────────────────────────────┘
 ```
 
-**Zones are reserved even when empty.** A tile with no secondary value still holds that vertical space. This is what makes the tiles feel like one family rather than eleven similar objects: hero numbers sit on a shared baseline across every row, and the eye can scan horizontally without re-finding the number on each tile.
+**Zones are reserved even when empty.** A tile with no secondary value still holds that vertical space. This is what makes the tiles feel like one family rather than twelve similar objects: hero numbers sit on a shared baseline across every row, and the eye can scan horizontally without re-finding the number on each tile.
 
 Other constants, applied identically everywhere:
 
@@ -271,7 +279,7 @@ A consequence worth naming: the middle-50 box always spans exactly the centre ha
 
 This is the choice that guards against reading the recent past as the natural range. A percentile computed over 20 years cannot tell you that current conditions are extraordinary by the standards of the full record; one computed over the full record can.
 
-**Window depth varies, and the strip is not equally trustworthy across tiles.** Nothing on the tile face distinguishes a percentile drawn from 75 years from one drawn from 10 — the strips look identical. This is accepted rather than solved: for a single daily user the denominator is learned once, and eleven captions would pay a permanent cost to fix a temporary problem. Hover discloses it.
+**Window depth varies, and the strip is not equally trustworthy across tiles.** Nothing on the tile face distinguishes a percentile drawn from 75 years from one drawn from 10 — the strips look identical. This is accepted rather than solved: for a single daily user the denominator is learned once, and twelve captions would pay a permanent cost to fix a temporary problem. Hover discloses it.
 
 But the difference is real, and three tiles warrant less confidence:
 
@@ -336,6 +344,7 @@ The values that drive tile state. These are opinions, not standards — only the
 |---|---|---|
 | Real GDP growth | > 2.5% | < 0% |
 | Unemployment rate | ≤ 4.0% | ≥ 5.0% |
+| Payroll growth (3mo avg) | > 75th historical percentile | < 0 |
 | Initial claims (4wk MA) | < 220k | > 300k |
 | Sahm gap | — | ≥ 0.50 |
 | CPI YoY | 1.5–2.5% | > 3.5% or < 0.5% |
@@ -356,7 +365,7 @@ Thresholds live in one config object, not scattered through tile components. The
 
 ### Layout
 
-Four columns. Rows of 4 / 4 / 3, with the S&P tile spanning two columns in the last row so the grid resolves cleanly rather than leaving a ragged gap. The extra width also suits a drawdown chart, which reads better wide.
+Four columns. Tiles use natural grid flow; the S&P tile may span two columns because a drawdown chart reads better wide. The final row composition should be reviewed when all 12 tiles are implemented rather than forcing the partial dashboard into a premature layout.
 
 Responsive: 4 columns → 2 → 1. Tile internals do not change across breakpoints; only the grid does.
 
@@ -413,7 +422,7 @@ Suggested order for breaking this into stories. Each slice leaves the page in a 
 
 1. **Data layer — implemented in Story 84.** The existing offline FRED configuration covers all 18 sources, preserves three compatible existing datasets, validates and atomically commits full useful histories, and exposes them through the local asynchronous repository. `FRED_API_KEY` remains refresh-only.
 2. **One tile, end to end — implemented in Story 85.** `/dashboard` now contains the CPI vertical slice with real committed headline/core CPI, the complete tile anatomy, exact thresholds, five-year sparkline, full-history percentile strip and accessible details, both themes, and responsive grid foundation. Review and refine this tile before slice 3.
-3. **The grid — in progress after Story 86.** `/dashboard` now adds the complete four-tile Growth and labor row—GDP growth, unemployment, initial claims, and the Sahm Rule—before CPI. The remaining six tiles are not implemented. The established grid responds at four, two, and one columns without placeholders.
+3. **The grid — in progress after Story 86A.** `/dashboard` now contains six tiles: GDP growth, unemployment, dedicated payroll growth, initial claims, the Sahm Rule, and CPI. Payroll growth uses a three-month average, retains the latest month as secondary context, and no longer appears under unemployment. The remaining six tiles are not implemented. The established grid responds at four, two, and one columns without placeholders.
 4. **Threshold states** — the config object, state computation, state colors, state words.
 5. **History and range strips** — the second fetch, percentile computation, strip rendering, record markers, the two exclusions.
 6. **Hover** — panels, focus handling, touch behaviour, aria labels.
@@ -428,5 +437,5 @@ Slices 4 and 5 are independently valuable and can swap order. Slice 6 depends on
 - **CFNAI** (`CFNAIMA3`, recession threshold at −0.70) — a reasonable forward-looking activity tile if one is wanted later. Noting here that ISM PMI is *not* available: ISM pulled its series from FRED over licensing. Worth re-verifying before building on either.
 - **Core PCE** (`PCEPILFE`) — arguably the better companion to the Fed funds tile, since it is what the Fed actually targets. Deferred because it releases about two weeks after CPI, and freshness wins on a status board.
 - **Dollar index** (`DTWEXBGS`) — only earns a slot if foreign-asset exposure becomes relevant.
-- **Real wage growth** (average hourly earnings YoY minus CPI YoY) — legible and useful, but requires computing a derived series across two sources. Best candidate for a twelfth tile if one comes off.
+- **Real wage growth** (average hourly earnings YoY minus CPI YoY) — legible and useful, but requires computing a derived series across two sources. Best candidate for a future replacement if one of the 12 tiles comes off.
 - VIX, gold, oil — considered and rejected. VIX is dominated by tile 11, gold carries no macro signal, oil is partly embedded in breakevens already.

@@ -15,9 +15,11 @@ import {
   formatNominalGdp,
 } from './statusFormatters'
 import { useDashboardSeries } from './useDashboardSeries'
+import { createPayrollTileModel } from './payrollTileModel'
 
 const gdpSlugs = ['dashboard-real-gdp-growth', 'dashboard-nominal-gdp'] as const
-const unemploymentSlugs = ['unemployment-rate', 'dashboard-payroll-change'] as const
+const unemploymentSlugs = ['unemployment-rate'] as const
+const payrollSlugs = ['dashboard-payroll-change'] as const
 const claimsSlugs = [
   'initial-unemployment-claims-four-week-average',
   'initial-unemployment-claims',
@@ -74,7 +76,7 @@ export function UnemploymentStatusTile({ theme }: GrowthLaborTileProps) {
   if (!unemployment) return <TileMessage label="Unemployment" />
   let model
   try {
-    model = createUnemploymentTileModel(unemployment, data.series.get(unemploymentSlugs[1]) ?? null)
+    model = createUnemploymentTileModel(unemployment, null)
   } catch {
     return <TileMessage label="Unemployment" />
   }
@@ -84,7 +86,7 @@ export function UnemploymentStatusTile({ theme }: GrowthLaborTileProps) {
       hero={formatDashboardPercent(model.headline.value)}
       state={model.state}
       stateLabel={model.stateLabel}
-      secondary={model.secondary ? `${formatCompactThousands(model.secondary.value)} jobs` : 'Payroll change unavailable'}
+      secondary=""
       observations={model.sparkline}
       sparklineSummary={`Unemployment rate over five years, ending at ${formatDashboardPercent(model.headline.value)} in ${formatDashboardPeriod(model.headline.date, 'monthly')}. Missing months remain gaps.`}
       theme={theme}
@@ -92,6 +94,43 @@ export function UnemploymentStatusTile({ theme }: GrowthLaborTileProps) {
       historical={model.historical}
       historicalValueFormatter={formatDashboardPercent}
       dateFormatter={formatHistoryYear}
+  />
+}
+
+export function PayrollStatusTile({ theme }: GrowthLaborTileProps) {
+  const data = useDashboardSeries(payrollSlugs)
+  if (data.status === 'loading') return <TileMessage label="Payroll growth" loading />
+  const payroll = data.series.get(payrollSlugs[0])
+  if (!payroll) return <TileMessage label="Payroll growth" />
+  let model
+  try {
+    model = createPayrollTileModel(payroll)
+  } catch {
+    return <TileMessage label="Payroll growth" />
+  }
+  const hero = `${formatCompactThousands(model.headline.value)}/mo`
+  const latest = formatCompactThousands(model.latestMonth.value)
+  const direction = model.headline.value < 0 ? 'shrunk' : model.headline.value === 0 ? 'was flat' : 'grew'
+  const latestDirection = model.latestMonth.value < 0 ? 'lost' : 'added'
+  const averageJobs = Math.round(Math.abs(model.headline.value) * 1_000)
+    .toLocaleString('en-US')
+  const latestJobs = Math.round(Math.abs(model.latestMonth.value) * 1_000)
+    .toLocaleString('en-US')
+  return <EconomicStatusTile
+    label="Payroll growth"
+    seriesLabel="three-month payroll-growth pace"
+    hero={hero}
+    state={model.state}
+    stateLabel={model.stateLabel}
+    secondary={`Latest ${latest}`}
+    observations={model.sparkline}
+    sparklineSummary={`Payroll employment ${direction} by an average of ${averageJobs} jobs per month over the latest three consecutive months, ending ${formatDashboardPeriod(model.headline.date, 'monthly')}. The latest single month ${latestDirection} ${latestJobs} jobs. The chart shows the derived three-month average over five years, preserves gaps, and includes a zero reference line.`}
+    theme={theme}
+    asOf={formatDashboardPeriod(model.headline.date, 'monthly')}
+    historical={model.historical}
+    historicalValueFormatter={(value) => `${formatCompactThousands(value)}/mo`}
+    dateFormatter={formatHistoryYear}
+    reference={{ value: 0, label: 'No payroll change' }}
   />
 }
 
@@ -155,6 +194,7 @@ export function GrowthLaborTiles({ theme }: GrowthLaborTileProps) {
   return <>
     <GdpStatusTile theme={theme} />
     <UnemploymentStatusTile theme={theme} />
+    <PayrollStatusTile theme={theme} />
     <InitialClaimsStatusTile theme={theme} />
     <SahmStatusTile theme={theme} />
   </>
