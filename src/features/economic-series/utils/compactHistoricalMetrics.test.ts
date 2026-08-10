@@ -110,8 +110,8 @@ describe('compact historical metric definitions', () => {
     expect(model.status).toBe('ready')
     if (model.status !== 'ready') return
     expect(model.recentObservations).toHaveLength(61)
-    expect(model.comparisonStart).toBe('2001-06-01')
-    expect(model.comparisonEnd).toBe('2026-06-01')
+    expect(model.comparisonStart).toBe('2001-07-01')
+    expect(model.comparisonEnd).toBe('2026-07-01')
     expect(unemploymentCompactDefinition.showZeroLine).toBe(false)
     expect(unemploymentCompactDefinition.showLatestMarker).toBe(true)
     expect(unemploymentCompactDefinition.helpText.description).toContain(

@@ -14,9 +14,9 @@ type FetchImplementation = typeof fetch
 
 export interface FredRequestConfig {
   providerSeriesId: string
-  fredFrequency: 'w' | 'm' | 'q' | 'a'
+  fredFrequency: 'd' | 'w' | 'm' | 'q' | 'a'
   historyPolicy: { type: 'full' } | { type: 'from'; date: string }
-  fredUnits?: 'pc1'
+  fredUnits?: 'chg' | 'pc1'
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

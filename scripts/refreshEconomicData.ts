@@ -413,7 +413,7 @@ export async function refreshAllEconomicData(
       : options.cpiConfiguration
 
   for (const config of configurations) {
-    if (cpiConfig && config.providerSeriesId === 'CPIAUCSL') continue
+    if (cpiConfig && config.slug === cpiConfig.headlineSource.slug) continue
     if (
       options.configurations === undefined &&
       config.providerSeriesId === 'OPHNFB'

@@ -1093,10 +1093,10 @@ describe('DashboardPage economic series', () => {
     })
 
     const unemploymentCallout = within(unemployment).getByLabelText(
-      /The unemployment rate was 4.2% in June 2026/,
+      /The unemployment rate was 4.1% in July 2026/,
     )
     expect(unemploymentCallout)
-      .toHaveTextContent('4.2%')
+      .toHaveTextContent('4.1%')
     expect(unemploymentCallout).toHaveTextContent(
       'Share of the labor force without a job and actively looking for work',
     )
@@ -1132,7 +1132,7 @@ describe('DashboardPage economic series', () => {
       .toHaveAttribute('data-show-zero', 'false')
     expect(within(primeAge).getByTestId('production-compact-chart'))
       .toHaveAttribute('data-interactive', 'true')
-    expect(within(unemployment).getByText(/June 2026/)).toBeVisible()
+    expect(within(unemployment).getByText(/July 2026/)).toBeVisible()
     expect(within(primeAge).getByText(/June 2026/)).toBeVisible()
     expect(within(primeAge).queryByRole('button', { name: '5 years' }))
       .not.toBeInTheDocument()

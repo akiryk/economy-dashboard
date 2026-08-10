@@ -12,6 +12,8 @@ FRED, BEA, Federal Reserve Board, BLS, or Atlanta Fed source -> Node refresh com
 
 The generated JSON is committed with the application, so the dashboard remains usable if FRED is unavailable. The browser never receives the API key and never contacts FRED.
 
+The existing scheduled `.github/workflows/refresh-and-deploy.yml` workflow runs `npm run data:refresh` daily. The future streamlined `/dashboard` uses this same path; it does not introduce a second workflow, backend, runtime secret, page-load FRED request, or intraday polling.
+
 ## Supported-series configuration
 
 `scripts/fred/seriesConfigurations.ts` contains an explicit list of supported series. Each entry defines its slug, output file, provider identifier, FRED and domain frequencies, observation start, transformation, minimum history, and domain metadata. The list currently contains:
@@ -46,6 +48,35 @@ The generated JSON is committed with the application, so the dashboard remains u
 - Trade balance as a share of GDP (`A019RE1Q156NBEA`, quarterly), written as the provider-published signed ratio.
 - Effective tariff burden, derived from quarterly customs-duty receipts (`B235RC1Q027SBEA`) divided by goods imports (`A255RC1Q027SBEA`) and written to `effective-tariff-burden.json`.
 - Core-goods PCE inflation, parsed from the Federal Reserve Board's published Figure 5 data in its April 8, 2026 FEDS Note and written to `core-goods-pce-inflation.json`. Run `npm run data:refresh-core-goods-pce` to refresh this source independently. The series is the published 12-month percent change; February 2026 is a Federal Reserve staff estimate.
+
+### Streamlined `/dashboard` source foundation
+
+Story 84 adds or explicitly reuses the following 18 full-history FRED inputs. Coverage reflects the successful August 10, 2026 refresh. All generated files are validated `EconomicSeries` data and are resolved by stable slug through the narrow asynchronous `dashboardEconomicSeriesRepository`; its three reused slugs delegate to `localEconomicSeriesRepository`.
+
+| FRED ID | Frequency; units; adjustment | FRED transformation | Repository slug / generated data | Coverage |
+|---|---|---|---|---|
+| `A191RL1Q225SBEA` | Quarterly; percent change from preceding period at annual rate; SAAR | Provider-published | `dashboard-real-gdp-growth` | 1947 Q2–2026 Q2 |
+| `GDP` | Quarterly; billions of dollars; SAAR | Provider-published level | `dashboard-nominal-gdp` | 1947 Q1–2026 Q2 |
+| `UNRATE` | Monthly; percent; seasonally adjusted | Provider-published level | Reuses `unemployment-rate` | Jan 1948–Jul 2026 |
+| `PAYEMS` | Monthly; thousands of persons; seasonally adjusted | `units=chg` | `dashboard-payroll-change` | Feb 1939–Jul 2026 |
+| `IC4WSA` | Weekly; claims; seasonally adjusted | Provider-published four-week average | Reuses `initial-unemployment-claims-four-week-average` | Jan 28, 1967–Aug 1, 2026 |
+| `ICSA` | Weekly; claims; seasonally adjusted | Provider-published level | Reuses `initial-unemployment-claims` | Jan 7, 1967–Aug 1, 2026 |
+| `SAHMREALTIME` | Monthly; percentage points; derived from seasonally adjusted unemployment | Provider-published real-time indicator | `dashboard-sahm-rule-gap` | Dec 1959–Jul 2026 |
+| `CPIAUCSL` | Monthly; percent change from year ago; seasonally adjusted underlying index | `units=pc1` | `dashboard-headline-cpi-inflation` | Jan 1948–Jun 2026 |
+| `CPILFESL` | Monthly; percent change from year ago; seasonally adjusted underlying index | `units=pc1` | `dashboard-core-cpi-inflation` | Jan 1958–Jun 2026 |
+| `T10YIE` | Daily; percent; not seasonally adjusted | Provider-published | `dashboard-expected-inflation-10-year` | Jan 2, 2003–Aug 7, 2026 |
+| `DFF` | Daily; percent; not seasonally adjusted | Provider-published | `dashboard-effective-federal-funds-rate` | Jul 1, 1954–Aug 6, 2026 |
+| `DFEDTARU` | Daily; percent; not seasonally adjusted | Provider-published | `dashboard-fed-target-upper-bound` | Dec 16, 2008–Aug 10, 2026 |
+| `T10Y2Y` | Daily; percentage-point spread; not seasonally adjusted | Provider-published precomputed spread | `dashboard-yield-spread-10y-2y` | Jun 1, 1976–Aug 7, 2026 |
+| `T10Y3M` | Daily; percentage-point spread; not seasonally adjusted | Provider-published precomputed spread | `dashboard-yield-spread-10y-3m` | Jan 4, 1982–Aug 7, 2026 |
+| `DGS10` | Daily; percent; not seasonally adjusted | Provider-published | `dashboard-ten-year-treasury-yield` | Jan 2, 1962–Aug 6, 2026 |
+| `MORTGAGE30US` | Weekly; percent; not seasonally adjusted | Provider-published | `dashboard-mortgage-rate-30-year` | Apr 2, 1971–Aug 6, 2026 |
+| `SP500` | Daily; index level; not seasonally adjusted | Provider-published | `dashboard-sp500` | Aug 8, 2016–Aug 7, 2026 |
+| `BAMLH0A0HYM2` | Daily; percentage-point option-adjusted spread; not seasonally adjusted | Provider-published | `dashboard-high-yield-credit-spread` | Aug 8, 2023–Aug 6, 2026 |
+
+FRED's retained `SP500` history is approximately ten years, so it cannot support a true all-time-high drawdown. The future presentation must describe a high or drawdown relative to available FRED history unless another provider is separately approved. The currently returned `BAMLH0A0HYM2` history is also shorter than the source's longer historical existence; Story 84 preserves all 795 observations FRED returned rather than inventing or splicing older data.
+
+Each configuration uses `historyPolicy: { type: "full" }`, retains observations chronologically, preserves internal `"."` values as `null`, and records the FRED transformation in generated metadata. The refresh writes only after response validation, minimum-history checks, domain validation, and serialization; a failed request or invalid response leaves the prior committed file intact. Future sparkline windows and historical-position calculations will select from these full committed histories rather than triggering new provider calls.
 
 The realized tariff burden uses BEA quarterly seasonally adjusted annual-rate customs-duty receipts (`B235RC1Q027SBEA`) as the numerator and goods-only imports (`A255RC1Q027SBEA`) as the denominator. The application aligns observations by quarter and calculates duties divided by goods imports times 100. Because collections and recorded imports can occur on different schedules, the ratio may contain a timing mismatch and should be read as an average realized burden rather than a product-level statutory rate.
 
@@ -157,10 +188,11 @@ The series-specific requests are:
 - Trade balance: `series_id=A019RE1Q156NBEA` and `frequency=q`, with no `units` parameter.
 - Customs duties: `series_id=B235RC1Q027SBEA` and `frequency=q`, with no `units` parameter.
 - Imports of goods: `series_id=A255RC1Q027SBEA` and `frequency=q`, with no `units` parameter.
+- Streamlined-dashboard sources: `A191RL1Q225SBEA` and `GDP` use `frequency=q`; `PAYEMS` uses `frequency=m&units=chg`; `SAHMREALTIME` uses `frequency=m`; `CPIAUCSL` and `CPILFESL` use `frequency=m&units=pc1`; `T10YIE`, `DFF`, `DFEDTARU`, `T10Y2Y`, `T10Y3M`, `DGS10`, `SP500`, and `BAMLH0A0HYM2` use `frequency=d`; and `MORTGAGE30US` uses `frequency=w`. `UNRATE`, `IC4WSA`, and `ICSA` reuse the compatible requests listed above.
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
-The optional `fredUnits` configuration field emits `units=pc1` only for GDP. Omitting it preserves provider-published levels for CPI, PCE, unemployment, prime-age employment, LMCI, real GDP per capita, labor productivity, payroll, wages, real disposable income per capita, real consumer spending, personal saving, household debt service, housing starts, population, manufacturing output, manufacturing employment, real business investment, and industrial capacity utilization. Domain transformation metadata separately records provider values and local calculations.
+The optional `fredUnits` configuration field is deliberately limited to the transformations the repository uses: `pc1` for the existing GDP growth series and the streamlined dashboard's headline/core CPI representations, and `chg` for the streamlined dashboard's PAYEMS monthly-change representation. Omitting it preserves provider-published values for every other configuration. Domain transformation metadata records whether a dataset is a provider value, FRED API transformation, or local calculation.
 
 The main manufacturing card derives growth locally from IPMAN, the Federal
 Reserve index of inflation-adjusted manufacturing production volume. For every

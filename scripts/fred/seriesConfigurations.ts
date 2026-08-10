@@ -6,10 +6,10 @@ export interface FredSeriesConfig {
   slug: string
   outputFile: string
   providerSeriesId: string
-  frequency: Extract<EconomicFrequency, 'weekly' | 'monthly' | 'quarterly' | 'annual'>
-  fredFrequency: 'w' | 'm' | 'q' | 'a'
+  frequency: Extract<EconomicFrequency, 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'annual'>
+  fredFrequency: 'd' | 'w' | 'm' | 'q' | 'a'
   historyPolicy: HistoryPolicy
-  fredUnits?: 'pc1'
+  fredUnits?: 'chg' | 'pc1'
   localDerivation?: LocalDerivation
   minimumUsableObservations: number
   title: string
@@ -30,6 +30,96 @@ export type LocalDerivation =
 export type HistoryPolicy =
   | { type: 'full' }
   | { type: 'from'; date: string }
+
+export const dashboardFredSeriesConfigurations: readonly FredSeriesConfig[] = [
+  {
+    dataHandling: 'provider-level', id: 'dashboard-real-gdp-growth', slug: 'dashboard-real-gdp-growth',
+    outputFile: 'src/features/economic-series/data/dashboard-real-gdp-growth.json',
+    providerSeriesId: 'A191RL1Q225SBEA', frequency: 'quarterly', fredFrequency: 'q', historyPolicy: { type: 'full' }, minimumUsableObservations: 250,
+    title: 'Real Gross Domestic Product: Percent Change from Preceding Period', shortTitle: 'Real GDP growth',
+    description: 'Quarterly annualized growth in inflation-adjusted U.S. gross domestic product.', question: 'How quickly is the economy growing?',
+    units: 'Percent change from preceding period at annual rate', seasonalAdjustment: 'Seasonally adjusted annual rate',
+    transformation: 'Provider-published quarterly percent change at a seasonally adjusted annual rate',
+    sourceName: 'U.S. Bureau of Economic Analysis via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/A191RL1Q225SBEA',
+  },
+  {
+    dataHandling: 'provider-level', id: 'dashboard-nominal-gdp', slug: 'dashboard-nominal-gdp',
+    outputFile: 'src/features/economic-series/data/dashboard-nominal-gdp.json',
+    providerSeriesId: 'GDP', frequency: 'quarterly', fredFrequency: 'q', historyPolicy: { type: 'full' }, minimumUsableObservations: 250,
+    title: 'Gross Domestic Product', shortTitle: 'Nominal GDP', description: 'Current-dollar U.S. gross domestic product.', question: 'What is the current-dollar size of the economy?',
+    units: 'Billions of dollars', seasonalAdjustment: 'Seasonally adjusted annual rate', transformation: 'Provider-published quarterly level',
+    sourceName: 'U.S. Bureau of Economic Analysis via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/GDP',
+  },
+  {
+    dataHandling: 'provider-transformed', id: 'dashboard-payroll-change', slug: 'dashboard-payroll-change',
+    outputFile: 'src/features/economic-series/data/dashboard-payroll-change.json',
+    providerSeriesId: 'PAYEMS', frequency: 'monthly', fredFrequency: 'm', fredUnits: 'chg', historyPolicy: { type: 'full' }, minimumUsableObservations: 1000,
+    title: 'All Employees, Total Nonfarm: Change from Previous Period', shortTitle: 'Monthly payroll change',
+    description: 'The monthly change in total nonfarm payroll employment, transformed by FRED from the published level.', question: 'How many jobs did employers add or remove?',
+    units: 'Thousands of persons, change from previous period', seasonalAdjustment: 'Seasonally adjusted', transformation: 'FRED units=chg transformation of PAYEMS',
+    sourceName: 'U.S. Bureau of Labor Statistics via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/PAYEMS',
+  },
+  {
+    dataHandling: 'provider-level', id: 'dashboard-sahm-rule-gap', slug: 'dashboard-sahm-rule-gap',
+    outputFile: 'src/features/economic-series/data/dashboard-sahm-rule-gap.json',
+    providerSeriesId: 'SAHMREALTIME', frequency: 'monthly', fredFrequency: 'm', historyPolicy: { type: 'full' }, minimumUsableObservations: 750,
+    title: 'Real-Time Sahm Rule Recession Indicator', shortTitle: 'Sahm Rule gap', description: 'The real-time Sahm Rule indicator based on unemployment data available for each release.', question: 'Has labor-market deterioration crossed the Sahm Rule threshold?',
+    units: 'Percentage points', seasonalAdjustment: 'Derived from seasonally adjusted unemployment rates', transformation: 'Provider-published real-time indicator',
+    sourceName: 'Sahm Consulting via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/SAHMREALTIME',
+  },
+  {
+    dataHandling: 'provider-transformed', id: 'dashboard-headline-cpi-inflation', slug: 'dashboard-headline-cpi-inflation',
+    outputFile: 'src/features/economic-series/data/dashboard-headline-cpi-inflation.json',
+    providerSeriesId: 'CPIAUCSL', frequency: 'monthly', fredFrequency: 'm', fredUnits: 'pc1', historyPolicy: { type: 'full' }, minimumUsableObservations: 900,
+    title: 'Consumer Price Index for All Urban Consumers: Percent Change from Year Ago', shortTitle: 'Headline CPI inflation', description: 'Year-over-year change in the all-items CPI using FRED\'s pc1 transformation.', question: 'How quickly are consumer prices rising?',
+    units: 'Percent change from year ago', seasonalAdjustment: 'Seasonally adjusted underlying index', transformation: 'FRED units=pc1 transformation of CPIAUCSL',
+    sourceName: 'U.S. Bureau of Labor Statistics via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCSL',
+  },
+  {
+    dataHandling: 'provider-transformed', id: 'dashboard-core-cpi-inflation', slug: 'dashboard-core-cpi-inflation',
+    outputFile: 'src/features/economic-series/data/dashboard-core-cpi-inflation.json',
+    providerSeriesId: 'CPILFESL', frequency: 'monthly', fredFrequency: 'm', fredUnits: 'pc1', historyPolicy: { type: 'full' }, minimumUsableObservations: 750,
+    title: 'Consumer Price Index Less Food and Energy: Percent Change from Year Ago', shortTitle: 'Core CPI inflation', description: 'Year-over-year change in CPI excluding food and energy using FRED\'s pc1 transformation.', question: 'How quickly are core consumer prices rising?',
+    units: 'Percent change from year ago', seasonalAdjustment: 'Seasonally adjusted underlying index', transformation: 'FRED units=pc1 transformation of CPILFESL',
+    sourceName: 'U.S. Bureau of Labor Statistics via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/CPILFESL',
+  },
+  ...([
+    ['dashboard-expected-inflation-10-year', 'T10YIE', '10-Year Breakeven Inflation Rate', '10-year expected inflation', 'Percent', 'Market-based expected average inflation over ten years.', 'Federal Reserve Bank of St. Louis via FRED'],
+    ['dashboard-effective-federal-funds-rate', 'DFF', 'Federal Funds Effective Rate', 'Effective federal funds rate', 'Percent', 'Daily effective federal funds rate.', 'Board of Governors of the Federal Reserve System via FRED'],
+    ['dashboard-fed-target-upper-bound', 'DFEDTARU', 'Federal Funds Target Range - Upper Limit', 'Fed target upper bound', 'Percent', 'Upper bound of the Federal Reserve target range.', 'Board of Governors of the Federal Reserve System via FRED'],
+    ['dashboard-yield-spread-10y-2y', 'T10Y2Y', '10-Year Treasury Constant Maturity Minus 2-Year Treasury Constant Maturity', '10-year minus 2-year spread', 'Percentage points', 'Provider-published 10-year minus 2-year Treasury spread.', 'Federal Reserve Bank of St. Louis via FRED'],
+    ['dashboard-yield-spread-10y-3m', 'T10Y3M', '10-Year Treasury Constant Maturity Minus 3-Month Treasury Constant Maturity', '10-year minus 3-month spread', 'Percentage points', 'Provider-published 10-year minus 3-month Treasury spread.', 'Federal Reserve Bank of St. Louis via FRED'],
+    ['dashboard-ten-year-treasury-yield', 'DGS10', 'Market Yield on U.S. Treasury Securities at 10-Year Constant Maturity', '10-year Treasury yield', 'Percent', 'Daily 10-year constant-maturity Treasury yield.', 'Board of Governors of the Federal Reserve System via FRED'],
+    ['dashboard-sp500', 'SP500', 'S&P 500', 'S&P 500', 'Index', 'Daily closing level of the S&P 500 index retained by FRED.', 'S&P Dow Jones Indices via FRED'],
+    ['dashboard-high-yield-credit-spread', 'BAMLH0A0HYM2', 'ICE BofA US High Yield Index Option-Adjusted Spread', 'High-yield credit spread', 'Percentage points', 'Daily option-adjusted spread for the ICE BofA U.S. high-yield index.', 'ICE Data Indices, LLC via FRED'],
+  ] as const).map(([slug, providerSeriesId, title, shortTitle, units, description, sourceName]) => ({
+    dataHandling: 'provider-level' as const, id: slug, slug,
+    outputFile: `src/features/economic-series/data/${slug}.json`, providerSeriesId,
+    frequency: 'daily' as const, fredFrequency: 'd' as const, historyPolicy: { type: 'full' as const },
+    minimumUsableObservations: providerSeriesId === 'SP500'
+      ? 2500
+      : providerSeriesId === 'BAMLH0A0HYM2'
+        ? 500
+        : 3000,
+    title, shortTitle, description, question: `What is the latest ${shortTitle.toLowerCase()}?`, units,
+    seasonalAdjustment: null, transformation: 'Provider-published daily value',
+    sourceName, sourceUrl: `https://fred.stlouisfed.org/series/${providerSeriesId}`,
+  })),
+  {
+    dataHandling: 'provider-level', id: 'dashboard-mortgage-rate-30-year', slug: 'dashboard-mortgage-rate-30-year',
+    outputFile: 'src/features/economic-series/data/dashboard-mortgage-rate-30-year.json',
+    providerSeriesId: 'MORTGAGE30US', frequency: 'weekly', fredFrequency: 'w', historyPolicy: { type: 'full' }, minimumUsableObservations: 2500,
+    title: '30-Year Fixed Rate Mortgage Average in the United States', shortTitle: '30-year mortgage rate', description: 'Weekly national average contract rate for a 30-year fixed mortgage.', question: 'What is the latest 30-year mortgage rate?',
+    units: 'Percent', seasonalAdjustment: null, transformation: 'Provider-published weekly value', sourceName: 'Freddie Mac via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/MORTGAGE30US',
+  },
+]
+
+export const dashboardSeriesSources = [
+  ...dashboardFredSeriesConfigurations.map(({ providerSeriesId, slug }) => ({ providerSeriesId, slug, reused: false as const })),
+  { providerSeriesId: 'UNRATE', slug: 'unemployment-rate', reused: true as const },
+  { providerSeriesId: 'IC4WSA', slug: 'initial-unemployment-claims-four-week-average', reused: true as const },
+  { providerSeriesId: 'ICSA', slug: 'initial-unemployment-claims', reused: true as const },
+] as const
 
 export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
   {
@@ -647,6 +737,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     sourceName: 'Federal Reserve Bank of Kansas City via FRED',
     sourceUrl: 'https://fred.stlouisfed.org/series/FRBKCLMCIM',
   },
+  ...dashboardFredSeriesConfigurations,
 ]
 
 export interface TariffBurdenConfig {

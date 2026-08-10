@@ -171,13 +171,11 @@ describe('refreshEconomicData', () => {
   })
 
   it('distinguishes provider-transformed, provider-level, and local data handling', () => {
-    expect(fredSeriesConfigurations.slice(0, 2).map((config) => config.dataHandling))
-      .toEqual(['provider-transformed', 'locally-derived'])
-    expect(fredSeriesConfigurations.slice(2).every((config) =>
-      config.dataHandling === 'provider-level' || config.dataHandling === 'locally-derived',
-    )).toBe(true)
+    expect(fredSeriesConfigurations[0]?.dataHandling).toBe('provider-transformed')
+    expect(fredSeriesConfigurations[1]?.dataHandling).toBe('locally-derived')
     expect(fredSeriesConfigurations.filter(({ dataHandling }) => dataHandling === 'locally-derived')).toHaveLength(5)
-    expect(fredSeriesConfigurations.filter(({ dataHandling }) => dataHandling === 'provider-level')).toHaveLength(26)
+    expect(fredSeriesConfigurations.filter(({ dataHandling }) => dataHandling === 'provider-transformed')).toHaveLength(4)
+    expect(fredSeriesConfigurations.filter(({ dataHandling }) => dataHandling === 'provider-level')).toHaveLength(38)
     expect(payrollSeriesConfiguration).toMatchObject({
       dataHandling: 'locally-derived',
       providerSeriesId: 'PAYEMS',
@@ -709,7 +707,7 @@ describe('refreshEconomicData', () => {
       requestedUrls.push(url)
       const seriesId = url.searchParams.get('series_id')
       const locallyDerived = ['A939RX0Q048SBEA', 'OPHNFB', 'PNFIC1'].includes(seriesId ?? '')
-      const monthlyPriceLevels = ['CPIAUCSL', 'PCEPI'].includes(seriesId ?? '')
+      const monthlyPriceLevels = ['CPIAUCSL', 'CPILFESL', 'PCEPI'].includes(seriesId ?? '')
         ? [
             ...Array.from({ length: 14 }, (_, index) => ({
               date: new Date(Date.UTC(2024, index, 1)).toISOString().slice(0, 10),
@@ -746,51 +744,19 @@ describe('refreshEconomicData', () => {
       fetchImplementation,
     })
 
-    expect(outcomes).toHaveLength(32)
+    expect(outcomes).toHaveLength(configurations.length)
     expect(outcomes.every((outcome) => outcome.status === 'updated')).toBe(true)
-    expect(
-      outcomes.map((outcome) =>
-        outcome.status === 'updated' ? outcome.sourceObservationCount : null,
-      ),
-    ).toEqual([3, 15, 15, 3, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 3, 6, 6, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
-    expect(requestedUrls.map((url) => url.searchParams.get('series_id'))).toEqual([
-      'GDPC1',
-      'CPIAUCSL',
-      'PCEPI',
-      'UNRATE',
-      'LNS12300060',
-      'JTSLDR',
-      'ICSA',
-      'IC4WSA',
-      'A939RX0Q048SBEA',
-      'OPHNFB',
-      'TDSP',
-      'HOUST',
-      'POPTHM',
-      'IPMAN',
-      'MANEMP',
-      'PNFIC1',
-      'PNFIC1',
-      'TCU',
-      'FEDFUNDS',
-      'GS10',
-      'TB3MS',
-      'NFCICREDIT',
-      'DRTSCILM',
-      'FYFSGDA188S',
-      'FYGFGDQ188S',
-      'A019RE1Q156NBEA',
-      'A253RC1Q027SBEA',
-      'A255RC1Q027SBEA',
-      'A646RC1Q027SBEA',
-      'B656RC1Q027SBEA',
-      'FRBKCLMCILA',
-      'FRBKCLMCIM',
+    expect(requestedUrls.map((url) => url.searchParams.get('series_id')))
+      .toEqual(configurations.map(({ providerSeriesId }) => providerSeriesId))
+    expect(requestedUrls.filter((url) => url.searchParams.has('units')).map((url) => [
+      url.searchParams.get('series_id'),
+      url.searchParams.get('units'),
+    ])).toEqual([
+      ['GDPC1', 'pc1'],
+      ['PAYEMS', 'chg'],
+      ['CPIAUCSL', 'pc1'],
+      ['CPILFESL', 'pc1'],
     ])
-    expect(requestedUrls[0]?.searchParams.get('units')).toBe('pc1')
-    expect(
-      requestedUrls.slice(1).every((url) => !url.searchParams.has('units')),
-    ).toBe(true)
     expect(
       requestedUrls.every((url) => !url.searchParams.has('observation_start')),
     ).toBe(true)
@@ -799,7 +765,7 @@ describe('refreshEconomicData', () => {
       const series = validateEconomicSeries(
         JSON.parse(await readFile(config.outputFile, 'utf8')),
       )
-      const expectedDate = ['CPIAUCSL', 'PCEPI'].includes(config.providerSeriesId)
+      const expectedDate = ['CPIAUCSL', 'CPILFESL', 'PCEPI'].includes(config.providerSeriesId)
         ? '2025-02-01'
         : ['A939RX0Q048SBEA', 'OPHNFB', 'PNFIC1'].includes(config.providerSeriesId)
           ? '2025-01-01'
