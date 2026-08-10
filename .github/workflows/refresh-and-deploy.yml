@@ -54,7 +54,7 @@ jobs:
         run: |
           while IFS= read -r file; do
             if git diff --ignore-matching-lines='^[[:space:]]*"retrievedAt":' --quiet -- "$file"; then
-              git restore --worktree -- "$file"
+              git show "HEAD:$file" > "$file"
             fi
           done < <(git diff --name-only -- 'src/features/economic-series/data/*.json')
 
