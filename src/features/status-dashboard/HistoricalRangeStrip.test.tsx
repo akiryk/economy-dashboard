@@ -16,7 +16,7 @@ const historical = {
 describe('HistoricalRangeStrip', () => {
   it('positions the marker in percentile space and exposes the fixed center-half reference', () => {
     const { container } = render(
-      <HistoricalRangeStrip historical={historical} state="normal" valueFormatter={(value) => `${value}%`} dateFormatter={(date) => date.slice(0, 4)} />,
+      <HistoricalRangeStrip seriesLabel="example rate" historical={historical} state="normal" valueFormatter={(value) => `${value}%`} dateFormatter={(date) => date.slice(0, 4)} />,
     )
     expect(container.querySelector('.historical-range__middle')).toBeInTheDocument()
     expect(container.querySelector('.historical-range__marker')).toHaveStyle({ left: '40%' })
@@ -25,7 +25,7 @@ describe('HistoricalRangeStrip', () => {
   it('reveals the same details by pointer, keyboard, touch click, Escape, and outside interaction', async () => {
     const user = userEvent.setup()
     render(
-      <HistoricalRangeStrip historical={historical} state="normal" valueFormatter={(value) => `${value}%`} dateFormatter={(date) => date.slice(0, 4)} />,
+      <HistoricalRangeStrip seriesLabel="example rate" historical={historical} state="normal" valueFormatter={(value) => `${value}%`} dateFormatter={(date) => date.slice(0, 4)} />,
     )
     const trigger = screen.getByRole('button', { name: /40th percentile.*1948 through 2026/i })
     await user.hover(trigger)
@@ -44,7 +44,7 @@ describe('HistoricalRangeStrip', () => {
 
   it('names record status without relying on color', () => {
     render(
-      <HistoricalRangeStrip historical={{ ...historical, percentile: 100, record: 'high' }} state="notable-bad" valueFormatter={(value) => `${value}%`} dateFormatter={(date) => date.slice(0, 4)} />,
+      <HistoricalRangeStrip seriesLabel="example rate" historical={{ ...historical, percentile: 100, record: 'high' }} state="notable-bad" valueFormatter={(value) => `${value}%`} dateFormatter={(date) => date.slice(0, 4)} />,
     )
     expect(screen.getByRole('button', { name: /Record high in the available history/i }))
       .toBeVisible()

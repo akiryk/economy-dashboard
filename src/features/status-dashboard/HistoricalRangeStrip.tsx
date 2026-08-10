@@ -3,6 +3,7 @@ import type { HistoricalPercentile } from './cpiTileModel'
 import type { DashboardThresholdState } from './cpiTileModel'
 
 interface HistoricalRangeStripProps {
+  seriesLabel: string
   historical: HistoricalPercentile
   state: DashboardThresholdState
   valueFormatter: (value: number) => string
@@ -33,6 +34,7 @@ function historicalRangeDescription(
 }
 
 export function HistoricalRangeStrip({
+  seriesLabel,
   historical,
   state,
   valueFormatter,
@@ -63,7 +65,7 @@ export function HistoricalRangeStrip({
       <button
         type="button"
         className="historical-range__trigger"
-        aria-label={`Historical CPI details: ${accessibleDescription}`}
+        aria-label={`Historical ${seriesLabel} details: ${accessibleDescription}`}
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen(true)}

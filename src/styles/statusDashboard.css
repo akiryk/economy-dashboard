@@ -137,6 +137,17 @@
   line-height: 1.5rem;
 }
 
+.status-tile__message {
+  grid-row: 2 / span 2;
+  align-self: end;
+  color: var(--dashboard-text-muted);
+  font-size: 0.9375rem;
+}
+
+.historical-range--reserved {
+  height: 1rem;
+}
+
 .status-sparkline {
   min-width: 0;
   margin: 0;

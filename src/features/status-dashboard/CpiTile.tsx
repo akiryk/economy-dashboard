@@ -1,6 +1,4 @@
-import { DashboardTile } from './DashboardTile'
-import { CpiSparkline } from './CpiSparkline'
-import { HistoricalRangeStrip } from './HistoricalRangeStrip'
+import { EconomicStatusTile } from './EconomicStatusTile'
 import type { CpiTileModel } from './cpiTileModel'
 
 function formatPercent(value: number): string {
@@ -31,27 +29,20 @@ export function CpiTile({ model, theme }: CpiTileProps) {
     : 'Headline CPI five-year trend is unavailable.'
 
   return (
-    <DashboardTile label="Inflation" state={model.state}>
-      <div className="status-tile__hero-row">
-        <p className="status-tile__hero">{formatPercent(model.headline.value)}</p>
-        <p className="status-tile__state">{model.stateLabel}</p>
-      </div>
-      <p className="status-tile__secondary">
-        {model.core ? `Core ${formatPercent(model.core.value)}` : 'Core unavailable'}
-      </p>
-      <CpiSparkline
-        observations={model.sparkline}
-        state={model.state}
-        summary={sparklineSummary}
-        theme={theme}
-      />
-      <HistoricalRangeStrip
-        historical={model.historical}
-        state={model.state}
-        valueFormatter={formatPercent}
-        dateFormatter={formatYear}
-      />
-      <p className="status-tile__meta">As of {formatMonth(model.headline.date)}</p>
-    </DashboardTile>
+    <EconomicStatusTile
+      label="Inflation"
+      seriesLabel="CPI inflation"
+      hero={formatPercent(model.headline.value)}
+      state={model.state}
+      stateLabel={model.stateLabel}
+      secondary={model.core ? `Core ${formatPercent(model.core.value)}` : 'Core unavailable'}
+      observations={model.sparkline}
+      sparklineSummary={sparklineSummary}
+      theme={theme}
+      asOf={formatMonth(model.headline.date)}
+      historical={model.historical}
+      historicalValueFormatter={formatPercent}
+      dateFormatter={formatYear}
+    />
   )
 }

@@ -3,6 +3,7 @@ import type { EconomicSeries } from '../features/economic-series/models/economic
 import { dashboardEconomicSeriesRepository } from '../features/economic-series/repositories/dashboardEconomicSeriesRepository'
 import { CpiTile } from '../features/status-dashboard/CpiTile'
 import { createCpiTileModel } from '../features/status-dashboard/cpiTileModel'
+import { GrowthLaborTiles } from '../features/status-dashboard/GrowthLaborTiles'
 import { useDashboardTheme } from '../features/status-dashboard/useDashboardTheme'
 import type { DashboardThemePreference } from '../features/status-dashboard/useDashboardTheme'
 import '../styles/statusDashboard.css'
@@ -52,6 +53,7 @@ export function StatusDashboardPage() {
         </label>
       </header>
       <section className="status-dashboard__grid" aria-label="Economic status indicators">
+        <GrowthLaborTiles theme={resolvedTheme} />
         {data.status === 'loading' && (
           <article className="status-tile status-tile--message" aria-busy="true">
             <h2 className="status-tile__label">Inflation</h2>

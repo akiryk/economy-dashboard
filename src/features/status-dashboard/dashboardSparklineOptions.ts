@@ -2,15 +2,28 @@ import type { EconomicObservation } from '../economic-series/models/economicSeri
 import type { DashboardThresholdState } from './cpiTileModel'
 
 const themeColors = {
-  light: { 'notable-good': '#047857', normal: '#71717a', 'notable-bad': '#b45309' },
-  dark: { 'notable-good': '#34d399', normal: '#8a8a93', 'notable-bad': '#f5a524' },
+  light: {
+    border: '#e4e4e7',
+    'notable-good': '#047857', normal: '#71717a', 'notable-bad': '#b45309',
+  },
+  dark: {
+    border: '#26262a',
+    'notable-good': '#34d399', normal: '#8a8a93', 'notable-bad': '#f5a524',
+  },
 }
 
-export function createCpiSparklineOptions(
+export interface DashboardSparklineReference {
+  value: number
+  label: string
+}
+
+export function createDashboardSparklineOptions(
   observations: readonly EconomicObservation[],
   state: DashboardThresholdState,
   theme: 'light' | 'dark' = 'light',
+  reference?: DashboardSparklineReference,
 ) {
+  const colors = themeColors[theme]
   return {
     animation: false,
     aria: { enabled: false },
@@ -33,8 +46,17 @@ export function createCpiSparklineOptions(
       connectNulls: false,
       smooth: false,
       silent: true,
-      lineStyle: { color: themeColors[theme][state], width: 1.5 },
+      lineStyle: { color: colors[state], width: 1.5 },
       areaStyle: undefined,
+      markLine: reference
+        ? {
+            silent: true,
+            symbol: 'none',
+            label: { show: false },
+            lineStyle: { color: colors.border, width: 1, type: 'dashed' },
+            data: [{ yAxis: reference.value, name: reference.label }],
+          }
+        : undefined,
     }],
   }
 }

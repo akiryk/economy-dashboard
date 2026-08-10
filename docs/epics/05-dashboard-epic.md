@@ -413,7 +413,7 @@ Suggested order for breaking this into stories. Each slice leaves the page in a 
 
 1. **Data layer — implemented in Story 84.** The existing offline FRED configuration covers all 18 sources, preserves three compatible existing datasets, validates and atomically commits full useful histories, and exposes them through the local asynchronous repository. `FRED_API_KEY` remains refresh-only.
 2. **One tile, end to end — implemented in Story 85.** `/dashboard` now contains the CPI vertical slice with real committed headline/core CPI, the complete tile anatomy, exact thresholds, five-year sparkline, full-history percentile strip and accessible details, both themes, and responsive grid foundation. Review and refine this tile before slice 3.
-3. **The grid** — remaining ten tiles using the established component, layout, and responsive breakpoints. Largely mechanical once slice 2 is settled.
+3. **The grid — in progress after Story 86.** `/dashboard` now adds the complete four-tile Growth and labor row—GDP growth, unemployment, initial claims, and the Sahm Rule—before CPI. The remaining six tiles are not implemented. The established grid responds at four, two, and one columns without placeholders.
 4. **Threshold states** — the config object, state computation, state colors, state words.
 5. **History and range strips** — the second fetch, percentile computation, strip rendering, record markers, the two exclusions.
 6. **Hover** — panels, focus handling, touch behaviour, aria labels.
