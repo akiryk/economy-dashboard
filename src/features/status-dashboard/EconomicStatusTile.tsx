@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type MouseEvent } from 'react'
+import { useId, useState, type KeyboardEvent, type MouseEvent } from 'react'
 import type { EconomicObservation } from '../economic-series/models/economicSeries'
 import { DashboardSparkline } from './DashboardSparkline'
 import { HistoricalRangeStrip } from './HistoricalRangeStrip'
@@ -48,23 +48,16 @@ export function EconomicStatusTile({
 }: EconomicStatusTileProps) {
   const [flipped, setFlipped] = useState(false)
   const labelId = useId()
-  const frontControlRef = useRef<HTMLButtonElement>(null)
-  const backControlRef = useRef<HTMLButtonElement>(null)
-  const hasFlippedRef = useRef(false)
-
-  useEffect(() => {
-    if (!hasFlippedRef.current) return
-    if (flipped) backControlRef.current?.focus()
-    else frontControlRef.current?.focus()
-  }, [flipped])
-
-  const showSide = (showBack: boolean) => {
-    hasFlippedRef.current = true
-    setFlipped(showBack)
-  }
 
   const toggleFromCard = (event: MouseEvent<HTMLElement>) => {
     if ((event.target as HTMLElement).closest('button, a, input, select, textarea, .historical-range')) return
+    setFlipped((current) => !current)
+  }
+
+  const toggleFromKeyboard = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.target !== event.currentTarget) return
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
     setFlipped((current) => !current)
   }
 
@@ -74,7 +67,10 @@ export function EconomicStatusTile({
       data-state={state}
       data-flipped={flipped ? 'true' : 'false'}
       aria-labelledby={labelId}
+      aria-description={flipped ? 'Showing contextual details. Activate to show the status front.' : 'Showing current status. Activate to show contextual details.'}
+      tabIndex={0}
       onClick={toggleFromCard}
+      onKeyDown={toggleFromKeyboard}
     >
       <h2 className="visually-hidden" id={labelId}>{label}</h2>
       <div className="status-tile__flip-inner">
@@ -106,15 +102,6 @@ export function EconomicStatusTile({
                 )}
               </div>}
           <p className="status-tile__meta">As of {asOf}</p>
-          <button
-            ref={frontControlRef}
-            type="button"
-            className="status-tile__flip-control"
-            aria-label={`Show details for ${label}`}
-            onClick={() => showSide(true)}
-          >
-            Details ↻
-          </button>
         </div>
         <div className="status-tile__face status-tile__face--back" aria-hidden={!flipped} inert={!flipped}>
           <h3 className="status-tile__label" aria-hidden="true">{label}</h3>
@@ -126,15 +113,6 @@ export function EconomicStatusTile({
             <p className="status-tile__back-heading">How to read it</p>
             <p>{backContent.howToReadIt}</p>
           </div>
-          <button
-            ref={backControlRef}
-            type="button"
-            className="status-tile__flip-control"
-            aria-label={`Show front of ${label}`}
-            onClick={() => showSide(false)}
-          >
-            Return ↻
-          </button>
         </div>
       </div>
     </article>

@@ -146,20 +146,8 @@
   line-height: 1rem;
 }
 
-.status-tile__flip-control {
-  position: absolute;
-  z-index: 1;
-  right: 1.5rem;
-  bottom: 1.5rem;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  color: var(--dashboard-text-muted);
-  background: transparent;
-  font: inherit;
-  font-size: 0.75rem;
-  line-height: 1.5rem;
-  cursor: pointer;
+.status-tile:has(.historical-range__panel) {
+  z-index: 3;
 }
 
 .status-tile__label {
