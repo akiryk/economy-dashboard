@@ -91,6 +91,71 @@
   box-shadow: none;
 }
 
+.status-tile--flippable {
+  display: block;
+  height: 18.75rem;
+  padding: 0;
+  perspective: 70rem;
+}
+
+.status-tile__flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.status-tile__face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 1rem 4.25rem 1.5rem 3.5rem 1rem 1.5rem;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  backface-visibility: hidden;
+}
+
+.status-tile__face--back {
+  grid-template-rows: 1rem auto auto 1fr;
+  align-content: start;
+  transform: rotateY(180deg);
+}
+
+.status-tile[data-flipped="true"] .status-tile__flip-inner {
+  transform: rotateY(180deg);
+}
+
+.status-tile__back-section {
+  display: grid;
+  gap: 0.25rem;
+  color: var(--dashboard-text);
+  font-size: 0.875rem;
+  line-height: 1.3;
+}
+
+.status-tile__back-heading {
+  color: var(--dashboard-text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1rem;
+}
+
+.status-tile__flip-control {
+  position: absolute;
+  z-index: 1;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--dashboard-text-muted);
+  background: transparent;
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1.5rem;
+  cursor: pointer;
+}
+
 .status-tile__label {
   margin: 0;
   color: var(--dashboard-text-muted);
@@ -290,5 +355,23 @@
   .status-tile__hero,
   .status-dashboard__theme-control select {
     transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
+  }
+
+  .status-tile__flip-inner {
+    transition: transform 450ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-tile__flip-inner {
+    transform: none !important;
+  }
+
+  .status-tile__face {
+    transform: none;
+  }
+
+  .status-tile__face[aria-hidden="true"] {
+    visibility: hidden;
   }
 }

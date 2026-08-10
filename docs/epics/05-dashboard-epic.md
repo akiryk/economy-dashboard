@@ -8,11 +8,11 @@ A single-screen dashboard showing 12 tiles covering the current state of the US 
 
 The existing dashboard answers many discrete questions well, but answering a question is a different job from checking a status. When the goal is "what is the state of things right now," the research-card inventory is too much surface area to scan and the question-framing adds reading overhead to every tile.
 
-This page optimizes for a five-second read: every tile has one hero number, one direction indicator, and one small chart. Interpretation moves to hover/tooltip. The tile set is deliberately capped — if a thirteenth tile seems necessary, something should come off first.
+This page optimizes for a five-second read: every tile front has one hero number, one direction indicator, and one small chart. A concise flip-card back supplies current, metric-specific context without cluttering that status layer. The tile set is deliberately capped — if a thirteenth tile seems necessary, something should come off first.
 
 ## Non-goals
 
-- No interactivity beyond hover tooltips and a hover chart. No date-range pickers, no series toggles, no drill-down.
+- No interactivity beyond range-strip details and the contextual card flip. No date-range pickers, no series toggles, no drill-down.
 - No forecasting or commentary. The page reports; it does not opine.
 - No reuse of the existing card framework. This page is built fresh and shares nothing but the data layer, if that.
 - No international comparison. US only.
@@ -22,6 +22,8 @@ This page optimizes for a five-second read: every tile has one hero number, one 
 ## Tile specification
 
 Each tile renders: hero number, period-over-period direction, sparkline, "as of" date, and next-release date. Secondary values render as a smaller second line.
+
+Each implemented tile also flips around the Y axis to a same-size contextual back. The front remains the glanceable status view; the back gives concise "What it shows" and "How to read it" copy generated deterministically from the current model, thresholds, and historical position. No runtime LLM or commentary service is involved. A visible native button supports pointer, touch, and keyboard use, while reduced-motion users switch sides without 3D animation.
 
 ### Row 1 — Growth and labor
 
@@ -423,12 +425,13 @@ Suggested order for breaking this into stories. Each slice leaves the page in a 
 1. **Data layer — implemented in Story 84.** The existing offline FRED configuration covers all 18 sources, preserves three compatible existing datasets, validates and atomically commits full useful histories, and exposes them through the local asynchronous repository. `FRED_API_KEY` remains refresh-only.
 2. **One tile, end to end — implemented in Story 85.** `/dashboard` now contains the CPI vertical slice with real committed headline/core CPI, the complete tile anatomy, exact thresholds, five-year sparkline, full-history percentile strip and accessible details, both themes, and responsive grid foundation. Review and refine this tile before slice 3.
 3. **The grid — in progress after Story 86A.** `/dashboard` now contains six tiles: GDP growth, unemployment, dedicated payroll growth, initial claims, the Sahm Rule, and CPI. Payroll growth uses a three-month average, retains the latest month as secondary context, and no longer appears under unemployment. The remaining six tiles are not implemented. The established grid responds at four, two, and one columns without placeholders.
-4. **Threshold states** — the config object, state computation, state colors, state words.
-5. **History and range strips** — the second fetch, percentile computation, strip rendering, record markers, the two exclusions.
-6. **Hover** — panels, focus handling, touch behaviour, aria labels.
-7. **Freshness** — as-of dates, next-release dates via `fred/releases/dates`, stale flags.
+4. **Contextual backs — implemented in Story 86B.** Every implemented metric tile retains its glanceable front and adds a same-size contextual back. Deterministic metric functions turn current values, states, thresholds, and historical positions into concise explanations. The Y-axis flip supports pointer, touch, keyboard, independent card state, and reduced motion without interfering with range-strip details.
+5. **Threshold states** — the config object, state computation, state colors, state words.
+6. **History and range strips** — the second fetch, percentile computation, strip rendering, record markers, the two exclusions.
+7. **Hover** — panels, focus handling, touch behaviour, aria labels.
+8. **Freshness** — as-of dates, next-release dates via `fred/releases/dates`, stale flags.
 
-Slices 4 and 5 are independently valuable and can swap order. Slice 6 depends on 5. Slice 7 can land any time after 3.
+Threshold states and history are independently valuable and can swap order. Hover depends on history. Freshness can land any time after the grid.
 
 ---
 

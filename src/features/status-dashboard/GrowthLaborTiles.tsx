@@ -16,6 +16,13 @@ import {
 } from './statusFormatters'
 import { useDashboardSeries } from './useDashboardSeries'
 import { createPayrollTileModel } from './payrollTileModel'
+import {
+  getClaimsBackContent,
+  getGdpBackContent,
+  getPayrollBackContent,
+  getSahmBackContent,
+  getUnemploymentBackContent,
+} from './cardBackContent'
 
 const gdpSlugs = ['dashboard-real-gdp-growth', 'dashboard-nominal-gdp'] as const
 const unemploymentSlugs = ['unemployment-rate'] as const
@@ -52,6 +59,7 @@ export function GdpStatusTile({ theme }: GrowthLaborTileProps) {
     return <TileMessage label="GDP growth" />
   }
   const first = model.sparkline.find(({ value }) => value !== null)
+  const period = formatDashboardPeriod(model.headline.date, 'quarterly')
   return <EconomicStatusTile
       label="GDP growth"
       seriesLabel="real GDP growth"
@@ -62,10 +70,16 @@ export function GdpStatusTile({ theme }: GrowthLaborTileProps) {
       observations={model.sparkline}
       sparklineSummary={`Real GDP annualized quarterly growth over ten years${first ? `, from ${formatDashboardPercent(first.value!)} to ${formatDashboardPercent(model.headline.value)}` : ''}. Missing quarters remain gaps.`}
       theme={theme}
-      asOf={formatDashboardPeriod(model.headline.date, 'quarterly')}
+      asOf={period}
       historical={model.historical}
       historicalValueFormatter={formatDashboardPercent}
       dateFormatter={formatHistoryYear}
+      backContent={getGdpBackContent(
+        model.headline.value,
+        period,
+        model.secondary !== null,
+        { percentile: model.historical.percentile, stateLabel: model.stateLabel },
+      )}
   />
 }
 
@@ -94,6 +108,11 @@ export function UnemploymentStatusTile({ theme }: GrowthLaborTileProps) {
       historical={model.historical}
       historicalValueFormatter={formatDashboardPercent}
       dateFormatter={formatHistoryYear}
+      backContent={getUnemploymentBackContent(
+        model.headline.value,
+        formatDashboardPeriod(model.headline.date, 'monthly'),
+        { percentile: model.historical.percentile, stateLabel: model.stateLabel },
+      )}
   />
 }
 
@@ -131,6 +150,11 @@ export function PayrollStatusTile({ theme }: GrowthLaborTileProps) {
     historicalValueFormatter={(value) => `${formatCompactThousands(value)}/mo`}
     dateFormatter={formatHistoryYear}
     reference={{ value: 0, label: 'No payroll change' }}
+    backContent={getPayrollBackContent(
+      model.headline.value,
+      model.latestMonth.value,
+      model.stateLabel,
+    )}
   />
 }
 
@@ -159,6 +183,11 @@ export function InitialClaimsStatusTile({ theme }: GrowthLaborTileProps) {
       historical={model.historical}
       historicalValueFormatter={formatClaims}
       dateFormatter={formatHistoryYear}
+      backContent={getClaimsBackContent(
+        model.headline.value,
+        model.secondary?.value ?? null,
+        { percentile: model.historical.percentile, stateLabel: model.stateLabel },
+      )}
   />
 }
 
@@ -187,6 +216,7 @@ export function SahmStatusTile({ theme }: GrowthLaborTileProps) {
       dateFormatter={formatHistoryYear}
       reference={{ value: 0.5, label: 'Sahm Rule trigger' }}
       reservedRangeDescription="No historical percentile is shown because the Sahm Rule distribution is not informative for this comparison. It is a recession indicator, not a forecast, and 0.50 is its trigger."
+      backContent={getSahmBackContent(model.headline.value)}
   />
 }
 

@@ -150,6 +150,40 @@ describe('StatusDashboardPage', () => {
     expect(screen.getByRole('article', { name: 'Inflation' })).toHaveTextContent('3.5%')
   })
 
+  it('flips cards independently and restores the front with accessible controls', async () => {
+    const user = userEvent.setup()
+    render(<StatusDashboardPage />)
+    const details = await screen.findByRole('button', { name: 'Show details for Payroll growth' })
+    const payroll = details.closest('article')!
+    const unemployment = screen.getByRole('article', { name: 'Unemployment' })
+
+    expect(payroll).toHaveAttribute('data-flipped', 'false')
+    expect(payroll.querySelector('.status-tile__face--back')).toHaveAttribute('aria-hidden', 'true')
+    await user.click(details)
+    expect(payroll).toHaveAttribute('data-flipped', 'true')
+    expect(payroll.querySelector('.status-tile__face--front')).toHaveAttribute('aria-hidden', 'true')
+    expect(unemployment).toHaveAttribute('data-flipped', 'false')
+    const returnButton = within(payroll).getByRole('button', { name: 'Show front of Payroll growth' })
+    expect(returnButton).toHaveFocus()
+    await user.keyboard('{Enter}')
+    expect(payroll).toHaveAttribute('data-flipped', 'false')
+    expect(details).toHaveFocus()
+  })
+
+  it('keeps historical-strip pointer and keyboard interaction isolated from flipping', async () => {
+    const user = userEvent.setup()
+    render(<StatusDashboardPage />)
+    const inflation = await screen.findByRole('article', { name: 'Inflation' })
+    const strip = within(inflation).getByRole('button', { name: /Historical CPI inflation details/ })
+    await user.click(strip)
+    expect(strip).toHaveAttribute('aria-expanded', 'true')
+    expect(inflation).toHaveAttribute('data-flipped', 'false')
+    strip.focus()
+    await user.keyboard('{Escape}')
+    expect(strip).toHaveAttribute('aria-expanded', 'false')
+    expect(inflation).toHaveAttribute('data-flipped', 'false')
+  })
+
   it('honors system theme and persists a manual override', async () => {
     const user = userEvent.setup()
     const { container, unmount } = render(<StatusDashboardPage />)

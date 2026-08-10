@@ -1,5 +1,6 @@
 import { EconomicStatusTile } from './EconomicStatusTile'
 import type { CpiTileModel } from './cpiTileModel'
+import { getInflationBackContent } from './cardBackContent'
 
 function formatPercent(value: number): string {
   return `${value.toFixed(1)}%`
@@ -43,6 +44,11 @@ export function CpiTile({ model, theme }: CpiTileProps) {
       historical={model.historical}
       historicalValueFormatter={formatPercent}
       dateFormatter={formatYear}
+      backContent={getInflationBackContent(
+        model.headline.value,
+        model.core?.value ?? null,
+        model.stateLabel,
+      )}
     />
   )
 }
