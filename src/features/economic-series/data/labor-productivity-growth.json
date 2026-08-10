@@ -13,7 +13,7 @@
   "transformation": "Percent change from year ago, calculated by the application",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED; growth calculated by the application",
   "sourceUrl": "https://fred.stlouisfed.org/series/OPHNFB",
-  "retrievedAt": "2026-07-17",
+  "retrievedAt": "2026-08-10",
   "observations": [
     {
       "date": "1948-01-01",
@@ -1265,7 +1265,11 @@
     },
     {
       "date": "2026-01-01",
-      "value": 2.7972148347061188
+      "value": 2.9323418282596103
+    },
+    {
+      "date": "2026-04-01",
+      "value": 2.2421944882225153
     }
   ]
 }

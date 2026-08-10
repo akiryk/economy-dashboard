@@ -13,7 +13,7 @@
   "transformation": "Published level, normalized to 100 at the selected-range start for display",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/OPHNFB",
-  "retrievedAt": "2026-07-17",
+  "retrievedAt": "2026-08-10",
   "observations": [
     {
       "date": "1947-01-01",
@@ -1281,7 +1281,11 @@
     },
     {
       "date": "2026-01-01",
-      "value": 119.437
+      "value": 119.594
+    },
+    {
+      "date": "2026-04-01",
+      "value": 120.017
     }
   ]
 }

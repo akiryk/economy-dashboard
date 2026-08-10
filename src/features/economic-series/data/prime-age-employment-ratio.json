@@ -13,7 +13,7 @@
   "transformation": "Level",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/LNS12300060",
-  "retrievedAt": "2026-07-17",
+  "retrievedAt": "2026-08-10",
   "observations": [
     {
       "date": "1948-01-01",
@@ -3782,6 +3782,10 @@
     {
       "date": "2026-06-01",
       "value": 80.2
+    },
+    {
+      "date": "2026-07-01",
+      "value": 80.4
     }
   ]
 }

@@ -13,7 +13,7 @@
   "transformation": "Exact year-over-year wage growth deflated by headline CPI, calculated by the application",
   "sourceName": "U.S. Bureau of Labor Statistics wage and CPI data via FRED; real growth calculated by the application",
   "sourceUrl": "https://fred.stlouisfed.org/series/AHETPI",
-  "retrievedAt": "2026-07-17",
+  "retrievedAt": "2026-08-10",
   "observations": [
     {
       "date": "1965-01-01",
@@ -2965,7 +2965,7 @@
     },
     {
       "date": "2026-06-01",
-      "value": -0.044549234899593504
+      "value": -0.10628824093117384
     }
   ],
   "sources": [

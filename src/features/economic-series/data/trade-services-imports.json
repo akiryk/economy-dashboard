@@ -5,7 +5,7 @@
   "providerSeriesId": "B656RC1Q027SBEA",
   "title": "Imports of services",
   "shortTitle": "Imports of services",
-  "description": "Imports of services for U.S. goods-and-services trade context.",
+  "description": "Imports of services, including goods and services trade context.",
   "question": "What drives the U.S. trade balance?",
   "units": "Billions of dollars, seasonally adjusted annual rate",
   "frequency": "quarterly",
@@ -13,7 +13,7 @@
   "transformation": "Provider-published level",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/B656RC1Q027SBEA",
-  "retrievedAt": "2026-08-06",
+  "retrievedAt": "2026-08-10",
   "observations": [
     {
       "date": "1947-01-01",

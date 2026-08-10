@@ -13,7 +13,7 @@
   "transformation": "Monthly change calculated by the application",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED; changes calculated by the application",
   "sourceUrl": "https://fred.stlouisfed.org/series/PAYEMS",
-  "retrievedAt": "2026-07-17",
+  "retrievedAt": "2026-08-10",
   "observations": [
     {
       "date": "1939-02-01",
@@ -4205,11 +4205,15 @@
     },
     {
       "date": "2026-05-01",
-      "value": 129
+      "value": 63
     },
     {
       "date": "2026-06-01",
-      "value": 57
+      "value": 20
+    },
+    {
+      "date": "2026-07-01",
+      "value": -23
     }
   ]
 }
