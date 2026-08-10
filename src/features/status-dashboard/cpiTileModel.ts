@@ -29,10 +29,12 @@ export function classifyCpiInflation(value: number): DashboardThresholdState {
   return 'normal'
 }
 
-export function dashboardStateLabel(state: DashboardThresholdState): string {
-  if (state === 'notable-good') return 'Within target-like range'
-  if (state === 'notable-bad') return 'Outside normal threshold'
-  return 'Within normal threshold'
+export function describeCpiInflation(value: number): string {
+  if (value < 0.5) return 'Very low'
+  if (value < 1.5) return 'Low'
+  if (value <= 2.5) return 'Near price-stability range'
+  if (value <= 3.5) return 'Elevated'
+  return 'High'
 }
 
 export function latestValidObservation(
@@ -113,7 +115,7 @@ export function createCpiTileModel(
     headline,
     core,
     state,
-    stateLabel: dashboardStateLabel(state),
+    stateLabel: describeCpiInflation(headline.value),
     sparkline: selectMonthlyLookback(
       headlineSeries.observations,
       headline.date,

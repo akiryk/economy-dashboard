@@ -4,6 +4,7 @@ import {
   calculateHistoricalPercentile,
   classifyCpiInflation,
   createCpiTileModel,
+  describeCpiInflation,
   selectMonthlyLookback,
 } from './cpiTileModel'
 
@@ -32,6 +33,20 @@ describe('CPI tile model', () => {
     expect(classifyCpiInflation(value)).toBe(expected)
   })
 
+  it.each([
+    [0.4, 'Very low'], [0.5, 'Low'], [1.4, 'Low'],
+    [1.5, 'Near price-stability range'], [2.5, 'Near price-stability range'],
+    [2.5001, 'Elevated'], [3.4999, 'Elevated'], [3.5, 'Elevated'],
+    [3.5001, 'High'],
+  ] as const)('describes unrounded CPI of %s as %s', (value, expected) => {
+    expect(describeCpiInflation(value)).toBe(expected)
+  })
+
+  it('keeps a 3.5% reading neutral-colored while describing it as elevated', () => {
+    const model = createCpiTileModel(series('headline', [3.5]), null)
+    expect(model).toMatchObject({ state: 'normal', stateLabel: 'Elevated' })
+  })
+
   it('uses latest valid headline and core values while preserving their dates', () => {
     const model = createCpiTileModel(
       series('headline', [1, 1.6, null]),
@@ -40,6 +55,7 @@ describe('CPI tile model', () => {
     expect(model.headline).toEqual({ date: '2020-02-01', value: 1.6 })
     expect(model.core).toEqual({ date: '2020-02-01', value: 1.9 })
     expect(model.state).toBe('notable-good')
+    expect(model.stateLabel).toBe('Near price-stability range')
   })
 
   it('selects five years through the latest period without smoothing or filling gaps', () => {
