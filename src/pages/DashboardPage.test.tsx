@@ -518,21 +518,24 @@ describe('DashboardPage economic series', () => {
       'Shown for current contributors with a directly comparable CPI series.',
     )).toBeVisible()
     expect(within(momentum).getByText(
-      'No — inflation has been slowing in recent months.',
+      'No — inflation has slowed in recent months.',
     )).toBeVisible()
-    expect(within(momentum).getByText('20% slower')).toBeVisible()
+    expect(within(momentum).getByText('−2.5 pp')).toBeVisible()
     expect(within(momentum).getByText(
-      'Recent annualized pace compared with the past-year inflation rate',
+      'Latest three-month annualized pace compared with the previous three months',
     )).toBeVisible()
     expect(within(momentum).getByText(
-      '+2.8% versus +3.5%, a difference of 0.7 percentage points.',
+      '+2.8% versus +5.3%, a change of 2.5 percentage points.',
     )).toBeVisible()
-    expect(within(momentum).getByText('Past 12 months')).toBeVisible()
+    expect(within(momentum).getByText('Previous 3 months, annualized')).toBeVisible()
     expect(within(momentum).getByText('Latest 3 months, annualized')).toBeVisible()
-    expect(within(momentum).getByText('+3.5%')).toBeVisible()
+    expect(within(momentum).getByText('+5.3%')).toBeVisible()
     expect(within(momentum).getByText('+2.8%')).toBeVisible()
     expect(within(momentum).getByText(
-      '0.7 percentage points slower',
+      '12-month inflation: +3.5%',
+    )).toBeVisible()
+    expect(within(momentum).getByText(
+      '2.5 percentage points slower',
     )).toBeVisible()
     expect(momentum.querySelector(
       '.recent-inflation-momentum__slope-plot[data-direction="down"]',
@@ -545,22 +548,22 @@ describe('DashboardPage economic series', () => {
     )).not.toBeInTheDocument()
     expect(momentum.querySelector('svg area')).not.toBeInTheDocument()
     expect(within(momentum).getByText(
-      /The graphic compares two measurement windows rather than consecutive observations/,
-    )).toHaveTextContent('the recent-minus-past-year difference was −0.7 percentage points')
+      /The graphic compares adjacent, non-overlapping three-month windows/,
+    )).toHaveTextContent('the change was −2.5 percentage points')
     expect(within(momentum).getByText(
-      /The graphic compares two measurement windows rather than consecutive observations/,
-    )).toHaveTextContent('it is not a forecast')
+      /The graphic compares adjacent, non-overlapping three-month windows/,
+    )).toHaveTextContent('not forecasts')
     await user.click(within(momentum).getByRole('button', {
       name: 'Explain recent inflation momentum',
     }))
     expect(within(momentum).getByRole('dialog')).toHaveTextContent(
-      'does not predict what inflation will be next year',
+      'adjacent, non-overlapping three-month windows',
     )
     expect(within(momentum).getByRole('dialog')).toHaveTextContent(
       'Both compact values use overall, or headline, CPI',
     )
     expect(within(momentum).getByRole('dialog')).toHaveTextContent(
-      'past-year rate is at least 0.5% in absolute value',
+      'Differences smaller than 0.1 percentage point',
     )
     expect(momentum).not.toHaveTextContent(
       /inflation fell 20%|CPI declined 20%|prices fell 20%/i,
@@ -642,7 +645,7 @@ describe('DashboardPage economic series', () => {
       '12-month headline and core CPI',
     )).toBeVisible()
     expect(within(momentum).getByText(
-      'Three-month annualized headline and core CPI',
+      'Rolling 3-month annualized headline and core CPI',
     )).toBeVisible()
     await user.click(within(momentum).getByRole('button', {
       name: '5 years',
@@ -671,7 +674,7 @@ describe('DashboardPage economic series', () => {
     expect(within(momentum).queryByText(
       '12-month headline and core CPI',
     )).not.toBeInTheDocument()
-    expect(within(momentum).getByText('Past 12 months')).toBeVisible()
+    expect(within(momentum).getByText('Previous 3 months, annualized')).toBeVisible()
     await user.click(within(momentum).getByRole('button', { name: /More/ }))
     expect(within(momentum).getByRole('button', {
       name: '5 years',
@@ -687,10 +690,18 @@ describe('DashboardPage economic series', () => {
         })
         .filter((props) => props.kind === 'inflation-comparison')
       expect([...new Set(comparisonCalls.map((props) => props.variant))])
-        .toEqual(['year-over-year', 'momentum'])
+        .toEqual(['momentum', 'year-over-year'])
       expect(comparisonCalls.every((props) =>
         props.headlineObservations?.length === props.coreObservations?.length,
       )).toBe(true)
+      const primaryMomentumCall = comparisonCalls.find(
+        (props) => props.variant === 'momentum',
+      )
+      expect(primaryMomentumCall?.headlineObservations).toHaveLength(24)
+      expect(primaryMomentumCall?.headlineObservations?.at(-1)).toEqual({
+        date: '2026-06-01',
+        value: expect.closeTo(2.7837, 3),
+      })
     })
     expect(screen.queryByRole('article', { name: /PCE/i })).not.toBeInTheDocument()
   }, 20_000)

@@ -27,6 +27,8 @@ const EconomicTimeSeriesChart = lazy(
   () => import('../charts/EconomicTimeSeriesChart'),
 )
 
+const keepPrimaryMomentumRange = () => undefined
+
 interface RecentInflationMomentumSummaryProps {
   twelveMonthHeadline: EconomicSeries
   threeMonthHeadline: EconomicSeries
@@ -53,6 +55,14 @@ export function RecentInflationMomentumSummary({
     () => alignInflationObservations(threeMonthHeadline, threeMonthCore),
     [threeMonthCore, threeMonthHeadline],
   )
+  const primaryMomentum = useMemo(() => {
+    const end = momentumAligned.at(-1)?.date
+    if (!end) return []
+    const start = new Date(`${end}T00:00:00Z`)
+    start.setUTCMonth(start.getUTCMonth() - 23)
+    const startDate = start.toISOString().slice(0, 10)
+    return momentumAligned.filter(({ date }) => date >= startDate && date <= end)
+  }, [momentumAligned])
   const selectedMomentum = useMemo(
     () => filterInflationComparisonByTimeRange(momentumAligned, selectedRange),
     [momentumAligned, selectedRange],
@@ -83,28 +93,26 @@ export function RecentInflationMomentumSummary({
       aria-labelledby="recent-inflation-momentum-summary"
     >
       <div className="recent-inflation-momentum__heading">
-        <h4>Overall CPI pace</h4>
+        <h4>Headline CPI momentum</h4>
         <CompactChartHelp
           buttonLabel="Explain recent inflation momentum"
           dialogLabel="Recent inflation momentum explanation"
           heading="How to read this comparison"
         >
           <p>
-            The 12-month rate compares prices with one year earlier. The recent
-            rate takes price changes over the latest three months and expresses
-            them as a yearly pace.
+            The comparison uses two adjacent, non-overlapping three-month
+            windows. Each rate expresses its observed three-month price change
+            as a yearly pace.
           </p>
           <p>
-            Annualizing makes the periods directly comparable. The recent rate
-            reacts faster than the 12-month rate, but it is noisier and does not
-            predict what inflation will be next year.
+            The latest window ends in the current observation month. The
+            previous window ends three months earlier. Complete consecutive
+            monthly CPI observations are required; missing months remain gaps.
           </p>
           <p>
-            When the past-year rate is at least 0.5% in absolute value, the hero
-            compares the difference with that past-year rate. Smaller
-            denominators use the percentage-point difference to avoid an
-            exaggerated relative percentage. The existing percentage-point
-            thresholds still determine the plain-language answer.
+            The hero is the latest pace minus the previous pace in percentage
+            points. Differences smaller than 0.1 percentage point are described
+            as little changed. Unrounded values determine the answer.
           </p>
           <p>
             Both compact values use overall, or headline, CPI including food
@@ -212,6 +220,11 @@ export function RecentInflationMomentumSummary({
               {model.supportingComparison}
             </p>
           )}
+          {model.twelveMonthRate !== null && (
+            <p className="recent-inflation-momentum__support">
+              12-month inflation: {formatSignedPercentage(model.twelveMonthRate)}
+            </p>
+          )}
           <p className="recent-inflation-momentum__answer-text">
             {model.answer}
           </p>
@@ -227,9 +240,30 @@ export function RecentInflationMomentumSummary({
             classification.
           </p>
           <p>
-            Three-month annualized rates describe the observed latest pace as a
-            yearly rate. They are responsive and noisy, and are not forecasts.
+            Three-month annualized rates describe observed paces as yearly
+            rates. The compact answer compares the latest three months with the
+            immediately preceding non-overlapping three months. The 12-month
+            rate remains secondary context and does not determine the answer.
           </p>
+          <section>
+            <h4>Rolling 3-month annualized headline and core CPI</h4>
+            <Suspense fallback={<p className="chart-state">Loading chart visualization…</p>}>
+              <EconomicTimeSeriesChart
+                kind="inflation-comparison"
+                variant="momentum"
+                headlineObservations={primaryMomentum.map(({ date, headline }) => ({
+                  date, value: headline,
+                }))}
+                coreObservations={primaryMomentum.map(({ date, core }) => ({
+                  date, value: core,
+                }))}
+                frequency="monthly"
+                zoomStartDate={primaryMomentum.at(0)?.date ?? ''}
+                zoomEndDate={primaryMomentum.at(-1)?.date ?? ''}
+                onZoomChange={keepPrimaryMomentumRange}
+              />
+            </Suspense>
+          </section>
           <TimeRangeControl
             selectedRange={selectedRange}
             onRangeChange={zoom.selectPreset}
@@ -252,25 +286,6 @@ export function RecentInflationMomentumSummary({
                   date, value: headline,
                 }))}
                 coreObservations={selectedYearOverYear.map(({ date, core }) => ({
-                  date, value: core,
-                }))}
-                frequency="monthly"
-                zoomStartDate={visibleStart ?? ''}
-                zoomEndDate={visibleEnd ?? ''}
-                onZoomChange={zoom.onChartZoom}
-              />
-            </Suspense>
-          </section>
-          <section>
-            <h4>Three-month annualized headline and core CPI</h4>
-            <Suspense fallback={<p className="chart-state">Loading chart visualization…</p>}>
-              <EconomicTimeSeriesChart
-                kind="inflation-comparison"
-                variant="momentum"
-                headlineObservations={selectedMomentum.map(({ date, headline }) => ({
-                  date, value: headline,
-                }))}
-                coreObservations={selectedMomentum.map(({ date, core }) => ({
                   date, value: core,
                 }))}
                 frequency="monthly"
