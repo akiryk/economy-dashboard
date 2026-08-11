@@ -21,16 +21,16 @@ const navigationGroups = [
         title: 'How quickly are consumer prices rising?',
       },
       {
+        id: 'wages-versus-inflation-card',
+        title: 'Are workers’ wages keeping up with prices?',
+      },
+      {
         id: 'inflation-drivers-card',
         title: 'What is driving inflation?',
       },
       {
         id: 'recent-inflation-momentum-card',
         title: 'Has inflation picked up in recent months?',
-      },
-      {
-        id: 'wages-versus-inflation-card',
-        title: 'Are workers’ wages keeping up with prices?',
       },
     ],
   },

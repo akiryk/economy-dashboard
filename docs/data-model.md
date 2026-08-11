@@ -4,11 +4,11 @@ For the product-level card inventory and rationale, see [`product-overview.md`](
 
 The economic-series domain model keeps source metadata and observations together while distinguishing the meaning of each date.
 
-## Briefing interpretation boundary
+## Historical-comparison boundary
 
-The at-a-glance briefing interpretation is implemented as pure domain logic in `src/features/briefing`. It accepts already-loaded, validated observations and explicit configuration, then returns typed condition, direction, freshness, and agreement results with trace metadata. It performs no repository access or rendering. The committed research datasets and their existing repositories remain the evidence layer.
+Reusable historical-comparison calculations are implemented as pure domain logic in `src/features/briefing`. They accept already-loaded, validated observations and explicit configuration and perform no repository access or rendering. The committed research datasets and their existing repositories remain the evidence layer.
 
-The non-default `/briefing` route is the first vertical slice over that boundary. Its Labor-specific orchestration loads the Kansas City Fed LMCI Activity and Momentum indexes as its two primary readings, derives full-history percentile ranks, selects fixed tiers and deterministic copy, and creates a typed view model for the Labor tile. Unemployment, monthly and three-month-average payroll changes, prime-age employment, and initial claims are supporting evidence only. Repository loading, interpretation, visual transformations, and React rendering remain separate. The default `/` route is still the full research dashboard.
+The former Labor briefing route has been removed. Generic historical-comparison utilities remain in `src/features/briefing` because research-dashboard historical bands use them; repository loading, domain calculations, and React rendering remain separate.
 
 An `EconomicSeries` identifies the provider and provider series, explains the displayed units and transformation, records seasonal adjustment and frequency, and contains `EconomicObservation` entries. Each observation has an ISO date representing the economic period and a numeric or `null` value. A missing observation remains `null`; it is never treated as zero.
 

@@ -206,9 +206,9 @@ describe('DashboardPage economic series', () => {
       'Is economic output growing faster than the population?',
       'Is the economy producing more per hour worked?',
       'How quickly are consumer prices rising?',
+      'Are workers’ wages keeping up with prices?',
       'What is driving inflation?',
       'Has inflation picked up in recent months?',
-      'Are workers’ wages keeping up with prices?',
       'Is unemployment high or low?',
       'What share of prime-age adults are employed?',
       'Are employers adding jobs?',
@@ -433,9 +433,9 @@ describe('DashboardPage economic series', () => {
       })
       expect(priceQuestions.map((heading) => heading.textContent)).toEqual([
         'How quickly are consumer prices rising?',
+        'Are workers’ wages keeping up with prices?',
         'What is driving inflation?',
         'Has inflation picked up in recent months?',
-        'Are workers’ wages keeping up with prices?',
       ])
     })
     expect(
@@ -868,7 +868,7 @@ describe('DashboardPage economic series', () => {
     })
   })
 
-  it('renders a collapsed real-wage card last in Prices with research evidence under More', async () => {
+  it('renders the collapsed real-wage card second in Prices with research evidence under More', async () => {
     const user = userEvent.setup()
     render(<DashboardPage />)
     const prices = screen.getByRole('region', { name: 'Prices' })
@@ -880,9 +880,9 @@ describe('DashboardPage economic series', () => {
     expect(articles.map((article) => within(article).getByRole('heading', { level: 3 }).textContent))
       .toEqual([
         'How quickly are consumer prices rising?',
+        'Are workers’ wages keeping up with prices?',
         'What is driving inflation?',
         'Has inflation picked up in recent months?',
-        'Are workers’ wages keeping up with prices?',
       ])
     const latestReading = within(comparison)
       .getByLabelText('Latest real wage growth')

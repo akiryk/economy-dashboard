@@ -14,9 +14,6 @@ vi.mock('../pages/StatusDashboardPage', () => ({
 vi.mock('../pages/SecondaryPage', () => ({
   SecondaryPage: () => <h1>Secondary route</h1>,
 }))
-vi.mock('../pages/BriefingPage', () => ({
-  BriefingPage: () => <h1>Briefing route</h1>,
-}))
 
 afterEach(cleanup)
 
@@ -32,16 +29,24 @@ describe('AppRouterProvider', () => {
     expect(screen.getByRole('heading', { name: 'Status route' })).toBeVisible()
     expect(router.state.location.pathname).toBe('/dashboard')
 
-    await user.click(screen.getByRole('link', { name: 'Secondary indicators' }))
-    expect(screen.getByRole('heading', { name: 'Secondary route' })).toBeVisible()
-    expect(router.state.location.pathname).toBe('/secondary')
-
-    await user.click(screen.getByRole('link', { name: 'Labor briefing preview' }))
-    expect(screen.getByRole('heading', { name: 'Briefing route' })).toBeVisible()
-    expect(router.state.location.pathname).toBe('/briefing')
-
     await user.click(screen.getByRole('link', { name: 'Research dashboard' }))
     expect(screen.getByRole('heading', { name: 'Research route' })).toBeVisible()
     expect(router.state.location.pathname).toBe('/')
+  })
+
+  it('keeps the secondary page available as an unlinked route', async () => {
+    const router = createMemoryRouter(appRoutes, { initialEntries: ['/secondary'] })
+    render(<AppRouterProvider router={router} />)
+
+    expect(screen.getByRole('heading', { name: 'Secondary route' })).toBeVisible()
+    expect(screen.queryByRole('link', { name: 'Secondary indicators' }))
+      .not.toBeInTheDocument()
+  })
+
+  it('does not expose the removed Labor briefing route', async () => {
+    const router = createMemoryRouter(appRoutes, { initialEntries: ['/briefing'] })
+    render(<AppRouterProvider router={router} />)
+
+    expect(screen.getByRole('heading', { name: 'Page not found' })).toBeVisible()
   })
 })

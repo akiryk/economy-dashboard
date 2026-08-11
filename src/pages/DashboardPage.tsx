@@ -92,9 +92,6 @@ export function DashboardPage() {
           verdict; historical context and relationships among indicators matter.
         </p>
         {updateContext && <p className="page-update">{updateContext}</p>}
-        <p className="page-preview-link">
-          <a href="/briefing">Preview the Labor at-a-glance briefing</a>
-        </p>
       </section>
 
       <DashboardNavigation />
@@ -137,6 +134,13 @@ export function DashboardPage() {
           onSeriesLoaded={handleSeriesLoaded}
         />
         <EconomicSeriesCard
+          slug="real-wage-growth"
+          supportingSlugs={wageComparisonSupportingSlugs}
+          label="wages versus inflation"
+          variant="wages-comparison"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+        <EconomicSeriesCard
           slug="headline-cpi-inflation"
           supportingSlugs={inflationDriverSupportingSlugs}
           label="inflation drivers"
@@ -148,13 +152,6 @@ export function DashboardPage() {
           supportingSlugs={headlineMomentumSupportingSlugs}
           label="recent inflation momentum"
           variant="inflation-momentum"
-          onSeriesLoaded={handleSeriesLoaded}
-        />
-        <EconomicSeriesCard
-          slug="real-wage-growth"
-          supportingSlugs={wageComparisonSupportingSlugs}
-          label="wages versus inflation"
-          variant="wages-comparison"
           onSeriesLoaded={handleSeriesLoaded}
         />
       </EconomicSection>

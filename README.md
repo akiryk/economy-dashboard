@@ -4,7 +4,7 @@ An information-first web application for understanding the U.S. economy through 
 
 Phase 1 is complete. The dashboard currently presents 27 cards in nine categories: growth, prices, employment and income, households, housing, business and manufacturing, financial conditions, government finances, and trade and tariffs. A non-default `/secondary` route retains cards that are not currently part of the main dashboard for possible future review.
 
-A non-default `/briefing` preview presents a compact, visual Labor Market summary driven by the Kansas City Fed LMCI Activity and Momentum indexes. A separate `/dashboard` route begins a simplified status-board presentation with one production CPI tile; the full research dashboard remains the default experience.
+A separate `/dashboard` route provides a simplified 12-tile status board; the full research dashboard remains the default experience. The secondary-indicators page remains available at `/secondary` but is intentionally omitted from primary navigation.
 
 See:
 
@@ -13,8 +13,6 @@ See:
 - [`docs/dashboard-review-guide.md`](docs/dashboard-review-guide.md) for reviewing Phase 1 and choosing the next product objective.
 - [`docs/phase-1-limitations.md`](docs/phase-1-limitations.md) and [`docs/phase-1-closeout.md`](docs/phase-1-closeout.md) for accepted constraints and verification evidence.
 - [`docs/data-refresh.md`](docs/data-refresh.md) for the authoritative source, transformation, coverage, and refresh inventory.
-- [`docs/briefing-rules.md`](docs/briefing-rules.md) for the deterministic interpretation rules that will support the future at-a-glance briefing.
-- [`docs/labor-briefing-review.md`](docs/labor-briefing-review.md) for the real-data and historical calibration of the first briefing vertical slice.
 - [`docs/charting.md`](docs/charting.md), [`docs/data-model.md`](docs/data-model.md), and [`docs/compact-card-architecture.md`](docs/compact-card-architecture.md) for implementation architecture.
 
 ## Technology
@@ -72,8 +70,8 @@ src/
     models/             Domain model and runtime validation
     repositories/       Asynchronous local-data boundary
     utils/              Economic calculations and chart preparation
-  features/briefing/    Briefing rules and the Labor vertical slice
-  pages/                Dashboard, briefing preview, and not-found pages
+  features/briefing/    Shared historical-comparison rules
+  pages/                Research, status, secondary, and not-found pages
   styles/               Global styles and design tokens
 scripts/                Provider clients, derivations, and safe refresh writes
 docs/                   Product, architecture, epics, and completed stories
@@ -89,8 +87,8 @@ The production application is published with GitHub Pages at:
 
 Vite builds production assets with `/economy-dashboard/` as the base path, and
 React Router uses that same basename. The Pages artifact also includes a
-`404.html` SPA fallback so direct visits to routes such as `/dashboard`,
-`/secondary`, and `/briefing` load correctly.
+`404.html` SPA fallback so direct visits to `/dashboard` and the unlinked
+`/secondary` route load correctly.
 
 The coordinated [refresh and deployment workflow](.github/workflows/refresh-and-deploy.yml)
 runs every day at **09:17 UTC** and can be started manually:
