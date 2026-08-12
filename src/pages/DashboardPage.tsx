@@ -5,9 +5,9 @@ import { EconomicSeriesCard } from '../features/economic-series/components/Econo
 import { JobGrowthBreakevenCard } from '../features/economic-series/components/JobGrowthBreakevenCard'
 import type { EconomicSeries } from '../features/economic-series/models/economicSeries'
 import {
-  findLatestNonNullObservation,
-  formatObservationPeriod,
-} from '../features/economic-series/utils/economicSeries'
+  type LoadedPeriod,
+  updateLoadedPeriod,
+} from './loadedPeriodState'
 
 const payrollSupportingSlugs = ['monthly-payroll-change'] as const
 const weeklyClaimsSupportingSlugs = ['initial-unemployment-claims'] as const
@@ -40,39 +40,19 @@ const yieldCurveSupportingSlugs = [
 const housingStartsSupportingSlugs = ['us-population-monthly'] as const
 
 export function DashboardPage() {
-  const [loadedSeries, setLoadedSeries] = useState<
-    Readonly<Record<string, EconomicSeries>>
+  const [loadedPeriods, setLoadedPeriods] = useState<
+    Readonly<Record<string, LoadedPeriod>>
   >({})
 
   const handleSeriesLoaded = useCallback(
     (slug: string, series: EconomicSeries | null) => {
-      setLoadedSeries((current) => {
-        if (series) {
-          return current[slug] === series
-            ? current
-            : { ...current, [slug]: series }
-        }
-        if (!(slug in current)) return current
-        const next = { ...current }
-        delete next[slug]
-        return next
-      })
+      setLoadedPeriods((current) => updateLoadedPeriod(current, slug, series))
     },
     [],
   )
 
   const updateContext = useMemo(() => {
-    const periods = Object.values(loadedSeries)
-      .map((series) => {
-        const latest = findLatestNonNullObservation(series.observations)
-        return latest
-          ? {
-              date: latest.date,
-              label: formatObservationPeriod(latest.date, series.frequency),
-            }
-          : null
-      })
-      .filter((period): period is { date: string; label: string } => period !== null)
+    const periods = Object.values(loadedPeriods)
       .sort((a, b) => a.date.localeCompare(b.date))
 
     if (periods.length === 0) return null
@@ -80,7 +60,7 @@ export function DashboardPage() {
       return `Latest available observation: ${periods[0]!.label}`
     }
     return `Latest observations range from ${periods[0]!.label} to ${periods.at(-1)!.label}`
-  }, [loadedSeries])
+  }, [loadedPeriods])
 
   return (
     <div className="page">

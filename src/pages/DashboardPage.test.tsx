@@ -10,6 +10,7 @@ import type { HistoricalBandResult } from '../features/economic-series/utils/his
 import type { InflationDriversSupportingTrendsModel } from '../features/economic-series/utils/inflationCategoryTrends'
 import type { RealWageGrowthModel } from '../features/economic-series/utils/realWageGrowth'
 import joltsLayoffsData from '../features/economic-series/data/jolts-layoffs-and-discharges-rate.json'
+import realGdpGrowthData from '../features/economic-series/data/real-gdp-growth.json'
 import { validateEconomicSeries } from '../features/economic-series/models/validateEconomicSeries'
 import { localEconomicSeriesRepository } from '../features/economic-series/repositories/localEconomicSeriesRepository'
 import { formatObservationPeriod } from '../features/economic-series/utils/economicSeries'
@@ -19,6 +20,7 @@ import {
   formatYieldCurveSpread,
 } from '../features/economic-series/utils/yieldCurveData'
 import { DashboardPage } from './DashboardPage'
+import { updateLoadedPeriod } from './loadedPeriodState'
 
 const joltsLayoffsSeries = validateEconomicSeries(joltsLayoffsData)
 const latestJoltsLayoffsPeriod = formatObservationPeriod(
@@ -142,6 +144,20 @@ afterEach(() => {
 })
 
 describe('DashboardPage economic series', () => {
+  it('does not update page state for a semantically unchanged loaded period', () => {
+    const firstSeries = validateEconomicSeries(realGdpGrowthData)
+    const equivalentSeries = validateEconomicSeries(
+      structuredClone(realGdpGrowthData),
+    )
+    const initial = updateLoadedPeriod({}, firstSeries.slug, firstSeries)
+
+    expect(updateLoadedPeriod(
+      initial,
+      equivalentSeries.slug,
+      equivalentSeries,
+    )).toBe(initial)
+  })
+
   it('loads each compact Growth series once for both compact and expanded views', async () => {
     const getBySlug = vi.spyOn(localEconomicSeriesRepository, 'getBySlug')
 
