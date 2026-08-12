@@ -91,7 +91,9 @@ React Router uses that same basename. The Pages artifact also includes a
 `/secondary` route load correctly.
 
 The coordinated [refresh and deployment workflow](.github/workflows/refresh-and-deploy.yml)
-runs every day at **09:17 UTC** and can be started manually:
+deploys every push to `main`. It also runs every day at **09:17 UTC** to refresh
+the committed economic datasets and deploy when those data change. It can be
+started manually:
 
 ```bash
 gh workflow run refresh-and-deploy.yml --ref main

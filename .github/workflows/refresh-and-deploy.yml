@@ -1,6 +1,9 @@
 name: Refresh economic data and deploy Pages
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     - cron: '17 9 * * *'
   workflow_dispatch:
@@ -45,11 +48,13 @@ jobs:
         run: npm ci
 
       - name: Refresh economic datasets
+        if: github.event_name != 'push'
         run: npm run data:refresh
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
 
       - name: Discard retrieval-date-only rewrites
+        if: github.event_name != 'push'
         shell: bash
         run: |
           while IFS= read -r file; do
@@ -102,8 +107,9 @@ jobs:
         env:
           DATA_CHANGED: ${{ steps.changes.outputs.data_changed }}
           DEPLOY_CURRENT: ${{ inputs.deploy_current || 'false' }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [[ "$DATA_CHANGED" == 'true' || "$DEPLOY_CURRENT" == 'true' ]]; then
+          if [[ "$EVENT_NAME" == 'push' || "$DATA_CHANGED" == 'true' || "$DEPLOY_CURRENT" == 'true' ]]; then
             echo 'deploy_required=true' >> "$GITHUB_OUTPUT"
           else
             echo 'deploy_required=false' >> "$GITHUB_OUTPUT"
