@@ -311,8 +311,8 @@ Do not substitute another CPI table or a category inflation-rate series. Table
 # Story Completion
 
 A story is complete when the requested implementation and documentation have been
-verified, committed locally, and pushed successfully to the current tracked remote
-branch.
+verified, committed locally, pushed successfully to the current tracked remote
+branch, and deployed successfully by the repository's GitHub Pages workflow.
 
 Before completing a story:
 
@@ -334,7 +334,26 @@ Before completing a story:
 13. Confirm the story commit exists locally and unrelated working-tree changes remain untouched.
 14. Push the commit to the current tracked remote branch.
 15. Confirm that the remote push succeeded.
-16. Confirm the final working-tree status.
+16. Find the `refresh-and-deploy.yml` workflow run for the exact pushed commit and
+    monitor it through completion.
+17. Confirm that both `refresh-and-build` and `deploy` succeeded. When practical,
+    confirm that the deployed `deployment-metadata.json` names the expected commit.
+18. Confirm the final working-tree status.
+
+After every code push:
+
+- Do not treat a successful `git push` as completion.
+- Use the GitHub CLI to locate and watch the workflow run for the exact commit.
+- If the run fails, inspect the failed job and step logs, identify the root cause,
+  fix it, run the required local verification again, create a focused follow-up
+  commit, push it, and monitor the new run. Continue until deployment succeeds.
+- Do not blindly rerun a failed workflow when the failure indicates a code, test,
+  data, build, or configuration problem. A rerun is appropriate only when the logs
+  clearly show a transient GitHub or network infrastructure failure.
+- If monitoring or deployment is blocked by authentication, permissions, GitHub
+  availability, branch protection, an unavailable required secret, or another
+  external condition that cannot be corrected in the repository, preserve the
+  verified commits and report the exact required user action.
 
 Do not:
 
@@ -348,6 +367,8 @@ Do not:
 - Leave verification-only files, screenshots, logs, temporary datasets, or running
   processes behind.
 - Ask for permission to push after a story has passed all checks and verification.
+- Report a story as complete before its exact pushed commit has passed the Pages
+  workflow and deployed successfully.
 
 When the story implementation is verified:
 
@@ -365,12 +386,14 @@ When the story implementation is verified:
    - Commit hash and message
    - GitHub remote
    - Push result
+   - GitHub Actions run URL and result
+   - Pages deployment result and deployed commit
    - Final working-tree status
    - Any known limitations or concerns for the next story
 
 4. End with this compact, single-line cue:
 
-   `✅ STORY [NUMBER] DONE, VERIFIED, COMMITTED, AND PUSHED.`
+   `✅ STORY [NUMBER] DONE, VERIFIED, COMMITTED, PUSHED, AND DEPLOYED.`
 
 If pushing fails because of authentication, permissions, branch protection,
 a non-fast-forward update, or another remote issue:
@@ -386,3 +409,9 @@ a non-fast-forward update, or another remote issue:
 If an earlier verified story commit remains unpushed because of a prior push failure,
 do not silently mix it into the current story. Report the situation before pushing
 and preserve commit boundaries.
+
+If the push succeeds but the deployment cannot be completed because of an external
+blocker, do not describe the story as fully complete. Report the failed workflow URL,
+failed job and step, diagnosis, preserved commit, and required user action. End with:
+
+`⚠️ STORY [NUMBER] VERIFIED, COMMITTED, AND PUSHED — DEPLOYMENT BLOCKED.`

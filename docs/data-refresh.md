@@ -512,6 +512,16 @@ site remains untouched. Each job writes a summary containing its result,
 whether data changed, the deployment commit, deployed URL, and newest dataset
 date when available.
 
+Repository completion work follows a push-through-deployment rule. After a code
+push, the exact commit's `refresh-and-deploy.yml` run is monitored until both the
+build and Pages deployment jobs succeed. A failure is investigated from the job
+logs and corrected with a verified follow-up commit; it is not silently left for
+the next push. Workflow reruns are reserved for failures that are clearly caused
+by transient GitHub or network infrastructure rather than by repository code,
+tests, data, build configuration, or deployment configuration. An external blocker
+that cannot be fixed in the repository must be reported with the failed run, root
+cause, and required operator action.
+
 Production is served at
 [`https://akiryk.github.io/economy-dashboard/`](https://akiryk.github.io/economy-dashboard/).
 The deployed

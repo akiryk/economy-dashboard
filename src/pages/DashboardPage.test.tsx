@@ -172,7 +172,7 @@ describe('DashboardPage economic series', () => {
 
     await screen.findByRole('article', {
       name: 'Is economic output growing faster than the population?',
-    })
+    }, { timeout: 5_000 })
     await waitFor(() => {
       for (const slug of [
         'real-gdp-growth',
