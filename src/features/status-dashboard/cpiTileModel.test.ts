@@ -43,17 +43,13 @@ describe('CPI tile model', () => {
   })
 
   it('keeps a 3.5% reading neutral-colored while describing it as elevated', () => {
-    const model = createCpiTileModel(series('headline', [3.5]), null)
+    const model = createCpiTileModel(series('headline', [3.5]))
     expect(model).toMatchObject({ state: 'normal', stateLabel: 'Elevated' })
   })
 
-  it('uses latest valid headline and core values while preserving their dates', () => {
-    const model = createCpiTileModel(
-      series('headline', [1, 1.6, null]),
-      series('core', [2, 1.9, null]),
-    )
+  it('uses the latest valid headline value', () => {
+    const model = createCpiTileModel(series('headline', [1, 1.6, null]))
     expect(model.headline).toEqual({ date: '2020-02-01', value: 1.6 })
-    expect(model.core).toEqual({ date: '2020-02-01', value: 1.9 })
     expect(model.state).toBe('notable-good')
     expect(model.stateLabel).toBe('Near price-stability range')
   })

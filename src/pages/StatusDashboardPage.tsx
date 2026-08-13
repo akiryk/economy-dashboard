@@ -4,7 +4,6 @@ import { dashboardEconomicSeriesRepository } from '../features/economic-series/r
 import { CpiTile } from '../features/status-dashboard/CpiTile'
 import { createCpiTileModel } from '../features/status-dashboard/cpiTileModel'
 import { GrowthLaborTiles, SahmStatusTile } from '../features/status-dashboard/GrowthLaborTiles'
-import { PricesRatesTiles } from '../features/status-dashboard/PricesRatesTiles'
 import { MarketsCreditTiles } from '../features/status-dashboard/MarketsCreditTiles'
 import { useDashboardTheme } from '../features/status-dashboard/useDashboardTheme'
 import type { DashboardThemePreference } from '../features/status-dashboard/useDashboardTheme'
@@ -13,7 +12,6 @@ import '../styles/statusDashboard.css'
 interface CpiDataState {
   status: 'loading' | 'ready' | 'unavailable'
   headline?: EconomicSeries
-  core?: EconomicSeries | null
 }
 
 export function StatusDashboardPage() {
@@ -22,18 +20,13 @@ export function StatusDashboardPage() {
 
   useEffect(() => {
     let active = true
-    void Promise.allSettled([
-      dashboardEconomicSeriesRepository.getBySlug('dashboard-headline-cpi-inflation'),
-      dashboardEconomicSeriesRepository.getBySlug('dashboard-core-cpi-inflation'),
-    ]).then(([headlineResult, coreResult]) => {
+    void dashboardEconomicSeriesRepository
+      .getBySlug('dashboard-headline-cpi-inflation')
+      .then((headline) => {
       if (!active) return
-      const headline = headlineResult.status === 'fulfilled'
-        ? headlineResult.value
-        : null
-      const core = coreResult.status === 'fulfilled' ? coreResult.value : null
-      setData(headline
-        ? { status: 'ready', headline, core }
-        : { status: 'unavailable' })
+      setData(headline ? { status: 'ready', headline } : { status: 'unavailable' })
+    }).catch(() => {
+      if (active) setData({ status: 'unavailable' })
     })
     return () => { active = false }
   }, [])
@@ -70,7 +63,7 @@ export function StatusDashboardPage() {
         )}
         {data.status === 'ready' && data.headline && (() => {
           try {
-            return <CpiTile model={createCpiTileModel(data.headline, data.core ?? null)} theme={resolvedTheme} />
+            return <CpiTile model={createCpiTileModel(data.headline)} theme={resolvedTheme} />
           } catch {
             return (
               <article className="status-tile status-tile--message" role="alert">
@@ -80,7 +73,6 @@ export function StatusDashboardPage() {
             )
           }
         })()}
-        <PricesRatesTiles theme={resolvedTheme} />
         <SahmStatusTile theme={resolvedTheme} />
         <MarketsCreditTiles theme={resolvedTheme} />
       </section>

@@ -32,11 +32,11 @@ export function CpiTile({ model, theme }: CpiTileProps) {
   return (
     <EconomicStatusTile
       label="Inflation"
-      seriesLabel="CPI inflation"
+      seriesLabel="headline CPI-U inflation"
       hero={formatPercent(model.headline.value)}
       state={model.state}
       stateLabel={model.stateLabel}
-      secondary={model.core ? `Core ${formatPercent(model.core.value)}` : 'Core unavailable'}
+      secondary="12-month CPI-U, all items"
       observations={model.sparkline}
       sparklineSummary={sparklineSummary}
       theme={theme}
@@ -46,7 +46,6 @@ export function CpiTile({ model, theme }: CpiTileProps) {
       dateFormatter={formatYear}
       backContent={getInflationBackContent(
         model.headline.value,
-        model.core?.value ?? null,
         model.stateLabel,
       )}
     />

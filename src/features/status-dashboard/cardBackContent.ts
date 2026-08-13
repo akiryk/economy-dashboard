@@ -85,12 +85,8 @@ export function getSahmBackContent(value: number): DashboardCardBackContent {
 
 export function getInflationBackContent(
   headline: number,
-  core: number | null,
   stateLabel: string,
 ): DashboardCardBackContent {
-  const coreClause = core === null
-    ? 'The current core CPI reading is unavailable.'
-    : `Core CPI, excluding food and energy, rose ${core.toFixed(1)}%.`
   const interpretations: Record<string, string> = {
     'Very low': 'Inflation is unusually low. Very low inflation can signal weak price pressure rather than simply being favorable.',
     Low: 'Inflation is low relative to the range generally associated with price stability.',
@@ -99,7 +95,7 @@ export function getInflationBackContent(
     High: 'CPI inflation is high and well above the range associated with price stability.',
   }
   return {
-    whatItShows: `Consumer prices were ${headline.toFixed(1)}% higher than a year earlier. ${coreClause}`,
+    whatItShows: `The not-seasonally-adjusted CPI-U All Items index was ${headline.toFixed(1)}% higher than a year earlier.`,
     howToReadIt: `${interpretations[stateLabel] ?? interpretations.Elevated} The Fed's formal 2% objective applies to PCE inflation, not CPI.`,
   }
 }
@@ -124,80 +120,14 @@ export function getPayrollBackContent(
   }
 }
 
-export function getExpectedInflationBackContent(
-  value: number,
-  stateLabel: string,
-): DashboardCardBackContent {
-  const interpretations: Record<string, string> = {
-    'Very low': 'Very low breakevens can reflect weak inflation expectations, market stress, or liquidity effects.',
-    Low: 'Long-run inflation expectations are below a price-stability range.',
-    'Near price-stability range': 'Long-run inflation expectations remain near a price-stability range.',
-    Elevated: "Long-run inflation expectations are elevated, though not at the dashboard's high-alert threshold.",
-    High: "Long-run inflation expectations are high relative to the dashboard's threshold.",
-  }
-  return {
-    whatItShows: `The 10-year breakeven is ${value.toFixed(1)}%, a market-implied average inflation rate for roughly the next decade.`,
-    howToReadIt: `${interpretations[stateLabel]} It is a market-implied expectation, not a guaranteed forecast.`,
-  }
-}
-
-export function getFedFundsBackContent(
-  effective: number,
-  upper: number | null,
-  stateLabel: string,
-): DashboardCardBackContent {
-  const target = upper === null
-    ? 'The current target-range upper bound is unavailable.'
-    : `The Federal Reserve's target-range upper bound is ${upper.toFixed(2)}%.`
-  const relationship = stateLabel === 'Within target range'
-    ? 'The effective rate is within the range implied by the available upper bound.'
-    : stateLabel === 'Above target range'
-      ? 'The effective rate is above the available target upper bound.'
-      : stateLabel === 'Below target upper'
-        ? 'The effective rate is materially below the available target upper bound.'
-        : 'The relationship to the target range cannot be determined from available data.'
-  return {
-    whatItShows: `The effective federal funds rate is ${effective.toFixed(2)}%. ${target}`,
-    howToReadIt: `${relationship} Higher rates generally raise borrowing costs and restrain demand; lower rates do the reverse.`,
-  }
-}
-
-export function getYieldCurveBackContent(
-  twoYearSpread: number,
-  threeMonthSpread: number | null,
-): DashboardCardBackContent {
-  const basisPoints = Math.abs(Math.round(twoYearSpread * 100))
-  const relationship = twoYearSpread < 0
-    ? `The 2-year Treasury yield is ${basisPoints} basis points above the 10-year yield.`
-    : `The 10-year Treasury yield is ${basisPoints} basis points above the 2-year yield.`
-  const secondary = threeMonthSpread === null
-    ? 'The 10-year minus 3-month spread is unavailable.'
-    : `The secondary figure is the 10-year minus 3-month spread.`
-  const interpretation = twoYearSpread < 0
-    ? 'The curve is inverted. Inversions have historically preceded many U.S. recessions, but they do not determine whether or when one will occur.'
-    : 'The curve is not currently inverted. A positive slope does not rule out recession or guarantee strong growth.'
-  return {
-    whatItShows: `${relationship} ${secondary}`,
-    howToReadIt: interpretation,
-  }
-}
-
-export function getLongRatesBackContent(
-  treasury: number,
-  treasuryDate: string,
+export function getMortgageRateBackContent(
   mortgage: number,
   mortgageDate: string,
-  spreadBasisPoints: number,
-  spreadState: 'narrow' | 'typical' | 'wide',
+  direction: string,
 ): DashboardCardBackContent {
-  const spreadDescription = spreadState === 'wide'
-    ? 'The current mortgage spread is wide relative to its available history.'
-    : spreadState === 'narrow'
-      ? 'The current mortgage spread is narrow relative to its available history.'
-      : 'The current mortgage spread is within a typical historical range.'
   return {
-    whatItShows: `10-year Treasury: ${treasury.toFixed(2)}% on ${treasuryDate}. 30-year mortgage: ${mortgage.toFixed(2)}% on ${mortgageDate}. Difference: ${Math.round(spreadBasisPoints)} basis points.`,
-    howToReadIt: `The Treasury is a benchmark long-term rate. Mortgages add a spread for market, prepayment, and risk conditions. ${spreadDescription} This spread does not diagnose stress.`,
+    whatItShows: `Freddie Mac's national average 30-year fixed mortgage rate was ${mortgage.toFixed(2)}% on ${mortgageDate}; it was ${direction}.`,
+    howToReadIt: 'This benchmark summarizes prevailing mortgage borrowing conditions, but an individual offer varies with the borrower, property, lender, points, and fees. Mortgage rates alone do not determine housing affordability.',
   }
 }
 

@@ -6,11 +6,10 @@ import {
   classifyHighYieldSpread,
   classifySp500Drawdown,
   createHighYieldSpreadTileModel,
-  createLongRatesTileModel,
+  createMortgageRateTileModel,
   createSp500TileModel,
   describeHighYieldSpread,
   describeSp500Drawdown,
-  mortgageTreasurySpreadBasisPoints,
 } from './marketsCreditTileModels'
 
 function series(slug: string, observations: Array<[string, number | null]>): EconomicSeries {
@@ -25,20 +24,14 @@ function series(slug: string, observations: Array<[string, number | null]>): Eco
 }
 
 describe('markets and credit tile models', () => {
-  it('preserves independent rate dates and calculates the mortgage spread in basis points', () => {
-    const treasury = series('DGS10', [
-      ['2025-08-07', 4], ['2026-08-06', 4.5], ['2026-08-07', 4.65],
-    ])
+  it('uses the mortgage rate as both headline and five-year sparkline', () => {
     const mortgage = series('MORTGAGE30US', [
-      ['2025-08-07', 6.5], ['2026-08-06', 6.69],
+      ['2021-08-06', 2.8], ['2022-08-05', 5.0], ['2026-08-06', 6.69],
     ])
-    const model = createLongRatesTileModel(treasury, mortgage)
-    expect(model.headline).toEqual({ date: '2026-08-07', value: 4.65 })
-    expect(model.mortgage).toEqual({ date: '2026-08-06', value: 6.69 })
-    expect(model.mortgageSpreadBasisPoints).toBeCloseTo(204)
-    expect(mortgageTreasurySpreadBasisPoints(6.72, 4.18)).toBeCloseTo(254)
-    expect(model.sparkline[0]?.date).toBe('2025-08-07')
-    expect(model.historical.historyStart).toBe('2025-08-07')
+    const model = createMortgageRateTileModel(mortgage)
+    expect(model.headline).toEqual({ date: '2026-08-06', value: 6.69 })
+    expect(model.sparkline.map(({ value }) => value)).toEqual([2.8, 5, 6.69])
+    expect(model.historical.historyStart).toBe('2021-08-06')
   })
 
   it('derives S&P drawdown from the available maximum and returns zero at a high', () => {
@@ -71,16 +64,16 @@ describe('markets and credit tile models', () => {
     expect(classifySp500Drawdown(-10.01)).toBe('notable-bad')
   })
 
-  it('creates a one-year S&P drawdown sparkline and omits a percentile model', () => {
+  it('creates a one-year S&P level sparkline and omits a percentile model', () => {
     const model = createSp500TileModel(series('SP500', [
       ['2025-08-07', 100], ['2025-12-31', 105], ['2026-08-07', 110],
     ]))
     expect(model.drawdown).toBe(0)
     expect(model.yearToDateChange).toBeCloseTo(4.7619)
     expect(model.sparkline).toEqual([
-      { date: '2025-08-07', value: 0 },
-      { date: '2025-12-31', value: 0 },
-      { date: '2026-08-07', value: 0 },
+      { date: '2025-08-07', value: 100 },
+      { date: '2025-12-31', value: 105 },
+      { date: '2026-08-07', value: 110 },
     ])
     expect(model).not.toHaveProperty('historical')
   })

@@ -9,11 +9,8 @@ import {
 
 type FiniteObservation = EconomicObservation & { value: number }
 
-export interface LongRatesTileModel {
+export interface MortgageRateTileModel {
   headline: FiniteObservation
-  mortgage: FiniteObservation
-  mortgageSpreadBasisPoints: number
-  spreadState: 'narrow' | 'typical' | 'wide'
   sparkline: readonly EconomicObservation[]
   historical: HistoricalPercentile
 }
@@ -48,33 +45,14 @@ function validObservations(observations: readonly EconomicObservation[]): Finite
   )
 }
 
-export function mortgageTreasurySpreadBasisPoints(mortgage: number, treasury: number): number {
-  return (mortgage - treasury) * 100
-}
-
-export function createLongRatesTileModel(
-  treasurySeries: EconomicSeries,
+export function createMortgageRateTileModel(
   mortgageSeries: EconomicSeries,
-): LongRatesTileModel {
-  const headline = requireLatest(treasurySeries, '10-year Treasury yield')
-  const mortgage = requireLatest(mortgageSeries, '30-year mortgage rate')
-  const treasuryByDate = new Map(validObservations(treasurySeries.observations)
-    .map(({ date, value }) => [date, value]))
-  const historicalSpreads = validObservations(mortgageSeries.observations)
-    .flatMap(({ date, value }) => {
-      const treasury = treasuryByDate.get(date)
-      return treasury === undefined ? [] : [{ date, value: value - treasury }]
-    })
-  const currentSpread = mortgage.value - headline.value
-  const below = historicalSpreads.filter(({ value }) => value < currentSpread).length
-  const percentile = historicalSpreads.length ? below / historicalSpreads.length * 100 : 50
+): MortgageRateTileModel {
+  const headline = requireLatest(mortgageSeries, '30-year mortgage rate')
   return {
     headline,
-    mortgage,
-    mortgageSpreadBasisPoints: mortgageTreasurySpreadBasisPoints(mortgage.value, headline.value),
-    spreadState: percentile < 25 ? 'narrow' : percentile > 75 ? 'wide' : 'typical',
-    sparkline: selectMonthlyLookback(treasurySeries.observations, headline.date, 1),
-    historical: calculateHistoricalPercentile(treasurySeries.observations, headline),
+    sparkline: selectMonthlyLookback(mortgageSeries.observations, headline.date, 5),
+    historical: calculateHistoricalPercentile(mortgageSeries.observations, headline),
   }
 }
 
@@ -116,17 +94,13 @@ export function classifySp500Drawdown(value: number): DashboardThresholdState {
 export function createSp500TileModel(series: EconomicSeries): Sp500TileModel {
   const headline = requireLatest(series, 'S&P 500')
   const drawdown = calculateAvailableHistoryDrawdown(series.observations, headline)
-  const drawdownObservations = validObservations(series.observations).map((observation, index, valid) => ({
-    date: observation.date,
-    value: calculateAvailableHistoryDrawdown(valid.slice(0, index + 1), observation),
-  }))
   return {
     headline,
     drawdown,
     yearToDateChange: calculateYearToDateChange(series.observations, headline),
     state: classifySp500Drawdown(drawdown),
     stateLabel: describeSp500Drawdown(drawdown),
-    sparkline: selectMonthlyLookback(drawdownObservations, headline.date, 1),
+    sparkline: selectMonthlyLookback(series.observations, headline.date, 1),
   }
 }
 

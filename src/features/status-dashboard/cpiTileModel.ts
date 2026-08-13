@@ -16,7 +16,6 @@ export interface HistoricalPercentile {
 
 export interface CpiTileModel {
   headline: EconomicObservation & { value: number }
-  core: (EconomicObservation & { value: number }) | null
   state: DashboardThresholdState
   stateLabel: string
   sparkline: readonly EconomicObservation[]
@@ -102,18 +101,13 @@ export function calculateHistoricalPercentile(
 
 export function createCpiTileModel(
   headlineSeries: EconomicSeries,
-  coreSeries: EconomicSeries | null,
 ): CpiTileModel {
   const headline = latestValidObservation(headlineSeries.observations)
   if (!headline) throw new Error('Headline CPI has no valid observations')
-  const core = coreSeries
-    ? latestValidObservation(coreSeries.observations)
-    : null
   const state = classifyCpiInflation(headline.value)
 
   return {
     headline,
-    core,
     state,
     stateLabel: describeCpiInflation(headline.value),
     sparkline: selectMonthlyLookback(

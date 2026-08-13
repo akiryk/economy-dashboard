@@ -4,14 +4,11 @@ import {
   getGdpBackContent,
   getInflationBackContent,
   getHighYieldSpreadBackContent,
-  getLongRatesBackContent,
-  getExpectedInflationBackContent,
-  getFedFundsBackContent,
+  getMortgageRateBackContent,
   getPayrollBackContent,
   getSahmBackContent,
   getSp500BackContent,
   getUnemploymentBackContent,
-  getYieldCurveBackContent,
 } from './cardBackContent'
 
 describe('dashboard card back content', () => {
@@ -59,7 +56,7 @@ describe('dashboard card back content', () => {
     [3, 'Elevated', 'is elevated'],
     [4, 'High', 'is high'],
   ])('uses the CPI state for %s', (value, state, phrase) => {
-    const content = getInflationBackContent(value, 2.5, state)
+    const content = getInflationBackContent(value, state)
     expect(content.howToReadIt).toContain(phrase)
     expect(content.howToReadIt).toContain("PCE inflation, not CPI")
     expect(content.howToReadIt).not.toContain("CPI target")
@@ -77,37 +74,11 @@ describe('dashboard card back content', () => {
     expect(shrinking.howToReadIt).toContain('is shrinking')
   })
 
-  it('describes expected inflation as market-implied rather than guaranteed', () => {
-    const content = getExpectedInflationBackContent(2.7, 'Elevated')
-    expect(content.whatItShows).toContain('market-implied')
-    expect(content.howToReadIt).toContain('elevated')
-    expect(content.howToReadIt).toContain('not a guaranteed forecast')
-  })
-
-  it('keeps Fed funds factual and valence-free', () => {
-    const content = getFedFundsBackContent(4.33, 4.5, 'Within target range')
-    expect(content.whatItShows).toContain('4.33%')
-    expect(content.whatItShows).toContain('4.50%')
-    expect(content.howToReadIt).toContain('raise borrowing costs')
-    expect(content.howToReadIt).not.toMatch(/good|bad|favorable|unfavorable/i)
-  })
-
-  it('uses grammatical yield-curve direction without deterministic recession claims', () => {
-    const inverted = getYieldCurveBackContent(-0.42, 0.34)
-    expect(inverted.whatItShows).toContain('2-year Treasury yield is 42 basis points above')
-    expect(inverted.howToReadIt).toContain('do not determine whether or when')
-    const positive = getYieldCurveBackContent(0.58, 0.34)
-    expect(positive.whatItShows).toContain('10-year Treasury yield is 58 basis points above')
-    expect(positive.howToReadIt).toContain('does not rule out recession')
-  })
-
-  it('keeps rate dates distinct and mortgage-spread context valence-free', () => {
-    const content = getLongRatesBackContent(
-      4.65, 'Aug 7, 2026', 6.69, 'Aug 6, 2026', 204, 'wide',
-    )
-    expect(content.whatItShows).toContain('4.65% on Aug 7, 2026')
+  it('describes the mortgage benchmark without mixing in Treasury rates', () => {
+    const content = getMortgageRateBackContent(6.69, 'Aug 6, 2026', 'up 0.2 pp from a year ago')
     expect(content.whatItShows).toContain('6.69% on Aug 6, 2026')
-    expect(content.howToReadIt).toContain('wide relative to its available history')
+    expect(content.whatItShows).toContain('up 0.2 pp from a year ago')
+    expect(content.howToReadIt).toContain('individual offer varies')
     expect(content.howToReadIt).not.toMatch(/good|bad|favorable|unfavorable/i)
   })
 

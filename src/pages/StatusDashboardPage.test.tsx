@@ -37,13 +37,6 @@ function seriesForSlug(slug: string): EconomicSeries {
     'initial-unemployment-claims': 228_000,
     'dashboard-sahm-rule-gap': -0.03,
     'dashboard-headline-cpi-inflation': 3.46353,
-    'dashboard-core-cpi-inflation': 2.56579,
-    'dashboard-expected-inflation-10-year': 2.7,
-    'dashboard-effective-federal-funds-rate': 4.33,
-    'dashboard-fed-target-upper-bound': 4.5,
-    'dashboard-yield-spread-10y-2y': -0.42,
-    'dashboard-yield-spread-10y-3m': 0.34,
-    'dashboard-ten-year-treasury-yield': 4.65,
     'dashboard-mortgage-rate-30-year': 6.69,
     'dashboard-sp500': 105,
     'dashboard-high-yield-credit-spread': 2.7,
@@ -52,13 +45,6 @@ function seriesForSlug(slug: string): EconomicSeries {
     const result = series(slug, [100, 110, 105])
     result.observations[0]!.date = '2025-12-31'
     result.observations[1]!.date = '2026-01-02'
-    result.observations[2]!.date = '2026-08-07'
-    return result
-  }
-  if (slug === 'dashboard-ten-year-treasury-yield') {
-    const result = series(slug, [4, 4.5, 4.65])
-    result.observations[0]!.date = '2025-08-07'
-    result.observations[1]!.date = '2026-08-06'
     result.observations[2]!.date = '2026-08-07'
     return result
   }
@@ -92,27 +78,24 @@ afterEach(() => {
 })
 
 describe('StatusDashboardPage', () => {
-  it('renders the growth/labor row before the unchanged CPI tile from local series', async () => {
+  it('renders nine single-purpose status tiles from local series', async () => {
     render(<StatusDashboardPage />)
 
     const tile = await screen.findByRole('article', { name: 'Inflation' })
     expect(tile).toHaveTextContent('3.5%')
-    expect(tile).toHaveTextContent('Core 2.6%')
+    expect(tile).toHaveTextContent('12-month CPI-U, all items')
     expect(tile).toHaveTextContent('As of Jan 2026')
     expect(tile).toHaveTextContent('Elevated')
     expect(tile).toHaveAttribute('data-state', 'normal')
-    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(12))
+    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(9))
     expect(screen.getAllByRole('article').map((article) => article.textContent)).toEqual([
       expect.stringContaining('GDP growth'),
       expect.stringContaining('Unemployment'),
       expect.stringContaining('Payroll growth'),
       expect.stringContaining('Initial claims'),
       expect.stringContaining('Inflation'),
-      expect.stringContaining('Expected inflation'),
-      expect.stringContaining('Fed funds'),
-      expect.stringContaining('Yield curve'),
       expect.stringContaining('Sahm Rule'),
-      expect.stringContaining('Long rates'),
+      expect.stringContaining('30-year mortgage rate'),
       expect.stringContaining('S&P 500'),
       expect.stringContaining('High-yield spread'),
     ])
@@ -128,26 +111,16 @@ describe('StatusDashboardPage', () => {
       .not.toBeInTheDocument()
     expect(within(sahm).getByText(/recession indicator, not a forecast/))
       .toHaveClass('visually-hidden')
-    const expected = screen.getByRole('article', { name: 'Expected inflation' })
-    expect(expected).toHaveTextContent('2.7%')
-    expect(expected).toHaveTextContent('Elevated')
-    expect(expected).toHaveAttribute('data-state', 'normal')
-    const fedFunds = screen.getByRole('article', { name: 'Fed funds' })
-    expect(fedFunds).toHaveTextContent('4.33%')
-    expect(fedFunds).toHaveTextContent('Target upper 4.50%')
-    expect(fedFunds).toHaveAttribute('data-state', 'normal')
-    const yieldCurve = screen.getByRole('article', { name: 'Yield curve' })
-    expect(yieldCurve).toHaveTextContent('−42 bps')
-    expect(yieldCurve).toHaveTextContent('10y−3m +34 bps')
-    expect(yieldCurve).toHaveTextContent('Inverted')
-    expect(yieldCurve).toHaveAttribute('data-state', 'notable-bad')
-    const longRates = screen.getByRole('article', { name: 'Long rates' })
-    expect(longRates).toHaveTextContent('4.65%')
-    expect(longRates).toHaveTextContent('30-year mortgage rate 6.7% · up 0.2 pp from a year ago · +204 bps')
-    expect(longRates).toHaveAttribute('data-state', 'normal')
+    expect(screen.queryByRole('article', { name: 'Expected inflation' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('article', { name: 'Fed funds' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('article', { name: 'Yield curve' })).not.toBeInTheDocument()
+    const mortgage = screen.getByRole('article', { name: '30-year mortgage rate' })
+    expect(mortgage).toHaveTextContent('6.69%')
+    expect(mortgage).toHaveTextContent('up 0.2 pp from a year ago')
+    expect(mortgage).not.toHaveTextContent(/Treasury|spread|bps/)
     const sp500 = screen.getByRole('article', { name: 'S&P 500' })
-    expect(sp500).toHaveTextContent('−4.5%')
-    expect(sp500).toHaveTextContent('105 · YTD +5.0%')
+    expect(sp500).toHaveTextContent('105')
+    expect(sp500).toHaveTextContent('YTD +5.0%')
     expect(sp500).toHaveClass('status-tile--wide')
     expect(within(sp500).queryByRole('button', { name: /Historical/ }))
       .not.toBeInTheDocument()
@@ -155,19 +128,7 @@ describe('StatusDashboardPage', () => {
     expect(highYield).toHaveTextContent('270 bps')
     expect(highYield).toHaveTextContent('Calm')
     expect(highYield).toHaveAttribute('data-state', 'notable-good')
-    expect(dashboardEconomicSeriesRepository.getBySlug).toHaveBeenCalledTimes(18)
-  })
-
-  it('keeps the headline tile when core CPI fails without inventing a value', async () => {
-    vi.mocked(dashboardEconomicSeriesRepository.getBySlug)
-      .mockImplementation(async (slug) => {
-        if (slug.includes('core')) throw new Error('Unavailable')
-        if (slug.includes('headline')) return series(slug, [1.6])
-        return seriesForSlug(slug)
-      })
-    render(<StatusDashboardPage />)
-    expect(await screen.findByText('1.6%')).toBeVisible()
-    expect(screen.getByText('Core unavailable')).toBeVisible()
+    expect(dashboardEconomicSeriesRepository.getBySlug).toHaveBeenCalledTimes(11)
   })
 
   it('isolates a headline failure inside the dashboard content', async () => {
@@ -212,20 +173,6 @@ describe('StatusDashboardPage', () => {
     expect(screen.getByRole('article', { name: 'Inflation' })).toHaveTextContent('3.5%')
   })
 
-  it('isolates a prices-and-rates tile failure from the completed row', async () => {
-    vi.mocked(dashboardEconomicSeriesRepository.getBySlug)
-      .mockImplementation(async (slug) => {
-        if (slug === 'dashboard-effective-federal-funds-rate') throw new Error('Unavailable')
-        return seriesForSlug(slug)
-      })
-    render(<StatusDashboardPage />)
-    expect(await screen.findByRole('article', { name: 'Fed funds' }))
-      .toHaveTextContent('Data temporarily unavailable.')
-    expect(screen.getByRole('article', { name: 'Inflation' })).toHaveTextContent('3.5%')
-    expect(screen.getByRole('article', { name: 'Expected inflation' })).toHaveTextContent('2.7%')
-    expect(screen.getByRole('article', { name: 'Yield curve' })).toHaveTextContent('−42 bps')
-  })
-
   it('keeps market tile failures isolated from the final row', async () => {
     vi.mocked(dashboardEconomicSeriesRepository.getBySlug)
       .mockImplementation(async (slug) => {
@@ -235,20 +182,19 @@ describe('StatusDashboardPage', () => {
     render(<StatusDashboardPage />)
     expect(await screen.findByRole('article', { name: 'S&P 500' }))
       .toHaveTextContent('Data temporarily unavailable.')
-    expect(screen.getByRole('article', { name: 'Long rates' }))
-      .toHaveTextContent('4.65%')
+    expect(screen.getByRole('article', { name: '30-year mortgage rate' }))
+      .toHaveTextContent('6.69%')
     expect(screen.getByRole('article', { name: 'High-yield spread' }))
       .toHaveTextContent('270 bps')
   })
 
-  it('reports independent market dates and honest available-history context on card backs', async () => {
+  it('reports mortgage benchmark and honest available-history context on card backs', async () => {
     const user = userEvent.setup()
     render(<StatusDashboardPage />)
-    const longRates = (await screen.findByText('4.65%')).closest('article')!
-    await user.click(longRates)
-    expect(longRates).toHaveTextContent('Aug 7, 2026')
-    expect(longRates).toHaveTextContent('Aug 6, 2026')
-    expect(longRates).toHaveTextContent('Difference: 204 basis points')
+    const mortgage = (await screen.findByText('6.69%')).closest('article')!
+    await user.click(mortgage)
+    expect(mortgage).toHaveTextContent('Aug 6, 2026')
+    expect(mortgage).toHaveTextContent('individual offer varies')
 
     const sp500 = screen.getByRole('article', { name: 'S&P 500' })
     await user.click(sp500)
@@ -286,7 +232,7 @@ describe('StatusDashboardPage', () => {
     const user = userEvent.setup()
     render(<StatusDashboardPage />)
     const inflation = await screen.findByRole('article', { name: 'Inflation' })
-    const strip = within(inflation).getByRole('button', { name: /Historical CPI inflation details/ })
+    const strip = within(inflation).getByRole('button', { name: /Historical headline CPI-U inflation details/ })
     await user.click(strip)
     expect(strip).toHaveAttribute('aria-expanded', 'true')
     expect(inflation).toHaveAttribute('data-flipped', 'false')
