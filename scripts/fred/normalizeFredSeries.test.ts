@@ -140,7 +140,7 @@ describe('normalizeFredSeries', () => {
   })
 
   it('configures CPI for local year-over-year derivation from full-history levels', () => {
-    expect(cpiConfig.providerSeriesId).toBe('CPIAUCSL')
+    expect(cpiConfig.providerSeriesId).toBe('CPIAUCNS')
     expect(cpiConfig.fredFrequency).toBe('m')
     expect(cpiConfig.fredUnits).toBeUndefined()
     expect(cpiConfig.dataHandling).toBe('locally-derived')

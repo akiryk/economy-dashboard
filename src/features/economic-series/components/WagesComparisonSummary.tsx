@@ -235,13 +235,13 @@ export function WagesComparisonSummary({
           Sources:{' '}
           <a href="https://fred.stlouisfed.org/series/AHETPI" rel="noreferrer" target="_blank">BLS wage data via FRED</a>
           {'; '}
-          <a href="https://fred.stlouisfed.org/series/CPIAUCSL" rel="noreferrer" target="_blank">BLS CPI data via FRED</a>
+          <a href="https://fred.stlouisfed.org/series/CPIAUCSL" rel="noreferrer" target="_blank">Seasonally adjusted BLS CPI data via FRED</a>
         </p>
         <details className="supporting-disclosure">
           <summary>Series details</summary>
           <dl className="series-metadata">
             <div><dt>Wage series</dt><dd>AHETPI</dd></div>
-            <div><dt>Inflation deflator</dt><dd>CPIAUCSL</dd></div>
+            <div><dt>Inflation deflator</dt><dd>CPIAUCSL · Seasonally adjusted</dd></div>
             <div><dt>Frequency</dt><dd>Monthly</dd></div>
             <div><dt>Transformation</dt><dd>{realWageGrowth.transformation}</dd></div>
             <div><dt>Retrieved</dt><dd>{formatDate(realWageGrowth.retrievedAt)}</dd></div>

@@ -63,10 +63,11 @@ describe('manufacturing output growth', () => {
     )
     expect(model.status).toBe('ready')
     if (model.status !== 'ready') return
-    expect(model.latestObservation).toMatchObject({ date: '2026-06-01' })
-    expect(model.latestObservation.value).toBeCloseTo(1.3135997864)
+    const latestDerived = [...derived.growth].reverse().find(({ value }) => value !== null)!
+    expect(model.latestObservation).toEqual(latestDerived)
     expect(model.recentObservations).toHaveLength(61)
-    expect(model.recentObservations[0]?.date).toBe('2021-06-01')
+    expect(model.recentObservations[0]?.date)
+      .toBe(derived.growth.filter(({ value }) => value !== null).slice(-61)[0]?.date)
     expect(createManufacturingAccessibleSummary(model)).toContain(
       'inflation-adjusted volume of manufacturing production, not employment, sales revenue, or prices',
     )

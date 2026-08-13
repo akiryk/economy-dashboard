@@ -109,14 +109,54 @@ describe('deriveCpiSeries', () => {
     const result = deriveCpiSeries(
       { observations },
       { observations },
+      { observations },
       '2026-07-13',
       { ...cpiSeriesConfiguration, minimumUsableObservations: 4 },
     )
     expect(result.headlineInflation.observations[0]?.date).toBe('2025-01-01')
+    expect(result.headlineInflation).toMatchObject({
+      providerSeriesId: 'CPIAUCNS',
+      seasonalAdjustment: 'Not seasonally adjusted (underlying CPI index)',
+    })
     expect(result.headlineMomentum.observations[0]?.date).toBe('2024-04-01')
+    expect(result.headlineMomentum.providerSeriesId).toBe('CPIAUCSL')
+    expect(result.headlineSeasonallyAdjustedInflation.providerSeriesId).toBe('CPIAUCSL')
     expect(result.coreInflation.providerSeriesId).toBe('CPILFESL')
     expect(result.coreMomentum.transformation).toContain('Three-month annualized')
     expect(result.coreMomentum.observations.at(-1)?.date).toBe('2025-02-01')
     expect(observations).toEqual(original)
+  })
+
+  it('accepts a newly appended valid monthly observation without changing prior results', () => {
+    const base = monthlyLevels(2024, 0, 18, (index) => 100 + index).map(
+      ({ date, value }) => ({ date, value: String(value) }),
+    )
+    const appended = [
+      ...base,
+      { date: '2025-07-01', value: '118' },
+    ]
+    const config = { ...cpiSeriesConfiguration, minimumUsableObservations: 4 }
+    const before = deriveCpiSeries(
+      { observations: base }, { observations: base }, { observations: base },
+      '2025-06-30', config,
+    )
+    const after = deriveCpiSeries(
+      { observations: appended }, { observations: appended }, { observations: appended },
+      '2025-07-31', config,
+    )
+
+    for (const key of ['headlineInflation', 'headlineMomentum', 'coreInflation', 'coreMomentum'] as const) {
+      expect(after[key].observations.slice(0, -1)).toEqual(before[key].observations)
+      expect(after[key].observations.at(-1)?.date).toBe('2025-07-01')
+      expect(after[key].observations.length).toBe(before[key].observations.length + 1)
+    }
+    expect(after.headlineInflation).toMatchObject({
+      providerSeriesId: 'CPIAUCNS',
+      seasonalAdjustment: 'Not seasonally adjusted (underlying CPI index)',
+    })
+    expect(after.headlineMomentum).toMatchObject({
+      providerSeriesId: 'CPIAUCSL',
+      seasonalAdjustment: 'Seasonally adjusted (underlying CPI index)',
+    })
   })
 })

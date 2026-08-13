@@ -99,6 +99,7 @@ function buildSeries(
     transformation: string
     sourceUrl: string
     units: string
+    seasonalAdjustment: string
   },
   retrievedAt: string,
   observations: EconomicObservation[],
@@ -108,7 +109,6 @@ function buildSeries(
     slug: config.id,
     provider: 'Federal Reserve Bank of St. Louis',
     frequency: 'monthly',
-    seasonalAdjustment: 'Seasonally adjusted (underlying CPI index)',
     sourceName: 'U.S. Bureau of Labor Statistics via FRED',
     retrievedAt,
     observations: trimLeadingNulls(observations),
@@ -136,19 +136,26 @@ export function deriveSingleMonthlyGrowthSeries(
 }
 
 export function deriveCpiSeries(
-  headlineResponse: FredObservationsResponse,
+  headlineYearOverYearResponse: FredObservationsResponse,
+  headlineMomentumResponse: FredObservationsResponse,
   coreResponse: FredObservationsResponse,
   retrievedAt: string,
   config: CpiSeriesConfig,
 ) {
-  const headlineLevels = parseCpiLevels(
-    headlineResponse,
+  const headlineYearOverYearLevels = parseCpiLevels(
+    headlineYearOverYearResponse,
+    retrievedAt,
+    'CPIAUCNS',
+  )
+  const headlineMomentumLevels = parseCpiLevels(
+    headlineMomentumResponse,
     retrievedAt,
     'CPIAUCSL',
   )
   const coreLevels = parseCpiLevels(coreResponse, retrievedAt, 'CPILFESL')
   for (const [id, levels] of [
-    ['CPIAUCSL', headlineLevels],
+    ['CPIAUCNS', headlineYearOverYearLevels],
+    ['CPIAUCSL', headlineMomentumLevels],
     ['CPILFESL', coreLevels],
   ] as const) {
     const usableCount = levels.filter((item) => item.value !== null).length
@@ -159,16 +166,17 @@ export function deriveCpiSeries(
     }
   }
 
-  const headlineYearOverYear = deriveMonthlyYearOverYearGrowth(headlineLevels)
+  const headlineYearOverYear = deriveMonthlyYearOverYearGrowth(headlineYearOverYearLevels)
+  const headlineSeasonallyAdjustedYearOverYear = deriveMonthlyYearOverYearGrowth(headlineMomentumLevels)
   const coreYearOverYear = deriveMonthlyYearOverYearGrowth(coreLevels)
-  const headlineMomentum = deriveThreeMonthAnnualizedInflation(headlineLevels)
+  const headlineMomentum = deriveThreeMonthAnnualizedInflation(headlineMomentumLevels)
   const coreMomentum = deriveThreeMonthAnnualizedInflation(coreLevels)
 
   return {
     headlineInflation: buildSeries(
       {
         id: 'headline-cpi-inflation',
-        providerSeriesId: 'CPIAUCSL',
+        providerSeriesId: 'CPIAUCNS',
         title: 'Consumer Price Index: Percent Change from Year Ago',
         shortTitle: 'CPI inflation',
         description:
@@ -176,8 +184,9 @@ export function deriveCpiSeries(
         question: 'How quickly are consumer prices rising?',
         transformation:
           'Percent change from year ago, calculated by the application',
-        sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCSL',
+        sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCNS',
         units: 'Percent change from year ago',
+        seasonalAdjustment: 'Not seasonally adjusted (underlying CPI index)',
       },
       retrievedAt,
       headlineYearOverYear,
@@ -195,6 +204,7 @@ export function deriveCpiSeries(
           'Percent change from year ago, calculated by the application',
         sourceUrl: 'https://fred.stlouisfed.org/series/CPILFESL',
         units: 'Percent',
+        seasonalAdjustment: 'Seasonally adjusted (underlying CPI index)',
       },
       retrievedAt,
       coreYearOverYear,
@@ -212,6 +222,7 @@ export function deriveCpiSeries(
           'Three-month annualized percent change, calculated by the application',
         sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCSL',
         units: 'Percent',
+        seasonalAdjustment: 'Seasonally adjusted (underlying CPI index)',
       },
       retrievedAt,
       headlineMomentum,
@@ -229,9 +240,26 @@ export function deriveCpiSeries(
           'Three-month annualized percent change, calculated by the application',
         sourceUrl: 'https://fred.stlouisfed.org/series/CPILFESL',
         units: 'Percent',
+        seasonalAdjustment: 'Seasonally adjusted (underlying CPI index)',
       },
       retrievedAt,
       coreMomentum,
+    ),
+    headlineSeasonallyAdjustedInflation: buildSeries(
+      {
+        id: 'headline-cpi-inflation-seasonally-adjusted',
+        providerSeriesId: 'CPIAUCSL',
+        title: 'Seasonally Adjusted CPI: Percent Change from Year Ago',
+        shortTitle: 'Seasonally adjusted CPI inflation',
+        description: 'The year-over-year change in the seasonally adjusted all-items CPI, used to deflate seasonally adjusted wage growth.',
+        question: 'How quickly are seasonally adjusted consumer prices rising?',
+        transformation: 'Percent change from year ago, calculated by the application',
+        sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCSL',
+        units: 'Percent change from year ago',
+        seasonalAdjustment: 'Seasonally adjusted (underlying CPI index)',
+      },
+      retrievedAt,
+      headlineSeasonallyAdjustedYearOverYear,
     ),
   }
 }

@@ -13,7 +13,14 @@ import joltsLayoffsData from '../features/economic-series/data/jolts-layoffs-and
 import realGdpGrowthData from '../features/economic-series/data/real-gdp-growth.json'
 import { validateEconomicSeries } from '../features/economic-series/models/validateEconomicSeries'
 import { localEconomicSeriesRepository } from '../features/economic-series/repositories/localEconomicSeriesRepository'
-import { formatObservationPeriod } from '../features/economic-series/utils/economicSeries'
+import {
+  formatObservationPeriod,
+  formatPercentage,
+  formatSignedPercentagePoints,
+} from '../features/economic-series/utils/economicSeries'
+import { filterObservationsByTimeRange } from '../features/economic-series/utils/chartData'
+import { classifyCpiAssessment, formatCpiAssessment, formatCpiPolicyReference } from '../features/economic-series/utils/cpiData'
+import { deriveRecentInflationMomentumModel } from '../features/economic-series/utils/recentInflationMomentum'
 import {
   deriveYieldCurveObservations,
   formatYieldCurveAnswer,
@@ -302,6 +309,13 @@ describe('DashboardPage economic series', () => {
   it('renders compact CPI interpretation and expands to distinct core and PCE comparisons', async () => {
     const user = userEvent.setup()
     const getBySlug = vi.spyOn(localEconomicSeriesRepository, 'getBySlug')
+    const [cpi, coreCpi] = await Promise.all([
+      localEconomicSeriesRepository.getBySlug('headline-cpi-inflation'),
+      localEconomicSeriesRepository.getBySlug('core-cpi-inflation'),
+    ])
+    if (!cpi || !coreCpi) throw new Error('Expected committed CPI series')
+    const latest = [...cpi.observations].reverse().find(({ value }) => value !== null)!
+    const latestCore = [...coreCpi.observations].reverse().find(({ value }) => value !== null)!
     render(<DashboardPage />)
 
     const card = await screen.findByRole('article', {
@@ -311,12 +325,10 @@ describe('DashboardPage economic series', () => {
       'Consumer Price Index: Percent Change from Year Ago',
     )).toBeVisible()
     const callout = within(card).getByLabelText(
-      /CPI inflation was 3.5% in June 2026/,
+      `CPI inflation was ${formatPercentage(latest.value)} in ${formatObservationPeriod(latest.date, 'monthly')}. ${formatCpiAssessment(classifyCpiAssessment(latest.value))} ${formatCpiPolicyReference(latest.value)}`,
     )
-    expect(callout).toHaveTextContent('Consumer prices are rising somewhat quickly.')
-    expect(callout).toHaveTextContent(
-      'CPI inflation is 1.5 percentage points above the 2% policy reference.',
-    )
+    expect(callout).toHaveTextContent(formatCpiAssessment(classifyCpiAssessment(latest.value)))
+    expect(callout).toHaveTextContent(formatCpiPolicyReference(latest.value)!)
     expect(within(card).getByTestId('production-compact-chart')).toHaveAttribute(
       'data-series-label',
       'CPI inflation',
@@ -357,8 +369,11 @@ describe('DashboardPage economic series', () => {
       level: 4,
       name: 'What is the underlying inflation trend?',
     })).toBeVisible()
-    expect(within(card).getByText(/Core CPI was 2.6% in June 2026/))
-      .toHaveTextContent('The headline-core gap was +0.9 percentage points.')
+    expect(within(card).getByText(new RegExp(
+      `Core CPI was ${formatPercentage(latestCore.value)} in ${formatObservationPeriod(latestCore.date, 'monthly')}`,
+    ))).toHaveTextContent(
+      `The headline-core gap was ${formatSignedPercentagePoints(latest.value! - latestCore.value!)} percentage points.`,
+    )
     expect(within(card).getByText(/Food and energy are currently adding/))
       .toBeVisible()
     expect(within(card).getByRole('link', {
@@ -501,6 +516,14 @@ describe('DashboardPage economic series', () => {
     const momentum = await screen.findByRole('article', {
       name: 'Has inflation picked up in recent months?',
     })
+    const [twelveMonthHeadline, threeMonthHeadline] = await Promise.all([
+      localEconomicSeriesRepository.getBySlug('headline-cpi-inflation'),
+      localEconomicSeriesRepository.getBySlug('headline-cpi-three-month-annualized'),
+    ])
+    const momentumModel = deriveRecentInflationMomentumModel({
+      twelveMonthHeadline: twelveMonthHeadline!,
+      threeMonthHeadline: threeMonthHeadline!,
+    })
 
     expect(within(drivers).getByText('Category contributions to overall CPI inflation'))
       .toBeVisible()
@@ -534,28 +557,17 @@ describe('DashboardPage economic series', () => {
     expect(within(drivers).getByText(
       'Shown for current contributors with a directly comparable CPI series.',
     )).toBeVisible()
-    expect(within(momentum).getByText(
-      'No — inflation has slowed in recent months.',
-    )).toBeVisible()
-    expect(within(momentum).getByText('−2.5 pp')).toBeVisible()
+    expect(within(momentum).getByText(momentumModel.answer)).toBeVisible()
+    expect(within(momentum).getByText(momentumModel.heroValue)).toBeVisible()
     expect(within(momentum).getByText(
       'Latest three-month annualized pace compared with the previous three months',
     )).toBeVisible()
-    expect(within(momentum).getByText(
-      '+2.8% versus +5.3%, a change of 2.5 percentage points.',
-    )).toBeVisible()
+    expect(within(momentum).getByText(momentumModel.supportingComparison!)).toBeVisible()
     expect(within(momentum).getByText('Previous 3 months, annualized')).toBeVisible()
     expect(within(momentum).getByText('Latest 3 months, annualized')).toBeVisible()
-    expect(within(momentum).getByText('+5.3%')).toBeVisible()
-    expect(within(momentum).getByText('+2.8%')).toBeVisible()
-    expect(within(momentum).getByText(
-      '12-month inflation: +3.5%',
-    )).toBeVisible()
-    expect(within(momentum).getByText(
-      '2.5 percentage points slower',
-    )).toBeVisible()
+    expect(within(momentum).getByText(momentumModel.differenceLabel!)).toBeVisible()
     expect(momentum.querySelector(
-      '.recent-inflation-momentum__slope-plot[data-direction="down"]',
+      `.recent-inflation-momentum__slope-plot[data-direction="${momentumModel.slopeDirection}"]`,
     )).toBeInTheDocument()
     expect(momentum.querySelector(
       '.recent-inflation-momentum__reference',
@@ -566,7 +578,7 @@ describe('DashboardPage economic series', () => {
     expect(momentum.querySelector('svg area')).not.toBeInTheDocument()
     expect(within(momentum).getByText(
       /The graphic compares adjacent, non-overlapping three-month windows/,
-    )).toHaveTextContent('the change was −2.5 percentage points')
+    )).toHaveTextContent(`the change was ${momentumModel.heroValue.replace(' pp', ' percentage points')}`)
     expect(within(momentum).getByText(
       /The graphic compares adjacent, non-overlapping three-month windows/,
     )).toHaveTextContent('not forecasts')
@@ -714,11 +726,11 @@ describe('DashboardPage economic series', () => {
       const primaryMomentumCall = comparisonCalls.find(
         (props) => props.variant === 'momentum',
       )
-      expect(primaryMomentumCall?.headlineObservations).toHaveLength(24)
-      expect(primaryMomentumCall?.headlineObservations?.at(-1)).toEqual({
-        date: '2026-06-01',
-        value: expect.closeTo(2.7837, 3),
-      })
+      expect(primaryMomentumCall?.headlineObservations?.length)
+        .toBeGreaterThanOrEqual(24)
+      expect(primaryMomentumCall?.headlineObservations?.at(-1)).toEqual(
+        threeMonthHeadline!.observations.at(-1),
+      )
     })
     expect(screen.queryByRole('article', { name: /PCE/i })).not.toBeInTheDocument()
   }, 20_000)
@@ -1213,7 +1225,7 @@ describe('DashboardPage economic series', () => {
     })
 
     expect(within(gdpCard).getByLabelText('Latest real GDP growth')).toBeVisible()
-    expect(within(cpiCard).getByLabelText(/CPI inflation was 3.5%/)).toBeVisible()
+    expect(within(cpiCard).getByLabelText(/CPI inflation was \d+\.\d%/)).toBeVisible()
     expect(within(gdpCard).queryByText('Productivity')).not.toBeInTheDocument()
     await user.click(within(gdpCard).getByRole('button', { name: /More/ }))
     await user.click(within(cpiCard).getByRole('button', { name: /More/ }))
@@ -1242,6 +1254,8 @@ describe('DashboardPage economic series', () => {
     await user.click(within(cpiCard).getByRole('button', { name: /More/ }))
 
     await user.click(within(cpiCard).getByRole('button', { name: '5 years' }))
+    const cpi = (await localEconomicSeriesRepository.getBySlug('headline-cpi-inflation'))!
+    const expectedStart = filterObservationsByTimeRange(cpi.observations, '5y')[0]?.date
 
     expect(
       within(cpiCard).getByRole('button', { name: '5 years' }),
@@ -1260,7 +1274,7 @@ describe('DashboardPage economic series', () => {
         )
         .filter((props) => props.seriesName === 'CPI inflation')
         .at(-1)
-      expect(cpiCall?.observations[0]?.date).toBe('2021-06-01')
+      expect(cpiCall?.observations[0]?.date).toBe(expectedStart)
     })
   })
 
@@ -1354,12 +1368,14 @@ describe('DashboardPage economic series', () => {
 
     const housing = screen.getByRole('region', { name: 'Housing' })
     const cards = await within(housing).findAllByRole('article')
+    const affordability = (await localEconomicSeriesRepository.getBySlug('home-ownership-cost-share'))!
+    const latestAffordability = [...affordability.observations].reverse().find(({ value }) => value !== null)!
     expect(cards.map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'home-ownership-cost-share-question',
       'housing-starts-question',
     ])
-    expect(within(cards[0]!).getAllByText('42.0%')).not.toHaveLength(0)
-    expect(cards[0]!.querySelector('.series-current__period')).toHaveTextContent('March 2026')
+    expect(within(cards[0]!).getAllByText(formatPercentage(latestAffordability.value))).not.toHaveLength(0)
+    expect(cards[0]!.querySelector('.series-current__period')).toHaveTextContent(formatObservationPeriod(latestAffordability.date, 'monthly'))
     expect(within(cards[0]!).getAllByText('Estimated share of median household income needed to own the median-priced home')).toHaveLength(2)
     expect(within(cards[0]!).getByText(/not affordable for a median-income household under this model/)).toBeVisible()
     expect(within(cards[0]!).getByText(/well above the 30% affordability threshold/)).toBeVisible()

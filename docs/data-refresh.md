@@ -21,7 +21,7 @@ The existing scheduled `.github/workflows/refresh-and-deploy.yml` workflow runs 
 - Real GDP growth (`GDPC1`, quarterly), written to `real-gdp-growth.json`.
 - Real GDP per capita growth (`A939RX0Q048SBEA`, quarterly source level), derived into `real-gdp-per-capita-growth.json`.
 - Labor productivity (`OPHNFB`, quarterly source index), fetched once and written as the published level plus locally derived year-over-year growth.
-- Headline and core CPI (`CPIAUCSL` and `CPILFESL`, monthly index levels), derived into year-over-year and three-month annualized outputs.
+- Headline CPI uses the not-seasonally-adjusted CPI-U All Items index (`CPIAUCNS`) for the published-style 12-month change. Recent headline momentum uses the seasonally adjusted All Items index (`CPIAUCSL`), while core CPI uses the seasonally adjusted index excluding food and energy (`CPILFESL`).
 - Category CPI-U indexes from BLS (`CUUR0000SAH1` Shelter, `CUUR0000SA0E` Energy, and `CUUR0000SAF1` Food), derived into local five-year year-over-year supporting series for the inflation-drivers card.
 - Headline PCE inflation (`PCEPI`, monthly index level), derived into exact 12-month year-over-year growth for the expanded CPI policy comparison.
 - Unemployment rate (`UNRATE`, monthly), written to `unemployment-rate.json`.
@@ -62,8 +62,8 @@ Story 84 adds or explicitly reuses the following 18 full-history FRED inputs. Co
 | `IC4WSA` | Weekly; claims; seasonally adjusted | Provider-published four-week average | Reuses `initial-unemployment-claims-four-week-average` | Jan 28, 1967–Aug 1, 2026 |
 | `ICSA` | Weekly; claims; seasonally adjusted | Provider-published level | Reuses `initial-unemployment-claims` | Jan 7, 1967–Aug 1, 2026 |
 | `SAHMREALTIME` | Monthly; percentage points; derived from seasonally adjusted unemployment | Provider-published real-time indicator | `dashboard-sahm-rule-gap` | Dec 1959–Jul 2026 |
-| `CPIAUCSL` | Monthly; percent change from year ago; seasonally adjusted underlying index | `units=pc1` | `dashboard-headline-cpi-inflation` | Jan 1948–Jun 2026 |
-| `CPILFESL` | Monthly; percent change from year ago; seasonally adjusted underlying index | `units=pc1` | `dashboard-core-cpi-inflation` | Jan 1958–Jun 2026 |
+| `CPIAUCNS` | Monthly; percent change from year ago; not seasonally adjusted underlying index | `units=pc1` | `dashboard-headline-cpi-inflation` | Jan 1914–Jul 2026 |
+| `CPILFESL` | Monthly; percent change from year ago; seasonally adjusted underlying index | `units=pc1` | `dashboard-core-cpi-inflation` | Jan 1958–Jul 2026 |
 | `T10YIE` | Daily; percent; not seasonally adjusted | Provider-published | `dashboard-expected-inflation-10-year` | Jan 2, 2003–Aug 7, 2026 |
 | `DFF` | Daily; percent; not seasonally adjusted | Provider-published | `dashboard-effective-federal-funds-rate` | Jul 1, 1954–Aug 6, 2026 |
 | `DFEDTARU` | Daily; percent; not seasonally adjusted | Provider-published | `dashboard-fed-target-upper-bound` | Dec 16, 2008–Aug 10, 2026 |
@@ -157,7 +157,7 @@ Shared parameters:
 The series-specific requests are:
 
 - GDP: `series_id=GDPC1`, `frequency=q`, and `units=pc1`.
-- Headline CPI: `series_id=CPIAUCSL` and `frequency=m`, with no `units` or `observation_start` parameter.
+- Headline 12-month CPI: `series_id=CPIAUCNS`; headline momentum and the real-wage deflator: `series_id=CPIAUCSL`. Both use `frequency=m`, with no `units` or `observation_start` parameter.
 - Core CPI: `series_id=CPILFESL` and `frequency=m`, with no `units` or `observation_start` parameter.
 - Headline PCE: `series_id=PCEPI` and `frequency=m`, with no `units` or `observation_start` parameter.
 - Unemployment: `series_id=UNRATE` and `frequency=m`, with no `units` parameter.
@@ -190,7 +190,7 @@ The series-specific requests are:
 - Trade balance: `series_id=A019RE1Q156NBEA` and `frequency=q`, with no `units` parameter.
 - Customs duties: `series_id=B235RC1Q027SBEA` and `frequency=q`, with no `units` parameter.
 - Imports of goods: `series_id=A255RC1Q027SBEA` and `frequency=q`, with no `units` parameter.
-- Streamlined-dashboard sources: `A191RL1Q225SBEA` and `GDP` use `frequency=q`; `PAYEMS` uses `frequency=m&units=chg`; `SAHMREALTIME` uses `frequency=m`; `CPIAUCSL` and `CPILFESL` use `frequency=m&units=pc1`; `T10YIE`, `DFF`, `DFEDTARU`, `T10Y2Y`, `T10Y3M`, `DGS10`, `SP500`, and `BAMLH0A0HYM2` use `frequency=d`; and `MORTGAGE30US` uses `frequency=w`. `UNRATE`, `IC4WSA`, and `ICSA` reuse the compatible requests listed above.
+- Streamlined-dashboard sources: `A191RL1Q225SBEA` and `GDP` use `frequency=q`; `PAYEMS` uses `frequency=m&units=chg`; `SAHMREALTIME` uses `frequency=m`; `CPIAUCNS` and `CPILFESL` use `frequency=m&units=pc1`; `T10YIE`, `DFF`, `DFEDTARU`, `T10Y2Y`, `T10Y3M`, `DGS10`, `SP500`, and `BAMLH0A0HYM2` use `frequency=d`; and `MORTGAGE30US` uses `frequency=w`. `UNRATE`, `IC4WSA`, and `ICSA` reuse the compatible requests listed above.
 
 Every current configuration uses `historyPolicy: { type: "full" }`. The client therefore omits `observation_start` and lets FRED return the full available source history. The explicit policy keeps request behavior reviewable and supports a future dated policy without scattering date exceptions through the client.
 
@@ -296,9 +296,9 @@ The two LMCI outputs contain 414 monthly observations from January 1992 through 
 
 ## CPI derivations and reuse
 
-`CPIAUCSL` and `CPILFESL` are each fetched exactly once as seasonally adjusted monthly index levels. For each source, year-over-year inflation is `((P_t / P_t-12) - 1) × 100`, and three-month annualized inflation is `((P_t / P_t-3)^4 - 1) × 100`. The latter is an exact ratio calculation, not a three-month change multiplied by four. Both calculations look up exact calendar dates. A missing endpoint, null value, or internal month in the four-month momentum window produces `null`; gaps are not bridged and no result is rounded before serialization.
+`CPIAUCNS`, `CPIAUCSL`, and `CPILFESL` are fetched once each as monthly index levels. Headline year-over-year inflation uses `CPIAUCNS` and `((P_t / P_t-12) - 1) × 100`, matching BLS's standard unadjusted 12-month CPI-U All Items measure. Headline three-month annualized momentum uses seasonally adjusted `CPIAUCSL`; core year-over-year and momentum use seasonally adjusted `CPILFESL`. Three-month annualized inflation is `((P_t / P_t-3)^4 - 1) × 100`, not a three-month change multiplied by four. Every calculation uses exact calendar dates. A missing endpoint, null value, or internal month in the four-month momentum window produces `null`; gaps are not bridged and no result is rounded before serialization.
 
-One grouped derivation produces `headline-cpi-inflation.json`, `core-cpi-inflation.json`, `headline-cpi-three-month-annualized.json`, and `core-cpi-three-month-annualized.json`. All four validate before replacement and use rollback-protected grouped writes, so a failed source, derivation, validation, or replacement preserves every prior CPI file. After the group succeeds, the in-memory headline year-over-year result is reused for real-wage derivation without another `CPIAUCSL` request. Refresh reporting identifies both source counts, all four generated ranges, and all grouped output paths.
+One grouped derivation produces `headline-cpi-inflation.json`, `core-cpi-inflation.json`, `headline-cpi-three-month-annualized.json`, and `core-cpi-three-month-annualized.json`. All four validate before replacement and use rollback-protected grouped writes, so a failed source, derivation, validation, or replacement preserves every prior CPI file. The refresh also retains the in-memory `CPIAUCSL` 12-month result for real-wage derivation: pairing seasonally adjusted wages with seasonally adjusted CPI avoids mixing adjustment conventions, while the user-facing headline remains the BLS-style NSA measure. Refresh reporting identifies all three source counts, all four generated ranges, and all grouped output paths.
 
 Headline PCE uses the shared exact-month year-over-year derivation independently: `((P_t / P_t-12) - 1) × 100`. It does not use array position, bridge missing months, carry CPI or PCE observations forward, or round before serialization. The committed PCE output contains 797 observations from January 1960 through May 2026 and was retrieved July 23, 2026. Its latest unrounded value is 4.072638075644863%. The expanded comparison aligns CPI and PCE only at presentation time and preserves each series’ actual latest month.
 
@@ -358,7 +358,7 @@ difference, both annualized rates, and the percentage-point gap. Published
 benchmarks include 84.124763 thousand in 1960 Q1, 49.207317 thousand in 2020 Q4,
 and a projected 20.29385 thousand in 2026 Q2.
 
-AHETPI is fetched once using the full-history policy. CPIAUCSL is not fetched again: wage derivation reuses the full-precision CPI inflation series produced earlier in the same refresh. Wage levels require an observation at the exact calendar month one year earlier. Nominal growth is `(current wage / prior-year wage - 1) × 100`. Exact real growth divides that wage ratio by `1 + CPI inflation / 100` before subtracting one and multiplying by 100. Missing or mismatched months produce `null`; array positions are never substituted for calendar alignment.
+AHETPI is fetched once using the full-history policy. CPIAUCSL is not fetched again: wage derivation reuses the full-precision seasonally adjusted CPI inflation result produced internally during the CPI refresh. This CPI input is deliberately distinct from the NSA `CPIAUCNS` headline card. Wage levels require an observation at the exact calendar month one year earlier. Nominal growth is `(current wage / prior-year wage - 1) × 100`. Exact real growth divides that wage ratio by `1 + CPI inflation / 100` before subtracting one and multiplying by 100. Missing or mismatched months produce `null`; array positions are never substituted for calendar alignment.
 
 The nominal and real wage outputs are validated and staged together, then replaced through the existing rollback-protected grouped writer. Failure preserves both prior wage files without rolling back unrelated successful sources. Successful reporting includes the AHETPI source count and both generated ranges.
 
@@ -389,8 +389,9 @@ Normalization converts numeric strings to numbers and `.` to `null`, sorts obser
 Leading unavailable values are removed so generated growth files begin with a valid derived observation. Internal missing observations remain `null`. Current generated coverage is:
 
 - GDPC1: 313 observations, 1948 Q1–2026 Q1.
-- CPIAUCSL source: 954 index observations; generated year-over-year: 942 observations, January 1948–June 2026; generated momentum: 951 observations, April 1947–June 2026.
-- CPILFESL source: 834 index observations; generated year-over-year: 822 observations, January 1958–June 2026; generated momentum: 831 observations, April 1957–June 2026.
+- CPIAUCNS source: generated headline year-over-year has 1,351 observations, January 1914–July 2026; latest unrounded value is 3.364825041479902% (displayed as 3.4%).
+- CPIAUCSL source: generated headline momentum has 952 observations, April 1947–July 2026; its internal 12-month result is reserved for seasonally adjusted real-wage derivation.
+- CPILFESL source: generated core year-over-year has 823 observations, January 1958–July 2026; generated momentum has 832 observations, April 1957–July 2026.
 - UNRATE: 942 observations, January 1948–June 2026.
 - LNS12300060: 942 observations, January 1948–June 2026.
 - JTSLDR: 306 observations, December 2000–May 2026.

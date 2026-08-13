@@ -70,10 +70,10 @@ export const dashboardFredSeriesConfigurations: readonly FredSeriesConfig[] = [
   {
     dataHandling: 'provider-transformed', id: 'dashboard-headline-cpi-inflation', slug: 'dashboard-headline-cpi-inflation',
     outputFile: 'src/features/economic-series/data/dashboard-headline-cpi-inflation.json',
-    providerSeriesId: 'CPIAUCSL', frequency: 'monthly', fredFrequency: 'm', fredUnits: 'pc1', historyPolicy: { type: 'full' }, minimumUsableObservations: 900,
+    providerSeriesId: 'CPIAUCNS', frequency: 'monthly', fredFrequency: 'm', fredUnits: 'pc1', historyPolicy: { type: 'full' }, minimumUsableObservations: 900,
     title: 'Consumer Price Index for All Urban Consumers: Percent Change from Year Ago', shortTitle: 'Headline CPI inflation', description: 'Year-over-year change in the all-items CPI using FRED\'s pc1 transformation.', question: 'How quickly are consumer prices rising?',
-    units: 'Percent change from year ago', seasonalAdjustment: 'Seasonally adjusted underlying index', transformation: 'FRED units=pc1 transformation of CPIAUCSL',
-    sourceName: 'U.S. Bureau of Labor Statistics via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCSL',
+    units: 'Percent change from year ago', seasonalAdjustment: 'Not seasonally adjusted underlying index', transformation: 'FRED units=pc1 transformation of CPIAUCNS',
+    sourceName: 'U.S. Bureau of Labor Statistics via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCNS',
   },
   {
     dataHandling: 'provider-transformed', id: 'dashboard-core-cpi-inflation', slug: 'dashboard-core-cpi-inflation',
@@ -152,7 +152,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     slug: 'headline-cpi-inflation',
     outputFile:
       'src/features/economic-series/data/headline-cpi-inflation.json',
-    providerSeriesId: 'CPIAUCSL',
+    providerSeriesId: 'CPIAUCNS',
     frequency: 'monthly',
     fredFrequency: 'm',
     historyPolicy: { type: 'full' },
@@ -164,11 +164,11 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
       'The year-over-year percentage change in the Consumer Price Index for All Urban Consumers: All Items in U.S. City Average.',
     question: 'How quickly are consumer prices rising?',
     units: 'Percent change from year ago',
-    seasonalAdjustment: 'Seasonally adjusted (underlying CPI index)',
+    seasonalAdjustment: 'Not seasonally adjusted (underlying CPI index)',
     transformation:
       'Percent change from year ago, calculated by the application',
     sourceName: 'U.S. Bureau of Labor Statistics via FRED',
-    sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCSL',
+    sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCNS',
   },
   {
     dataHandling: 'locally-derived',
@@ -841,6 +841,11 @@ export const wageSeriesConfiguration: WageSeriesConfig = {
 export interface CpiSeriesConfig {
   dataHandling: 'cpi-derived'
   headlineSource: FredSeriesConfig
+  headlineMomentumSource: {
+    providerSeriesId: 'CPIAUCSL'
+    fredFrequency: 'm'
+    historyPolicy: HistoryPolicy
+  }
   coreSource: {
     providerSeriesId: 'CPILFESL'
     fredFrequency: 'm'
@@ -856,8 +861,13 @@ export interface CpiSeriesConfig {
 export const cpiSeriesConfiguration: CpiSeriesConfig = {
   dataHandling: 'cpi-derived',
   headlineSource: fredSeriesConfigurations.find(
-    (config) => config.providerSeriesId === 'CPIAUCSL',
+    (config) => config.providerSeriesId === 'CPIAUCNS',
   )!,
+  headlineMomentumSource: {
+    providerSeriesId: 'CPIAUCSL',
+    fredFrequency: 'm',
+    historyPolicy: { type: 'full' },
+  },
   coreSource: {
     providerSeriesId: 'CPILFESL',
     fredFrequency: 'm',

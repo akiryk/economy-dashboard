@@ -9,7 +9,7 @@ import {
 
 const requiredProviderSeriesIds = [
   'A191RL1Q225SBEA', 'GDP', 'UNRATE', 'PAYEMS', 'IC4WSA', 'ICSA',
-  'SAHMREALTIME', 'CPIAUCSL', 'CPILFESL', 'T10YIE', 'DFF', 'DFEDTARU',
+  'SAHMREALTIME', 'CPIAUCNS', 'CPILFESL', 'T10YIE', 'DFF', 'DFEDTARU',
   'T10Y2Y', 'T10Y3M', 'DGS10', 'MORTGAGE30US', 'SP500',
   'BAMLH0A0HYM2',
 ] as const
@@ -34,7 +34,7 @@ describe('Story 84 dashboard source configuration', () => {
       .map(({ providerSeriesId, fredUnits }) => [providerSeriesId, fredUnits]))
       .toEqual([
         ['PAYEMS', 'chg'],
-        ['CPIAUCSL', 'pc1'],
+        ['CPIAUCNS', 'pc1'],
         ['CPILFESL', 'pc1'],
       ])
   })
@@ -75,7 +75,7 @@ describe('Story 84 dashboard source configuration', () => {
 
   it.each([
     ['PAYEMS', 'chg'],
-    ['CPIAUCSL', 'pc1'],
+    ['CPIAUCNS', 'pc1'],
     ['CPILFESL', 'pc1'],
   ] as const)('sends %s with units=%s', async (providerSeriesId, fredUnits) => {
     const config = dashboardFredSeriesConfigurations.find((candidate) =>

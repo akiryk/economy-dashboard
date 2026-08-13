@@ -707,7 +707,7 @@ describe('refreshEconomicData', () => {
       requestedUrls.push(url)
       const seriesId = url.searchParams.get('series_id')
       const locallyDerived = ['A939RX0Q048SBEA', 'OPHNFB', 'PNFIC1'].includes(seriesId ?? '')
-      const monthlyPriceLevels = ['CPIAUCSL', 'CPILFESL', 'PCEPI'].includes(seriesId ?? '')
+      const monthlyPriceLevels = ['CPIAUCNS', 'CPILFESL', 'PCEPI'].includes(seriesId ?? '')
         ? [
             ...Array.from({ length: 14 }, (_, index) => ({
               date: new Date(Date.UTC(2024, index, 1)).toISOString().slice(0, 10),
@@ -754,7 +754,7 @@ describe('refreshEconomicData', () => {
     ])).toEqual([
       ['GDPC1', 'pc1'],
       ['PAYEMS', 'chg'],
-      ['CPIAUCSL', 'pc1'],
+      ['CPIAUCNS', 'pc1'],
       ['CPILFESL', 'pc1'],
     ])
     expect(
@@ -765,7 +765,7 @@ describe('refreshEconomicData', () => {
       const series = validateEconomicSeries(
         JSON.parse(await readFile(config.outputFile, 'utf8')),
       )
-      const expectedDate = ['CPIAUCSL', 'CPILFESL', 'PCEPI'].includes(config.providerSeriesId)
+      const expectedDate = ['CPIAUCNS', 'CPILFESL', 'PCEPI'].includes(config.providerSeriesId)
         ? '2025-02-01'
         : ['A939RX0Q048SBEA', 'OPHNFB', 'PNFIC1'].includes(config.providerSeriesId)
           ? '2025-01-01'
@@ -992,6 +992,7 @@ describe('refreshEconomicData', () => {
     temporaryDirectories.push(directory)
     const cpiConfiguration = {
       ...fredSeriesConfigurations[1]!,
+      providerSeriesId: 'CPIAUCSL' as const,
       outputFile: path.join(directory, 'cpi.json'),
       minimumUsableObservations: 2,
     }
@@ -1049,6 +1050,7 @@ describe('refreshEconomicData', () => {
     }
     const cpiConfiguration = {
       ...fredSeriesConfigurations[1]!, outputFile: path.join(directory, 'cpi.json'),
+      providerSeriesId: 'CPIAUCSL' as const,
       minimumUsableObservations: 1,
     }
     const fetchImplementation: typeof fetch = async (input) => {
@@ -1104,11 +1106,12 @@ describe('refreshEconomicData', () => {
     })
 
     expect(requestedUrls.map((url) => url.searchParams.get('series_id')).sort())
-      .toEqual(['CPIAUCSL', 'CPILFESL'])
+      .toEqual(['CPIAUCNS', 'CPIAUCSL', 'CPILFESL'])
     expect(requestedUrls.every((url) => !url.searchParams.has('units'))).toBe(true)
     expect(requestedUrls.every((url) => !url.searchParams.has('observation_start')))
       .toBe(true)
     expect(result.sourceObservationCount).toBe(14)
+    expect(result.headlineMomentumSourceObservationCount).toBe(14)
     expect(result.coreSourceObservationCount).toBe(14)
     for (const outputFile of [
       config.headlineInflationOutputFile,

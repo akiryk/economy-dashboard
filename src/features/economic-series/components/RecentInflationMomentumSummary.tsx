@@ -314,8 +314,9 @@ export function RecentInflationMomentumSummary({
             <details className="supporting-disclosure">
               <summary>Series details</summary>
               <dl className="series-metadata">
-                <div><dt>Headline series</dt><dd>CPIAUCSL</dd></div>
-                <div><dt>Core series</dt><dd>CPILFESL</dd></div>
+                <div><dt>12-month headline series</dt><dd>{twelveMonthHeadline.providerSeriesId} · {twelveMonthHeadline.seasonalAdjustment}</dd></div>
+                <div><dt>3-month headline series</dt><dd>{threeMonthHeadline.providerSeriesId} · {threeMonthHeadline.seasonalAdjustment}</dd></div>
+                <div><dt>Core series</dt><dd>{twelveMonthCore.providerSeriesId} · {twelveMonthCore.seasonalAdjustment}</dd></div>
                 <div><dt>Frequency</dt><dd>Monthly</dd></div>
                 <div>
                   <dt>Retrieved</dt>

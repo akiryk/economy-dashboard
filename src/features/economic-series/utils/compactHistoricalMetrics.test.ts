@@ -217,7 +217,7 @@ describe('compact historical metric definitions', () => {
     expect(model.status).toBe('ready')
     if (model.status !== 'ready') return
     expect(model.recentObservations).toHaveLength(61)
-    expect(model.recentObservations[0]?.date).toBe('2021-03-01')
+    expect(model.recentObservations[0]?.date).toBe(series.observations.slice(-61)[0]?.date)
     expect(model.comparisonStart).toBe('2005-01-01')
     expect(homeOwnershipCostCompactDefinition.comparisonLabel?.(model))
       .toBe('Available history since 2005')
@@ -239,7 +239,7 @@ describe('compact historical metric definitions', () => {
     expect(model.status).toBe('ready')
     if (model.status !== 'ready') return
     expect(model.recentObservations).toHaveLength(5)
-    expect(model.recentObservations[0]?.date).toBe('2021-01-01')
+    expect(model.recentObservations[0]?.date).toBe(postwar.slice(-5)[0]?.date)
     expect(model.comparisonStart).toBe('1946-01-01')
     expect(federalBudgetBalanceCompactDefinition.showZeroLine).toBe(true)
     expect(federalBudgetBalanceCompactDefinition.showLatestMarker).toBe(true)
@@ -247,7 +247,7 @@ describe('compact historical metric definitions', () => {
     expect(federalBudgetBalanceCompactDefinition.interactiveCursor).toBe('pointer')
     expect(federalBudgetBalanceCompactDefinition.unifiedFooterLabels).toBe(true)
     expect(federalBudgetBalanceCompactDefinition.comparisonLabel?.(model)).toBe(
-      'Historical bands use annual federal deficit magnitudes from 1946–2025',
+      `Historical bands use annual federal deficit magnitudes from 1946–${model.comparisonEnd.slice(0, 4)}`,
     )
     expect(federalBudgetBalanceCompactDefinition.interactiveDetails).toBe(true)
     expect(federalBudgetBalanceCompactDefinition.interactionStateLabel?.(-5.8))

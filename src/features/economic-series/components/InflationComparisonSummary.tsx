@@ -227,7 +227,7 @@ export function InflationComparisonSummary({
           <dl className="series-metadata">
             <div>
               <dt>Headline series</dt>
-              <dd>CPIAUCSL</dd>
+              <dd>{headline.providerSeriesId} · {headline.seasonalAdjustment}</dd>
             </div>
             <div>
               <dt>Core series</dt>

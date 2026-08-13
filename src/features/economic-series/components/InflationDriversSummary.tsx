@@ -34,7 +34,15 @@ interface InflationDriversSummaryProps {
 const observations =
   contributionData.observations as InflationContributionObservation[];
 const current = observations.at(-1)!;
-const prior = observations.find(({ date }) => date === "2025-06-01") ?? null;
+const priorDate = new Date(`${current.date}T00:00:00Z`);
+priorDate.setUTCFullYear(priorDate.getUTCFullYear() - 1);
+const prior = observations.find(
+  ({ date }) => date === priorDate.toISOString().slice(0, 10),
+) ?? null;
+const currentPeriod = formatObservationPeriod(current.date, "monthly");
+const priorPeriod = prior
+  ? formatObservationPeriod(prior.date, "monthly")
+  : "the same month one year earlier";
 export function InflationDriversSummary({
   headline,
   supportingSeries,
@@ -232,13 +240,13 @@ export function InflationDriversSummary({
             <div className="table-scroll">
               <table>
                 <caption>
-                  CPI category contributions in June 2026 and June 2025
+                  CPI category contributions in {currentPeriod} and {priorPeriod}
                 </caption>
                 <thead>
                   <tr>
                     <th scope="col">Category</th>
-                    <th scope="col">June 2026 contribution</th>
-                    <th scope="col">June 2025 contribution</th>
+                    <th scope="col">{currentPeriod} contribution</th>
+                    <th scope="col">{priorPeriod} contribution</th>
                     <th scope="col">One-year change</th>
                   </tr>
                 </thead>

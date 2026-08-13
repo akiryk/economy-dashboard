@@ -102,6 +102,7 @@ export type RefreshOutcome =
       series: Awaited<ReturnType<typeof refreshCpiData>>['headlineInflation']
       relatedSeries: EconomicSeries[]
       sourceObservationCount: number
+      headlineMomentumSourceObservationCount: number
       coreSourceObservationCount: number
     }
   | { status: 'failed'; config: CpiSeriesConfig; message: string }
@@ -207,12 +208,14 @@ export async function refreshCpiData({
   config?: CpiSeriesConfig
   fetchImplementation?: typeof fetch
 }) {
-  const [headlineResponse, coreResponse] = await Promise.all([
+  const [headlineResponse, headlineMomentumResponse, coreResponse] = await Promise.all([
     fetchFredObservations(apiKey, config.headlineSource, fetchImplementation),
+    fetchFredObservations(apiKey, config.headlineMomentumSource, fetchImplementation),
     fetchFredObservations(apiKey, config.coreSource, fetchImplementation),
   ])
   const series = deriveCpiSeries(
     headlineResponse,
+    headlineMomentumResponse,
     coreResponse,
     retrievedAt,
     config,
@@ -238,6 +241,7 @@ export async function refreshCpiData({
   return {
     ...series,
     sourceObservationCount: headlineResponse.observations.length,
+    headlineMomentumSourceObservationCount: headlineMomentumResponse.observations.length,
     coreSourceObservationCount: coreResponse.observations.length,
   }
 }
@@ -444,7 +448,9 @@ export async function refreshAllEconomicData(
         coreInflation,
         headlineMomentum,
         coreMomentum,
+        headlineSeasonallyAdjustedInflation,
         sourceObservationCount,
+        headlineMomentumSourceObservationCount,
         coreSourceObservationCount,
       } = await refreshCpiData({
         apiKey,
@@ -452,13 +458,14 @@ export async function refreshAllEconomicData(
         config: cpiConfig,
         fetchImplementation,
       })
-      cpiInflation = headlineInflation
+      cpiInflation = headlineSeasonallyAdjustedInflation
       outcomes.push({
         status: 'updated',
         config: cpiConfig,
         series: headlineInflation,
         relatedSeries: [coreInflation, headlineMomentum, coreMomentum],
         sourceObservationCount,
+        headlineMomentumSourceObservationCount,
         coreSourceObservationCount,
       })
     } catch (error: unknown) {
@@ -783,7 +790,7 @@ async function main(): Promise<void> {
       console.error(
         `Failed ${
           outcome.config.dataHandling === 'cpi-derived'
-            ? 'CPIAUCSL/CPILFESL'
+            ? 'CPIAUCNS/CPIAUCSL/CPILFESL'
             : outcome.config.dataHandling === 'hoam-provider'
               ? 'Atlanta Fed HOAM'
               : outcome.config.providerSeriesId
@@ -810,6 +817,7 @@ async function main(): Promise<void> {
           `Related output: ${related.slug}, ${related.observations.length} observations, ${related.observations[0]?.date} to ${related.observations.at(-1)?.date}`,
         )
       }
+      console.log(`Headline momentum source observations: ${outcome.headlineMomentumSourceObservationCount}`)
       console.log(`Core source observations: ${outcome.coreSourceObservationCount}`)
       console.log(
         `Outputs: ${[
