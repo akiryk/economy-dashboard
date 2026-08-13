@@ -66,6 +66,15 @@ const localSeriesLoaders: Readonly<
     import('../data/industrial-capacity-utilization.json'),
   'effective-federal-funds-rate': () =>
     import('../data/effective-federal-funds-rate.json'),
+  'federal-funds-target-lower-bound': () =>
+    import('../data/federal-funds-target-lower-bound.json'),
+  'federal-funds-target-upper-bound': () =>
+    import('../data/dashboard-fed-target-upper-bound.json'),
+  'federal-funds-target-rate-historical': () =>
+    import('../data/federal-funds-target-rate-historical.json'),
+  'bank-prime-loan-rate': () => import('../data/bank-prime-loan-rate.json'),
+  'daily-effective-federal-funds-rate': () =>
+    import('../data/dashboard-effective-federal-funds-rate.json'),
   'ten-year-treasury-yield': () =>
     import('../data/ten-year-treasury-yield.json'),
   'mortgage-rate-30-year': () =>

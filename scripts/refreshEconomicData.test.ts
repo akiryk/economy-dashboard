@@ -175,7 +175,7 @@ describe('refreshEconomicData', () => {
     expect(fredSeriesConfigurations[1]?.dataHandling).toBe('locally-derived')
     expect(fredSeriesConfigurations.filter(({ dataHandling }) => dataHandling === 'locally-derived')).toHaveLength(5)
     expect(fredSeriesConfigurations.filter(({ dataHandling }) => dataHandling === 'provider-transformed')).toHaveLength(4)
-    expect(fredSeriesConfigurations.filter(({ dataHandling }) => dataHandling === 'provider-level')).toHaveLength(38)
+    expect(fredSeriesConfigurations.filter(({ dataHandling }) => dataHandling === 'provider-level')).toHaveLength(41)
     expect(payrollSeriesConfiguration).toMatchObject({
       dataHandling: 'locally-derived',
       providerSeriesId: 'PAYEMS',

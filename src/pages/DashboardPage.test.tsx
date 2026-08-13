@@ -217,13 +217,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('24 cards in 9 categories')).toBeVisible()
+    expect(within(navigation).getByText('25 cards in 9 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(24)
+    expect(links).toHaveLength(25)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -243,6 +243,7 @@ describe('DashboardPage economic series', () => {
       'Are U.S. manufacturers producing more goods?',
       'Are businesses investing more in productive assets?',
       'How large are corporate profits relative to the economy?',
+      'Where has the Fed set short-term interest rates?',
       'Is the yield curve inverted?',
       'How high are mortgage rates?',
       'How large is the federal budget deficit relative to the economy?',
@@ -487,7 +488,7 @@ describe('DashboardPage economic series', () => {
         'Are layoffs beginning to rise?',
       ])
     })
-    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(24))
+    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(25))
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'personal-saving-rate-question',
     ])
@@ -1861,7 +1862,7 @@ describe('DashboardPage economic series', () => {
     },
   )
 
-  it('shows the yield curve and mortgage-rate cards in primary Financial conditions', async () => {
+  it('shows the policy, yield-curve, and mortgage-rate cards in primary Financial conditions', async () => {
     const user = userEvent.setup()
     const [tenYear, threeMonth] = await Promise.all([
       localEconomicSeriesRepository.getBySlug('ten-year-treasury-yield'),
@@ -1876,9 +1877,20 @@ describe('DashboardPage economic series', () => {
     const business = screen.getByRole('region', { name: 'Business and manufacturing' })
     const financial = screen.getByRole('region', { name: 'Financial conditions' })
     expect(business.compareDocumentPosition(financial) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    const policy = await within(financial).findByRole('article', { name: 'Where has the Fed set short-term interest rates?' })
     const rates = await within(financial).findByRole('article', { name: 'Is the yield curve inverted?' })
     const mortgage = await within(financial).findByRole('article', { name: 'How high are mortgage rates?' })
-    expect(within(financial).getAllByRole('article')).toHaveLength(2)
+    expect(within(financial).getAllByRole('article')).toHaveLength(3)
+    expect(within(policy).getByText(/^\d+\.\d{2}%–\d+\.\d{2}%$/)).toBeVisible()
+    expect(within(policy).getByText(/Effective [A-Z][a-z]+ \d{1,2}, \d{4}/)).toBeVisible()
+    expect(within(policy).getByText(/most recently (raised|lowered) its target range|bounds changed asymmetrically/)).toBeVisible()
+    const policyContext = within(policy).getByRole('button', { name: 'Why this matters for Federal Reserve policy rates' })
+    await user.click(policyContext)
+    expect(within(policy).getByText(/does not directly set most consumer or business borrowing rates/)).toBeVisible()
+    await user.click(within(policy).getByRole('button', { name: /More/ }))
+    expect(within(policy).getByRole('heading', { name: 'How does the bank prime rate compare?' })).toBeVisible()
+    expect(within(policy).getAllByText(/^\d+\.\d{2}%$/).length).toBeGreaterThan(0)
+    expect(within(policy).getByText(/Before December 16, 2008/)).toBeVisible()
     expect(within(mortgage).getByText('6.7%')).toBeVisible()
     expect(within(mortgage).getByText('Freddie Mac national average')).toBeVisible()
     expect(within(mortgage).getByText(/from a year ago/)).toBeVisible()

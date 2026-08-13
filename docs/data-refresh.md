@@ -49,6 +49,12 @@ The existing scheduled `.github/workflows/refresh-and-deploy.yml` workflow runs 
 - Effective tariff burden, derived from quarterly customs-duty receipts (`B235RC1Q027SBEA`) divided by goods imports (`A255RC1Q027SBEA`) and written to `effective-tariff-burden.json`.
 - Core-goods PCE inflation, parsed from the Federal Reserve Board's published Figure 5 data in its April 8, 2026 FEDS Note and written to `core-goods-pce-inflation.json`. Run `npm run data:refresh-core-goods-pce` to refresh this source independently. The series is the published 12-month percent change; February 2026 is a Federal Reserve staff estimate.
 
+### Federal funds policy-rate sources
+
+Federal funds policy history uses daily, not-seasonally-adjusted `DFEDTARL` and `DFEDTARU` from December 16, 2008 forward. Both bounds must exist on the exact same effective date and the lower bound must not exceed the upper; partial ranges remain unavailable. The discontinued daily `DFEDTAR` single-target series supplies September 27, 1982–December 15, 2008 without fabricating a range. FRED notes that pre-1994 observations are reconstructed from Federal Reserve Bank of St. Louis research, with later single-target observations derived from FOMC transcripts and statements.
+
+Committed source files preserve every daily effective state. Presentation derives policy-change points and step geometry without smoothing or interpolation. `DFF` supplies the observed effective federal funds rate, while `DPRIME` supplies the Fed-reported bank prime loan rate as supporting context. Prime is the rate posted by a majority of the 25 largest insured U.S.-chartered commercial banks; it is not set directly by the Federal Reserve, guaranteed to borrowers, or a mortgage-rate proxy.
+
 ### Streamlined `/dashboard` source foundation
 
 Story 84 adds or explicitly reuses the following 18 full-history FRED inputs. Coverage reflects the successful August 10, 2026 refresh. All generated files are validated `EconomicSeries` data and are resolved by stable slug through the narrow asynchronous `dashboardEconomicSeriesRepository`; its three reused slugs delegate to `localEconomicSeriesRepository`.

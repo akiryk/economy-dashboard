@@ -3,6 +3,19 @@ import { localEconomicSeriesRepository } from './localEconomicSeriesRepository'
 
 describe('localEconomicSeriesRepository', () => {
   it.each([
+    ['federal-funds-target-lower-bound', 'DFEDTARL'],
+    ['federal-funds-target-upper-bound', 'DFEDTARU'],
+    ['federal-funds-target-rate-historical', 'DFEDTAR'],
+    ['bank-prime-loan-rate', 'DPRIME'],
+    ['daily-effective-federal-funds-rate', 'DFF'],
+  ])('loads policy supporting series %s', async (slug, providerSeriesId) => {
+    await expect(localEconomicSeriesRepository.getBySlug(slug)).resolves.toMatchObject({
+      providerSeriesId,
+      frequency: 'daily',
+    })
+  })
+
+  it.each([
     ['real-gdp-growth', 'GDPC1'],
     ['real-gdp-per-capita-growth', 'A939RX0Q048SBEA'],
     ['labor-productivity-growth', 'OPHNFB'],

@@ -121,6 +121,31 @@ export const dashboardSeriesSources = [
   { providerSeriesId: 'ICSA', slug: 'initial-unemployment-claims', reused: true as const },
 ] as const
 
+const policyRateSeriesConfigurations: readonly FredSeriesConfig[] = ([
+    ['federal-funds-target-lower-bound', 'DFEDTARL', 'Federal Funds Target Range - Lower Limit', 'Fed target lower bound', 'Lower limit of the FOMC federal funds target range.', 6000],
+    ['federal-funds-target-rate-historical', 'DFEDTAR', 'Federal Funds Target Rate (DISCONTINUED)', 'Historical federal funds target', 'Single federal funds target used before the FOMC adopted a target range.', 6000],
+    ['bank-prime-loan-rate', 'DPRIME', 'Bank Prime Loan Rate', 'Bank prime rate', 'Rate posted by a majority of the 25 largest insured U.S.-chartered commercial banks.', 15000],
+  ] as const).map(([slug, providerSeriesId, title, shortTitle, description, minimumUsableObservations]) => ({
+    dataHandling: 'provider-level' as const,
+    id: slug,
+    slug,
+    outputFile: `src/features/economic-series/data/${slug}.json`,
+    providerSeriesId,
+    frequency: 'daily' as const,
+    fredFrequency: 'd' as const,
+    historyPolicy: { type: 'full' as const },
+    minimumUsableObservations,
+    title,
+    shortTitle,
+    description,
+    question: 'Where has the Fed set short-term interest rates?',
+    units: 'Percent',
+    seasonalAdjustment: 'Not seasonally adjusted',
+    transformation: 'Provider-published daily effective value',
+    sourceName: 'Board of Governors of the Federal Reserve System via FRED',
+    sourceUrl: `https://fred.stlouisfed.org/series/${providerSeriesId}`,
+  }))
+
 export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
   {
     dataHandling: 'provider-transformed',
@@ -737,6 +762,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     sourceName: 'Federal Reserve Bank of Kansas City via FRED',
     sourceUrl: 'https://fred.stlouisfed.org/series/FRBKCLMCIM',
   },
+  ...policyRateSeriesConfigurations,
   ...dashboardFredSeriesConfigurations,
 ]
 

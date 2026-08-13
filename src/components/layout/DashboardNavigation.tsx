@@ -98,6 +98,7 @@ const navigationGroups = [
   {
     title: 'Financial conditions',
     cards: [
+      { id: 'federal-funds-target-range-card', title: 'Where has the Fed set short-term interest rates?' },
       { id: 'interest-rate-conditions-card', title: 'Is the yield curve inverted?' },
       { id: 'mortgage-rate-30-year-card', title: 'How high are mortgage rates?' },
     ],
