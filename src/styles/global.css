@@ -1249,5 +1249,5 @@ p {
 .policy-rate-chart__band { fill: color-mix(in srgb, var(--color-accent) 18%, transparent); stroke: none; }
 .policy-rate-chart__bound { fill: none; stroke: var(--color-accent); stroke-width: 1.3; vector-effect: non-scaling-stroke; }
 .policy-rate-chart__marker { fill: var(--color-text); stroke: var(--color-surface); stroke-width: .7; vector-effect: non-scaling-stroke; }
-.policy-rate-chart__tooltip { position: absolute; z-index: 3; top: .25rem; right: .25rem; display: grid; gap: .15rem; padding: .4rem .5rem; border: 1px solid var(--color-border); border-radius: var(--radius-small); background: var(--color-surface); box-shadow: 0 .25rem .75rem rgb(23 32 42 / 14%); font-size: .72rem; }
+.policy-rate-chart__tooltip { position: absolute; z-index: 3; top: .25rem; left: clamp(5rem, var(--policy-rate-tooltip-x), calc(100% - 5rem)); display: grid; width: max-content; max-width: min(13rem, calc(100% - 1rem)); gap: .15rem; padding: .4rem .5rem; border: 1px solid var(--color-border); border-radius: var(--radius-small); background: var(--color-surface); box-shadow: 0 .25rem .75rem rgb(23 32 42 / 14%); font-size: .72rem; pointer-events: none; transform: translateX(-50%); }
 .policy-rate-chart__dates { display: flex; justify-content: space-between; gap: 1rem; font-size: .72rem; color: var(--color-text-muted); }
