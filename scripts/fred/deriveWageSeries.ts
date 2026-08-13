@@ -24,6 +24,7 @@ function trimLeadingNulls(
 function parseWageLevels(
   response: FredObservationsResponse,
   retrievedAt: string,
+  seriesId: string,
 ): EconomicObservation[] {
   const observations = response.observations
     .filter((observation) => observation.date <= retrievedAt)
@@ -36,7 +37,7 @@ function parseWageLevels(
   for (let index = 1; index < observations.length; index += 1) {
     if (observations[index - 1]!.date === observations[index]!.date) {
       throw new Error(
-        `AHETPI response contains duplicate date: ${observations[index]!.date}`,
+        `${seriesId} response contains duplicate date: ${observations[index]!.date}`,
       )
     }
   }
@@ -98,13 +99,17 @@ export function deriveWageSeries(
   retrievedAt: string,
   config: WageSeriesConfig,
 ): { nominalWageGrowth: EconomicSeries; realWageGrowth: EconomicSeries } {
-  const wageLevels = parseWageLevels(wageResponse, retrievedAt)
+  const wageLevels = parseWageLevels(
+    wageResponse,
+    retrievedAt,
+    config.providerSeriesId,
+  )
   const usableCount = wageLevels.filter(
     (observation) => observation.value !== null,
   ).length
   if (usableCount < config.minimumUsableObservations) {
     throw new Error(
-      `Expected at least ${config.minimumUsableObservations} usable AHETPI observations, received ${usableCount}`,
+      `Expected at least ${config.minimumUsableObservations} usable ${config.providerSeriesId} observations, received ${usableCount}`,
     )
   }
 
@@ -133,7 +138,7 @@ export function deriveWageSeries(
       title: 'Nominal Wage Growth',
       shortTitle: 'Nominal wage growth',
       description:
-        'Year-over-year growth in average hourly earnings of private-sector production and nonsupervisory employees.',
+        'Year-over-year growth in average hourly earnings of all private-sector employees.',
       question: 'How quickly are average hourly earnings rising?',
       transformation: 'Year-over-year change calculated by the application',
       observations: nominalObservations,
@@ -155,7 +160,7 @@ export function deriveWageSeries(
       sources: [
         {
           provider: 'Federal Reserve Bank of St. Louis',
-          providerSeriesId: 'AHETPI',
+          providerSeriesId: config.providerSeriesId,
           sourceName: config.sourceName,
           sourceUrl: config.sourceUrl,
           role: 'Wage measure',

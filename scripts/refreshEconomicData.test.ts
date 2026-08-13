@@ -184,7 +184,7 @@ describe('refreshEconomicData', () => {
     })
     expect(wageSeriesConfiguration).toMatchObject({
       dataHandling: 'multi-source-derived',
-      providerSeriesId: 'AHETPI',
+      providerSeriesId: 'CES0500000003',
       fredFrequency: 'm',
       historyPolicy: { type: 'full' },
     })
@@ -987,7 +987,7 @@ describe('refreshEconomicData', () => {
     expect(await readFile(averagePath, 'utf8')).toBe(oldAverage)
   })
 
-  it('fetches CPI and AHETPI once each and writes both wage outputs', async () => {
+  it('fetches CPI and all-employee wages once each and writes both wage outputs', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
     temporaryDirectories.push(directory)
     const cpiConfiguration = {
@@ -998,6 +998,7 @@ describe('refreshEconomicData', () => {
     }
     const wageConfiguration = {
       ...wageSeriesConfiguration,
+      minimumUsableObservations: 13,
       nominalOutputFile: path.join(directory, 'nominal.json'),
       realOutputFile: path.join(directory, 'real.json'),
     }
@@ -1024,19 +1025,19 @@ describe('refreshEconomicData', () => {
       wageConfiguration, fetchImplementation,
     })
 
-    expect(requests).toEqual(['CPIAUCSL', 'AHETPI'])
+    expect(requests).toEqual(['CPIAUCSL', 'CES0500000003'])
     expect(outcomes.map((outcome) => outcome.status)).toEqual(['updated', 'updated'])
     expect(validateEconomicSeries(JSON.parse(await readFile(wageConfiguration.nominalOutputFile, 'utf8'))))
-      .toMatchObject({ providerSeriesId: 'AHETPI' })
+      .toMatchObject({ providerSeriesId: 'CES0500000003' })
     const real = validateEconomicSeries(
       JSON.parse(await readFile(wageConfiguration.realOutputFile, 'utf8')),
     )
     expect(real.sources?.map((source) => source.providerSeriesId)).toEqual([
-      'AHETPI', 'CPIAUCSL',
+      'CES0500000003', 'CPIAUCSL',
     ])
   })
 
-  it('preserves both wage files when AHETPI derivation fails', async () => {
+  it('preserves both wage files when all-employee wage derivation fails', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
     temporaryDirectories.push(directory)
     const nominalPath = path.join(directory, 'nominal.json')
@@ -1045,6 +1046,7 @@ describe('refreshEconomicData', () => {
     await writeFile(realPath, 'old real\n', 'utf8')
     const wageConfiguration = {
       ...wageSeriesConfiguration,
+      minimumUsableObservations: 13,
       nominalOutputFile: nominalPath,
       realOutputFile: realPath,
     }
@@ -1084,6 +1086,8 @@ describe('refreshEconomicData', () => {
       coreInflationOutputFile: path.join(directory, 'core-yoy.json'),
       headlineMomentumOutputFile: path.join(directory, 'headline-momentum.json'),
       coreMomentumOutputFile: path.join(directory, 'core-momentum.json'),
+      headlineSeasonallyAdjustedInflationOutputFile:
+        path.join(directory, 'headline-sa-yoy.json'),
     }
     const requestedUrls: URL[] = []
     const fetchImplementation: typeof fetch = async (input) => {
@@ -1118,13 +1122,14 @@ describe('refreshEconomicData', () => {
       config.coreInflationOutputFile,
       config.headlineMomentumOutputFile,
       config.coreMomentumOutputFile,
+      config.headlineSeasonallyAdjustedInflationOutputFile,
     ]) {
       expect(validateEconomicSeries(JSON.parse(await readFile(outputFile, 'utf8')))
         .observations.at(-1)?.date).toBe('2025-02-01')
     }
   })
 
-  it('preserves all four CPI files when either source cannot be derived', async () => {
+  it('preserves all five CPI files when either source cannot be derived', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
     temporaryDirectories.push(directory)
     const outputFiles = [
@@ -1132,6 +1137,7 @@ describe('refreshEconomicData', () => {
       path.join(directory, 'core-yoy.json'),
       path.join(directory, 'headline-momentum.json'),
       path.join(directory, 'core-momentum.json'),
+      path.join(directory, 'headline-sa-yoy.json'),
     ]
     await Promise.all(outputFiles.map((file, index) => writeFile(file, `old ${index}\n`, 'utf8')))
     const config = {
@@ -1141,6 +1147,7 @@ describe('refreshEconomicData', () => {
       coreInflationOutputFile: outputFiles[1]!,
       headlineMomentumOutputFile: outputFiles[2]!,
       coreMomentumOutputFile: outputFiles[3]!,
+      headlineSeasonallyAdjustedInflationOutputFile: outputFiles[4]!,
     }
     const fetchImplementation: typeof fetch = async (input) => {
       const id = new URL(String(input)).searchParams.get('series_id')

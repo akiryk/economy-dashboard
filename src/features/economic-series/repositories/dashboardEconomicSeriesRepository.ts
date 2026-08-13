@@ -19,6 +19,7 @@ const dashboardSeriesLoaders: Readonly<
   'dashboard-mortgage-rate-30-year': () => import('../data/dashboard-mortgage-rate-30-year.json'),
   'dashboard-sp500': () => import('../data/dashboard-sp500.json'),
   'dashboard-high-yield-credit-spread': () => import('../data/dashboard-high-yield-credit-spread.json'),
+  'real-wage-growth': () => import('../data/real-wage-growth.json'),
 }
 
 export const dashboardEconomicSeriesRepository =

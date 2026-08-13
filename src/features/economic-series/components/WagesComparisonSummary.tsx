@@ -158,9 +158,9 @@ export function WagesComparisonSummary({
       <details className="supporting-disclosure wages-comparison__components">
         <summary>How wage growth and inflation compare</summary>
         <p>
-          The two components use one shared percent axis. Their difference
-          produces the real-wage series used for the compact answer and primary
-          chart.
+          The two components use one shared percent axis. The real-wage series
+          used for the compact answer and primary chart applies their exact
+          multiplicative relationship; simple subtraction is only an approximation.
         </p>
         <Suspense fallback={<p className="chart-state">Loading chart visualization…</p>}>
           <EconomicTimeSeriesChart
@@ -202,8 +202,8 @@ export function WagesComparisonSummary({
         <section>
           <h4>What this tells you</h4>
           <p>
-            This chart shows whether average hourly earnings for private-sector
-            production and nonsupervisory employees rose faster or slower than
+            This chart shows whether average hourly earnings for all private-sector
+            employees rose faster or slower than
             consumer prices. Positive real wage growth means average wages
             gained purchasing power relative to CPI; negative real wage growth
             means they lost purchasing power.
@@ -213,8 +213,8 @@ export function WagesComparisonSummary({
           <h4>What this leaves out</h4>
           <p>
             Average hourly earnings are not a median and can change when the mix
-            of jobs changes. The measure excludes supervisory employees,
-            government workers, benefits, and self-employed workers. Headline CPI
+            of jobs changes. The measure excludes government workers, benefits,
+            irregular bonuses, and self-employed workers. Headline CPI
             is a national average and may not match an individual household’s
             expenses.
           </p>
@@ -233,14 +233,14 @@ export function WagesComparisonSummary({
       <footer className="series-supporting">
         <p className="series-source">
           Sources:{' '}
-          <a href="https://fred.stlouisfed.org/series/AHETPI" rel="noreferrer" target="_blank">BLS wage data via FRED</a>
+          <a href="https://fred.stlouisfed.org/series/CES0500000003" rel="noreferrer" target="_blank">BLS wage data via FRED</a>
           {'; '}
           <a href="https://fred.stlouisfed.org/series/CPIAUCSL" rel="noreferrer" target="_blank">Seasonally adjusted BLS CPI data via FRED</a>
         </p>
         <details className="supporting-disclosure">
           <summary>Series details</summary>
           <dl className="series-metadata">
-            <div><dt>Wage series</dt><dd>AHETPI</dd></div>
+            <div><dt>Wage series</dt><dd>CES0500000003 · All private employees</dd></div>
             <div><dt>Inflation deflator</dt><dd>CPIAUCSL · Seasonally adjusted</dd></div>
             <div><dt>Frequency</dt><dd>Monthly</dd></div>
             <div><dt>Transformation</dt><dd>{realWageGrowth.transformation}</dd></div>

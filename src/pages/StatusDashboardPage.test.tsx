@@ -37,6 +37,7 @@ function seriesForSlug(slug: string): EconomicSeries {
     'initial-unemployment-claims': 228_000,
     'dashboard-sahm-rule-gap': -0.03,
     'dashboard-headline-cpi-inflation': 3.46353,
+    'real-wage-growth': -0.14576,
     'dashboard-mortgage-rate-30-year': 6.69,
     'dashboard-sp500': 105,
     'dashboard-high-yield-credit-spread': 2.7,
@@ -52,6 +53,13 @@ function seriesForSlug(slug: string): EconomicSeries {
     const result = series(slug, [6.5, 6.69])
     result.observations[0]!.date = '2025-08-07'
     result.observations[1]!.date = '2026-08-06'
+    return result
+  }
+  if (slug === 'real-wage-growth') {
+    const result = series(slug, [0.4, null, -0.14576])
+    result.observations[0]!.date = '2021-08-01'
+    result.observations[1]!.date = '2024-08-01'
+    result.observations[2]!.date = '2026-07-01'
     return result
   }
   return slug === 'dashboard-payroll-change'
@@ -78,7 +86,7 @@ afterEach(() => {
 })
 
 describe('StatusDashboardPage', () => {
-  it('renders nine single-purpose status tiles from local series', async () => {
+  it('renders ten single-purpose status tiles from local series', async () => {
     render(<StatusDashboardPage />)
 
     const tile = await screen.findByRole('article', { name: 'Inflation' })
@@ -87,13 +95,14 @@ describe('StatusDashboardPage', () => {
     expect(tile).toHaveTextContent('As of Jan 2026')
     expect(tile).toHaveTextContent('Elevated')
     expect(tile).toHaveAttribute('data-state', 'normal')
-    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(9))
+    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(10))
     expect(screen.getAllByRole('article').map((article) => article.textContent)).toEqual([
       expect.stringContaining('GDP growth'),
       expect.stringContaining('Unemployment'),
       expect.stringContaining('Payroll growth'),
       expect.stringContaining('Initial claims'),
       expect.stringContaining('Inflation'),
+      expect.stringContaining('Real wage growth'),
       expect.stringContaining('Sahm Rule'),
       expect.stringContaining('30-year mortgage rate'),
       expect.stringContaining('S&P 500'),
@@ -105,6 +114,19 @@ describe('StatusDashboardPage', () => {
     expect(payroll).toHaveTextContent('+12k/mo')
     expect(payroll).toHaveTextContent('Latest −23k')
     expect(screen.getByRole('article', { name: 'Initial claims' })).toHaveTextContent('Latest 228k')
+    const realWages = screen.getByRole('article', { name: 'Real wage growth' })
+    expect(realWages).toHaveTextContent('−0.1%')
+    expect(realWages).toHaveTextContent('Wages are slightly trailing inflation')
+    expect(within(realWages).getByText(
+      /real wage growth for all private employees over five years, ending at −0.1% in Jul 2026.*Zero means wage growth matched inflation.*missing months remain gaps/i,
+    )).toHaveClass('visually-hidden')
+    expect(chart.setOption.mock.calls.some(([options]) => {
+      const option = options as {
+        series?: Array<{ data?: Array<number | null>; markLine?: { data?: Array<{ yAxis: number }> } }>
+      }
+      return option.series?.[0]?.data?.at(-1) === -0.14576 &&
+        option.series[0].markLine?.data?.[0]?.yAxis === 0
+    })).toBe(true)
     const sahm = screen.getByRole('article', { name: 'Sahm Rule' })
     expect(sahm).toHaveTextContent('Trigger 0.50')
     expect(within(sahm).queryByRole('button', { name: /Historical/ }))
@@ -128,7 +150,7 @@ describe('StatusDashboardPage', () => {
     expect(highYield).toHaveTextContent('270 bps')
     expect(highYield).toHaveTextContent('Calm')
     expect(highYield).toHaveAttribute('data-state', 'notable-good')
-    expect(dashboardEconomicSeriesRepository.getBySlug).toHaveBeenCalledTimes(11)
+    expect(dashboardEconomicSeriesRepository.getBySlug).toHaveBeenCalledTimes(12)
   })
 
   it('isolates a headline failure inside the dashboard content', async () => {

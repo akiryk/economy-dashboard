@@ -48,7 +48,7 @@ export const realWageGrowthThresholds = {
 
 export const realWageGrowthHistoricalBandDefinition: HistoricalBandDefinition = {
   recentObservationCount: 61,
-  comparisonWindow: { kind: 'trailing-years', years: 25 },
+  comparisonWindow: { kind: 'all-available' },
   innerPercentiles: [25, 75],
   outerPercentiles: [10, 90],
   minimumFiniteObservations: 60,
@@ -68,13 +68,13 @@ export function classifyRealWageGrowth(value: number | null): Pick<
   if (value >= realWageGrowthThresholds.neutral) {
     return {
       answerTier: 'positive',
-      answer: 'Yes — wages are rising faster than prices.',
+      answer: 'Yes — wages are gaining purchasing power.',
     }
   }
   if (value <= -realWageGrowthThresholds.neutral) {
     return {
       answerTier: 'negative',
-      answer: 'No — prices are rising faster than wages.',
+      answer: 'No — wages are losing purchasing power to inflation.',
     }
   }
   return {
@@ -141,19 +141,20 @@ export function describeRealWageGrowthHistoricalPosition(
     bands.latestObservation.value,
     bands,
   )
+  const comparisonPeriod = `${bands.comparisonStart.slice(0, 4)}–${bands.comparisonEnd.slice(0, 4)}`
   const descriptions = {
     belowOuterBand:
-      'unusually low relative to the past 25 years',
+      `unusually low relative to the available ${comparisonPeriod} history`,
     betweenOuterAndInnerLow:
-      'below its typical range of the past 25 years',
+      `below its typical range in the available ${comparisonPeriod} history`,
     insideInnerBand:
-      'within its typical range of the past 25 years',
+      `within its typical range in the available ${comparisonPeriod} history`,
     betweenInnerAndOuterHigh:
-      'above its typical range of the past 25 years',
+      `above its typical range in the available ${comparisonPeriod} history`,
     aboveOuterBand:
-      'unusually high relative to the past 25 years',
+      `unusually high relative to the available ${comparisonPeriod} history`,
     unavailable:
-      'unavailable relative to the past 25 years',
+      `unavailable relative to the available ${comparisonPeriod} history`,
   } as const
   return descriptions[position]
 }
@@ -280,8 +281,12 @@ export function deriveRealWageGrowthModel({
       ] as const
     : null
   const rangeModel = createRealWageGrowthRangeModel(recentObservations)
+  const firstValidIndex = observations.findIndex(({ value }) => finite(value))
+  const availableObservations = firstValidIndex >= 0
+    ? observations.slice(firstValidIndex)
+    : []
   const historicalBands = deriveHistoricalBandContext(
-    observations,
+    availableObservations,
     realWageGrowthHistoricalBandDefinition,
   )
   const latestClassification = classifyRealWageGrowth(
@@ -314,7 +319,7 @@ export function createRealWageGrowthAccessibleSummary(
       ? 'prices were rising faster than wages'
       : 'wages and prices were rising at about the same pace'
   const historicalContext = model.historicalBands?.status === 'ready'
-    ? ` The trailing comparison runs from ` +
+    ? ` The available-history comparison runs from ` +
       `${formatObservationPeriod(model.historicalBands.comparisonStart, 'monthly')} ` +
       `through ${formatObservationPeriod(model.historicalBands.comparisonEnd, 'monthly')}. ` +
       `The middle 50% ranges from ` +

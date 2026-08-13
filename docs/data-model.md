@@ -94,7 +94,7 @@ The compact productivity answer is presentation-only and does not alter the stor
 
 ## Multi-source wage provenance
 
-`EconomicSeries` optionally carries a validated `sources` list for multi-source derivations. Existing single-source metadata remains valid. Real wage growth identifies AHETPI as the wage measure and CPIAUCSL as the inflation deflator; it does not imply that FRED directly publishes the combined result. The relationship card loads real wage growth, nominal wage growth, and the existing CPI inflation series as one card-level unit and aligns them by exact calendar month.
+`EconomicSeries` optionally carries a validated `sources` list for multi-source derivations. Existing single-source metadata remains valid. Real wage growth identifies `CES0500000003` (average hourly earnings of all private employees) as the wage measure and `CPIAUCSL` as the seasonally adjusted CPI-U deflator; it does not imply that FRED directly publishes the combined result. The relationship card loads real wage growth, nominal wage growth, and a persisted seasonally adjusted CPI inflation series as one card-level unit and aligns them by exact calendar month. The not-seasonally-adjusted headline CPI card remains a separate presentation convention.
 
 The two inflation relationship cards compose separate headline and core `EconomicSeries` values at the presentation boundary. Alignment precomputes exact-month pairs and core-minus-headline percentage-point differences before rendering; the table does not perform economic calculations. Annualized outputs remain ordinary percent-valued monthly series whose transformation metadata explicitly identifies the three-month annualized calculation.
 

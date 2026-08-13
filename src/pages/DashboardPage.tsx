@@ -17,7 +17,7 @@ const claimsComparisonSupportingSlugs = [
 ] as const
 const wageComparisonSupportingSlugs = [
   'nominal-wage-growth',
-  'headline-cpi-inflation',
+  'headline-cpi-inflation-seasonally-adjusted',
 ] as const
 const cpiSupportingSlugs = [
   'headline-pce-inflation',

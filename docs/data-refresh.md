@@ -30,7 +30,7 @@ The existing scheduled `.github/workflows/refresh-and-deploy.yml` workflow runs 
 - Initial unemployment claims and the official four-week average (`ICSA` and `IC4WSA`, weekly), written as separate provider-published levels and aligned only for presentation. They remain complementary evidence under the JOLTS-led layoffs card.
 - Payroll growth (`PAYEMS`, monthly source level), derived into `monthly-payroll-change.json` and `payroll-growth.json`.
 - Kansas City Fed Labor Market Conditions Indicators (`FRBKCLMCILA` activity and `FRBKCLMCIM` momentum, monthly), written as separate provider-published standardized indexes for briefing use.
-- Wages versus inflation (`AHETPI` plus the existing `CPIAUCSL` result), derived into `nominal-wage-growth.json` and `real-wage-growth.json`.
+- Wages versus inflation (`CES0500000003` plus `CPIAUCSL`), derived into `nominal-wage-growth.json` and `real-wage-growth.json`; the supporting seasonally adjusted CPI comparison is persisted separately from the NSA headline card.
 - Real disposable income per capita and real consumer spending per capita (`A229RX0Q048SBEA` and `A794RX0Q048SBEA`, quarterly source levels), derived into quarterly per-capita growth outputs.
 - Personal saving rate (`PSAVERT`, monthly), written to `personal-saving-rate.json`.
 - Saving rate by income decile (BEA Distribution of Personal Saving workbook, annual), written to `saving-rate-by-income-decile.json`.
@@ -173,7 +173,7 @@ The series-specific requests are:
 - Official four-week average: `series_id=IC4WSA` and `frequency=w`, with no `units` parameter.
 - Payroll: `series_id=PAYEMS` and `frequency=m`, with no `units` parameter.
 - LMCI Activity and Momentum: `series_id=FRBKCLMCILA` and `series_id=FRBKCLMCIM`, each with `frequency=m` and no `units` parameter.
-- Wages: `series_id=AHETPI` and `frequency=m`, with no `units` parameter.
+- Wages: `series_id=CES0500000003` and `frequency=m`, with no `units` parameter.
 - Real GDP per capita: `series_id=A939RX0Q048SBEA` and `frequency=q`, with no `units` parameter.
 - Labor productivity: `series_id=OPHNFB` and `frequency=q`, with no `units` parameter.
 - Real disposable income per capita: `series_id=A229RX0Q048SBEA` and `frequency=q`, with no `units` parameter.
@@ -364,9 +364,9 @@ difference, both annualized rates, and the percentage-point gap. Published
 benchmarks include 84.124763 thousand in 1960 Q1, 49.207317 thousand in 2020 Q4,
 and a projected 20.29385 thousand in 2026 Q2.
 
-AHETPI is fetched once using the full-history policy. CPIAUCSL is not fetched again: wage derivation reuses the full-precision seasonally adjusted CPI inflation result produced internally during the CPI refresh. This CPI input is deliberately distinct from the NSA `CPIAUCNS` headline card. Wage levels require an observation at the exact calendar month one year earlier. Nominal growth is `(current wage / prior-year wage - 1) × 100`. Exact real growth divides that wage ratio by `1 + CPI inflation / 100` before subtracting one and multiplying by 100. Missing or mismatched months produce `null`; array positions are never substituted for calendar alignment.
+`CES0500000003`, the BLS average-hourly-earnings series for all private nonfarm employees, is fetched once using the full-history policy. It is monthly and seasonally adjusted, covers wages rather than benefits, and begins in March 2006. `CPIAUCSL` is not fetched again: wage derivation reuses the full-precision seasonally adjusted CPI-U result produced internally during the CPI refresh and persists its year-over-year form for the expanded comparison. This CPI input is deliberately distinct from the NSA `CPIAUCNS` headline card. Wage levels require an observation at the exact calendar month one year earlier. Nominal growth is `(current wage / prior-year wage - 1) × 100`. Exact real growth is `((wage_t / wage_t-12) / (CPI_t / CPI_t-12) - 1) × 100`; it is not nominal growth minus inflation. Missing or mismatched months produce `null`; array positions are never substituted for calendar alignment.
 
-The nominal and real wage outputs are validated and staged together, then replaced through the existing rollback-protected grouped writer. Failure preserves both prior wage files without rolling back unrelated successful sources. Successful reporting includes the AHETPI source count and both generated ranges.
+The nominal and real wage outputs are validated and staged together, then replaced through the existing rollback-protected grouped writer. Failure preserves both prior wage files without rolling back unrelated successful sources. Successful reporting includes the `CES0500000003` source count and both generated ranges. Public FRED wage and CPI index levels are rounded; therefore the reproducible derived result can differ by 0.1 percentage point from BLS's published real-average-hourly-earnings release, which can use greater internal precision.
 
 ## Household derivations and writes
 
@@ -396,7 +396,7 @@ Leading unavailable values are removed so generated growth files begin with a va
 
 - GDPC1: 313 observations, 1948 Q1–2026 Q1.
 - CPIAUCNS source: generated headline year-over-year has 1,351 observations, January 1914–July 2026; latest unrounded value is 3.364825041479902% (displayed as 3.4%).
-- CPIAUCSL source: generated headline momentum has 952 observations, April 1947–July 2026; its internal 12-month result is reserved for seasonally adjusted real-wage derivation.
+- CPIAUCSL source: generated headline momentum has 952 observations, April 1947–July 2026; its 943-observation 12-month result (January 1948–July 2026) is persisted for seasonally adjusted real-wage derivation and comparison.
 - CPILFESL source: generated core year-over-year has 823 observations, January 1958–July 2026; generated momentum has 832 observations, April 1957–July 2026.
 - UNRATE: 942 observations, January 1948–June 2026.
 - LNS12300060: 942 observations, January 1948–June 2026.
@@ -407,8 +407,8 @@ Leading unavailable values are removed so generated growth files begin with a va
 - Job-growth-versus-breakeven comparison: 268 exact-quarter records, with 266 available comparisons through 2026 Q2 and two explicit future-period unavailable records.
 - ICSA: 3,106 weekly observations, January 7, 1967–July 11, 2026.
 - IC4WSA: 3,103 weekly observations, January 28, 1967–July 11, 2026; this defines the relationship card's full shared coverage.
-- AHETPI nominal wage growth: 738 observations, January 1965–June 2026.
-- AHETPI/CPI exact real wage growth: 738 aligned observations, January 1965–June 2026.
+- `CES0500000003` nominal wage growth: 233 observations, March 2007–July 2026; July growth is 3.153276665752669% from the public FRED levels.
+- `CES0500000003`/`CPIAUCSL` exact real wage growth: 233 aligned observations, March 2007–July 2026; July is -0.1457635665407575% and displays as -0.1%.
 - A939RX0Q048SBEA source: 317 level observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
 - OPHNFB source and level output: 317 index observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
 - A229RX0Q048SBEA source: 317 level observations; generated growth: 313 observations, 1948 Q1–2026 Q1.

@@ -115,12 +115,12 @@ describe('deriveWageSeries', () => {
         { date: '1965-02-01', value: 2.1 },
       ]),
       '2026-07-13',
-      wageSeriesConfiguration,
+      { ...wageSeriesConfiguration, minimumUsableObservations: 13 },
     )
     expect(result.nominalWageGrowth.observations[0]?.date).toBe('1965-01-01')
     expect(result.realWageGrowth.observations.at(-1)?.date).toBe('1965-02-01')
     expect(result.realWageGrowth.sources?.map((source) => source.providerSeriesId))
-      .toEqual(['AHETPI', 'CPIAUCSL'])
+      .toEqual(['CES0500000003', 'CPIAUCSL'])
     expect(validateEconomicSeries(result.realWageGrowth)).toEqual(result.realWageGrowth)
     expect(response).toEqual(original)
   })
@@ -130,7 +130,30 @@ describe('deriveWageSeries', () => {
       { observations: [...wageObservations, wageObservations[0]!] },
       cpiSeries([{ date: '1965-01-01', value: 2 }]),
       '2026-07-13',
-      wageSeriesConfiguration,
+      { ...wageSeriesConfiguration, minimumUsableObservations: 13 },
     )).toThrow('duplicate date')
+  })
+
+  it('accepts a newly appended valid monthly observation without changing expectations', () => {
+    const appendedWages = [
+      ...wageObservations,
+      { date: '1965-03-01', value: '2.14' },
+    ]
+    const result = deriveWageSeries(
+      { observations: appendedWages },
+      cpiSeries([
+        { date: '1965-01-01', value: 2 },
+        { date: '1965-02-01', value: 2.1 },
+        { date: '1965-03-01', value: 2.2 },
+      ]),
+      '2026-07-13',
+      { ...wageSeriesConfiguration, minimumUsableObservations: 13 },
+    )
+
+    expect(result.nominalWageGrowth.observations.at(-1)?.date).toBe('1965-03-01')
+    expect(result.realWageGrowth.observations.at(-1)).toMatchObject({
+      date: '1965-03-01',
+      value: expect.any(Number),
+    })
   })
 })

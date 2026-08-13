@@ -237,6 +237,12 @@ export async function refreshCpiData({
       outputPath: path.resolve(config.coreMomentumOutputFile),
       series: series.coreMomentum,
     },
+    {
+      outputPath: path.resolve(
+        config.headlineSeasonallyAdjustedInflationOutputFile,
+      ),
+      series: series.headlineSeasonallyAdjustedInflation,
+    },
   ])
   return {
     ...series,
@@ -463,7 +469,12 @@ export async function refreshAllEconomicData(
         status: 'updated',
         config: cpiConfig,
         series: headlineInflation,
-        relatedSeries: [coreInflation, headlineMomentum, coreMomentum],
+        relatedSeries: [
+          coreInflation,
+          headlineMomentum,
+          coreMomentum,
+          headlineSeasonallyAdjustedInflation,
+        ],
         sourceObservationCount,
         headlineMomentumSourceObservationCount,
         coreSourceObservationCount,
@@ -825,6 +836,7 @@ async function main(): Promise<void> {
           outcome.config.coreInflationOutputFile,
           outcome.config.headlineMomentumOutputFile,
           outcome.config.coreMomentumOutputFile,
+          outcome.config.headlineSeasonallyAdjustedInflationOutputFile,
         ].map((file) => path.resolve(file)).join(', ')}`,
       )
     } else if ('supportingSeries' in outcome) {

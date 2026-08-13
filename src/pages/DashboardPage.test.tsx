@@ -922,7 +922,7 @@ describe('DashboardPage economic series', () => {
     )
     expect(latestReading).toHaveTextContent(/[A-Z][a-z]+ \d{4}/)
     expect(latestReading).toHaveTextContent(/wages|prices/i)
-    expect(latestReading).toHaveTextContent(/past 25 years/)
+    expect(latestReading).toHaveTextContent(/available 2007–2026 history/)
     expect(within(comparison).queryByText(
       /Positive values mean wages rose faster than consumer prices/,
     )).not.toBeInTheDocument()
@@ -1700,7 +1700,7 @@ describe('DashboardPage economic series', () => {
     ).toBeVisible()
     expect(
       within(screen.getByRole('region', { name: 'Prices' })).getAllByRole('alert'),
-    ).toHaveLength(4)
+    ).toHaveLength(3)
     expect(await screen.findByText(
       'The recent inflation momentum data could not be loaded.',
     )).toBeVisible()

@@ -231,7 +231,7 @@ export function RealWageGrowthChart({
             </p>
             <p>
               The darker band contains the middle 50% of monthly readings over
-              the trailing 25 years; the lighter band contains the middle 80%.
+              the available all-employees history; the lighter band contains the middle 80%.
               Null observations are excluded. The dot marks the latest reading.
             </p>
             <p>

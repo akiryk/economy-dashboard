@@ -839,7 +839,7 @@ export const payrollSeriesConfiguration: PayrollSeriesConfig = {
 
 export interface WageSeriesConfig {
   dataHandling: 'multi-source-derived'
-  providerSeriesId: 'AHETPI'
+  providerSeriesId: 'CES0500000003'
   fredFrequency: 'm'
   historyPolicy: HistoryPolicy
   minimumUsableObservations: number
@@ -852,16 +852,16 @@ export interface WageSeriesConfig {
 
 export const wageSeriesConfiguration: WageSeriesConfig = {
   dataHandling: 'multi-source-derived',
-  providerSeriesId: 'AHETPI',
+  providerSeriesId: 'CES0500000003',
   fredFrequency: 'm',
   historyPolicy: { type: 'full' },
-  minimumUsableObservations: 13,
+  minimumUsableObservations: 120,
   nominalOutputFile:
     'src/features/economic-series/data/nominal-wage-growth.json',
   realOutputFile: 'src/features/economic-series/data/real-wage-growth.json',
   seasonalAdjustment: 'Seasonally adjusted',
   sourceName: 'U.S. Bureau of Labor Statistics via FRED',
-  sourceUrl: 'https://fred.stlouisfed.org/series/AHETPI',
+  sourceUrl: 'https://fred.stlouisfed.org/series/CES0500000003',
 }
 
 export interface CpiSeriesConfig {
@@ -882,6 +882,7 @@ export interface CpiSeriesConfig {
   coreInflationOutputFile: string
   headlineMomentumOutputFile: string
   coreMomentumOutputFile: string
+  headlineSeasonallyAdjustedInflationOutputFile: string
 }
 
 export const cpiSeriesConfiguration: CpiSeriesConfig = {
@@ -908,6 +909,8 @@ export const cpiSeriesConfiguration: CpiSeriesConfig = {
     'src/features/economic-series/data/headline-cpi-three-month-annualized.json',
   coreMomentumOutputFile:
     'src/features/economic-series/data/core-cpi-three-month-annualized.json',
+  headlineSeasonallyAdjustedInflationOutputFile:
+    'src/features/economic-series/data/headline-cpi-inflation-seasonally-adjusted.json',
 }
 
 export interface HouseholdComparisonConfig {

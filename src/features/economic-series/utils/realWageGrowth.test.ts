@@ -39,11 +39,11 @@ function monthlyObservations(
 
 describe('classifyRealWageGrowth', () => {
   it.each([
-    [0.1, 'positive', 'Yes — wages are rising faster than prices.'],
+    [0.1, 'positive', 'Yes — wages are gaining purchasing power.'],
     [0.099, 'about-even', 'About even — wages are roughly keeping pace with prices.'],
     [0, 'about-even', 'About even — wages are roughly keeping pace with prices.'],
     [-0.099, 'about-even', 'About even — wages are roughly keeping pace with prices.'],
-    [-0.1, 'negative', 'No — prices are rising faster than wages.'],
+    [-0.1, 'negative', 'No — wages are losing purchasing power to inflation.'],
     [null, 'unavailable', 'Current real wage growth is unavailable.'],
   ])('classifies %s with explicit neutral boundaries', (value, tier, answer) => {
     expect(classifyRealWageGrowth(value)).toEqual({ answerTier: tier, answer })
@@ -118,7 +118,7 @@ describe('deriveRealWageGrowthModel', () => {
     expect(model.historicalBands?.status).toBe('insufficient-history')
   })
 
-  it('uses a trailing 25-year comparison and a 61-month compact line', () => {
+  it('uses all compatible history and a 61-month compact line', () => {
     const observations = monthlyObservations(2000, 318, (index) => index % 20)
     const inputs = {
       nominalWageGrowth: series('wages', observations),
@@ -128,7 +128,7 @@ describe('deriveRealWageGrowthModel', () => {
     const model = deriveRealWageGrowthModel(inputs)
     expect(realWageGrowthHistoricalBandDefinition).toMatchObject({
       recentObservationCount: 61,
-      comparisonWindow: { kind: 'trailing-years', years: 25 },
+      comparisonWindow: { kind: 'all-available' },
       innerPercentiles: [25, 75],
       outerPercentiles: [10, 90],
       minimumFiniteObservations: 60,
@@ -136,9 +136,9 @@ describe('deriveRealWageGrowthModel', () => {
     expect(model.recentObservations).toHaveLength(61)
     expect(model.historicalBands).toMatchObject({
       status: 'ready',
-      comparisonStart: '2001-06-01',
+      comparisonStart: '2000-01-01',
       comparisonEnd: '2026-06-01',
-      validObservationCount: 301,
+      validObservationCount: 318,
       recentObservationCount: 61,
     })
   })
@@ -260,8 +260,38 @@ describe('real wage historical position', () => {
 
   it('keeps the historical statement additional to the sign answer', () => {
     expect(formatRealWageGrowthHistoricalPosition(bands)).toBe(
-      'The latest reading is within its typical range of the past 25 years.',
+      'The latest reading is within its typical range in the available 2001–2026 history.',
     )
+  })
+
+  it('starts available-history bands at the first aligned real-wage observation', () => {
+    const model = deriveRealWageGrowthModel({
+      realWageGrowth: series('real', [
+        ['2007-03-01', 0.5],
+        ...Array.from({ length: 59 }, (_, index) => [
+          `${2012 + Math.floor(index / 12)}-${String(index % 12 + 1).padStart(2, '0')}-01`,
+          0.5,
+        ] as [string, number]),
+      ]),
+      nominalWageGrowth: series('wages', [
+        ['2007-03-01', 3],
+        ...Array.from({ length: 59 }, (_, index) => [
+          `${2012 + Math.floor(index / 12)}-${String(index % 12 + 1).padStart(2, '0')}-01`,
+          3,
+        ] as [string, number]),
+      ]),
+      cpiInflation: series('cpi', [
+        ['1948-01-01', 2],
+        ['2007-03-01', 2.5],
+        ...Array.from({ length: 59 }, (_, index) => [
+          `${2012 + Math.floor(index / 12)}-${String(index % 12 + 1).padStart(2, '0')}-01`,
+          2.5,
+        ] as [string, number]),
+      ]),
+    })
+
+    expect(model.observations[0]?.date).toBe('1948-01-01')
+    expect(model.historicalBands?.comparisonStart).toBe('2007-03-01')
   })
 })
 

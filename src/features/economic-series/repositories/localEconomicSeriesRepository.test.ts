@@ -211,9 +211,9 @@ describe('localEconomicSeriesRepository', () => {
     )
     const real = await localEconomicSeriesRepository.getBySlug('real-wage-growth')
 
-    expect(nominal).toMatchObject({ providerSeriesId: 'AHETPI' })
+    expect(nominal).toMatchObject({ providerSeriesId: 'CES0500000003' })
     expect(real?.sources).toEqual([
-      expect.objectContaining({ providerSeriesId: 'AHETPI', role: 'Wage measure' }),
+      expect.objectContaining({ providerSeriesId: 'CES0500000003', role: 'Wage measure' }),
       expect.objectContaining({
         providerSeriesId: 'CPIAUCSL', role: 'Inflation deflator',
       }),
