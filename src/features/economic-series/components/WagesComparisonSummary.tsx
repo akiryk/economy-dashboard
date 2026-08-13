@@ -218,6 +218,13 @@ export function WagesComparisonSummary({
             is a national average and may not match an individual household’s
             expenses.
           </p>
+          <p>
+            The dashboard derives real wage growth from published BLS/FRED wage
+            and CPI index levels. Because BLS may calculate its official
+            real-earnings change from higher-precision underlying estimates, the
+            dashboard can occasionally differ from the published BLS figure by
+            0.1 percentage point after rounding.
+          </p>
         </section>
       </div>
 

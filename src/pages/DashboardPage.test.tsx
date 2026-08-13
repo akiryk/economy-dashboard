@@ -985,6 +985,11 @@ describe('DashboardPage economic series', () => {
     const tellsYou = within(comparison).getByRole('heading', {
       name: 'What this tells you',
     })
+    expect(within(comparison).getByText(
+      /Because BLS may calculate its official real-earnings change from higher-precision underlying estimates/,
+    )).toHaveTextContent(
+      /differ from the published BLS figure by 0.1 percentage point after rounding/,
+    )
     expect(
       components.compareDocumentPosition(tellsYou) &
       Node.DOCUMENT_POSITION_FOLLOWING,

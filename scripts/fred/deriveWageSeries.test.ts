@@ -79,6 +79,22 @@ describe('deriveRealWageGrowth', () => {
     expect(value).not.toBe(5)
   })
 
+  it('treats the BLS published change as a rounding diagnostic, not an equality target', () => {
+    const derived = deriveRealWageGrowth(
+      [
+        { date: '2025-07-01', value: 36.47 },
+        { date: '2026-07-01', value: 37.62 },
+      ],
+      [{ date: '2026-07-01', value: 3.303856050706311 }],
+    )[0]?.value
+    const blsPublishedChange = -0.2
+
+    expect(derived).toBeCloseTo(-0.1457635665407575, 12)
+    expect(derived?.toFixed(1)).toBe('-0.1')
+    expect(derived).not.toBe(blsPublishedChange)
+    expect(Math.abs(derived! - blsPublishedChange)).toBeLessThanOrEqual(0.1)
+  })
+
   it('requires exact wage and CPI months and does not mutate inputs', () => {
     const wages: EconomicObservation[] = [
       { date: '1964-01-01', value: 100 },
