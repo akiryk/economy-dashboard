@@ -99,6 +99,7 @@ const navigationGroups = [
     title: 'Financial conditions',
     cards: [
       { id: 'interest-rate-conditions-card', title: 'Is the yield curve inverted?' },
+      { id: 'mortgage-rate-30-year-card', title: 'How high are mortgage rates?' },
     ],
   },
   {
@@ -127,7 +128,7 @@ export function DashboardNavigation() {
         <summary>
           <span id="dashboard-navigation-heading">Explore all indicators</span>
           <span className="dashboard-navigation__summary-detail">
-            25 cards in 9 categories
+            {navigationGroups.reduce((count, group) => count + group.cards.length, 0)} cards in 9 categories
           </span>
         </summary>
         <div className="dashboard-navigation__groups">

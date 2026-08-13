@@ -124,6 +124,16 @@ describe('localEconomicSeriesRepository', () => {
       .resolves.toMatchObject({ providerSeriesId: 'NFCICREDIT', frequency: 'weekly', units: 'Index' })
   })
 
+  it('loads the full native-weekly Freddie Mac mortgage-rate benchmark', async () => {
+    const series = await localEconomicSeriesRepository.getBySlug('mortgage-rate-30-year')
+    expect(series).toMatchObject({
+      providerSeriesId: 'MORTGAGE30US', frequency: 'weekly', units: 'Percent',
+      seasonalAdjustment: null,
+    })
+    expect(series!.observations.length).toBeGreaterThan(2_500)
+    expect(series?.observations[0]?.date).toBe('1971-04-02')
+  })
+
   it('loads quarterly bank lending standards with survey metadata and signed values', async () => {
     const series = await localEconomicSeriesRepository.getBySlug('bank-lending-standards')
 

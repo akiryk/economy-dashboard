@@ -143,7 +143,7 @@ describe('StatusDashboardPage', () => {
     expect(yieldCurve).toHaveAttribute('data-state', 'notable-bad')
     const longRates = screen.getByRole('article', { name: 'Long rates' })
     expect(longRates).toHaveTextContent('4.65%')
-    expect(longRates).toHaveTextContent('Mortgage 6.69% · +204 bps')
+    expect(longRates).toHaveTextContent('30-year mortgage rate 6.7% · up 0.2 pp from a year ago · +204 bps')
     expect(longRates).toHaveAttribute('data-state', 'normal')
     const sp500 = screen.getByRole('article', { name: 'S&P 500' })
     expect(sp500).toHaveTextContent('−4.5%')

@@ -242,6 +242,12 @@ export function DashboardPage() {
           variant="rate-comparison"
           onSeriesLoaded={handleSeriesLoaded}
         />
+        <EconomicSeriesCard
+          slug="mortgage-rate-30-year"
+          label="30-year fixed mortgage rate"
+          variant="mortgage-rate"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
       </EconomicSection>
 
       <EconomicSection

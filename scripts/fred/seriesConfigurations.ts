@@ -109,7 +109,7 @@ export const dashboardFredSeriesConfigurations: readonly FredSeriesConfig[] = [
     dataHandling: 'provider-level', id: 'dashboard-mortgage-rate-30-year', slug: 'dashboard-mortgage-rate-30-year',
     outputFile: 'src/features/economic-series/data/dashboard-mortgage-rate-30-year.json',
     providerSeriesId: 'MORTGAGE30US', frequency: 'weekly', fredFrequency: 'w', historyPolicy: { type: 'full' }, minimumUsableObservations: 2500,
-    title: '30-Year Fixed Rate Mortgage Average in the United States', shortTitle: '30-year mortgage rate', description: 'Weekly national average contract rate for a 30-year fixed mortgage.', question: 'What is the latest 30-year mortgage rate?',
+    title: '30-year fixed mortgage rate', shortTitle: '30-year fixed mortgage rate', description: 'Weekly national average for a 30-year fixed mortgage; individual borrower offers vary.', question: 'How high are mortgage rates?',
     units: 'Percent', seasonalAdjustment: null, transformation: 'Provider-published weekly value', sourceName: 'Freddie Mac via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/MORTGAGE30US',
   },
 ]

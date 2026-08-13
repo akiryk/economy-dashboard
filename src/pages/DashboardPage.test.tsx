@@ -210,13 +210,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('25 cards in 9 categories')).toBeVisible()
+    expect(within(navigation).getByText('24 cards in 9 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(23)
+    expect(links).toHaveLength(24)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -237,6 +237,7 @@ describe('DashboardPage economic series', () => {
       'Are businesses investing more in productive assets?',
       'How large are corporate profits relative to the economy?',
       'Is the yield curve inverted?',
+      'How high are mortgage rates?',
       'How large is the federal budget deficit relative to the economy?',
       'How large is federal debt held by the public relative to the economy?',
       'How large is the U.S. trade deficit relative to the economy?',
@@ -471,7 +472,7 @@ describe('DashboardPage economic series', () => {
         'Are layoffs beginning to rise?',
       ])
     })
-    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(23))
+    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(24))
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'personal-saving-rate-question',
     ])
@@ -1844,7 +1845,7 @@ describe('DashboardPage economic series', () => {
     },
   )
 
-  it('keeps only the yield-curve card in primary Financial conditions', async () => {
+  it('shows the yield curve and mortgage-rate cards in primary Financial conditions', async () => {
     const user = userEvent.setup()
     const [tenYear, threeMonth] = await Promise.all([
       localEconomicSeriesRepository.getBySlug('ten-year-treasury-yield'),
@@ -1860,7 +1861,20 @@ describe('DashboardPage economic series', () => {
     const financial = screen.getByRole('region', { name: 'Financial conditions' })
     expect(business.compareDocumentPosition(financial) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     const rates = await within(financial).findByRole('article', { name: 'Is the yield curve inverted?' })
-    expect(within(financial).getAllByRole('article')).toHaveLength(1)
+    const mortgage = await within(financial).findByRole('article', { name: 'How high are mortgage rates?' })
+    expect(within(financial).getAllByRole('article')).toHaveLength(2)
+    expect(within(mortgage).getByText('6.7%')).toBeVisible()
+    expect(within(mortgage).getByText('Freddie Mac national average')).toBeVisible()
+    expect(within(mortgage).getByText(/from a year ago/)).toBeVisible()
+    const mortgageContext = within(mortgage).getByRole('button', { name: 'Why this matters for mortgage rates' })
+    expect(mortgageContext).toBeVisible()
+    await user.click(mortgageContext)
+    expect(within(mortgage).getByText(/mortgage-rate “lock-in” effect/)).toBeVisible()
+    expect(within(mortgage).getByText(/Home prices, household incomes, taxes/)).toBeVisible()
+    await user.click(within(mortgage).getByRole('button', { name: /More/ }))
+    expect(within(mortgage).getByRole('button', { name: 'Maximum' })).toBeVisible()
+    expect(within(mortgage).getByText('What this leaves out')).toBeVisible()
+    expect(within(mortgage).getByText(/points or closing fees/)).toBeVisible()
     expect(within(rates).getByText(
       formatYieldCurveSpread(latestYieldCurve.value),
     )).toBeVisible()

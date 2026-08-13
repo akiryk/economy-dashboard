@@ -12,6 +12,7 @@ import {
 } from './cardBackContent'
 import { formatDashboardPeriod, formatHistoryYear } from './statusFormatters'
 import { useDashboardSeries } from './useDashboardSeries'
+import { deriveMortgageRateComparison } from '../economic-series/utils/mortgageRateContext'
 
 const longRateSlugs = [
   'dashboard-ten-year-treasury-yield',
@@ -50,12 +51,18 @@ export function LongRatesStatusTile({ theme }: MarketsCreditTileProps) {
   try { model = createLongRatesTileModel(treasury, mortgage) } catch { return <TileMessage label="Long rates" className="status-tile--markets status-tile--markets-start" /> }
   const treasuryDate = formatDashboardPeriod(model.headline.date, 'daily')
   const mortgageDate = formatDashboardPeriod(model.mortgage.date, 'weekly')
+  const mortgageComparison = deriveMortgageRateComparison(mortgage.observations)
+  const mortgageDirection = mortgageComparison?.direction === 'little-changed'
+    ? 'little changed from a year ago'
+    : mortgageComparison?.oneYearDifference === null || mortgageComparison?.oneYearDifference === undefined
+      ? 'year-over-year change unavailable'
+      : `${mortgageComparison.oneYearDifference > 0 ? 'up' : 'down'} ${Math.abs(mortgageComparison.oneYearDifference).toFixed(1)} pp from a year ago`
   return <EconomicStatusTile
     className="status-tile--markets status-tile--markets-start"
     label="Long rates" seriesLabel="10-year Treasury yield"
     hero={rate(model.headline.value)} state="normal"
     stateLabel={`Mortgage spread ${model.spreadState}`}
-    secondary={`Mortgage ${rate(model.mortgage.value)} · ${Math.round(model.mortgageSpreadBasisPoints) >= 0 ? '+' : '−'}${Math.abs(Math.round(model.mortgageSpreadBasisPoints))} bps`}
+    secondary={`30-year mortgage rate ${model.mortgage.value.toFixed(1)}% · ${mortgageDirection} · ${Math.round(model.mortgageSpreadBasisPoints) >= 0 ? '+' : '−'}${Math.abs(Math.round(model.mortgageSpreadBasisPoints))} bps`}
     observations={model.sparkline} theme={theme} asOf={treasuryDate}
     sparklineSummary={`10-year Treasury yield over one year, ending at ${rate(model.headline.value)} on ${treasuryDate}. The mortgage observation is separately dated ${mortgageDate}. Missing days remain gaps.`}
     historical={model.historical} historicalValueFormatter={rate}
