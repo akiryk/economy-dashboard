@@ -13,7 +13,7 @@
   "transformation": "Percent change from year ago, calculated from the BLS CPI-U index",
   "sourceName": "U.S. Bureau of Labor Statistics",
   "sourceUrl": "https://data.bls.gov/timeseries/CUUR0000SAH1",
-  "retrievedAt": "2026-07-24",
+  "retrievedAt": "2026-08-14",
   "observations": [
     {
       "date": "2021-06-01",
@@ -258,6 +258,10 @@
     {
       "date": "2026-06-01",
       "value": 3.2752042940872084
+    },
+    {
+      "date": "2026-07-01",
+      "value": 3.1758157546406096
     }
   ]
 }
