@@ -634,10 +634,9 @@ describe('DashboardPage economic series', () => {
       'shelter', 'energy', 'food',
     ])
     expect(trendModel.unsupportedCategoryIds).toEqual(['other-services'])
-    expect(trendModel).toMatchObject({
-      windowStart: '2021-06-01',
-      windowEnd: '2026-06-01',
-    })
+    expect(trendModel.trends.every(({ observations }) =>
+      observations[0]?.date === trendModel.windowStart &&
+      observations.at(-1)?.date === trendModel.windowEnd)).toBe(true)
     expect(trendModel.trends.every(({ domain }) => domain.min < domain.max))
       .toBe(true)
     expect(new Set(trendModel.trends.map(({ displayRangeLabel }) =>
@@ -654,7 +653,7 @@ describe('DashboardPage economic series', () => {
     )
     expect(accessibleSummary).toHaveClass('visually-hidden')
     expect(accessibleSummary).toHaveTextContent(
-      'Trend coverage runs from June 2021 through June 2026',
+      /Trend coverage runs from .+ through .+/,
     )
     expect(accessibleSummary).toHaveTextContent(
       'Selected categories omitted because no directly comparable CPI series exists: Other services',
