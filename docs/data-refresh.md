@@ -143,8 +143,8 @@ inflation-rate series may be used as a proxy.
 
 ### Scheduled Table 7 and category-rate refresh
 
-`npm run data:refresh` runs `scripts/refreshInflationDriversData.ts` after the
-general FRED refresh. It retrieves only the official BLS supplemental index at
+`npm run data:refresh-inflation-contributions` runs the strict Table 7 updater.
+It retrieves only the official BLS supplemental index at
 `https://www.bls.gov/cpi/tables/supplemental-files/home.htm` and discovers links
 whose semantic label is exactly **News Release Table 7, [Month] [Year] (XLSX)**.
 Both the index and the final workbook URL must remain HTTPS URLs on
@@ -170,7 +170,16 @@ The scheduled workflow therefore cannot commit or deploy partial Table 7 data.
 It does not store downloaded XLSX files or add retrieval-only metadata on no-op
 runs.
 
-The same refresh step separately requests the unadjusted CPI-U index histories
+GitHub-hosted Ubuntu runners currently receive HTTP 403 from the official BLS
+supplemental page, as confirmed by workflow run 31805452093 on August 14, 2026.
+The scheduled workflow therefore runs the command as a visible nonblocking
+diagnostic: a future successful official response can ingest a release, while
+the known access restriction does not prevent unrelated validated economic data
+from refreshing and deploying. Automatic Table 7 ingestion is not considered
+operational until an ordinary GitHub runner completes both official page and
+workbook retrieval. No mirror or third-party copy is used.
+
+The normal `npm run data:refresh` path separately requests the unadjusted CPI-U index histories
 for shelter (`CUUR0000SAH1`), energy (`CUUR0000SA0E`), and food
 (`CUUR0000SAF1`) from the official BLS Public Data API. It calculates each
 category's year-over-year rate from index levels through the latest month common

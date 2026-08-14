@@ -271,16 +271,17 @@ The code should leave the repository slightly better than it was found.
 
 # Updating CPI inflation-contribution data
 
-Normal monthly BLS News Release Table 7 workbooks are discovered, downloaded,
-validated, and ingested automatically by `npm run data:refresh`. The daily
-GitHub Actions refresh uses the official BLS **Archived Consumer Price Index
-Supplemental Files** page and advances the committed contribution history only
-when the newest release is exactly one month after the latest committed release.
-No-new-release checks are clean no-ops. Discovery, download, parsing, validation,
-or multi-month-gap failures preserve the existing dataset and fail visibly.
+The repository has a strict automatic discovery and ingestion command,
+`npm run data:refresh-inflation-contributions`, for normal monthly BLS News
+Release Table 7 workbooks. It uses only the official BLS **Archived Consumer
+Price Index Supplemental Files** page and advances history only when the newest
+release is exactly one month after the latest committed release. However, BLS
+currently returns HTTP 403 to ordinary GitHub-hosted Actions runners, so the
+daily workflow runs this command as a visible nonblocking diagnostic. It cannot
+yet replace the manual fallback. Do not use an unofficial mirror.
 
-If the automatic path fails because BLS access or workbook structure changed,
-use the retained manual fallback:
+Until official retrieval succeeds from GitHub Actions, or whenever workbook
+structure changes, use the retained manual fallback:
 
 1. Visit https://www.bls.gov/cpi/tables/supplemental-files/home.htm.
 2. Download **News Release Table 7, [Month] [Year] (XLSX)**.
