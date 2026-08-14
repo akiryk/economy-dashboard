@@ -8,6 +8,8 @@ import {
 
 export const BLS_SUPPLEMENTAL_FILES_URL =
   'https://www.bls.gov/cpi/tables/supplemental-files/'
+export const BLS_SUPPLEMENTAL_FILES_INDEX_URL =
+  `${BLS_SUPPLEMENTAL_FILES_URL}home.htm`
 export const OCTOBER_2025_GAP = '2025-10-01'
 
 export interface InflationContributionReleaseMetadata {
@@ -39,6 +41,16 @@ export interface InflationContributionGap {
   status: 'unavailable'
   reason: '2025 appropriations lapse'
   sourceUrl: typeof BLS_SUPPLEMENTAL_FILES_URL
+}
+
+export interface InflationContributionHistory {
+  title: string
+  sourceName: string
+  sourceIndexUrl: string
+  units: string
+  methodology: string
+  vintage: 'release'
+  observations: (InflationContributionRelease | InflationContributionGap)[]
 }
 
 const categoryLabels = {
@@ -97,7 +109,9 @@ function periodFromWorkbookName(sourceFile: string): string {
   return `${match[1]}-${match[2]}-01`
 }
 
-function validateMetadata(metadata: InflationContributionReleaseMetadata): void {
+export function validateInflationContributionMetadata(
+  metadata: InflationContributionReleaseMetadata,
+): void {
   if (!/^\d{4}-(?:0[1-9]|1[0-2])-01$/.test(metadata.period)) {
     throw new Error('period must use YYYY-MM-01')
   }
@@ -172,7 +186,7 @@ export async function parseInflationContributionWorkbook(
   contents: Uint8Array,
   metadata: InflationContributionReleaseMetadata,
 ): Promise<InflationContributionRelease> {
-  validateMetadata(metadata)
+  validateInflationContributionMetadata(metadata)
   const rows = await workbookRows(contents)
   const workbookText = rows.flat().map(normalizeText).join(' ')
   const period = measuredPeriodFromTitle(workbookText)

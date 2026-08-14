@@ -55,6 +55,9 @@ const configurations: readonly CategoryConfiguration[] = [
   },
 ]
 
+export const BLS_PUBLIC_API_URL =
+  'https://api.bls.gov/publicAPI/v2/timeseries/data/'
+
 function datumPeriod(datum: BlsDatum): string | null {
   if (!/^M(0[1-9]|1[0-2])$/.test(datum.period)) return null
   return `${datum.year}-${datum.period.slice(1)}-01`
@@ -97,7 +100,7 @@ export function buildCategoryCpiSeries(
   response: BlsResponse,
   retrievedAt: string,
   windowStart = '2021-06-01',
-  windowEnd = '2026-06-01',
+  windowEnd?: string,
 ): EconomicSeries[] {
   if (response.status !== 'REQUEST_SUCCEEDED') {
     throw new Error(`BLS request failed with status ${response.status}`)
@@ -105,18 +108,35 @@ export function buildCategoryCpiSeries(
   const byId = new Map(
     (response.Results?.series ?? []).map((series) => [series.seriesID, series]),
   )
+  for (const { seriesId } of configurations) {
+    if (!byId.has(seriesId)) throw new Error(`Missing BLS series ${seriesId}`)
+  }
+  const latestCommonPeriod = windowEnd ?? configurations
+    .map(({ seriesId }) => {
+      const periods = (byId.get(seriesId)?.data ?? [])
+        .map(datumPeriod)
+        .filter((period): period is string => period !== null)
+        .sort()
+      return periods.at(-1)
+    })
+    .reduce<string | undefined>((earliest, period) =>
+      !period ? undefined : !earliest || period < earliest ? period : earliest,
+    undefined)
+  if (!latestCommonPeriod || latestCommonPeriod < windowStart) {
+    throw new Error('BLS category CPI response has no common monthly coverage')
+  }
   return configurations.map((configuration) => {
     const source = byId.get(configuration.seriesId)
     if (!source) throw new Error(`Missing BLS series ${configuration.seriesId}`)
     const observations = deriveCategoryCpiObservations(
       source.data,
       windowStart,
-      windowEnd,
+      latestCommonPeriod,
     )
-    if (observations.length !== 61 ||
-        observations.filter(({ value }) => value !== null).length < 60) {
+    if (observations.length < 61 ||
+        observations.filter(({ value }) => value === null).length > 1) {
       throw new Error(
-        `${configuration.seriesId} does not cover the required 61 months ` +
+        `${configuration.seriesId} does not cover the required history ` +
         `(${observations.length} observations, ` +
         `${observations.filter(({ value }) => value === null).length} null)`,
       )
@@ -140,6 +160,38 @@ export function buildCategoryCpiSeries(
       observations,
     }
   })
+}
+
+export async function refreshCategoryCpiSeries({
+  outputDirectory,
+  retrievedAt,
+  fetchImplementation = fetch,
+}: {
+  outputDirectory: string
+  retrievedAt: string
+  fetchImplementation?: typeof fetch
+}): Promise<EconomicSeries[]> {
+  const endYear = Number(retrievedAt.slice(0, 4))
+  const response = await fetchImplementation(BLS_PUBLIC_API_URL, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      seriesid: configurations.map(({ seriesId }) => seriesId),
+      startyear: String(endYear - 6),
+      endyear: String(endYear),
+    }),
+  })
+  if (!response.ok) throw new Error(`BLS category CPI request returned HTTP ${response.status}`)
+  const series = buildCategoryCpiSeries(await response.json() as BlsResponse, retrievedAt)
+  await writeEconomicSeriesGroupAtomically(series.map((item) => ({
+    outputPath: path.join(outputDirectory, `${item.slug}.json`),
+    series: item,
+  })))
+  process.stdout.write(
+    `Inflation-driver category rates: ${series.map((item) =>
+      `${item.providerSeriesId} through ${item.observations.at(-1)?.date}`).join(', ')}.\n`,
+  )
+  return series
 }
 
 async function main(arguments_: readonly string[]): Promise<void> {

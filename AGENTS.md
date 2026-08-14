@@ -271,39 +271,32 @@ The code should leave the repository slightly better than it was found.
 
 # Updating CPI inflation-contribution data
 
-The BLS files used for the inflation-contribution history cannot currently be
-downloaded automatically by Codex. After each new monthly CPI release:
+Normal monthly BLS News Release Table 7 workbooks are discovered, downloaded,
+validated, and ingested automatically by `npm run data:refresh`. The daily
+GitHub Actions refresh uses the official BLS **Archived Consumer Price Index
+Supplemental Files** page and advances the committed contribution history only
+when the newest release is exactly one month after the latest committed release.
+No-new-release checks are clean no-ops. Discovery, download, parsing, validation,
+or multi-month-gap failures preserve the existing dataset and fail visibly.
 
-1. Visit the BLS **Archived Consumer Price Index Supplemental Files** page:
+If the automatic path fails because BLS access or workbook structure changed,
+use the retained manual fallback:
 
-   https://www.bls.gov/cpi/tables/supplemental-files/home.htm
-
-2. Find the section for the newly released month.
-
-3. Download the link named in this format:
-
-   **News Release Table 7, [Month] [Year] (XLSX)**
-
-   For example:
-
-   **News Release Table 7, February 2026 (XLSX)**
-
-4. Place the downloaded XLSX file in the workspace location requested by Codex,
-   or attach it directly to the Codex conversation.
-
-5. Tell Codex to ingest the new Table 7 workbook, validate it, update the
-   committed inflation-contribution dataset, run all repository checks and
-   verification, commit the update, and push it to the current tracked remote
-   branch.
+1. Visit https://www.bls.gov/cpi/tables/supplemental-files/home.htm.
+2. Download **News Release Table 7, [Month] [Year] (XLSX)**.
+3. Run `npm run data:ingest-inflation-contribution --` with `--file`, `--period`,
+   `--release-date`, `--source-url`, and an explicit temporary `--output` path.
+4. Inspect the validated output and use the shared parser/update rules to append
+   it without truncating history, then run the full story-completion checks.
 
 Files for completed prior years may instead appear near the bottom of the page
 as annual archives named in this format:
 
 **2024 Supplemental Files (ZIP)**
 
-The annual ZIP files were needed for the original historical backfill. Under
-normal circumstances, ongoing updates require only the single new monthly
-**News Release Table 7** XLSX file.
+The annual ZIP files were needed for the original historical backfill. The
+scheduled path does not rescan them; explicit historical backfills remain a
+manual maintenance operation.
 
 Do not substitute another CPI table or a category inflation-rate series. Table
 7 contains the percentage-point contribution effects required by the dashboard.

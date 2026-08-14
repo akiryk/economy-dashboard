@@ -101,7 +101,8 @@ key. The browser never contacts either provider.
 
 The inflation-contribution snapshot is also outside the FRED list. It records the
 unadjusted 12-month “effect on All Items” values published directly in BLS CPI-U
-news-release Table 7 for June 2025 and June 2026. The five displayed groups are
+news-release Table 7 for the newest release and, when available, the same month
+one year earlier. The five displayed groups are
 food, energy, shelter, commodities less food and energy, and other services.
 Other services is calculated as the published services-less-energy-services
 effect minus the published shelter effect, making the five groups mutually
@@ -127,8 +128,9 @@ commands validate workbook identity, measured month, exact category rows, the
 reconciliation within 0.05 percentage point before atomically writing output.
 October 2025 is emitted only as an explicit unavailable observation because BLS
 states that the tables are unavailable due to the 2025 appropriations lapse.
-The resulting `inflation-contribution-history.json` contains 60 validated
-release observations from June 2021 through June 2026 and the one explicit gap.
+The initial `inflation-contribution-history.json` backfill contains 60 validated
+release observations from June 2021 through June 2026 and the one explicit gap;
+the scheduled updater appends subsequent validated releases.
 Residuals caused by BLS source rounding range from −0.050 to +0.048 percentage
 point, within the declared 0.05-point tolerance. The existing two-observation UI
 snapshot remains unchanged; Story 47 adds production history but no chart or
@@ -139,7 +141,50 @@ for the exact file inventory, commands, validation contract, and
 release-vintage policy. No category percent-change column or component
 inflation-rate series may be used as a proxy.
 
-This is a small configuration boundary, not dynamic discovery or a plugin system.
+### Scheduled Table 7 and category-rate refresh
+
+`npm run data:refresh` runs `scripts/refreshInflationDriversData.ts` after the
+general FRED refresh. It retrieves only the official BLS supplemental index at
+`https://www.bls.gov/cpi/tables/supplemental-files/home.htm` and discovers links
+whose semantic label is exactly **News Release Table 7, [Month] [Year] (XLSX)**.
+Both the index and the final workbook URL must remain HTTPS URLs on
+`www.bls.gov`; redirects to any other host are rejected.
+
+The updater compares the newest discovered reporting month with the latest
+committed release observation. An equal period is a successful no-op and writes
+nothing. A release exactly one month newer is downloaded to memory, checked for
+XLSX identity, assigned the official response's Last-Modified release date, and
+passed through the same strict `parseInflationContributionWorkbook` function as
+the manual command. The parser verifies the Table 7 heading, reporting month,
+effect column, required categories, numeric values, provenance, derived Other
+services value, and reconciliation tolerance. The full history is then checked
+for order, duplicates, and preservation before history and the two-period card
+snapshot are replaced as one rollback-safe group.
+
+An older discovered release is treated as suspicious. A gap of more than one
+month requires an explicit oldest-to-newest backfill rather than silently
+skipping a release. Discovery failure is distinct from a no-new-release result.
+Once a newer workbook is known to exist, any download, identity, parsing, or
+validation failure fails the refresh and leaves both committed files unchanged.
+The scheduled workflow therefore cannot commit or deploy partial Table 7 data.
+It does not store downloaded XLSX files or add retrieval-only metadata on no-op
+runs.
+
+The same refresh step separately requests the unadjusted CPI-U index histories
+for shelter (`CUUR0000SAH1`), energy (`CUUR0000SA0E`), and food
+(`CUUR0000SAF1`) from the official BLS Public Data API. It calculates each
+category's year-over-year rate from index levels through the latest month common
+to all three responses and atomically replaces their committed JSON series.
+These rates support the five-year mini-charts; they are not substitutes for
+Table 7 percentage-point contribution effects. The card's contribution period
+is labeled independently, while every supporting chart exposes its own latest
+observation date.
+
+The manual `npm run data:ingest-inflation-contribution -- --file ... --period
+... --release-date ... --source-url ... --output ...` command remains the
+fallback for BLS access changes, deliberate recovery, and debugging. It shares
+the production parser and validators. Historical annual-ZIP ingestion remains
+an explicit backfill command and is never repeated by the daily schedule.
 
 `NFCICREDIT` is the approved broad-credit-stress measure. It provides a long, redistributable Chicago Fed history focused on credit conditions. It replaces the Epic's contemplated corporate credit spread because current ICE BofA FRED exposure is short and licensed, Moody's terms restrict redistribution and storage, and a high-yield-only spread would cover only speculative-grade borrowers. The overall NFCI is not used because the separate rate card already covers interest-rate conditions.
 
