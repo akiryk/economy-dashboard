@@ -61,7 +61,8 @@ Story 84 adds or explicitly reuses the following 18 full-history FRED inputs. Co
 
 | FRED ID | Frequency; units; adjustment | FRED transformation | Repository slug / generated data | Coverage |
 |---|---|---|---|---|
-| `A191RL1Q225SBEA` | Quarterly; percent change from preceding period at annual rate; SAAR | Provider-published | `dashboard-real-gdp-growth` | 1947 Q2–2026 Q2 |
+| `GDPC1` | Quarterly; percent change from same quarter one year earlier; underlying real GDP level is SAAR | `units=pc1` | Reuses `real-gdp-growth` for both the home-page and status-dashboard GDP cards | 1948 Q1–2026 Q2 |
+| `A191RL1Q225SBEA` | Quarterly; percent change from preceding period at annual rate; SAAR | Provider-published | Retained as `dashboard-real-gdp-growth`; not used by the status GDP headline | 1947 Q2–2026 Q2 |
 | `GDP` | Quarterly; billions of dollars; SAAR | Provider-published level | `dashboard-nominal-gdp` | 1947 Q1–2026 Q2 |
 | `UNRATE` | Monthly; percent; seasonally adjusted | Provider-published level | Reuses `unemployment-rate` | Jan 1948–Jul 2026 |
 | `PAYEMS` | Monthly; thousands of persons; seasonally adjusted | `units=chg` | `dashboard-payroll-change` | Feb 1939–Jul 2026 |

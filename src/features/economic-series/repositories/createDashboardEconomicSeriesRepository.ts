@@ -6,6 +6,7 @@ export type DashboardSeriesLoaders = Readonly<
 >
 
 const reusedSlugs = new Set([
+  'real-gdp-growth',
   'unemployment-rate',
   'initial-unemployment-claims',
   'initial-unemployment-claims-four-week-average',

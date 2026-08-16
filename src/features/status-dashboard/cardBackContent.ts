@@ -14,18 +14,20 @@ function formatJobs(valueInThousands: number): string {
 
 export function getGdpBackContent(
   value: number,
-  period: string,
-  nominalAvailable: boolean,
-  context: HistoricalContext,
+  date: string,
+  stateLabel: string,
 ): DashboardCardBackContent {
-  const direction = value < 0 ? 'contracted' : 'grew'
-  const whatItShows = `Real GDP ${direction} at a ${Math.abs(value).toFixed(1)}% annualized rate in ${period}.${nominalAvailable ? " The secondary figure shows the economy's nominal dollar size." : ''}`
-  let interpretation = 'Output is expanding at a broadly typical pace.'
-  if (value < 0) interpretation = 'Real output contracted in the latest quarter.'
-  else if (context.stateLabel === 'Slow growth') interpretation = 'Output is still expanding, but the current pace is relatively slow.'
-  else if (context.stateLabel === 'Strong growth') interpretation = "Output is expanding quickly relative to the dashboard's growth threshold."
+  const parsed = new Date(`${date}T00:00:00Z`)
+  const quarter = Math.floor(parsed.getUTCMonth() / 3) + 1
+  const year = parsed.getUTCFullYear()
+  const direction = value < 0 ? 'lower' : 'higher'
+  const interpretation = stateLabel === 'Contracting'
+    ? 'Real output is smaller than it was one year earlier; this measure alone does not establish a recession.'
+    : stateLabel === 'Little changed'
+      ? 'Real output is little changed from one year earlier.'
+      : 'Real output is larger than it was one year earlier.'
   return {
-    whatItShows,
+    whatItShows: `Real GDP was ${Math.abs(value).toFixed(1)}% ${direction} in Q${quarter} ${year} than in Q${quarter} ${year - 1}. This measures how much inflation-adjusted U.S. economic output has changed from the same quarter one year earlier.`,
     howToReadIt: `${interpretation} GDP growth alone does not measure household welfare.`,
   }
 }

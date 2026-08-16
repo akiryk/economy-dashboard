@@ -12,7 +12,6 @@ import {
   formatDashboardPercent,
   formatDashboardPeriod,
   formatHistoryYear,
-  formatNominalGdp,
 } from './statusFormatters'
 import { useDashboardSeries } from './useDashboardSeries'
 import { createPayrollTileModel } from './payrollTileModel'
@@ -24,7 +23,7 @@ import {
   getUnemploymentBackContent,
 } from './cardBackContent'
 
-const gdpSlugs = ['dashboard-real-gdp-growth', 'dashboard-nominal-gdp'] as const
+const gdpSlugs = ['real-gdp-growth'] as const
 const unemploymentSlugs = ['unemployment-rate'] as const
 const payrollSlugs = ['dashboard-payroll-change'] as const
 const claimsSlugs = [
@@ -54,7 +53,7 @@ export function GdpStatusTile({ theme }: GrowthLaborTileProps) {
   if (!growth) return <TileMessage label="GDP growth" />
   let model
   try {
-    model = createGdpTileModel(growth, data.series.get(gdpSlugs[1]) ?? null)
+    model = createGdpTileModel(growth)
   } catch {
     return <TileMessage label="GDP growth" />
   }
@@ -66,19 +65,19 @@ export function GdpStatusTile({ theme }: GrowthLaborTileProps) {
       hero={formatDashboardPercent(model.headline.value)}
       state={model.state}
       stateLabel={model.stateLabel}
-      secondary={model.secondary ? `GDP ${formatNominalGdp(model.secondary.value)}` : 'GDP unavailable'}
+      secondary=""
       observations={model.sparkline}
-      sparklineSummary={`Real GDP annualized quarterly growth over ten years${first ? `, from ${formatDashboardPercent(first.value!)} to ${formatDashboardPercent(model.headline.value)}` : ''}. Missing quarters remain gaps.`}
+      sparklineSummary={`Year-over-year real GDP growth over five years${first ? `, from ${formatDashboardPercent(first.value!)} to ${formatDashboardPercent(model.headline.value)}` : ''}. Above zero means real output is larger than one year earlier; below zero means it is smaller. Missing quarters remain gaps.`}
       theme={theme}
       asOf={period}
       historical={model.historical}
       historicalValueFormatter={formatDashboardPercent}
       dateFormatter={formatHistoryYear}
+      reference={{ value: 0, label: 'No year-over-year change' }}
       backContent={getGdpBackContent(
         model.headline.value,
-        period,
-        model.secondary !== null,
-        { percentile: model.historical.percentile, stateLabel: model.stateLabel },
+        model.headline.date,
+        model.stateLabel,
       )}
   />
 }

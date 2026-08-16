@@ -29,8 +29,7 @@ function series(slug: string, values: Array<number | null>): EconomicSeries {
 
 function seriesForSlug(slug: string): EconomicSeries {
   const values: Record<string, number> = {
-    'dashboard-real-gdp-growth': 1.5,
-    'dashboard-nominal-gdp': 32_475,
+    'real-gdp-growth': 2.14,
     'unemployment-rate': 4.1,
     'dashboard-payroll-change': -23,
     'initial-unemployment-claims-four-week-average': 221_000,
@@ -41,6 +40,13 @@ function seriesForSlug(slug: string): EconomicSeries {
     'dashboard-mortgage-rate-30-year': 6.69,
     'dashboard-sp500': 105,
     'dashboard-high-yield-credit-spread': 2.7,
+  }
+  if (slug === 'real-gdp-growth') {
+    const result = series(slug, [1.8, 2.14])
+    result.providerSeriesId = 'GDPC1'
+    result.observations[0]!.date = '2025-04-01'
+    result.observations[1]!.date = '2026-04-01'
+    return result
   }
   if (slug === 'dashboard-sp500') {
     const result = series(slug, [100, 110, 105])
@@ -108,7 +114,12 @@ describe('StatusDashboardPage', () => {
       expect.stringContaining('S&P 500'),
       expect.stringContaining('High-yield spread'),
     ])
-    expect(screen.getByRole('article', { name: 'GDP growth' })).toHaveTextContent('GDP $32.5T')
+    const gdp = screen.getByRole('article', { name: 'GDP growth' })
+    expect(gdp).toHaveTextContent('2.1%')
+    expect(gdp).toHaveTextContent('Growing')
+    expect(gdp).toHaveTextContent('As of Q2 2026')
+    expect(gdp).not.toHaveTextContent(/GDP \$|annualized/i)
+    expect(within(gdp).getByText(/year-over-year real GDP growth over five years.*Above zero means real output is larger than one year earlier.*below zero means it is smaller/i)).toHaveClass('visually-hidden')
     expect(screen.getByRole('article', { name: 'Unemployment' })).not.toHaveTextContent(/jobs/i)
     const payroll = screen.getByRole('article', { name: 'Payroll growth' })
     expect(payroll).toHaveTextContent('+12k/mo')
@@ -150,7 +161,7 @@ describe('StatusDashboardPage', () => {
     expect(highYield).toHaveTextContent('270 bps')
     expect(highYield).toHaveTextContent('Calm')
     expect(highYield).toHaveAttribute('data-state', 'notable-good')
-    expect(dashboardEconomicSeriesRepository.getBySlug).toHaveBeenCalledTimes(12)
+    expect(dashboardEconomicSeriesRepository.getBySlug).toHaveBeenCalledTimes(11)
   })
 
   it('isolates a headline failure inside the dashboard content', async () => {
@@ -164,13 +175,13 @@ describe('StatusDashboardPage', () => {
       'Inflation data is temporarily unavailable.',
     )
     expect(screen.getByRole('heading', { name: 'Economy status' })).toBeVisible()
-    expect(screen.getByRole('article', { name: 'GDP growth' })).toHaveTextContent('1.5%')
+    expect(screen.getByRole('article', { name: 'GDP growth' })).toHaveTextContent('2.1%')
   })
 
   it('isolates one growth tile failure from the other five tiles', async () => {
     vi.mocked(dashboardEconomicSeriesRepository.getBySlug)
       .mockImplementation(async (slug) => {
-        if (slug === 'dashboard-real-gdp-growth') throw new Error('Unavailable')
+        if (slug === 'real-gdp-growth') throw new Error('Unavailable')
         return seriesForSlug(slug)
       })
     render(<StatusDashboardPage />)
@@ -227,6 +238,17 @@ describe('StatusDashboardPage', () => {
     await user.click(highYield)
     expect(highYield).toHaveTextContent('after option adjustment')
     expect(highYield).toHaveTextContent('do not guarantee recession')
+  })
+
+  it('describes GDP as the same-quarter-year-ago measure on its card back', async () => {
+    const user = userEvent.setup()
+    render(<StatusDashboardPage />)
+    const gdp = (await screen.findByText('2.1%')).closest('article')!
+    await user.click(gdp)
+
+    expect(gdp).toHaveTextContent('2.1% higher in Q2 2026 than in Q2 2025')
+    expect(gdp).toHaveTextContent('same quarter one year earlier')
+    expect(gdp).not.toHaveTextContent(/annualized|nominal GDP/i)
   })
 
   it('flips cards independently by pointer and keyboard without visible controls', async () => {

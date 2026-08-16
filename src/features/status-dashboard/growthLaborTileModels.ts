@@ -33,29 +33,25 @@ function requireLatest(series: EconomicSeries, label: string) {
 }
 
 export function describeGdpGrowth(value: number): string {
+  if (Math.abs(value) <= 0.1) return 'Little changed'
   if (value < 0) return 'Contracting'
-  if (value <= 1) return 'Slow growth'
-  if (value <= 2.5) return 'Growing'
-  return 'Strong growth'
+  return 'Growing'
 }
 
 export function classifyGdpGrowth(value: number): DashboardThresholdState {
-  if (value < 0) return 'notable-bad'
-  if (value > 2.5) return 'notable-good'
+  if (value < -0.1) return 'notable-bad'
+  if (value > 0.1) return 'notable-good'
   return 'normal'
 }
 
-export function createGdpTileModel(
-  growthSeries: EconomicSeries,
-  nominalSeries: EconomicSeries | null,
-): HistoricalStatusTileModel {
+export function createGdpTileModel(growthSeries: EconomicSeries): HistoricalStatusTileModel {
   const headline = requireLatest(growthSeries, 'Real GDP growth')
   return {
     headline,
-    secondary: nominalSeries ? latestValidObservation(nominalSeries.observations) : null,
+    secondary: null,
     state: classifyGdpGrowth(headline.value),
     stateLabel: describeGdpGrowth(headline.value),
-    sparkline: selectMonthlyLookback(growthSeries.observations, headline.date, 10),
+    sparkline: selectMonthlyLookback(growthSeries.observations, headline.date, 5),
     historical: calculateHistoricalPercentile(growthSeries.observations, headline),
   }
 }

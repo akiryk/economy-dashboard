@@ -13,12 +13,13 @@ import {
 
 describe('dashboard card back content', () => {
   it('uses grammatical GDP direction and current periods', () => {
-    expect(getGdpBackContent(2.4, 'Q2 2026', true, {
-      percentile: 55, stateLabel: 'Growing',
-    }).whatItShows).toContain('grew at a 2.4% annualized rate in Q2 2026')
-    expect(getGdpBackContent(-1.2, 'Q3 2026', false, {
-      percentile: 5, stateLabel: 'Contracting',
-    }).whatItShows).toContain('contracted at a 1.2% annualized rate')
+    const growing = getGdpBackContent(2.4, '2026-04-01', 'Growing')
+    expect(growing.whatItShows).toContain('2.4% higher in Q2 2026 than in Q2 2025')
+    expect(growing.whatItShows).toContain('same quarter one year earlier')
+    expect(growing.whatItShows).not.toContain('annualized')
+    const contracting = getGdpBackContent(-1.2, '2026-07-01', 'Contracting')
+    expect(contracting.whatItShows).toContain('1.2% lower in Q3 2026 than in Q3 2025')
+    expect(contracting.howToReadIt).toContain('does not establish a recession')
   })
 
   it('uses unemployment level and historical context without payrolls', () => {

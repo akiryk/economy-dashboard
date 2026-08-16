@@ -24,7 +24,7 @@ describe('createDashboardEconomicSeriesRepository', () => {
     expect(reusedRepository.getBySlug).not.toHaveBeenCalled()
   })
 
-  it('delegates only the three explicitly reused slugs', async () => {
+  it('delegates only the explicitly reused slugs', async () => {
     const requestedSlugs: string[] = []
     const getBySlug: EconomicSeriesRepository['getBySlug'] = vi.fn(async (slug: string) => {
       requestedSlugs.push(slug)
@@ -33,6 +33,7 @@ describe('createDashboardEconomicSeriesRepository', () => {
     const repository = createDashboardEconomicSeriesRepository({}, { getBySlug })
 
     for (const slug of [
+      'real-gdp-growth',
       'unemployment-rate',
       'initial-unemployment-claims',
       'initial-unemployment-claims-four-week-average',
@@ -40,6 +41,7 @@ describe('createDashboardEconomicSeriesRepository', () => {
       await expect(repository.getBySlug(slug)).resolves.toBe(series)
     }
     expect(requestedSlugs).toEqual([
+      'real-gdp-growth',
       'unemployment-rate',
       'initial-unemployment-claims',
       'initial-unemployment-claims-four-week-average',

@@ -33,20 +33,20 @@ function series(slug: string, values: Array<number | null>, frequency: EconomicS
 
 describe('growth and labor tile models', () => {
   it.each([
-    [-0.1, 'Contracting', 'notable-bad'], [0, 'Slow growth', 'normal'],
-    [1, 'Slow growth', 'normal'], [1.1, 'Growing', 'normal'],
-    [2.5, 'Growing', 'normal'], [2.5001, 'Strong growth', 'notable-good'],
+    [-0.1001, 'Contracting', 'notable-bad'], [-0.1, 'Little changed', 'normal'],
+    [0, 'Little changed', 'normal'], [0.1, 'Little changed', 'normal'],
+    [0.1001, 'Growing', 'notable-good'],
   ] as const)('classifies GDP %s as %s / %s', (value, label, state) => {
     expect(describeGdpGrowth(value)).toBe(label)
     expect(classifyGdpGrowth(value)).toBe(state)
   })
 
-  it('uses authoritative growth history, nominal GDP secondary, ten years, and full history', () => {
-    const growth = series('dashboard-real-gdp-growth', Array.from({ length: 61 }, (_, i) => i / 10), 'quarterly')
-    const model = createGdpTileModel(growth, series('dashboard-nominal-gdp', [32_475]))
+  it('uses the shared year-over-year growth history, no secondary, five years, and full history', () => {
+    const growth = series('real-gdp-growth', Array.from({ length: 61 }, (_, i) => i / 10), 'quarterly')
+    const model = createGdpTileModel(growth)
     expect(model.headline.value).toBe(6)
-    expect(model.secondary?.value).toBe(32_475)
-    expect(model.sparkline).toHaveLength(41)
+    expect(model.secondary).toBeNull()
+    expect(model.sparkline).toHaveLength(21)
     expect(model.historical.historyStart).toBe(growth.observations[0].date)
   })
 
