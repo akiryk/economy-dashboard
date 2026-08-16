@@ -172,15 +172,23 @@ runs.
 
 GitHub-hosted Ubuntu runners currently receive HTTP 403 from the official BLS
 supplemental page, as confirmed by workflow run 31805452093 on August 14, 2026.
-The scheduled workflow therefore runs the command as a visible nonblocking
-diagnostic: a future successful official response can ingest a release, while
-the known access restriction does not prevent unrelated validated economic data
-from refreshing and deploying. Automatic Table 7 ingestion is not considered
-operational until an ordinary GitHub runner completes both official page and
-workbook retrieval. No mirror or third-party copy is used.
+This is a supported external-access state. The scheduled workflow reports that
+automatic freshness could not be determined, preserves the last valid
+contribution dataset, and allows unrelated validated economic data to refresh
+and deploy. It does not classify access denial as “no new release.” No mirror,
+third-party copy, access spoofing, or weaker host validation is used.
 
-The normal `npm run data:refresh` path separately requests the unadjusted CPI-U index histories
-for shelter (`CUUR0000SAH1`), energy (`CUUR0000SA0E`), and food
+The automatic Table 7 infrastructure is complete even though scheduled source
+access is presently unavailable. If BLS later permits GitHub-hosted retrieval,
+the same discovery, download, validation, atomic persistence, verification, and
+deployment path can proceed without redesign. Until then, every new Table 7
+contribution release requires the documented manual workbook fallback. Failures
+after successful retrieval—such as a malformed workbook, suspicious period,
+missing category, reconciliation failure, or history truncation—remain blocking
+validation failures and can never replace committed good data.
+
+The normal `npm run data:refresh` path separately requests the unadjusted CPI-U
+index histories for shelter (`CUUR0000SAH1`), energy (`CUUR0000SA0E`), and food
 (`CUUR0000SAF1`) from the official BLS Public Data API. It calculates each
 category's year-over-year rate from index levels through the latest month common
 to all three responses and atomically replaces their committed JSON series.

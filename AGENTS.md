@@ -271,17 +271,23 @@ The code should leave the repository slightly better than it was found.
 
 # Updating CPI inflation-contribution data
 
-The repository has a strict automatic discovery and ingestion command,
-`npm run data:refresh-inflation-contributions`, for normal monthly BLS News
-Release Table 7 workbooks. It uses only the official BLS **Archived Consumer
-Price Index Supplemental Files** page and advances history only when the newest
-release is exactly one month after the latest committed release. However, BLS
-currently returns HTTP 403 to ordinary GitHub-hosted Actions runners, so the
-daily workflow runs this command as a visible nonblocking diagnostic. It cannot
-yet replace the manual fallback. Do not use an unofficial mirror.
+The repository has strict automatic discovery and ingestion infrastructure,
+exposed through `npm run data:refresh-inflation-contributions`, for monthly BLS
+News Release Table 7 workbooks. It uses only the official BLS **Archived
+Consumer Price Index Supplemental Files** page and advances history only when
+the newest release is exactly one month after the latest committed release.
 
-Until official retrieval succeeds from GitHub Actions, or whenever workbook
-structure changes, use the retained manual fallback:
+BLS currently returns HTTP 403 to ordinary GitHub-hosted Actions runners. The
+daily workflow therefore treats official Table 7 retrieval as a visible,
+nonblocking freshness diagnostic: access denial means release status could not
+be determined automatically, never “no new release.” Existing contribution data
+is preserved while unrelated API-fed updates, verification, and deployment
+continue. This source-imposed restriction is a supported external constraint,
+not an unfinished implementation requirement. Do not attempt to bypass it or
+use an unofficial mirror.
+
+While official automated retrieval remains unavailable, manually ingest each
+new Table 7 release using the retained fallback:
 
 1. Visit https://www.bls.gov/cpi/tables/supplemental-files/home.htm.
 2. Download **News Release Table 7, [Month] [Year] (XLSX)**.
