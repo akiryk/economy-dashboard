@@ -971,6 +971,22 @@
       "vintage": "release",
       "reconciliationResidual": -0.031,
       "reconciliationStatus": "reconciled"
+    },
+    {
+      "period": "2026-07-01",
+      "sourceReleaseDate": "2026-08-12",
+      "sourceUrl": "https://www.bls.gov/cpi/tables/supplemental-files/news-release-table7-202607.xlsx",
+      "sourceFile": "news-release-table7-202607.xlsx",
+      "headlineCpiEffectTotal": 3.4,
+      "food": 0.405,
+      "energy": 0.982,
+      "shelter": 1.125,
+      "commoditiesLessFoodAndEnergy": 0.156,
+      "servicesLessEnergyServices": 1.822,
+      "otherServices": 0.697,
+      "vintage": "release",
+      "reconciliationResidual": 0.035,
+      "reconciliationStatus": "reconciled"
     }
   ]
 }

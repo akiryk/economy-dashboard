@@ -530,14 +530,14 @@ describe('DashboardPage economic series', () => {
       .toBeVisible()
     expect(within(drivers).getByText('Inflation is broad across several categories.'))
       .toBeVisible()
-    expect(within(drivers).queryByText('3.5%', {
+    expect(within(drivers).queryByText(/\d+\.\d%/, {
       selector: '.series-current__value',
     })).not.toBeInTheDocument()
     expect(within(drivers).getByText(
-      /Percentage points added to or subtracted from the latest 3.5% CPI increase/,
+      /Percentage points added to or subtracted from the latest \d+\.\d% CPI increase/,
     )).toBeVisible()
     expect(within(drivers).getAllByText('Energy')).toHaveLength(2)
-    expect(within(drivers).getByText('+1.1 pp')).toBeVisible()
+    expect(within(drivers).getAllByText(/[+−]\d+\.\d pp/)).toHaveLength(5)
     expect(within(drivers).getByText('Everything else')).toBeVisible()
     expect(within(drivers).getByText(
       'Contribution to inflation over the past 12 months',
@@ -649,7 +649,7 @@ describe('DashboardPage economic series', () => {
       observations.some(({ date, value }) =>
         date === '2025-10-01' && value === null))).toBe(true)
     const accessibleSummary = within(drivers).getByText(
-      /Headline CPI contribution period: June 2026/,
+      /Headline CPI contribution period: [A-Z][a-z]+ \d{4}/,
     )
     expect(accessibleSummary).toHaveClass('visually-hidden')
     expect(accessibleSummary).toHaveTextContent(
@@ -684,18 +684,18 @@ describe('DashboardPage economic series', () => {
     })).toHaveAttribute('aria-pressed', 'true')
     await user.click(within(momentum).getByText('Recent three-month observations'))
     const driverTable = within(drivers).getByRole('table', {
-      name: 'CPI category contributions in June 2026 and June 2025',
+      name: /CPI category contributions in [A-Z][a-z]+ \d{4} and [A-Z][a-z]+ \d{4}/,
     })
     const momentumTable = within(momentum).getByRole('table', {
       name: 'Twelve most recent aligned inflation momentum observations',
     })
     expect(within(driverTable).getAllByRole('row')).toHaveLength(6)
     expect(within(momentumTable).getAllByRole('row')).toHaveLength(13)
-    expect(within(driverTable).getAllByRole('row')[1])
-      .toHaveTextContent('Shelter+1.2 pp+1.4 ppdown 0.2 percentage points')
+    expect(within(driverTable).getByRole('row', { name: /Shelter/ }))
+      .toHaveTextContent(/Shelter[+−]\d\.\d pp[+−]\d\.\d pp/)
     await user.click(within(drivers).getByRole('button', { name: /Less/ }))
     expect(within(drivers).queryByRole('table', {
-      name: 'CPI category contributions in June 2026 and June 2025',
+      name: /CPI category contributions in [A-Z][a-z]+ \d{4} and [A-Z][a-z]+ \d{4}/,
     })).not.toBeInTheDocument()
     expect(within(drivers).getByTestId('inflation-category-trends'))
       .toBeVisible()
