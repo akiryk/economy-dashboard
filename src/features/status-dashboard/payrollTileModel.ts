@@ -9,6 +9,18 @@ import {
   type DashboardThresholdState,
   type HistoricalPercentile,
 } from './cpiTileModel'
+import {
+  deriveThreeMonthAverageChanges,
+} from '../economic-series/utils/payrollCalculations'
+import {
+  classifyLatestPayrollMonth,
+  classifyPayrollTrend,
+  shouldMentionLatestPayrollMonth,
+  type PayrollLatestMonthState,
+  type PayrollTrendState,
+} from '../economic-series/utils/payrollGrowthContext'
+
+export { deriveThreeMonthAverageChanges as deriveThreeMonthPayrollAverage }
 
 export interface PayrollTileModel {
   headline: EconomicObservation & { value: number }
@@ -18,30 +30,9 @@ export interface PayrollTileModel {
   sparkline: readonly EconomicObservation[]
   derivedHistory: readonly EconomicObservation[]
   historical: HistoricalPercentile
-}
-
-function shiftMonth(date: string, offset: number): string {
-  const shifted = new Date(`${date}T00:00:00Z`)
-  shifted.setUTCMonth(shifted.getUTCMonth() + offset)
-  return shifted.toISOString().slice(0, 10)
-}
-
-export function deriveThreeMonthPayrollAverage(
-  observations: readonly EconomicObservation[],
-): readonly EconomicObservation[] {
-  const valuesByDate = new Map(observations.map(({ date, value }) => [date, value]))
-  return observations.map(({ date }) => {
-    const values = [date, shiftMonth(date, -1), shiftMonth(date, -2)]
-      .map((month) => valuesByDate.get(month))
-    const complete = values.every((value): value is number =>
-      value !== null && value !== undefined)
-    return {
-      date,
-      value: complete
-        ? values.reduce((sum, value) => sum + value, 0) / 3
-        : null,
-    }
-  })
+  trendState: PayrollTrendState
+  latestMonthState: PayrollLatestMonthState
+  mentionLatestMonth: boolean
 }
 
 export function describePayrollPace(value: number, percentile: number): string {
@@ -64,10 +55,15 @@ export function classifyPayrollPace(
 export function createPayrollTileModel(series: EconomicSeries): PayrollTileModel {
   const latestMonth = latestValidObservation(series.observations)
   if (!latestMonth) throw new Error('Payroll change has no valid observations')
-  const derivedHistory = deriveThreeMonthPayrollAverage(series.observations)
+  const derivedHistory = deriveThreeMonthAverageChanges(series.observations)
   const headline = latestValidObservation(derivedHistory)
   if (!headline) throw new Error('Payroll change has no complete three-month average')
   const historical = calculateHistoricalPercentile(derivedHistory, headline)
+  const latestMonthState = classifyLatestPayrollMonth(latestMonth.value)
+  const trendState = classifyPayrollTrend(
+    headline.value,
+    historical.percentile > 75 ? 'strong' : 'typical',
+  )
 
   return {
     headline,
@@ -77,5 +73,11 @@ export function createPayrollTileModel(series: EconomicSeries): PayrollTileModel
     sparkline: selectMonthlyLookback(derivedHistory, headline.date, 5),
     derivedHistory,
     historical,
+    trendState,
+    latestMonthState,
+    mentionLatestMonth: shouldMentionLatestPayrollMonth(
+      headline.value,
+      latestMonth.value,
+    ),
   }
 }

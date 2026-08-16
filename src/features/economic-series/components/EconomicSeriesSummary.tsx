@@ -369,9 +369,13 @@ export function EconomicSeriesSummary({
   )
   const payrollGrowthContext = useMemo(
     () => series.slug === 'payroll-growth'
-      ? derivePayrollGrowthContext(series.observations)
+      ? derivePayrollGrowthContext(
+          series.observations,
+          supportingSeries?.find(({ slug }) => slug === 'monthly-payroll-change')
+            ?.observations ?? [],
+        )
       : null,
-    [series.observations, series.slug],
+    [series.observations, series.slug, supportingSeries],
   )
   const savingRateContext = useMemo(
     () => series.slug === 'personal-saving-rate'

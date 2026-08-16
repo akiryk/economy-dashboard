@@ -86,5 +86,10 @@ describe('payroll tile model', () => {
     expect(model.sparkline).toHaveLength(61)
     expect(model.historical.historyStart).toBe('2020-03-01')
     expect(model.historical.historyEnd).toBe('2026-10-01')
+    expect(model).toMatchObject({
+      trendState: 'growing-strongly',
+      latestMonthState: 'positive',
+      mentionLatestMonth: false,
+    })
   })
 })

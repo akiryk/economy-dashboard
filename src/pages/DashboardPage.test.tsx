@@ -747,7 +747,9 @@ describe('DashboardPage economic series', () => {
     )
     expect(current).toHaveTextContent(/[−+]?\d+K/)
     expect(current).toHaveTextContent('Latest three-month average')
-    expect(current).toHaveTextContent(/Employers are (adding|cutting) jobs/)
+    expect(current).toHaveTextContent(
+      'Job growth has nearly stalled. Payrolls fell by 23,000 in July, while the latest three-month average is +20,000 jobs per month.',
+    )
     expect(current).toHaveAccessibleName(
       /middle 50% ranges from [−+]?\d+K to [−+]?\d+K.*middle 80% ranges from [−+]?\d+K to [−+]?\d+K/,
     )

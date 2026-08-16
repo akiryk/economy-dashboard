@@ -5,6 +5,9 @@ import type {
 import { validateEconomicSeries } from '../../src/features/economic-series/models/validateEconomicSeries'
 import type { FredObservationsResponse } from './fredClient'
 import type { PayrollSeriesConfig } from './seriesConfigurations'
+import { deriveThreeMonthAverageChanges } from '../../src/features/economic-series/utils/payrollCalculations'
+
+export { deriveThreeMonthAverageChanges } from '../../src/features/economic-series/utils/payrollCalculations'
 
 interface ParsedObservation extends EconomicObservation {
   value: number | null
@@ -61,29 +64,6 @@ export function deriveMonthlyPayrollChanges(
     const value =
       isConsecutive && previous.value !== null && current.value !== null
         ? current.value - previous.value
-        : null
-    return { date: current.date, value }
-  })
-}
-
-export function deriveThreeMonthAverageChanges(
-  monthlyChanges: readonly EconomicObservation[],
-): EconomicObservation[] {
-  const sorted = [...monthlyChanges].sort((a, b) =>
-    a.date.localeCompare(b.date),
-  )
-
-  return sorted.map((current, index) => {
-    const previous = sorted[index - 1]
-    const twoMonthsPrior = sorted[index - 2]
-    const isConsecutive =
-      previous?.date === previousMonth(current.date) &&
-      twoMonthsPrior?.date === previousMonth(previous.date)
-    const values = [twoMonthsPrior?.value, previous?.value, current.value]
-    const value =
-      isConsecutive &&
-      values.every((item): item is number => item !== null && item !== undefined)
-        ? values.reduce((sum, item) => sum + item, 0) / 3
         : null
     return { date: current.date, value }
   })
