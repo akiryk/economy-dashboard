@@ -428,16 +428,16 @@ describe('DashboardPage economic series', () => {
       name: 'Employment and income',
     })
     const households = screen.getByRole('region', { name: 'Households' })
-    expect(
-      within(growth).getByText(
-        /Growth measures how much the economy is producing/,
-      ),
-    ).toBeVisible()
-    expect(
-      within(prices).getByText(
-        /Price measures describe how quickly the cost of goods and services is changing/,
-      ),
-    ).toBeVisible()
+    expect(screen.getByRole('heading', {
+      level: 1,
+      name: 'U.S. Economy, August 13, 2026',
+    })).toBeVisible()
+    expect(within(growth).queryByText(
+      /Growth measures how much the economy is producing/,
+    )).not.toBeInTheDocument()
+    expect(within(prices).queryByText(
+      /Price measures describe how quickly the cost of goods and services is changing/,
+    )).not.toBeInTheDocument()
     expect(
       await within(growth).findByRole('heading', {
         level: 3,
@@ -471,11 +471,9 @@ describe('DashboardPage economic series', () => {
         'What is driving inflation?',
       ])
     })
-    expect(
-      within(employment).getByText(
-        'Labor-market indicators show how readily people can find work and how broadly employment is distributed. No single measure fully captures labor-market strength.',
-      ),
-    ).toBeVisible()
+    expect(within(employment).queryByText(
+      /Labor-market indicators show how readily people can find work/,
+    )).not.toBeInTheDocument()
     await waitFor(() => {
       const laborQuestions = within(employment).getAllByRole('heading', {
         level: 3,
@@ -502,9 +500,10 @@ describe('DashboardPage economic series', () => {
         name: 'How quickly are average hourly earnings rising?',
       }),
     ).not.toBeInTheDocument()
-    expect(
-      await screen.findByText(/Latest observations range from .+ to .+/),
-    ).toBeVisible()
+    expect(screen.queryByText(/Latest observations range from/))
+      .not.toBeInTheDocument()
+    expect(screen.queryByText(/Complementary indicators show different parts/))
+      .not.toBeInTheDocument()
   })
 
   it('renders inflation drivers and the remaining aligned momentum comparison', async () => {

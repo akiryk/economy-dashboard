@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 interface EconomicSectionProps {
   id: string
   title: string
-  description: string
+  description?: string
   children: ReactNode
 }
 
@@ -14,7 +14,7 @@ export function EconomicSection({
   children,
 }: EconomicSectionProps) {
   const headingId = `${id}-heading`
-  const descriptionId = `${id}-description`
+  const descriptionId = description ? `${id}-description` : undefined
 
   return (
     <section
@@ -25,7 +25,7 @@ export function EconomicSection({
     >
       <header className="economic-section__header">
         <h2 id={headingId}>{title}</h2>
-        <p id={descriptionId}>{description}</p>
+        {description && <p id={descriptionId}>{description}</p>}
       </header>
       <div className="economic-section__content">{children}</div>
     </section>
