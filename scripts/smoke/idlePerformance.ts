@@ -4,10 +4,15 @@ import { chromium, type Browser, type CDPSession } from 'playwright'
 
 const HOST = '127.0.0.1'
 const PORT = 4173
-const URL = `http://${HOST}:${PORT}/`
+const BASE_URL = `http://${HOST}:${PORT}`
 const IDLE_WINDOW_MS = 5_000
 const SETTLE_WINDOW_MS = 2_000
 const DEFAULT_RUNS = 1
+
+const ROUTES = [
+  { path: '/', heading: /^U\.S\. Economy,/ },
+  { path: '/compare', heading: 'Compare economies' },
+] as const
 
 const BUDGETS = {
   scriptDurationMs: 150,
@@ -25,6 +30,7 @@ interface PerformanceSnapshot {
 
 interface IdleDeltas extends PerformanceSnapshot {
   run: number
+  route: string
 }
 
 function parseRuns(args: string[]): number {
@@ -43,7 +49,7 @@ async function waitForPreview(server: ChildProcess): Promise<void> {
       throw new Error(`Preview server exited with code ${server.exitCode}`)
     }
     try {
-      const response = await fetch(URL)
+      const response = await fetch(`${BASE_URL}/`)
       if (response.ok) {
         await new Promise((resolve) => setTimeout(resolve, 250))
         if (server.exitCode !== null) {
@@ -56,7 +62,7 @@ async function waitForPreview(server: ChildProcess): Promise<void> {
     }
     await new Promise((resolve) => setTimeout(resolve, 100))
   }
-  throw new Error(`Preview server did not become ready at ${URL}`)
+  throw new Error(`Preview server did not become ready at ${BASE_URL}`)
 }
 
 function startPreview(): ChildProcess {
@@ -87,17 +93,31 @@ async function snapshot(session: CDPSession): Promise<PerformanceSnapshot> {
   }
 }
 
-async function measureIdle(browser: Browser, run: number): Promise<IdleDeltas> {
+async function measureIdle(
+  browser: Browser,
+  run: number,
+  route: (typeof ROUTES)[number],
+): Promise<IdleDeltas> {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 900 },
     serviceWorkers: 'block',
   })
   try {
     const page = await context.newPage()
-    await page.goto(URL, { waitUntil: 'networkidle', timeout: 30_000 })
-    await page.getByRole('heading', { name: /^U\.S\. Economy,/ }).waitFor()
+    const browserErrors: string[] = []
+    page.on('console', (message) => {
+      if (message.type() === 'error') browserErrors.push(message.text())
+    })
+    page.on('pageerror', (error) => browserErrors.push(error.message))
+
+    await page.goto(`${BASE_URL}${route.path}`, { waitUntil: 'networkidle', timeout: 30_000 })
+    await page.getByRole('heading', { name: route.heading }).waitFor()
     await page.getByRole('article').first().waitFor()
     await page.waitForTimeout(SETTLE_WINDOW_MS)
+
+    if (browserErrors.length > 0) {
+      throw new Error(`${route.path} reported browser errors:\n${browserErrors.join('\n')}`)
+    }
 
     const session = await context.newCDPSession(page)
     await session.send('Performance.enable')
@@ -108,6 +128,7 @@ async function measureIdle(browser: Browser, run: number): Promise<IdleDeltas> {
 
     return {
       run,
+      route: route.path,
       scriptDurationMs: after.scriptDurationMs - before.scriptDurationMs,
       taskDurationMs: after.taskDurationMs - before.taskDurationMs,
       nodes: after.nodes - before.nodes,
@@ -147,14 +168,16 @@ async function main(): Promise<void> {
     try {
       const results: IdleDeltas[] = []
       for (let run = 1; run <= runs; run += 1) {
-        const result = await measureIdle(browser, run)
-        results.push(result)
-        console.log(JSON.stringify(result))
-        for (const metric of Object.keys(BUDGETS) as (keyof typeof BUDGETS)[]) {
-          assertBudget(metric, result[metric])
+        for (const route of ROUTES) {
+          const result = await measureIdle(browser, run, route)
+          results.push(result)
+          console.log(JSON.stringify(result))
+          for (const metric of Object.keys(BUDGETS) as (keyof typeof BUDGETS)[]) {
+            assertBudget(metric, result[metric])
+          }
         }
       }
-      console.log(`Idle-performance smoke test passed ${results.length} run(s) with a ${IDLE_WINDOW_MS / 1_000} s observation window.`)
+      console.log(`Idle-performance smoke test passed ${runs} run(s) across ${ROUTES.length} routes with a ${IDLE_WINDOW_MS / 1_000} s observation window.`)
     } finally {
       await browser.close()
     }

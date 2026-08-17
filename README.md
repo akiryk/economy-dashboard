@@ -2,9 +2,9 @@
 
 An information-first web application for understanding the U.S. economy through objective, well-documented indicators and long historical context.
 
-Phase 1 is complete. The dashboard currently presents 27 cards in nine categories: growth, prices, employment and income, households, housing, business and manufacturing, financial conditions, government finances, and trade and tariffs. A non-default `/secondary` route retains cards that are not currently part of the main dashboard for possible future review.
+Phase 1 is complete. The research dashboard currently presents 25 cards in nine categories: growth, prices, employment and income, households, housing, business and manufacturing, financial conditions, government finances, and trade and tariffs. A non-default `/secondary` route retains cards that are not currently part of the main dashboard for possible future review.
 
-A separate `/dashboard` route provides a simplified 12-tile status board; the full research dashboard remains the default experience. The secondary-indicators page remains available at `/secondary` but is intentionally omitted from primary navigation.
+A separate `/dashboard` route provides a simplified 10-tile status board; the full research dashboard remains the default experience. The top-level `/compare` route places the United States beside a fixed peer group across five internationally comparable measures. The secondary-indicators page remains available at `/secondary` but is intentionally omitted from primary navigation.
 
 See:
 
@@ -70,8 +70,13 @@ src/
     models/             Domain model and runtime validation
     repositories/       Asynchronous local-data boundary
     utils/              Economic calculations and chart preparation
+  features/international-comparison/
+    components/         Accessible ranked comparison presentation
+    data/               Committed validated OECD snapshot
+    models/             Comparison schema and validation
+    repositories/       Local comparison-data boundary
   features/briefing/    Shared historical-comparison rules
-  pages/                Research, status, secondary, and not-found pages
+  pages/                Research, status, compare, secondary, and not-found pages
   styles/               Global styles and design tokens
 scripts/                Provider clients, derivations, and safe refresh writes
 docs/                   Product, architecture, epics, and completed stories
@@ -87,8 +92,8 @@ The production application is published with GitHub Pages at:
 
 Vite builds production assets with `/economy-dashboard/` as the base path, and
 React Router uses that same basename. The Pages artifact also includes a
-`404.html` SPA fallback so direct visits to `/dashboard` and the unlinked
-`/secondary` route load correctly.
+`404.html` SPA fallback so direct visits to `/dashboard`, `/compare`, and the
+unlinked `/secondary` route load correctly.
 
 The coordinated [refresh and deployment workflow](.github/workflows/refresh-and-deploy.yml)
 deploys every push to `main`. It also runs every day at **09:17 UTC** to refresh

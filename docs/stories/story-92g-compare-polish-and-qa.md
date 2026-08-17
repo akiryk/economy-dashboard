@@ -1,6 +1,6 @@
 # Story 92G — Complete Compare-page polish and QA
 
-Status: pending
+Status: complete
 
 ## Acceptance criteria
 

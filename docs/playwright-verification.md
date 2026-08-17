@@ -9,8 +9,9 @@ npm run test:smoke
 ```
 
 The suite builds the app, starts and stops a local Vite preview, opens the main
-research dashboard in Chromium using only committed data, waits for the page to
-settle, and observes five idle seconds through Chrome DevTools Protocol metrics.
+research dashboard and `/compare` in Chromium using only committed data, waits
+for each route to settle, checks for browser errors, and observes five idle
+seconds through Chrome DevTools Protocol metrics.
 It guards against continuous scripting/task work and sustained growth in DOM
 nodes or event listeners. The budgets are intentionally generous regression
 tripwires, not performance targets or microbenchmarks.
@@ -35,6 +36,10 @@ nodes, and listeners all had zero growth; task time ranged from 0.435–3.718 ms
 The budgets sit far above that observed noise while remaining far below the
 prior regression's hundreds of scripting milliseconds per second and sustained
 near-full task utilization.
+
+Epic 92 added `/compare` to the same gate. In five cross-route calibration runs
+on August 17, 2026, both `/` and `/compare` had zero scripting, node, and
+listener growth. Task deltas remained within budget; the largest was 22.395 ms.
 
 Before Story 91, Playwright existed only as the manually invoked
 `perf:measure` page-load harness. There was no Playwright configuration or
