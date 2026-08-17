@@ -32,6 +32,8 @@ const headlineMomentumSupportingSlugs = [
   'headline-cpi-inflation',
   'core-cpi-inflation',
   'core-cpi-three-month-annualized',
+  'headline-cpi-index-not-seasonally-adjusted',
+  'headline-cpi-index-seasonally-adjusted',
 ] as const
 const yieldCurveSupportingSlugs = [
   'three-month-treasury-bill-rate',
@@ -120,6 +122,13 @@ export function DashboardPage() {
           onSeriesLoaded={handleSeriesLoaded}
         />
         <EconomicSeriesCard
+          slug="headline-cpi-three-month-annualized"
+          supportingSlugs={headlineMomentumSupportingSlugs}
+          label="recent inflation momentum"
+          variant="inflation-momentum"
+          onSeriesLoaded={handleSeriesLoaded}
+        />
+        <EconomicSeriesCard
           slug="real-wage-growth"
           supportingSlugs={wageComparisonSupportingSlugs}
           label="wages versus inflation"
@@ -131,13 +140,6 @@ export function DashboardPage() {
           supportingSlugs={inflationDriverSupportingSlugs}
           label="inflation drivers"
           variant="inflation-drivers"
-          onSeriesLoaded={handleSeriesLoaded}
-        />
-        <EconomicSeriesCard
-          slug="headline-cpi-three-month-annualized"
-          supportingSlugs={headlineMomentumSupportingSlugs}
-          label="recent inflation momentum"
-          variant="inflation-momentum"
           onSeriesLoaded={handleSeriesLoaded}
         />
       </EconomicSection>

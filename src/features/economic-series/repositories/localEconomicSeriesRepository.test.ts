@@ -102,6 +102,20 @@ describe('localEconomicSeriesRepository', () => {
   })
 
   it.each([
+    ['headline-cpi-index-not-seasonally-adjusted', 'CPIAUCNS', 'Not seasonally adjusted'],
+    ['headline-cpi-index-seasonally-adjusted', 'CPIAUCSL', 'Seasonally adjusted'],
+  ])('loads exact %s CPI levels', async (slug, providerSeriesId, seasonalAdjustment) => {
+    await expect(localEconomicSeriesRepository.getBySlug(slug)).resolves.toMatchObject({
+      slug,
+      providerSeriesId,
+      frequency: 'monthly',
+      units: 'Index 1982–1984=100',
+      seasonalAdjustment,
+      transformation: 'Official source index level; no transformation',
+    })
+  })
+
+  it.each([
     ['shelter-cpi-inflation', 'CUUR0000SAH1'],
     ['energy-cpi-inflation', 'CUUR0000SA0E'],
     ['food-cpi-inflation', 'CUUR0000SAF1'],

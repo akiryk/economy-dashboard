@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest'
 import type { EconomicSeries } from '../models/economicSeries'
 import {
   classifyInflationMomentumDifference,
+  annualizeThreeMonthCpiGrowth,
   createRecentInflationMomentumAccessibleSummary,
-  deriveInflationMomentumHero,
-  deriveRecentInflationMomentumModel,
+  deriveRecentInflationMomentumModel as deriveModelFromSeries,
+  deriveConditionalInflationScenario,
+  resolveConditionalInflationBase,
 } from './recentInflationMomentum'
 
 function series(slug: string, observations: Array<[string, number | null]>): EconomicSeries {
@@ -17,12 +19,35 @@ function series(slug: string, observations: Array<[string, number | null]>): Eco
   }
 }
 
+function deriveRecentInflationMomentumModel({
+  twelveMonthHeadline,
+  threeMonthHeadline,
+}: {
+  twelveMonthHeadline: EconomicSeries
+  threeMonthHeadline: EconomicSeries
+}) {
+  return deriveModelFromSeries({
+    twelveMonthHeadline,
+    threeMonthHeadline,
+    headlineSaLevels: series('sa-level', [
+      ['2026-03-01', 100],
+      ['2026-06-01', 101],
+    ]),
+    headlineNsaLevels: series('nsa-level', [
+      ['2025-09-01', 100],
+      ['2026-06-01', 103],
+    ]),
+  })
+}
+
 describe('classifyInflationMomentumDifference', () => {
   it.each([
-    [0.1, 'pickup', 'Yes — inflation has picked up in recent months.'],
+    [0.1, 'pickup', 'Inflation has accelerated in recent months.'],
     [0.099, 'close', 'Inflation momentum is little changed.'],
     [-0.099, 'close', 'Inflation momentum is little changed.'],
-    [-0.1, 'slowing', 'No — inflation has slowed in recent months.'],
+    [-0.1, 'slowing', 'Inflation has slowed in recent months.'],
+    [1, 'substantial-pickup', 'Inflation has accelerated sharply in recent months.'],
+    [-1, 'substantial-slowing', 'Inflation has slowed sharply in recent months.'],
     [null, 'unavailable', 'Recent inflation momentum is unavailable.'],
   ])('classifies %s at explicit boundaries', (difference, tier, answer) => {
     expect(classifyInflationMomentumDifference(difference))
@@ -44,11 +69,9 @@ describe('deriveRecentInflationMomentumModel', () => {
       previousThreeMonthAnnualizedRate: -1,
       threeMonthAnnualizedRate: -2.5,
       difference: -1.5,
-      answerTier: 'slowing',
+      answerTier: 'substantial-slowing',
       slopeDirection: 'down',
       differenceLabel: '1.5 percentage points slower',
-      heroValue: '−1.5 pp',
-      showRelativeHero: false,
     })
     expect(model.scale?.[0]).toBeLessThan(-2.5)
     expect(model.scale?.[1]).toBeGreaterThan(0)
@@ -120,13 +143,13 @@ describe('deriveRecentInflationMomentumModel', () => {
     expect(createRecentInflationMomentumAccessibleSummary(model))
       .toContain('Momentum was faster; the change was +0.6 percentage points')
     expect(createRecentInflationMomentumAccessibleSummary(model))
-      .toContain('12-month inflation rate was +3.5%')
+      .toContain('actual 12-month inflation rate was 3.5%')
     expect(createRecentInflationMomentumAccessibleSummary(model))
       .toContain('adjacent, non-overlapping three-month windows')
     expect(createRecentInflationMomentumAccessibleSummary(model))
-      .toContain('not forecasts')
+      .toContain('not a forecast')
     expect(model.threeMonthAnnualizedRate).toBeLessThan(model.twelveMonthRate!)
-    expect(model.answer).toBe('Yes — inflation has picked up in recent months.')
+    expect(model.answer).toBe('Inflation has accelerated in recent months.')
   })
 
   it('recalculates both windows when revised derived CPI history is supplied', () => {
@@ -147,23 +170,92 @@ describe('deriveRecentInflationMomentumModel', () => {
   })
 })
 
-describe('percentage-point inflation momentum hero', () => {
-  it('uses the unrounded difference and rounds only the display', () => {
-    const hero = deriveInflationMomentumHero({
-      difference: -0.694,
-      answerTier: 'slowing',
+describe('conditional 12-month inflation scenario', () => {
+  it('uses exact SA levels and an observed t−9 NSA base', () => {
+    const scenario = deriveConditionalInflationScenario({
+      latestDate: '2025-07-01',
+      headlineSaLevels: series('sa', [
+        ['2025-04-01', 320.302],
+        ['2025-07-01', 322.169],
+      ]),
+      headlineNsaLevels: series('nsa', [
+        ['2024-10-01', 315.664],
+        ['2025-07-01', 323.048],
+      ]),
     })
-    expect(hero.relativeDifference).toBeNull()
-    expect(hero.heroValue).toBe('−0.7 pp')
+
+    expect(scenario.recentThreeMonthGrowth)
+      .toBe(322.169 / 320.302 - 1)
+    expect(annualizeThreeMonthCpiGrowth(scenario.recentThreeMonthGrowth!))
+      .toBeCloseTo(2.3520143949639083, 12)
+    expect(scenario.conditionalCpiNsa)
+      .toBe(323.048 * (322.169 / 320.302))
+    expect(scenario.conditionalRate).toBeCloseTo(2.9357183866403513, 12)
+    expect(scenario.baseObservation).toEqual({
+      kind: 'observed',
+      date: '2024-10-01',
+      value: 315.664,
+    })
   })
 
-  it('uses About the same inside the existing neutral threshold', () => {
-    expect(deriveInflationMomentumHero({
-      difference: 0.099,
-      answerTier: 'close',
-    })).toMatchObject({
-      showRelativeHero: false,
-      heroValue: '0.0 pp',
+  it('bridges only an explicit isolated missing NSA base geometrically', () => {
+    const nsa = series('nsa', [
+      ['2025-09-01', 324.8],
+      ['2025-10-01', null],
+      ['2025-11-01', 324.122],
+      ['2026-07-01', 333.918],
+    ])
+    const original = structuredClone(nsa.observations)
+    const scenario = deriveConditionalInflationScenario({
+      latestDate: '2026-07-01',
+      headlineSaLevels: series('sa', [
+        ['2026-04-01', 332.407],
+        ['2026-07-01', 332.813],
+      ]),
+      headlineNsaLevels: nsa,
     })
+
+    expect(scenario.baseObservation).toMatchObject({
+      kind: 'interpolated',
+      date: '2025-10-01',
+      previousDate: '2025-09-01',
+      nextDate: '2025-11-01',
+      value: Math.sqrt(324.8 * 324.122),
+    })
+    expect(scenario.conditionalRate).not.toBeNull()
+    expect(nsa.observations).toEqual(original)
+  })
+
+  it('prefers an observed base and rejects unbracketed or consecutive gaps', () => {
+    expect(resolveConditionalInflationBase([
+      { date: '2025-09-01', value: 99 },
+      { date: '2025-10-01', value: 100 },
+      { date: '2025-11-01', value: 101 },
+    ], '2025-10-01')).toEqual({
+      kind: 'observed', date: '2025-10-01', value: 100,
+    })
+    expect(resolveConditionalInflationBase([
+      { date: '2025-09-01', value: null },
+      { date: '2025-10-01', value: null },
+      { date: '2025-11-01', value: 101 },
+    ], '2025-10-01')).toBeNull()
+    expect(resolveConditionalInflationBase([
+      { date: '2025-10-01', value: null },
+      { date: '2025-11-01', value: 101 },
+    ], '2025-10-01')).toBeNull()
+    expect(resolveConditionalInflationBase([
+      { date: '2025-09-01', value: 99 },
+      { date: '2025-10-01', value: null },
+    ], '2025-10-01')).toBeNull()
+    expect(resolveConditionalInflationBase([
+      { date: '2025-10-01', value: null },
+      { date: '2025-09-01', value: 99 },
+      { date: '2025-11-01', value: 101 },
+    ], '2025-10-01')).toBeNull()
+    expect(resolveConditionalInflationBase([
+      { date: '2025-09-01', value: Number.NaN },
+      { date: '2025-10-01', value: null },
+      { date: '2025-11-01', value: 101 },
+    ], '2025-10-01')).toBeNull()
   })
 })

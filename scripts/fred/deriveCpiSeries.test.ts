@@ -100,7 +100,7 @@ describe('deriveThreeMonthAnnualizedInflation', () => {
 })
 
 describe('deriveCpiSeries', () => {
-  it('builds four valid outputs, excludes future dates, and preserves provenance', () => {
+  it('builds rate and source-level outputs, excludes future dates, and preserves provenance', () => {
     const observations = monthlyLevels(2024, 0, 14, (index) => 100 + index).map(
       (item) => ({ date: item.date, value: String(item.value) }),
     )
@@ -120,6 +120,16 @@ describe('deriveCpiSeries', () => {
     })
     expect(result.headlineMomentum.observations[0]?.date).toBe('2024-04-01')
     expect(result.headlineMomentum.providerSeriesId).toBe('CPIAUCSL')
+    expect(result.headlineNotSeasonallyAdjustedLevel).toMatchObject({
+      providerSeriesId: 'CPIAUCNS',
+      units: 'Index 1982–1984=100',
+      seasonalAdjustment: 'Not seasonally adjusted',
+    })
+    expect(result.headlineSeasonallyAdjustedLevel).toMatchObject({
+      providerSeriesId: 'CPIAUCSL',
+      units: 'Index 1982–1984=100',
+      seasonalAdjustment: 'Seasonally adjusted',
+    })
     expect(result.headlineSeasonallyAdjustedInflation.providerSeriesId).toBe('CPIAUCSL')
     expect(result.coreInflation.providerSeriesId).toBe('CPILFESL')
     expect(result.coreMomentum.transformation).toContain('Three-month annualized')
@@ -150,6 +160,10 @@ describe('deriveCpiSeries', () => {
       expect(after[key].observations.at(-1)?.date).toBe('2025-07-01')
       expect(after[key].observations.length).toBe(before[key].observations.length + 1)
     }
+    expect(after.headlineNotSeasonallyAdjustedLevel.observations.slice(0, -1))
+      .toEqual(before.headlineNotSeasonallyAdjustedLevel.observations)
+    expect(after.headlineSeasonallyAdjustedLevel.observations.slice(0, -1))
+      .toEqual(before.headlineSeasonallyAdjustedLevel.observations)
     expect(after.headlineInflation).toMatchObject({
       providerSeriesId: 'CPIAUCNS',
       seasonalAdjustment: 'Not seasonally adjusted (underlying CPI index)',

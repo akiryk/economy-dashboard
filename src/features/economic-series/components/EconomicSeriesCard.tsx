@@ -197,6 +197,8 @@ export function EconomicSeriesCard({
         twelveMonthHeadline={seriesState.supportingSeries[0]!}
         twelveMonthCore={seriesState.supportingSeries[1]!}
         threeMonthCore={seriesState.supportingSeries[2]!}
+        headlineNsaLevels={seriesState.supportingSeries[3]!}
+        headlineSaLevels={seriesState.supportingSeries[4]!}
       />
     )
   }

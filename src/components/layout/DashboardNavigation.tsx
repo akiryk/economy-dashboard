@@ -18,7 +18,11 @@ const navigationGroups = [
     cards: [
       {
         id: 'headline-cpi-inflation-card',
-        title: 'How quickly are consumer prices rising?',
+        title: 'What’s the inflation rate?',
+      },
+      {
+        id: 'recent-inflation-momentum-card',
+        title: 'What is inflation doing recently?',
       },
       {
         id: 'wages-versus-inflation-card',
@@ -27,10 +31,6 @@ const navigationGroups = [
       {
         id: 'inflation-drivers-card',
         title: 'What is driving inflation?',
-      },
-      {
-        id: 'recent-inflation-momentum-card',
-        title: 'Has inflation picked up in recent months?',
       },
     ],
   },

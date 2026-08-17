@@ -8,6 +8,7 @@ import {
 import {
   formatDate,
   formatObservationPeriod,
+  formatPercentage,
   formatSignedPercentage,
 } from '../utils/economicSeries'
 import {
@@ -34,6 +35,8 @@ interface RecentInflationMomentumSummaryProps {
   threeMonthHeadline: EconomicSeries
   twelveMonthCore: EconomicSeries
   threeMonthCore: EconomicSeries
+  headlineNsaLevels: EconomicSeries
+  headlineSaLevels: EconomicSeries
 }
 
 export function RecentInflationMomentumSummary({
@@ -41,12 +44,16 @@ export function RecentInflationMomentumSummary({
   threeMonthHeadline,
   twelveMonthCore,
   threeMonthCore,
+  headlineNsaLevels,
+  headlineSaLevels,
 }: RecentInflationMomentumSummaryProps) {
   const [selectedRange, setSelectedRange] = useState<TimeRange>('20y')
   const model = useMemo(() => deriveRecentInflationMomentumModel({
     twelveMonthHeadline,
     threeMonthHeadline,
-  }), [threeMonthHeadline, twelveMonthHeadline])
+    headlineNsaLevels,
+    headlineSaLevels,
+  }), [headlineNsaLevels, headlineSaLevels, threeMonthHeadline, twelveMonthHeadline])
   const yearOverYearAligned = useMemo(
     () => alignInflationObservations(twelveMonthHeadline, twelveMonthCore),
     [twelveMonthCore, twelveMonthHeadline],
@@ -110,9 +117,12 @@ export function RecentInflationMomentumSummary({
             monthly CPI observations are required; missing months remain gaps.
           </p>
           <p>
-            The hero is the latest pace minus the previous pace in percentage
-            points. Differences smaller than 0.1 percentage point are described
-            as little changed. Unrounded values determine the answer.
+            The comparison remains separate from the two headline values. Its
+            percentage-point difference is supporting context, not the card’s
+            primary inflation-rate measure. Differences smaller than 0.1
+            percentage point are described as little changed; differences of
+            at least 1 percentage point are described as sharp. Unrounded
+            values determine the answer.
           </p>
           <p>
             Both compact values use overall, or headline, CPI including food
@@ -205,26 +215,28 @@ export function RecentInflationMomentumSummary({
     <CompactMetricCardLayout
       cardId="recent-inflation-momentum"
       eyebrow="Inflation comparison"
-      question="Has inflation picked up in recent months?"
+      question="What is inflation doing recently?"
       measureLabel="Recent inflation momentum"
       latestValue={(
         <div className="recent-inflation-momentum__answer">
-          <p className="recent-inflation-momentum__hero">
-            {model.heroValue}
-          </p>
-          <p className="recent-inflation-momentum__hero-label">
-            {model.heroLabel}
-          </p>
-          {model.supportingComparison && (
-            <p className="recent-inflation-momentum__support">
-              {model.supportingComparison}
-            </p>
-          )}
-          {model.twelveMonthRate !== null && (
-            <p className="recent-inflation-momentum__support">
-              12-month inflation: {formatSignedPercentage(model.twelveMonthRate)}
-            </p>
-          )}
+          <div className="recent-inflation-momentum__rates">
+            <div>
+              <p className="recent-inflation-momentum__hero">
+                {formatPercentage(model.twelveMonthRate)}
+              </p>
+              <p className="recent-inflation-momentum__hero-label">
+                12-month inflation
+              </p>
+            </div>
+            <div className="recent-inflation-momentum__conditional">
+              <p className="recent-inflation-momentum__conditional-value">
+                {formatPercentage(model.conditionalRate)}
+              </p>
+              <p className="recent-inflation-momentum__hero-label">
+                In 3 months if the recent pace continues
+              </p>
+            </div>
+          </div>
           <p className="recent-inflation-momentum__answer-text">
             {model.answer}
           </p>
@@ -242,8 +254,66 @@ export function RecentInflationMomentumSummary({
           <p>
             Three-month annualized rates describe observed paces as yearly
             rates. The compact answer compares the latest three months with the
-            immediately preceding non-overlapping three months. The 12-month
-            rate remains secondary context and does not determine the answer.
+            immediately preceding non-overlapping three months. A rate such as
+            0.5% annualized does not mean the actual inflation rate is 0.5% or
+            that inflation will be 0.5%.
+          </p>
+          <section>
+            <h4>Conditional 12-month rate</h4>
+            {model.conditionalRate !== null && model.conditionalPeriod &&
+            model.recentThreeMonthGrowth !== null && model.conditionalCpiNsa !== null &&
+            model.baseObservation ? (
+              <>
+                <p>
+                  Seasonally adjusted headline CPI increased by{' '}
+                  {formatPercentage(model.recentThreeMonthGrowth * 100)} over
+                  the latest three months. Applying that exact cumulative
+                  increase once to the current not-seasonally-adjusted CPI
+                  produces a conditional {formatObservationPeriod(model.conditionalPeriod, 'monthly')}{' '}
+                  index of {model.conditionalCpiNsa.toFixed(3)}. Compared with
+                  the {formatObservationPeriod(model.baseObservation.date, 'monthly')}{' '}
+                  NSA base of {model.baseObservation.value.toFixed(3)}, the
+                  conditional 12-month rate is {formatPercentage(model.conditionalRate)}.
+                </p>
+                {model.baseObservation.kind === 'interpolated' && (
+                  <p>
+                    The official {formatObservationPeriod(model.baseObservation.date, 'monthly')}{' '}
+                    CPI index was unavailable. For this derived scenario only,
+                    the missing NSA index is estimated as the geometric mean of
+                    the official {formatObservationPeriod(model.baseObservation.previousDate, 'monthly')}{' '}
+                    index ({model.baseObservation.previousValue.toFixed(3)}) and{' '}
+                    {formatObservationPeriod(model.baseObservation.nextDate, 'monthly')}{' '}
+                    index ({model.baseObservation.nextValue.toFixed(3)}), following
+                    BLS’s published approximation approach for an isolated gap.
+                    BLS did not publish the estimated value.
+                  </p>
+                )}
+              </>
+            ) : (
+              <p>{model.conditionalUnavailableReason}</p>
+            )}
+            <p>
+              The conditional rate is not a forecast. It repeats the latest
+              three-month seasonally adjusted price increase once, applies it
+              to the current NSA index, and calculates the ordinary 12-month
+              CPI rate three months later.
+            </p>
+            <p>
+              Short-window momentum uses seasonally adjusted CPI to remove
+              ordinary seasonal patterns. The standard reported 12-month
+              headline rate uses not-seasonally-adjusted CPI.
+            </p>
+            <p>
+              The 12-month rate can rise or fall even when recent momentum is
+              unchanged because older months continually drop out. This
+              conditional rate incorporates those base effects by replacing
+              the three months that roll out with one repetition of the latest
+              three-month increase.
+            </p>
+          </section>
+          <p>
+            The percentage-point change between the momentum windows is{' '}
+            {model.differenceLabel?.toLowerCase() ?? 'unavailable'}.
           </p>
           <section>
             <h4>Rolling 3-month annualized headline and core CPI</h4>

@@ -15,6 +15,10 @@ const localSeriesLoaders: Readonly<
     import('../data/headline-cpi-inflation.json'),
   'headline-cpi-inflation-seasonally-adjusted': () =>
     import('../data/headline-cpi-inflation-seasonally-adjusted.json'),
+  'headline-cpi-index-not-seasonally-adjusted': () =>
+    import('../data/headline-cpi-index-not-seasonally-adjusted.json'),
+  'headline-cpi-index-seasonally-adjusted': () =>
+    import('../data/headline-cpi-index-seasonally-adjusted.json'),
   'headline-pce-inflation': () =>
     import('../data/headline-pce-inflation.json'),
   'core-cpi-inflation': () => import('../data/core-cpi-inflation.json'),

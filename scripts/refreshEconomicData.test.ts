@@ -1076,7 +1076,7 @@ describe('refreshEconomicData', () => {
     expect(await readFile(realPath, 'utf8')).toBe('old real\n')
   })
 
-  it('fetches each CPI source once and atomically writes all four derivations', async () => {
+  it('fetches each CPI source once and atomically writes all rate and level outputs', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'economy-data-'))
     temporaryDirectories.push(directory)
     const config = {
@@ -1088,6 +1088,10 @@ describe('refreshEconomicData', () => {
       coreMomentumOutputFile: path.join(directory, 'core-momentum.json'),
       headlineSeasonallyAdjustedInflationOutputFile:
         path.join(directory, 'headline-sa-yoy.json'),
+      headlineNotSeasonallyAdjustedLevelOutputFile:
+        path.join(directory, 'headline-nsa-level.json'),
+      headlineSeasonallyAdjustedLevelOutputFile:
+        path.join(directory, 'headline-sa-level.json'),
     }
     const requestedUrls: URL[] = []
     const fetchImplementation: typeof fetch = async (input) => {
@@ -1123,6 +1127,8 @@ describe('refreshEconomicData', () => {
       config.headlineMomentumOutputFile,
       config.coreMomentumOutputFile,
       config.headlineSeasonallyAdjustedInflationOutputFile,
+      config.headlineNotSeasonallyAdjustedLevelOutputFile,
+      config.headlineSeasonallyAdjustedLevelOutputFile,
     ]) {
       expect(validateEconomicSeries(JSON.parse(await readFile(outputFile, 'utf8')))
         .observations.at(-1)?.date).toBe('2025-02-01')
@@ -1138,6 +1144,8 @@ describe('refreshEconomicData', () => {
       path.join(directory, 'headline-momentum.json'),
       path.join(directory, 'core-momentum.json'),
       path.join(directory, 'headline-sa-yoy.json'),
+      path.join(directory, 'headline-nsa-level.json'),
+      path.join(directory, 'headline-sa-level.json'),
     ]
     await Promise.all(outputFiles.map((file, index) => writeFile(file, `old ${index}\n`, 'utf8')))
     const config = {
@@ -1148,6 +1156,8 @@ describe('refreshEconomicData', () => {
       headlineMomentumOutputFile: outputFiles[2]!,
       coreMomentumOutputFile: outputFiles[3]!,
       headlineSeasonallyAdjustedInflationOutputFile: outputFiles[4]!,
+      headlineNotSeasonallyAdjustedLevelOutputFile: outputFiles[5]!,
+      headlineSeasonallyAdjustedLevelOutputFile: outputFiles[6]!,
     }
     const fetchImplementation: typeof fetch = async (input) => {
       const id = new URL(String(input)).searchParams.get('series_id')

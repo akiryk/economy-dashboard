@@ -9,6 +9,27 @@
   line-height: 1;
 }
 
+.recent-inflation-momentum__rates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+  align-items: end;
+}
+
+.recent-inflation-momentum__conditional {
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--color-border);
+}
+
+.recent-inflation-momentum__conditional-value {
+  color: var(--color-text-muted);
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
 .recent-inflation-momentum__answer .recent-inflation-momentum__hero-label {
   margin-top: var(--space-2);
   line-height: 1.35;
@@ -146,6 +167,18 @@
 }
 
 @media (max-width: 36rem) {
+  .recent-inflation-momentum__rates {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .recent-inflation-momentum__conditional {
+    padding-top: var(--space-3);
+    padding-left: 0;
+    border-top: 1px solid var(--color-border);
+    border-left: 0;
+  }
+
   .recent-inflation-momentum__heading .historical-band-chart__help-popover {
     inset: var(--space-4);
     width: auto;

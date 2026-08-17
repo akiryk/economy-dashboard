@@ -228,10 +228,10 @@ describe('DashboardPage economic series', () => {
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
       'Is the economy producing more per hour worked?',
-      'How quickly are consumer prices rising?',
+      'What’s the inflation rate?',
+      'What is inflation doing recently?',
       'Are workers’ wages keeping up with prices?',
       'What is driving inflation?',
-      'Has inflation picked up in recent months?',
       'Is unemployment high or low?',
       'What share of prime-age adults are employed?',
       'Are employers adding jobs?',
@@ -271,7 +271,7 @@ describe('DashboardPage economic series', () => {
       name: 'Is the U.S. economy growing?',
     })
     const cpiCard = await screen.findByRole('article', {
-      name: 'How quickly are consumer prices rising?',
+      name: 'What’s the inflation rate?',
     })
 
     expect(within(gdpCard).getByTestId('production-compact-chart')).toHaveAttribute(
@@ -320,7 +320,7 @@ describe('DashboardPage economic series', () => {
     render(<DashboardPage />)
 
     const card = await screen.findByRole('article', {
-      name: 'How quickly are consumer prices rising?',
+      name: 'What’s the inflation rate?',
     })
     expect(within(card).getByText(
       'Consumer Price Index: Percent Change from Year Ago',
@@ -457,7 +457,7 @@ describe('DashboardPage economic series', () => {
     expect(
       await within(prices).findByRole('heading', {
         level: 3,
-        name: 'How quickly are consumer prices rising?',
+        name: 'What’s the inflation rate?',
       }),
     ).toBeVisible()
     await waitFor(() => {
@@ -465,10 +465,10 @@ describe('DashboardPage economic series', () => {
         level: 3,
       })
       expect(priceQuestions.map((heading) => heading.textContent)).toEqual([
-        'How quickly are consumer prices rising?',
+        'What’s the inflation rate?',
+        'What is inflation doing recently?',
         'Are workers’ wages keeping up with prices?',
         'What is driving inflation?',
-        'Has inflation picked up in recent months?',
       ])
     })
     expect(
@@ -515,15 +515,24 @@ describe('DashboardPage economic series', () => {
       name: 'What is driving inflation?',
     })
     const momentum = await screen.findByRole('article', {
-      name: 'Has inflation picked up in recent months?',
+      name: 'What is inflation doing recently?',
     })
-    const [twelveMonthHeadline, threeMonthHeadline] = await Promise.all([
+    const [
+      twelveMonthHeadline,
+      threeMonthHeadline,
+      headlineNsaLevels,
+      headlineSaLevels,
+    ] = await Promise.all([
       localEconomicSeriesRepository.getBySlug('headline-cpi-inflation'),
       localEconomicSeriesRepository.getBySlug('headline-cpi-three-month-annualized'),
+      localEconomicSeriesRepository.getBySlug('headline-cpi-index-not-seasonally-adjusted'),
+      localEconomicSeriesRepository.getBySlug('headline-cpi-index-seasonally-adjusted'),
     ])
     const momentumModel = deriveRecentInflationMomentumModel({
       twelveMonthHeadline: twelveMonthHeadline!,
       threeMonthHeadline: threeMonthHeadline!,
+      headlineNsaLevels: headlineNsaLevels!,
+      headlineSaLevels: headlineSaLevels!,
     })
 
     expect(within(drivers).getByText('Category contributions to overall CPI inflation'))
@@ -559,11 +568,15 @@ describe('DashboardPage economic series', () => {
       'Shown for current contributors with a directly comparable CPI series.',
     )).toBeVisible()
     expect(within(momentum).getByText(momentumModel.answer)).toBeVisible()
-    expect(within(momentum).getByText(momentumModel.heroValue)).toBeVisible()
+    expect(within(momentum).getByText('3.4%')).toBeVisible()
+    expect(within(momentum).getByText('12-month inflation')).toBeVisible()
+    expect(within(momentum).getByText('3.0%')).toBeVisible()
+    expect(within(momentum).queryByText('~3.0%')).not.toBeInTheDocument()
     expect(within(momentum).getByText(
-      'Latest three-month annualized pace compared with the previous three months',
+      'In 3 months if the recent pace continues',
     )).toBeVisible()
-    expect(within(momentum).getByText(momentumModel.supportingComparison!)).toBeVisible()
+    expect(momentum.querySelector('.recent-inflation-momentum__hero'))
+      .toHaveTextContent('3.4%')
     expect(within(momentum).getByText('Previous 3 months, annualized')).toBeVisible()
     expect(within(momentum).getByText('Latest 3 months, annualized')).toBeVisible()
     expect(within(momentum).getByText(momentumModel.differenceLabel!)).toBeVisible()
@@ -579,10 +592,10 @@ describe('DashboardPage economic series', () => {
     expect(momentum.querySelector('svg area')).not.toBeInTheDocument()
     expect(within(momentum).getByText(
       /The graphic compares adjacent, non-overlapping three-month windows/,
-    )).toHaveTextContent(`the change was ${momentumModel.heroValue.replace(' pp', ' percentage points')}`)
+    )).toHaveTextContent('the change was −6.8 percentage points')
     expect(within(momentum).getByText(
       /The graphic compares adjacent, non-overlapping three-month windows/,
-    )).toHaveTextContent('not forecasts')
+    )).toHaveTextContent('not a forecast')
     await user.click(within(momentum).getByRole('button', {
       name: 'Explain recent inflation momentum',
     }))
@@ -676,6 +689,18 @@ describe('DashboardPage economic series', () => {
     expect(within(momentum).getByText(
       'Rolling 3-month annualized headline and core CPI',
     )).toBeVisible()
+    expect(within(momentum).getByText('Conditional 12-month rate')).toBeVisible()
+    expect(within(momentum).getByText(
+      /official October 2025 CPI index was unavailable/,
+    )).toHaveTextContent(
+      'geometric mean of the official September 2025 index (324.800) and November 2025 index (324.122)',
+    )
+    expect(within(momentum).getByText(
+      /The conditional rate is not a forecast/,
+    )).toBeVisible()
+    expect(within(momentum).getByText(
+      /older months continually drop out/,
+    )).toHaveTextContent('base effects')
     await user.click(within(momentum).getByRole('button', {
       name: '5 years',
     }))
@@ -899,7 +924,7 @@ describe('DashboardPage economic series', () => {
     })
   })
 
-  it('renders the collapsed real-wage card second in Prices with research evidence under More', async () => {
+  it('renders the collapsed real-wage card third in Prices with research evidence under More', async () => {
     const user = userEvent.setup()
     render(<DashboardPage />)
     const prices = screen.getByRole('region', { name: 'Prices' })
@@ -910,10 +935,10 @@ describe('DashboardPage economic series', () => {
     const articles = within(prices).getAllByRole('article')
     expect(articles.map((article) => within(article).getByRole('heading', { level: 3 }).textContent))
       .toEqual([
-        'How quickly are consumer prices rising?',
+        'What’s the inflation rate?',
+        'What is inflation doing recently?',
         'Are workers’ wages keeping up with prices?',
         'What is driving inflation?',
-        'Has inflation picked up in recent months?',
       ])
     const latestReading = within(comparison)
       .getByLabelText('Latest real wage growth')
@@ -1129,7 +1154,7 @@ describe('DashboardPage economic series', () => {
       name: 'What share of prime-age adults are employed?',
     })
     const cpiCard = await screen.findByRole('article', {
-      name: 'How quickly are consumer prices rising?',
+      name: 'What’s the inflation rate?',
     })
 
     const unemploymentCallout = within(unemployment).getByLabelText(
@@ -1228,7 +1253,7 @@ describe('DashboardPage economic series', () => {
       name: 'Is the U.S. economy growing?',
     })
     const cpiCard = await screen.findByRole('article', {
-      name: 'How quickly are consumer prices rising?',
+      name: 'What’s the inflation rate?',
     })
 
     expect(within(gdpCard).getByLabelText('Latest real GDP growth')).toBeVisible()
@@ -1255,7 +1280,7 @@ describe('DashboardPage economic series', () => {
       name: 'Is the U.S. economy growing?',
     })
     const cpiCard = await screen.findByRole('article', {
-      name: 'How quickly are consumer prices rising?',
+      name: 'What’s the inflation rate?',
     })
     await user.click(within(gdpCard).getByRole('button', { name: /More/ }))
     await user.click(within(cpiCard).getByRole('button', { name: /More/ }))
@@ -1731,7 +1756,7 @@ describe('DashboardPage economic series', () => {
       'The recent inflation momentum data could not be loaded.',
     )).toBeVisible()
     expect(await screen.findByRole('article', {
-      name: 'How quickly are consumer prices rising?',
+      name: 'What’s the inflation rate?',
     })).toBeVisible()
     expect(await screen.findByRole('article', {
       name: 'What is driving inflation?',
@@ -1756,7 +1781,7 @@ describe('DashboardPage economic series', () => {
 
     expect(
       await screen.findByRole('article', {
-        name: 'How quickly are consumer prices rising?',
+        name: 'What’s the inflation rate?',
       }),
     ).toBeVisible()
     expect(
@@ -1800,7 +1825,7 @@ describe('DashboardPage economic series', () => {
         name: 'Is the U.S. economy growing?',
       })).toBeVisible()
       expect(await screen.findByRole('article', {
-        name: 'How quickly are consumer prices rising?',
+        name: 'What’s the inflation rate?',
       })).toBeVisible()
       expect(screen.getByText(failureMessage)).toBeVisible()
     },
@@ -1834,7 +1859,7 @@ describe('DashboardPage economic series', () => {
         name: 'Is the U.S. economy growing?',
       })).toBeVisible()
       expect(await screen.findByRole('article', {
-        name: 'How quickly are consumer prices rising?',
+        name: 'What’s the inflation rate?',
       })).toBeVisible()
     },
   )
@@ -1858,7 +1883,7 @@ describe('DashboardPage economic series', () => {
       )).toBeVisible()
       for (const question of [
         'Is the U.S. economy growing?',
-        'How quickly are consumer prices rising?',
+        'What’s the inflation rate?',
         'Is unemployment high or low?',
         'What share of prime-age adults are employed?',
         'Are employers adding jobs?',
@@ -2130,7 +2155,7 @@ describe('DashboardPage economic series', () => {
       for (const question of [
         'Is the U.S. economy growing?',
         survivingQuestion,
-        'How quickly are consumer prices rising?',
+        'What’s the inflation rate?',
         'Is unemployment high or low?',
       ]) {
         expect(await screen.findByRole('article', { name: question })).toBeVisible()

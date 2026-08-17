@@ -173,6 +173,38 @@ export function deriveCpiSeries(
   const coreMomentum = deriveThreeMonthAnnualizedInflation(coreLevels)
 
   return {
+    headlineNotSeasonallyAdjustedLevel: buildSeries(
+      {
+        id: 'headline-cpi-index-not-seasonally-adjusted',
+        providerSeriesId: 'CPIAUCNS',
+        title: 'Consumer Price Index for All Urban Consumers: All Items in U.S. City Average',
+        shortTitle: 'Headline CPI index',
+        description: 'The official not-seasonally-adjusted CPI-U All Items index used for ordinary 12-month headline inflation.',
+        question: 'What is the headline CPI index?',
+        transformation: 'Official source index level; no transformation',
+        sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCNS',
+        units: 'Index 1982–1984=100',
+        seasonalAdjustment: 'Not seasonally adjusted',
+      },
+      retrievedAt,
+      headlineYearOverYearLevels,
+    ),
+    headlineSeasonallyAdjustedLevel: buildSeries(
+      {
+        id: 'headline-cpi-index-seasonally-adjusted',
+        providerSeriesId: 'CPIAUCSL',
+        title: 'Consumer Price Index for All Urban Consumers: All Items in U.S. City Average',
+        shortTitle: 'Seasonally adjusted headline CPI index',
+        description: 'The official seasonally adjusted CPI-U All Items index used for short-window inflation momentum.',
+        question: 'What is the seasonally adjusted headline CPI index?',
+        transformation: 'Official source index level; no transformation',
+        sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCSL',
+        units: 'Index 1982–1984=100',
+        seasonalAdjustment: 'Seasonally adjusted',
+      },
+      retrievedAt,
+      headlineMomentumLevels,
+    ),
     headlineInflation: buildSeries(
       {
         id: 'headline-cpi-inflation',
@@ -181,7 +213,7 @@ export function deriveCpiSeries(
         shortTitle: 'CPI inflation',
         description:
           'The year-over-year percentage change in the Consumer Price Index for All Urban Consumers: All Items in U.S. City Average.',
-        question: 'How quickly are consumer prices rising?',
+        question: 'What’s the inflation rate?',
         transformation:
           'Percent change from year ago, calculated by the application',
         sourceUrl: 'https://fred.stlouisfed.org/series/CPIAUCNS',

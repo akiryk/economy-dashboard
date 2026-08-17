@@ -187,7 +187,7 @@ export const fredSeriesConfigurations: readonly FredSeriesConfig[] = [
     shortTitle: 'CPI inflation',
     description:
       'The year-over-year percentage change in the Consumer Price Index for All Urban Consumers: All Items in U.S. City Average.',
-    question: 'How quickly are consumer prices rising?',
+    question: 'What’s the inflation rate?',
     units: 'Percent change from year ago',
     seasonalAdjustment: 'Not seasonally adjusted (underlying CPI index)',
     transformation:
@@ -883,6 +883,8 @@ export interface CpiSeriesConfig {
   headlineMomentumOutputFile: string
   coreMomentumOutputFile: string
   headlineSeasonallyAdjustedInflationOutputFile: string
+  headlineNotSeasonallyAdjustedLevelOutputFile: string
+  headlineSeasonallyAdjustedLevelOutputFile: string
 }
 
 export const cpiSeriesConfiguration: CpiSeriesConfig = {
@@ -911,6 +913,10 @@ export const cpiSeriesConfiguration: CpiSeriesConfig = {
     'src/features/economic-series/data/core-cpi-three-month-annualized.json',
   headlineSeasonallyAdjustedInflationOutputFile:
     'src/features/economic-series/data/headline-cpi-inflation-seasonally-adjusted.json',
+  headlineNotSeasonallyAdjustedLevelOutputFile:
+    'src/features/economic-series/data/headline-cpi-index-not-seasonally-adjusted.json',
+  headlineSeasonallyAdjustedLevelOutputFile:
+    'src/features/economic-series/data/headline-cpi-index-seasonally-adjusted.json',
 }
 
 export interface HouseholdComparisonConfig {

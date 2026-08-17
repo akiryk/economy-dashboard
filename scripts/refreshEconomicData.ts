@@ -243,6 +243,18 @@ export async function refreshCpiData({
       ),
       series: series.headlineSeasonallyAdjustedInflation,
     },
+    {
+      outputPath: path.resolve(
+        config.headlineNotSeasonallyAdjustedLevelOutputFile,
+      ),
+      series: series.headlineNotSeasonallyAdjustedLevel,
+    },
+    {
+      outputPath: path.resolve(
+        config.headlineSeasonallyAdjustedLevelOutputFile,
+      ),
+      series: series.headlineSeasonallyAdjustedLevel,
+    },
   ])
   return {
     ...series,
@@ -455,6 +467,8 @@ export async function refreshAllEconomicData(
         headlineMomentum,
         coreMomentum,
         headlineSeasonallyAdjustedInflation,
+        headlineNotSeasonallyAdjustedLevel,
+        headlineSeasonallyAdjustedLevel,
         sourceObservationCount,
         headlineMomentumSourceObservationCount,
         coreSourceObservationCount,
@@ -474,6 +488,8 @@ export async function refreshAllEconomicData(
           headlineMomentum,
           coreMomentum,
           headlineSeasonallyAdjustedInflation,
+          headlineNotSeasonallyAdjustedLevel,
+          headlineSeasonallyAdjustedLevel,
         ],
         sourceObservationCount,
         headlineMomentumSourceObservationCount,
@@ -837,6 +853,8 @@ async function main(): Promise<void> {
           outcome.config.headlineMomentumOutputFile,
           outcome.config.coreMomentumOutputFile,
           outcome.config.headlineSeasonallyAdjustedInflationOutputFile,
+          outcome.config.headlineNotSeasonallyAdjustedLevelOutputFile,
+          outcome.config.headlineSeasonallyAdjustedLevelOutputFile,
         ].map((file) => path.resolve(file)).join(', ')}`,
       )
     } else if ('supportingSeries' in outcome) {
