@@ -228,6 +228,14 @@ Avoid premature optimization.
 
 Favor simple code first.
 
+Run `npm run test:smoke` for changes that affect React rendering, shared
+dashboard UI, charts or ECharts integration, routing or lazy loading, browser
+lifecycle or observer behavior, runtime data loading, performance-sensitive
+code, or Vite/build configuration. Smoke tests are optional for docs-only,
+copy-only, and isolated pure-domain changes unless the story requires them.
+CI runs the smoke suite before every production deployment, and a smoke failure
+blocks deployment.
+
 ---
 
 # Scope Control

@@ -1,5 +1,48 @@
 # Playwright verification
 
+## Browser smoke tests
+
+Run the lightweight production-preview smoke suite with:
+
+```sh
+npm run test:smoke
+```
+
+The suite builds the app, starts and stops a local Vite preview, opens the main
+research dashboard in Chromium using only committed data, waits for the page to
+settle, and observes five idle seconds through Chrome DevTools Protocol metrics.
+It guards against continuous scripting/task work and sustained growth in DOM
+nodes or event listeners. The budgets are intentionally generous regression
+tripwires, not performance targets or microbenchmarks.
+
+Run this suite locally for changes to React rendering, shared dashboard UI,
+charts, routing/lazy loading, lifecycle/observers, runtime browser data loading,
+performance-sensitive code, or Vite/build configuration. It is optional for
+docs-only, copy-only, and isolated pure-domain changes. GitHub Actions runs it
+before every Pages deployment, and a failure blocks deployment. `npm run verify`
+does not include it so routine deterministic verification remains fast.
+
+On failure, use the reported metric delta and budget to distinguish continuous
+main-thread work from DOM/listener accumulation. Reproduce with
+`npm run test:smoke -- --runs=20`, inspect the affected component lifecycle in
+Chrome Performance tools, and retain the existing deterministic root-cause test
+in `DashboardPage.test.tsx` while fixing the browser-visible regression.
+
+The smoke test allows at most 150 ms of scripting, 750 ms of total task time,
+100 additional DOM nodes, and 100 additional listeners over its five-second
+window. In 20 local production-preview runs on August 17, 2026, scripting,
+nodes, and listeners all had zero growth; task time ranged from 0.435–3.718 ms.
+The budgets sit far above that observed noise while remaining far below the
+prior regression's hundreds of scripting milliseconds per second and sustained
+near-full task utilization.
+
+Before Story 91, Playwright existed only as the manually invoked
+`perf:measure` page-load harness. There was no Playwright configuration or
+browser smoke suite; routine local `verify` and the deployment workflow covered
+lint, types, unit/component tests, and the build without opening the app in a
+browser. Story 91 adds the first browser regression gate without duplicating the
+broader page-load comparison harness.
+
 ## Reproducible page-load performance
 
 The performance harness measures any locally or remotely served page in a fresh headless Chromium context. Every run disables the browser cache, fixes the viewport at 1440×900, applies the named Fast 3G network profile through CDP, and applies 4× CPU throttling. It does not change application behavior.

@@ -18,6 +18,7 @@
     "data:refresh-saving-distribution": "tsx scripts/refreshSavingRateDistribution.ts",
     "lint": "eslint .",
     "perf:measure": "tsx scripts/perf/measure.ts",
+    "test:smoke": "npm run build && tsx scripts/smoke/idlePerformance.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b --noEmit",
