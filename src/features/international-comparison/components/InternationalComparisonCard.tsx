@@ -34,7 +34,9 @@ export function InternationalComparisonCard({ metric }: InternationalComparisonC
   const readings = metricCountryReadings(metric)
   const available = readings
     .filter((reading) => reading.status === 'available')
-    .sort((a, b) => b.observation.value - a.observation.value)
+    .sort((a, b) => metric.direction === 'lower-favorable'
+      ? a.observation.value - b.observation.value
+      : b.observation.value - a.observation.value)
   const unavailable = readings.filter((reading) => reading.status !== 'available')
   const values = available.map(({ observation }) => observation.value)
   const minimum = Math.min(...values)
@@ -49,9 +51,17 @@ export function InternationalComparisonCard({ metric }: InternationalComparisonC
         <h2 id={`${metric.id}-heading`}>{metric.question}</h2>
         {unitedStatesRank > 0 && (
           <p className="comparison-card__summary">
-            United States ranks {ordinal(unitedStatesRank)} of {available.length} by reported value.
+            United States ranks {ordinal(unitedStatesRank)} of {available.length}{' '}
+            {metric.direction === 'neutral' ? 'by reported value' : 'on this measure'}.
           </p>
         )}
+        <p className="comparison-card__interpretation">
+          {metric.direction === 'higher-favorable'
+            ? 'Higher values are generally favorable for this measure.'
+            : metric.direction === 'lower-favorable'
+              ? 'Lower values are generally favorable for this measure.'
+              : 'Numeric order is descriptive; higher or lower is not inherently better.'}
+        </p>
       </header>
 
       <ol className="comparison-card__list">

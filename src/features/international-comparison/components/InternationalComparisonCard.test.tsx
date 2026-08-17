@@ -53,6 +53,14 @@ describe('InternationalComparisonCard', () => {
     const spain = screen.getAllByRole('listitem').find((row) => within(row).queryByText('Spain'))
     expect(within(spain!).getByText('N/A')).toBeVisible()
     expect(within(spain!).getByText('No observation')).toBeVisible()
-    expect(screen.getByText(/of 9 by reported value/i)).toBeVisible()
+    expect(screen.getByText(/of 9 on this measure/i)).toBeVisible()
+  })
+
+  it('sorts a lower-is-favorable measure from low to high and labels the semantics', () => {
+    const metric = metricWithoutSpain()
+    metric.direction = 'lower-favorable'
+    render(<InternationalComparisonCard metric={metric} />)
+    expect(within(screen.getAllByRole('listitem')[0]!).getByText('Australia')).toBeVisible()
+    expect(screen.getByText('Lower values are generally favorable for this measure.')).toBeVisible()
   })
 })

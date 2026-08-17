@@ -29,7 +29,8 @@
 }
 
 .comparison-card__eyebrow,
-.comparison-card__summary {
+.comparison-card__summary,
+.comparison-card__interpretation {
   color: var(--color-text-muted);
 }
 
@@ -38,6 +39,10 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.comparison-card__interpretation {
+  font-size: 0.875rem;
 }
 
 .comparison-card__list {

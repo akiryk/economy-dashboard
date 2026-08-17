@@ -1,6 +1,6 @@
 # Story 92F — Add GDP growth and government-yield comparisons
 
-Status: pending
+Status: complete
 
 ## Acceptance criteria
 

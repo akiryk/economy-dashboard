@@ -22,6 +22,12 @@ export function ComparePage() {
         <InternationalComparisonCard
           metric={internationalComparisonRepository.getMetric('headline-inflation')}
         />
+        <InternationalComparisonCard
+          metric={internationalComparisonRepository.getMetric('real-gdp-growth')}
+        />
+        <InternationalComparisonCard
+          metric={internationalComparisonRepository.getMetric('ten-year-government-yield')}
+        />
       </section>
     </div>
   )
