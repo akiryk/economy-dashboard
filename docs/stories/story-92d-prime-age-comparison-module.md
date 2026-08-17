@@ -1,6 +1,6 @@
 # Story 92D — Add the reusable comparison module and prime-age employment
 
-Status: pending
+Status: complete
 
 ## Acceptance criteria
 

@@ -9,5 +9,6 @@ describe('ComparePage', () => {
     render(<ComparePage />)
     expect(screen.getByRole('heading', { name: 'Compare economies' })).toBeVisible()
     expect(screen.getByText(/compares with other wealthy economies/i)).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'What share of prime-age adults are employed?' })).toBeVisible()
   })
 })

@@ -1,0 +1,159 @@
+.compare-page {
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+.compare-page__grid {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.comparison-card {
+  display: grid;
+  gap: var(--space-6);
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+}
+
+.comparison-card__header {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.comparison-card__header h2 {
+  margin: 0;
+  font-size: clamp(1.35rem, 4vw, 1.8rem);
+  line-height: 1.25;
+}
+
+.comparison-card__eyebrow,
+.comparison-card__summary {
+  color: var(--color-text-muted);
+}
+
+.comparison-card__eyebrow {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.comparison-card__list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comparison-card__row {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-left: 0.3rem solid transparent;
+}
+
+.comparison-card__row--us {
+  background: var(--color-placeholder);
+  border-left-color: var(--color-link);
+}
+
+.comparison-card__row--unavailable {
+  color: var(--color-text-muted);
+}
+
+.comparison-card__labels {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.comparison-card__country,
+.comparison-card__reading {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.comparison-card__country {
+  align-items: center;
+  font-weight: 650;
+}
+
+.comparison-card__us-label {
+  padding: 0.05rem 0.4rem;
+  color: var(--color-link);
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.comparison-card__reading {
+  align-items: baseline;
+  flex-shrink: 0;
+}
+
+.comparison-card__reading span {
+  min-width: 5rem;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+.comparison-card__track {
+  height: 0.5rem;
+  overflow: hidden;
+  background: var(--color-placeholder);
+  border-radius: 999px;
+}
+
+.comparison-card__track span {
+  display: block;
+  height: 100%;
+  background: var(--color-text-muted);
+  border-radius: inherit;
+}
+
+.comparison-card__row--us .comparison-card__track span {
+  background: var(--color-link);
+}
+
+.comparison-card__methodology {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-4);
+}
+
+.comparison-card__methodology summary {
+  color: var(--color-link);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.comparison-card__methodology p {
+  margin-top: var(--space-3);
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 36rem) {
+  .comparison-card {
+    padding: var(--space-4);
+  }
+
+  .comparison-card__labels {
+    align-items: flex-start;
+  }
+
+  .comparison-card__country,
+  .comparison-card__reading {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .comparison-card__reading {
+    align-items: flex-end;
+  }
+}
