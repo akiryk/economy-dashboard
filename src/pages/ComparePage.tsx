@@ -16,6 +16,12 @@ export function ComparePage() {
         <InternationalComparisonCard
           metric={internationalComparisonRepository.getMetric('prime-age-employment')}
         />
+        <InternationalComparisonCard
+          metric={internationalComparisonRepository.getMetric('unemployment')}
+        />
+        <InternationalComparisonCard
+          metric={internationalComparisonRepository.getMetric('headline-inflation')}
+        />
       </section>
     </div>
   )

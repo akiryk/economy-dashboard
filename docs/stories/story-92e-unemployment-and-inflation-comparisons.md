@@ -1,6 +1,6 @@
 # Story 92E — Add unemployment and inflation comparisons
 
-Status: pending
+Status: complete
 
 ## Acceptance criteria
 
