@@ -1,6 +1,6 @@
 # Story 92C — Add the Compare route and page shell
 
-Status: pending
+Status: complete
 
 ## Acceptance criteria
 

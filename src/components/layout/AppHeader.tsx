@@ -14,6 +14,9 @@ export function AppHeader() {
           <NavLink className="app-header__nav-link" to="/dashboard">
             Status dashboard
           </NavLink>
+          <NavLink className="app-header__nav-link" to="/compare">
+            Compare
+          </NavLink>
         </nav>
       </div>
     </header>

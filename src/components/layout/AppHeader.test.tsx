@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { AppHeader } from './AppHeader'
 
 describe('AppHeader', () => {
-  it('links only to the two dashboard presentations', () => {
+  it('links to the two dashboard presentations and international comparisons', () => {
     render(
       <MemoryRouter>
         <AppHeader />
@@ -15,6 +15,8 @@ describe('AppHeader', () => {
       .toHaveAttribute('href', '/')
     expect(screen.getByRole('link', { name: 'Status dashboard' }))
       .toHaveAttribute('href', '/dashboard')
+    expect(screen.getByRole('link', { name: 'Compare' }))
+      .toHaveAttribute('href', '/compare')
     expect(screen.queryByRole('link', { name: 'Secondary indicators' }))
       .not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Labor briefing preview' }))

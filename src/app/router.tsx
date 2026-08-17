@@ -5,6 +5,7 @@ import { NotFoundPage } from '../pages/NotFoundPage'
 import { GdpCompactChartPreviewRoute } from '../pages/GdpCompactChartPreviewRoute'
 import { SecondaryPage } from '../pages/SecondaryPage'
 import { StatusDashboardPage } from '../pages/StatusDashboardPage'
+import { ComparePage } from '../pages/ComparePage'
 
 export const appRoutes: RouteObject[] = [
     {
@@ -13,6 +14,7 @@ export const appRoutes: RouteObject[] = [
       children: [
         { index: true, element: <DashboardPage /> },
         { path: 'dashboard', element: <StatusDashboardPage /> },
+        { path: 'compare', element: <ComparePage /> },
         { path: 'secondary', element: <SecondaryPage /> },
         {
           path: 'previews/gdp-compact-chart',

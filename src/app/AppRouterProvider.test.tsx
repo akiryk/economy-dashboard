@@ -11,6 +11,9 @@ vi.mock('../pages/DashboardPage', () => ({
 vi.mock('../pages/StatusDashboardPage', () => ({
   StatusDashboardPage: () => <h1>Status route</h1>,
 }))
+vi.mock('../pages/ComparePage', () => ({
+  ComparePage: () => <h1>Compare route</h1>,
+}))
 vi.mock('../pages/SecondaryPage', () => ({
   SecondaryPage: () => <h1>Secondary route</h1>,
 }))
@@ -28,6 +31,10 @@ describe('AppRouterProvider', () => {
     await user.click(screen.getByRole('link', { name: 'Status dashboard' }))
     expect(screen.getByRole('heading', { name: 'Status route' })).toBeVisible()
     expect(router.state.location.pathname).toBe('/dashboard')
+
+    await user.click(screen.getByRole('link', { name: 'Compare' }))
+    expect(screen.getByRole('heading', { name: 'Compare route' })).toBeVisible()
+    expect(router.state.location.pathname).toBe('/compare')
 
     await user.click(screen.getByRole('link', { name: 'Research dashboard' }))
     expect(screen.getByRole('heading', { name: 'Research route' })).toBeVisible()
