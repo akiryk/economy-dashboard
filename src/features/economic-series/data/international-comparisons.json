@@ -1,0 +1,3666 @@
+{
+  "schemaVersion": 1,
+  "retrievedAt": "2026-08-17",
+  "metrics": [
+    {
+      "id": "prime-age-employment",
+      "title": "Prime-age employment",
+      "question": "What share of prime-age adults are employed?",
+      "unit": "percent",
+      "frequency": "quarterly",
+      "direction": "higher-favorable",
+      "stalenessLimit": 2,
+      "source": {
+        "organization": "OECD",
+        "dataflow": "DSD_LFS@DF_IALFS_EMP_WAP_Q",
+        "version": "1.0",
+        "url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.TPS,DSD_LFS@DF_IALFS_EMP_WAP_Q,1.0/USA+AUS+CAN+FRA+DEU+ITA+JPN+KOR+ESP+GBR.EMP_WAP.._Z.Y._T.Y25T54..Q?startPeriod=2025-Q1&dimensionAtObservation=AllDimensions",
+        "methodology": "Employment as a percentage of the population ages 25–54; calendar and seasonally adjusted."
+      },
+      "observations": [
+        {
+          "countryCode": "AUS",
+          "period": "2024-Q1",
+          "value": 83.47367
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2024-Q2",
+          "value": 83.66736
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2024-Q3",
+          "value": 83.98815
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2024-Q4",
+          "value": 84.0763
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-Q1",
+          "value": 84.13657
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-Q2",
+          "value": 84.30404
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-Q3",
+          "value": 83.99852
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-Q4",
+          "value": 84.05179
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-Q1",
+          "value": 84.11003
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2024-Q1",
+          "value": 84.23333
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2024-Q2",
+          "value": 83.93333
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2024-Q3",
+          "value": 83.63333
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2024-Q4",
+          "value": 83.4
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-Q1",
+          "value": 83.53333
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-Q2",
+          "value": 83.16666
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-Q3",
+          "value": 83.1
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-Q4",
+          "value": 83.4
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-Q1",
+          "value": 83.16666
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-Q2",
+          "value": 83.43333
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2024-Q1",
+          "value": 84.99198
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2024-Q2",
+          "value": 85.11452
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2024-Q3",
+          "value": 85.00531
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2024-Q4",
+          "value": 85.08018
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-Q1",
+          "value": 84.90336
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-Q2",
+          "value": 84.77567
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-Q3",
+          "value": 84.80505
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-Q4",
+          "value": 85.21975
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-Q1",
+          "value": 85.21185
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2024-Q1",
+          "value": 78.27784
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2024-Q2",
+          "value": 78.46783
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2024-Q3",
+          "value": 78.84016
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2024-Q4",
+          "value": 79.10558
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-Q1",
+          "value": 79.3754
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-Q2",
+          "value": 79.61293
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-Q3",
+          "value": 79.82478
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-Q4",
+          "value": 80.13819
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-Q1",
+          "value": 79.89452
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2024-Q1",
+          "value": 82.82082
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2024-Q2",
+          "value": 83.0469
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2024-Q3",
+          "value": 83.20173
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2024-Q4",
+          "value": 83.04896
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-Q1",
+          "value": 83.24834
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-Q2",
+          "value": 83.35863
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-Q3",
+          "value": 83.03337
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-Q4",
+          "value": 82.96662
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-Q1",
+          "value": 83.0779
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2024-Q1",
+          "value": 84.06721
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2024-Q2",
+          "value": 83.99822
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2024-Q3",
+          "value": 84.40622
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2024-Q4",
+          "value": 84.40804
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-Q1",
+          "value": 84.66087
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-Q2",
+          "value": 84.64938
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-Q3",
+          "value": 84.16077
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-Q4",
+          "value": 84.27744
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-Q1",
+          "value": 84.59993
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2024-Q1",
+          "value": 74.27898
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2024-Q2",
+          "value": 74.59476
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2024-Q3",
+          "value": 74.65113
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2024-Q4",
+          "value": 74.52805
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-Q1",
+          "value": 75.0743
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-Q2",
+          "value": 74.92021
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-Q3",
+          "value": 74.77679
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-Q4",
+          "value": 74.68241
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-Q1",
+          "value": 74.96122
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2024-Q1",
+          "value": 87.03765
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2024-Q2",
+          "value": 87.18657
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2024-Q3",
+          "value": 87.43804
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2024-Q4",
+          "value": 87.57981
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-Q1",
+          "value": 87.80995
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-Q2",
+          "value": 88.07995
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-Q3",
+          "value": 88.11803
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-Q4",
+          "value": 88.2776
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-Q1",
+          "value": 88.19975
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-Q2",
+          "value": 88.52343
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2024-Q1",
+          "value": 78.21268
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2024-Q2",
+          "value": 78.28915
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2024-Q3",
+          "value": 78.47597
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2024-Q4",
+          "value": 78.48319
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-Q1",
+          "value": 78.50516
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-Q2",
+          "value": 78.83308
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-Q3",
+          "value": 78.92973
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-Q4",
+          "value": 78.89371
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-Q1",
+          "value": 79.02608
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-Q2",
+          "value": 78.98518
+        },
+        {
+          "countryCode": "USA",
+          "period": "2024-Q1",
+          "value": 80.68534
+        },
+        {
+          "countryCode": "USA",
+          "period": "2024-Q2",
+          "value": 80.7542
+        },
+        {
+          "countryCode": "USA",
+          "period": "2024-Q3",
+          "value": 80.87176
+        },
+        {
+          "countryCode": "USA",
+          "period": "2024-Q4",
+          "value": 80.53172
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-Q1",
+          "value": 80.57312
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-Q2",
+          "value": 80.60342
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-Q3",
+          "value": 80.58205
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-Q1",
+          "value": 80.76365
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-Q2",
+          "value": 80.52187
+        }
+      ]
+    },
+    {
+      "id": "unemployment",
+      "title": "Unemployment",
+      "question": "How high is unemployment?",
+      "unit": "percent",
+      "frequency": "monthly",
+      "direction": "lower-favorable",
+      "stalenessLimit": 3,
+      "source": {
+        "organization": "OECD",
+        "dataflow": "DSD_LFS@DF_IALFS_UNE_M",
+        "version": "1.0",
+        "url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.TPS,DSD_LFS@DF_IALFS_UNE_M,1.0/USA+AUS+CAN+FRA+DEU+ITA+JPN+KOR+ESP+GBR..._Z.Y._T.Y_GE15..M?startPeriod=2025-01&dimensionAtObservation=AllDimensions",
+        "methodology": "Unemployed people as a percentage of the labour force; OECD-harmonized and seasonally adjusted."
+      },
+      "observations": [
+        {
+          "countryCode": "AUS",
+          "period": "2025-01",
+          "value": 4.125022
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-02",
+          "value": 4.071509
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-03",
+          "value": 4.077807
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-04",
+          "value": 4.053699
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-05",
+          "value": 4.094
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-06",
+          "value": 4.312266
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-07",
+          "value": 4.245678
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-08",
+          "value": 4.248082
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-09",
+          "value": 4.451847
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-10",
+          "value": 4.333108
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-11",
+          "value": 4.322608
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-12",
+          "value": 4.116373
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-01",
+          "value": 4.079868
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-02",
+          "value": 4.301626
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-03",
+          "value": 4.278338
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-04",
+          "value": 4.490485
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-05",
+          "value": 4.371348
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-06",
+          "value": 4.428344
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-01",
+          "value": 6.7
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-02",
+          "value": 6.6
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-03",
+          "value": 6.8
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-04",
+          "value": 6.9
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-05",
+          "value": 7
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-06",
+          "value": 6.9
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-07",
+          "value": 6.9
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-08",
+          "value": 7.1
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-09",
+          "value": 7.1
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-10",
+          "value": 6.9
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-11",
+          "value": 6.6
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-12",
+          "value": 6.8
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-01",
+          "value": 6.5
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-02",
+          "value": 6.7
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-03",
+          "value": 6.7
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-04",
+          "value": 6.9
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-05",
+          "value": 6.6
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-06",
+          "value": 6.5
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-07",
+          "value": 6.4
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-01",
+          "value": 3.5
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-02",
+          "value": 3.6
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-03",
+          "value": 3.6
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-04",
+          "value": 3.7
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-05",
+          "value": 3.7
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-06",
+          "value": 3.7
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-07",
+          "value": 3.8
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-08",
+          "value": 3.8
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-09",
+          "value": 3.8
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-10",
+          "value": 3.9
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-11",
+          "value": 3.9
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-12",
+          "value": 3.9
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-01",
+          "value": 3.9
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-02",
+          "value": 3.8
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-03",
+          "value": 3.8
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-04",
+          "value": 3.8
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-05",
+          "value": 3.8
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-06",
+          "value": 3.9
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-01",
+          "value": 10.8
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-02",
+          "value": 10.8
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-03",
+          "value": 10.8
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-04",
+          "value": 10.6
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-05",
+          "value": 10.6
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-06",
+          "value": 10.5
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-07",
+          "value": 10.6
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-08",
+          "value": 10.5
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-09",
+          "value": 10.4
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-10",
+          "value": 10.2
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-11",
+          "value": 10.1
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-12",
+          "value": 10.2
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-01",
+          "value": 10.3
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-02",
+          "value": 10.3
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-03",
+          "value": 10.3
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-04",
+          "value": 10.2
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-05",
+          "value": 10.2
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-06",
+          "value": 10.1
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-01",
+          "value": 7.3
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-02",
+          "value": 7.5
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-03",
+          "value": 7.6
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-04",
+          "value": 7.5
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-05",
+          "value": 7.6
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-06",
+          "value": 7.7
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-07",
+          "value": 7.7
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-08",
+          "value": 7.8
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-09",
+          "value": 7.9
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-10",
+          "value": 8
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-11",
+          "value": 8
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-12",
+          "value": 8
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-01",
+          "value": 8.1
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-02",
+          "value": 8.2
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-03",
+          "value": 8.1
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-04",
+          "value": 8.2
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-05",
+          "value": 8.2
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-06",
+          "value": 8.2
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-01",
+          "value": 4.5
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-02",
+          "value": 4.6
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-03",
+          "value": 4.6
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-04",
+          "value": 4.7
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-05",
+          "value": 4.7
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-06",
+          "value": 4.7
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-07",
+          "value": 4.8
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-08",
+          "value": 5
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-09",
+          "value": 5.1
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-10",
+          "value": 5.1
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-11",
+          "value": 5.2
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-12",
+          "value": 5.2
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-01",
+          "value": 4.9
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-02",
+          "value": 5
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-03",
+          "value": 4.9
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-04",
+          "value": 4.9
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-01",
+          "value": 6.5
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-02",
+          "value": 6.1
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-03",
+          "value": 6.3
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-04",
+          "value": 6.2
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-05",
+          "value": 6.4
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-06",
+          "value": 5.9
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-07",
+          "value": 6
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-08",
+          "value": 6
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-09",
+          "value": 6
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-10",
+          "value": 5.8
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-11",
+          "value": 5.7
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-12",
+          "value": 5.6
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-01",
+          "value": 5.4
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-02",
+          "value": 5.5
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-03",
+          "value": 5.4
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-04",
+          "value": 5.4
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-05",
+          "value": 5.3
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-06",
+          "value": 5.7
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-01",
+          "value": 2.5
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-02",
+          "value": 2.4
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-03",
+          "value": 2.5
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-04",
+          "value": 2.5
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-05",
+          "value": 2.5
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-06",
+          "value": 2.5
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-07",
+          "value": 2.4
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-08",
+          "value": 2.6
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-09",
+          "value": 2.6
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-10",
+          "value": 2.6
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-11",
+          "value": 2.6
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-12",
+          "value": 2.6
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-01",
+          "value": 2.7
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-02",
+          "value": 2.6
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-03",
+          "value": 2.7
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-04",
+          "value": 2.5
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-05",
+          "value": 2.5
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-06",
+          "value": 2.5
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-01",
+          "value": 2.8
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-02",
+          "value": 2.8
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-03",
+          "value": 2.8
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-04",
+          "value": 2.7
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-05",
+          "value": 2.7
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-06",
+          "value": 2.7
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-07",
+          "value": 2.7
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-08",
+          "value": 2.8
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-09",
+          "value": 2.7
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-10",
+          "value": 2.7
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-11",
+          "value": 2.8
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-12",
+          "value": 3.3
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-01",
+          "value": 3
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-02",
+          "value": 2.9
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-03",
+          "value": 2.7
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-04",
+          "value": 2.8
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-05",
+          "value": 2.8
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-06",
+          "value": 2.7
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-07",
+          "value": 2.8
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-01",
+          "value": 4
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-02",
+          "value": 4.2
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-03",
+          "value": 4.2
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-04",
+          "value": 4.2
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-05",
+          "value": 4.3
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-06",
+          "value": 4.1
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-07",
+          "value": 4.3
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-08",
+          "value": 4.3
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-09",
+          "value": 4.4
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-11",
+          "value": 4.5
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-12",
+          "value": 4.4
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-01",
+          "value": 4.3
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-02",
+          "value": 4.4
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-03",
+          "value": 4.3
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-04",
+          "value": 4.3
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-05",
+          "value": 4.3
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-06",
+          "value": 4.2
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-07",
+          "value": 4.1
+        }
+      ]
+    },
+    {
+      "id": "headline-inflation",
+      "title": "Headline inflation",
+      "question": "How quickly are consumer prices rising?",
+      "unit": "percent",
+      "frequency": "monthly",
+      "direction": "neutral",
+      "stalenessLimit": 3,
+      "source": {
+        "organization": "OECD",
+        "dataflow": "DSD_G20_PRICES@DF_G20_PRICES",
+        "version": "1.0",
+        "url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.TPS,DSD_G20_PRICES@DF_G20_PRICES,1.0/USA+AUS+CAN+FRA+DEU+ITA+JPN+KOR+ESP+GBR.M...PA...?startPeriod=2025-01&dimensionAtObservation=AllDimensions",
+        "methodology": "Year-over-year all-items CPI; the OECD G20 flow uses HICP for EU members and the United Kingdom and national CPI for other peers."
+      },
+      "observations": [
+        {
+          "countryCode": "AUS",
+          "period": "2025-04",
+          "value": 2.365145
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-05",
+          "value": 2.110845
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-06",
+          "value": 1.88562
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-07",
+          "value": 2.955462
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-08",
+          "value": 3.171313
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-09",
+          "value": 3.584007
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-10",
+          "value": 3.810216
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-11",
+          "value": 3.444352
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-12",
+          "value": 3.761176
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-01",
+          "value": 3.843001
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-02",
+          "value": 3.726835
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-03",
+          "value": 4.573295
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-04",
+          "value": 4.175111
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-05",
+          "value": 3.961303
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-06",
+          "value": 3.752288
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-01",
+          "value": 1.895136
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-02",
+          "value": 2.644836
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-03",
+          "value": 2.315394
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-04",
+          "value": 1.743462
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-05",
+          "value": 1.733746
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-06",
+          "value": 1.858736
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-07",
+          "value": 1.727329
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-08",
+          "value": 1.854141
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-09",
+          "value": 2.358783
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-10",
+          "value": 2.163164
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-11",
+          "value": 2.224969
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-12",
+          "value": 2.35732
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-01",
+          "value": 2.293862
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-02",
+          "value": 1.779141
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-03",
+          "value": 2.385321
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-04",
+          "value": 2.815177
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-05",
+          "value": 3.225806
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-06",
+          "value": 2.798054
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-01",
+          "value": 2.8
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-02",
+          "value": 2.6
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-03",
+          "value": 2.3
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-04",
+          "value": 2.2
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-05",
+          "value": 2.1
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-06",
+          "value": 2
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-07",
+          "value": 1.9
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-08",
+          "value": 2
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-09",
+          "value": 2.3
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-10",
+          "value": 2.3
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-11",
+          "value": 2.5
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-12",
+          "value": 2
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-01",
+          "value": 2.1
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-02",
+          "value": 2
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-03",
+          "value": 2.8
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-04",
+          "value": 2.9
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-05",
+          "value": 2.7
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-06",
+          "value": 2.4
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-07",
+          "value": 2.8
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-01",
+          "value": 1.8
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-02",
+          "value": 0.9
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-03",
+          "value": 0.9
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-04",
+          "value": 0.9
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-05",
+          "value": 0.6
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-06",
+          "value": 0.9
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-07",
+          "value": 0.9
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-08",
+          "value": 0.8
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-09",
+          "value": 1.1
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-10",
+          "value": 0.8
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-11",
+          "value": 0.8
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-12",
+          "value": 0.7
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-01",
+          "value": 0.4
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-02",
+          "value": 1.1
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-03",
+          "value": 2
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-04",
+          "value": 2.5
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-05",
+          "value": 2.8
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-06",
+          "value": 2
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-07",
+          "value": 2.4
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-01",
+          "value": 3
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-02",
+          "value": 2.8
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-03",
+          "value": 2.6
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-04",
+          "value": 3.5
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-05",
+          "value": 3.4
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-06",
+          "value": 3.6
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-07",
+          "value": 3.8
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-08",
+          "value": 3.8
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-09",
+          "value": 3.8
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-10",
+          "value": 3.6
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-11",
+          "value": 3.2
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-12",
+          "value": 3.4
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-01",
+          "value": 3
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-02",
+          "value": 3
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-03",
+          "value": 3.3
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-04",
+          "value": 2.8
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-05",
+          "value": 2.8
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-06",
+          "value": 2.6
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-01",
+          "value": 1.7
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-02",
+          "value": 1.7
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-03",
+          "value": 2.1
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-04",
+          "value": 2
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-05",
+          "value": 1.7
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-06",
+          "value": 1.7
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-07",
+          "value": 1.7
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-08",
+          "value": 1.6
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-09",
+          "value": 1.7
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-10",
+          "value": 1.3
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-11",
+          "value": 1.1
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-12",
+          "value": 1.2
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-01",
+          "value": 1
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-02",
+          "value": 1.5
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-03",
+          "value": 1.6
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-04",
+          "value": 2.8
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-05",
+          "value": 3.2
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-06",
+          "value": 3
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-07",
+          "value": 2.9
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-01",
+          "value": 4
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-02",
+          "value": 3.7
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-03",
+          "value": 3.6
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-04",
+          "value": 3.6
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-05",
+          "value": 3.5
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-06",
+          "value": 3.3
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-07",
+          "value": 3.1
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-08",
+          "value": 2.7
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-09",
+          "value": 2.9
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-10",
+          "value": 3
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-11",
+          "value": 2.9
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-12",
+          "value": 2.1
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-01",
+          "value": 1.5
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-02",
+          "value": 1.3
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-03",
+          "value": 1.5
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-04",
+          "value": 1.4
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-05",
+          "value": 1.5
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-06",
+          "value": 1.7
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-01",
+          "value": 2.244411
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-02",
+          "value": 2.021445
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-03",
+          "value": 2.053532
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-04",
+          "value": 2.078765
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-05",
+          "value": 1.90184
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-06",
+          "value": 2.169712
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-07",
+          "value": 2.094103
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-08",
+          "value": 1.66754
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-09",
+          "value": 2.10205
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-10",
+          "value": 2.38033
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-11",
+          "value": 2.447552
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-12",
+          "value": 2.314855
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-01",
+          "value": 2.005013
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-02",
+          "value": 1.998622
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-03",
+          "value": 2.158397
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-04",
+          "value": 2.56917
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-05",
+          "value": 3.139245
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-06",
+          "value": 3.163958
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-07",
+          "value": 2.789221
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-01",
+          "value": 3.000483
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-02",
+          "value": 2.821549
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-03",
+          "value": 2.390725
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-04",
+          "value": 2.311289
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-05",
+          "value": 2.354897
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-06",
+          "value": 2.669213
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-07",
+          "value": 2.704902
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-08",
+          "value": 2.916174
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-09",
+          "value": 3.012677
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-11",
+          "value": 2.735085
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-12",
+          "value": 2.677081
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-01",
+          "value": 2.386431
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-02",
+          "value": 2.414113
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-03",
+          "value": 3.25642
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-04",
+          "value": 3.810845
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-05",
+          "value": 4.248674
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-06",
+          "value": 3.531425
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-07",
+          "value": 3.364825
+        }
+      ]
+    },
+    {
+      "id": "real-gdp-growth",
+      "title": "Real GDP growth",
+      "question": "How quickly is real economic output growing?",
+      "unit": "percent",
+      "frequency": "quarterly",
+      "direction": "neutral",
+      "stalenessLimit": 2,
+      "source": {
+        "organization": "OECD",
+        "dataflow": "DSD_NAMAIN1@DF_QNA_EXPENDITURE_GROWTH_OECD",
+        "version": "1.1",
+        "url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.NAD,DSD_NAMAIN1@DF_QNA_EXPENDITURE_GROWTH_OECD,1.1/Q.Y.USA+AUS+CAN+FRA+DEU+ITA+JPN+KOR+ESP+GBR.S1.S1.B1GQ._Z._Z._Z.PC.L.GY.T0102?startPeriod=2025-Q1&dimensionAtObservation=AllDimensions",
+        "methodology": "Year-over-year growth in chain-volume GDP; calendar and seasonally adjusted."
+      },
+      "observations": [
+        {
+          "countryCode": "AUS",
+          "period": "2024-Q1",
+          "value": 1.098775151
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2024-Q2",
+          "value": 0.894133189
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2024-Q3",
+          "value": 0.79604549
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2024-Q4",
+          "value": 1.244553304
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-Q1",
+          "value": 1.260762424
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-Q2",
+          "value": 1.984894565
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-Q3",
+          "value": 2.062510198
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-Q4",
+          "value": 2.505475744
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-Q1",
+          "value": 2.519739556
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2024-Q1",
+          "value": 0.992150675
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2024-Q2",
+          "value": 1.654024201
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2024-Q3",
+          "value": 2.43536328
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2024-Q4",
+          "value": 3.100577659
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-Q1",
+          "value": 3.08721326
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-Q2",
+          "value": 2.005056984
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-Q3",
+          "value": 1.653737783
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-Q4",
+          "value": 0.696867197
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-Q1",
+          "value": -0.054275754
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-Q2",
+          "value": 0.98999389
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2024-Q1",
+          "value": -0.045274486
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2024-Q2",
+          "value": -0.073940821
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2024-Q3",
+          "value": -0.121449807
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2024-Q4",
+          "value": 0.403698156
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-Q1",
+          "value": 0.309873109
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-Q2",
+          "value": 0.424862666
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-Q3",
+          "value": 0.29088663
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-Q4",
+          "value": 0.337820791
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-Q1",
+          "value": 0.646328734
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-Q2",
+          "value": 0.893621001
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2024-Q1",
+          "value": 2.8630158
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2024-Q2",
+          "value": 3.659100726
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2024-Q3",
+          "value": 3.633771737
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2024-Q4",
+          "value": 3.65962888
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-Q1",
+          "value": 3.080690285
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-Q2",
+          "value": 2.871767894
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-Q3",
+          "value": 2.700086816
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-Q4",
+          "value": 2.653276156
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-Q1",
+          "value": 2.730237174
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-Q2",
+          "value": 2.708572742
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2024-Q1",
+          "value": 2.062924855
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2024-Q2",
+          "value": 1.362854244
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2024-Q3",
+          "value": 1.412463221
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2024-Q4",
+          "value": 0.87806189
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-Q1",
+          "value": 0.800124359
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-Q2",
+          "value": 0.796484801
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-Q3",
+          "value": 0.825832016
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-Q4",
+          "value": 1.129047814
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-Q1",
+          "value": 0.816685508
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-Q2",
+          "value": 0.730534582
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2024-Q1",
+          "value": 0.205163623
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2024-Q2",
+          "value": 0.785942094
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2024-Q3",
+          "value": 1.208858468
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2024-Q4",
+          "value": 1.974977685
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-Q1",
+          "value": 1.818366106
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-Q2",
+          "value": 1.347512628
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-Q3",
+          "value": 1.242253869
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-Q4",
+          "value": 0.856874375
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-Q1",
+          "value": 0.912997847
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-Q2",
+          "value": 1.174400872
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2024-Q1",
+          "value": 0.559598557
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2024-Q2",
+          "value": 0.723560165
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2024-Q3",
+          "value": 0.637517754
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2024-Q4",
+          "value": 0.425403626
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-Q1",
+          "value": 0.678258128
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-Q2",
+          "value": 0.474007247
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-Q3",
+          "value": 0.655015027
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-Q4",
+          "value": 0.846625909
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-Q1",
+          "value": 0.82871282
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-Q2",
+          "value": 1.039688451
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2024-Q1",
+          "value": -1.06270292
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2024-Q2",
+          "value": -1.162030482
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2024-Q3",
+          "value": 0.891788729
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2024-Q4",
+          "value": 0.710310378
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-Q1",
+          "value": 1.525342105
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-Q2",
+          "value": 1.821211301
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-Q3",
+          "value": 0.535869705
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-Q4",
+          "value": 0.371660777
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-Q1",
+          "value": 0.317040504
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2024-Q1",
+          "value": 3.427929416
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2024-Q2",
+          "value": 2.568271189
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2024-Q3",
+          "value": 1.653253391
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2024-Q4",
+          "value": 1.154293855
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-Q1",
+          "value": -0.032512053
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-Q2",
+          "value": 0.769195007
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-Q3",
+          "value": 2.08506963
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-Q4",
+          "value": 1.733923403
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-Q1",
+          "value": 3.775494392
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-Q2",
+          "value": 3.747326856
+        },
+        {
+          "countryCode": "USA",
+          "period": "2024-Q1",
+          "value": 2.863294353
+        },
+        {
+          "countryCode": "USA",
+          "period": "2024-Q2",
+          "value": 3.126631524
+        },
+        {
+          "countryCode": "USA",
+          "period": "2024-Q3",
+          "value": 2.791389637
+        },
+        {
+          "countryCode": "USA",
+          "period": "2024-Q4",
+          "value": 2.399788485
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-Q1",
+          "value": 2.019273014
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-Q2",
+          "value": 2.080466509
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-Q3",
+          "value": 2.335167772
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-Q4",
+          "value": 1.989299661
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-Q1",
+          "value": 2.684743341
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-Q2",
+          "value": 2.101819463
+        }
+      ]
+    },
+    {
+      "id": "ten-year-government-yield",
+      "title": "Ten-year government bond yield",
+      "question": "What are governments paying to borrow for about ten years?",
+      "unit": "percent",
+      "frequency": "monthly",
+      "direction": "neutral",
+      "stalenessLimit": 3,
+      "source": {
+        "organization": "OECD",
+        "dataflow": "DSD_STES@DF_FINMARK",
+        "version": "4.0",
+        "url": "https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_FINMARK,4.0/USA+AUS+CAN+FRA+DEU+ITA+JPN+KOR+ESP+GBR.M.IRLT.PA.....?startPeriod=2025-01&dimensionAtObservation=AllDimensions",
+        "methodology": "Monthly long-term interest rate centered on government bonds maturing in about ten years; percent per annum."
+      },
+      "observations": [
+        {
+          "countryCode": "AUS",
+          "period": "2025-01",
+          "value": 4.481
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-02",
+          "value": 4.423
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-03",
+          "value": 4.421
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-04",
+          "value": 4.267
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-05",
+          "value": 4.35
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-06",
+          "value": 4.208
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-07",
+          "value": 4.291
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-08",
+          "value": 4.275
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-09",
+          "value": 4.298
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-10",
+          "value": 4.234
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-11",
+          "value": 4.416
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2025-12",
+          "value": 4.719
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-01",
+          "value": 4.75
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-02",
+          "value": 4.758
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-03",
+          "value": 4.926
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-04",
+          "value": 4.969
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-05",
+          "value": 4.982
+        },
+        {
+          "countryCode": "AUS",
+          "period": "2026-06",
+          "value": 4.831
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-01",
+          "value": 3.288636
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-02",
+          "value": 3.056316
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-03",
+          "value": 3.010476
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-04",
+          "value": 3.108572
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-05",
+          "value": 3.221429
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-06",
+          "value": 3.314
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-07",
+          "value": 3.480454
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-08",
+          "value": 3.4225
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-09",
+          "value": 3.2245
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-10",
+          "value": 3.128182
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-11",
+          "value": 3.174211
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2025-12",
+          "value": 3.387619
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-01",
+          "value": 3.402381
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-02",
+          "value": 3.288421
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-03",
+          "value": 3.440909
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-04",
+          "value": 3.518333
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-05",
+          "value": 3.5415
+        },
+        {
+          "countryCode": "CAN",
+          "period": "2026-06",
+          "value": 3.42
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-01",
+          "value": 2.483636
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-02",
+          "value": 2.4055
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-03",
+          "value": 2.741429
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-04",
+          "value": 2.5105
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-05",
+          "value": 2.562857
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-06",
+          "value": 2.519048
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-07",
+          "value": 2.631304
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-08",
+          "value": 2.673333
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-09",
+          "value": 2.693182
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-10",
+          "value": 2.617826
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-11",
+          "value": 2.6575
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2025-12",
+          "value": 2.81421
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-01",
+          "value": 2.806667
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-02",
+          "value": 2.745
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-03",
+          "value": 2.91
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-04",
+          "value": 3.001
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-05",
+          "value": 3.0465
+        },
+        {
+          "countryCode": "DEU",
+          "period": "2026-06",
+          "value": 2.97
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-01",
+          "value": 3.173182
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-02",
+          "value": 3.09985
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-03",
+          "value": 3.38919
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-04",
+          "value": 3.2291
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-05",
+          "value": 3.208909
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-06",
+          "value": 3.167428
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-07",
+          "value": 3.243087
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-08",
+          "value": 3.256619
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-09",
+          "value": 3.266227
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-10",
+          "value": 3.151391
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-11",
+          "value": 3.1788
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2025-12",
+          "value": 3.271905
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-01",
+          "value": 3.269238
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-02",
+          "value": 3.1826
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-03",
+          "value": 3.385773
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-04",
+          "value": 3.4491
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-05",
+          "value": 3.48225
+        },
+        {
+          "countryCode": "ESP",
+          "period": "2026-06",
+          "value": 3.421191
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-01",
+          "value": 3.32
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-02",
+          "value": 3.15
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-03",
+          "value": 3.43
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-04",
+          "value": 3.26
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-05",
+          "value": 3.26
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-06",
+          "value": 3.24
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-07",
+          "value": 3.36
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-08",
+          "value": 3.42
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-09",
+          "value": 3.51
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-10",
+          "value": 3.44
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-11",
+          "value": 3.44
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2025-12",
+          "value": 3.56
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-01",
+          "value": 3.53
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-02",
+          "value": 3.4
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-03",
+          "value": 3.64
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-04",
+          "value": 3.73
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-05",
+          "value": 3.74
+        },
+        {
+          "countryCode": "FRA",
+          "period": "2026-06",
+          "value": 3.68
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-01",
+          "value": 4.6627
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-02",
+          "value": 4.5063
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-03",
+          "value": 4.6448
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-04",
+          "value": 4.5762
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-05",
+          "value": 4.6004
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-06",
+          "value": 4.5248
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-07",
+          "value": 4.5924
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-08",
+          "value": 4.6369
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-09",
+          "value": 4.6885
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-10",
+          "value": 4.5721
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-11",
+          "value": 4.4985
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2025-12",
+          "value": 4.4826
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-01",
+          "value": 4.451
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-02",
+          "value": 4.4324
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-03",
+          "value": 4.7007
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-04",
+          "value": 4.8207
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-05",
+          "value": 4.9416
+        },
+        {
+          "countryCode": "GBR",
+          "period": "2026-06",
+          "value": 4.796
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-01",
+          "value": 3.676
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-02",
+          "value": 3.575
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-03",
+          "value": 3.887
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-04",
+          "value": 3.712
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-05",
+          "value": 3.629
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-06",
+          "value": 3.501
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-07",
+          "value": 3.537
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-08",
+          "value": 3.538
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-09",
+          "value": 3.559
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-10",
+          "value": 3.442
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-11",
+          "value": 3.459
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2025-12",
+          "value": 3.552
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-01",
+          "value": 3.492
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-02",
+          "value": 3.388
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-03",
+          "value": 3.733
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-04",
+          "value": 3.818
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-05",
+          "value": 3.839
+        },
+        {
+          "countryCode": "ITA",
+          "period": "2026-06",
+          "value": 3.734
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-01",
+          "value": 1.245
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-02",
+          "value": 1.37
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-03",
+          "value": 1.485
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-04",
+          "value": 1.31
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-05",
+          "value": 1.5
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-06",
+          "value": 1.42
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-07",
+          "value": 1.545
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-08",
+          "value": 1.6
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-09",
+          "value": 1.645
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-10",
+          "value": 1.655
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-11",
+          "value": 1.805
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2025-12",
+          "value": 2.06
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-01",
+          "value": 2.24
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-02",
+          "value": 2.11
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-03",
+          "value": 2.345
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-04",
+          "value": 2.515
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-05",
+          "value": 2.65
+        },
+        {
+          "countryCode": "JPN",
+          "period": "2026-06",
+          "value": 2.67
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-01",
+          "value": 2.821
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-02",
+          "value": 2.83
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-03",
+          "value": 2.795
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-04",
+          "value": 2.658
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-05",
+          "value": 2.71
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-06",
+          "value": 2.842
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-07",
+          "value": 2.84
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-08",
+          "value": 2.815
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-09",
+          "value": 2.849
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-10",
+          "value": 2.933
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-11",
+          "value": 3.248
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2025-12",
+          "value": 3.366
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-01",
+          "value": 3.485
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-02",
+          "value": 3.612
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-03",
+          "value": 3.728
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-04",
+          "value": 3.737
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-05",
+          "value": 4.075
+        },
+        {
+          "countryCode": "KOR",
+          "period": "2026-06",
+          "value": 4.181
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-01",
+          "value": 4.63
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-02",
+          "value": 4.45
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-03",
+          "value": 4.28
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-04",
+          "value": 4.28
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-05",
+          "value": 4.42
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-06",
+          "value": 4.38
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-07",
+          "value": 4.39
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-08",
+          "value": 4.26
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-09",
+          "value": 4.12
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-10",
+          "value": 4.06
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-11",
+          "value": 4.09
+        },
+        {
+          "countryCode": "USA",
+          "period": "2025-12",
+          "value": 4.14
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-01",
+          "value": 4.21
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-02",
+          "value": 4.13
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-03",
+          "value": 4.25
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-04",
+          "value": 4.32
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-05",
+          "value": 4.48
+        },
+        {
+          "countryCode": "USA",
+          "period": "2026-06",
+          "value": 4.47
+        }
+      ]
+    }
+  ]
+}

@@ -550,7 +550,9 @@ The browser application never receives the key.
 For each scheduled or manual run, the workflow:
 
 1. checks out `main`, restores the npm dependency cache, and runs `npm ci`;
-2. runs `npm run data:refresh` with the secret available only to that step;
+2. runs `npm run data:refresh` with the secret available only to that step, then
+   runs the credential-free OECD international refresh as a separate visible
+   diagnostic;
 3. restores files whose only difference is `retrievedAt`, so an unchanged
    provider dataset does not create a daily metadata-only commit;
 4. rejects tracked or untracked refresh output outside
@@ -598,6 +600,34 @@ The deployed
 reports the exact `deploymentCommit` and the newest deployed dataset
 `latestDatasetDate`. The application also shows each individual dataset's
 retrieval date under the relevant card's Series details disclosure.
+
+## OECD international comparisons
+
+`npm run data:refresh-international` requests five narrow, version-pinned CSV
+datasets from the official OECD Data Explorer SDMX API: prime-age employment,
+harmonized unemployment, headline CPI/HICP inflation, year-over-year real GDP
+growth, and long-term government bond yields. Exact dataflows, dimensions,
+units, adjustment conventions, coverage, and product decisions are recorded in
+[`international-comparison-registry.md`](international-comparison-registry.md).
+No credential is required, and the browser never contacts OECD.
+
+The parser verifies the dataflow identity and every selected semantic dimension,
+normalizes ISO country codes and actual observation periods, rejects duplicates,
+invalid values, unexpected units, missing current U.S. data, or coverage below
+8 of 10 peers, and replaces
+`src/features/economic-series/data/international-comparisons.json` only after
+the complete five-metric snapshot validates. Monthly observations may trail the
+newest peer by at most three periods; quarterly observations may trail by at
+most two. Older observations remain stored but are exposed as stale rather than
+used in current rankings.
+
+Timeouts, HTTP 429, and 5xx responses receive three bounded attempts. A 4xx,
+changed schema, or invalid semantic code fails immediately. Every failure leaves
+the last-known-good artifact untouched. The scheduled workflow runs this step
+with `continue-on-error` so OECD access problems are visible in its diagnostics
+but do not prevent unrelated FRED/BLS/BEA updates from being validated and
+deployed. A successful OECD refresh participates in the same dataset-only scope,
+verification, commit, and Pages deployment path.
 
 ## Future series
 

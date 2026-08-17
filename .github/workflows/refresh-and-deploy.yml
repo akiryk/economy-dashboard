@@ -58,6 +58,11 @@ jobs:
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
 
+      - name: Refresh international comparison datasets
+        if: github.event_name != 'push'
+        continue-on-error: true
+        run: npm run data:refresh-international
+
       - name: Discard retrieval-date-only rewrites
         if: github.event_name != 'push'
         shell: bash

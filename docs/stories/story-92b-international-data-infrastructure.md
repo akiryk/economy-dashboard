@@ -1,6 +1,6 @@
 # Story 92B — Add international comparison data infrastructure
 
-Status: pending
+Status: complete
 
 ## Goal
 
