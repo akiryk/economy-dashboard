@@ -13,7 +13,7 @@
   "transformation": "Provider-published daily effective value",
   "sourceName": "Board of Governors of the Federal Reserve System via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/DFEDTARL",
-  "retrievedAt": "2026-08-17",
+  "retrievedAt": "2026-08-18",
   "observations": [
     {
       "date": "2008-12-16",
@@ -25825,6 +25825,10 @@
     },
     {
       "date": "2026-08-16",
+      "value": 3.5
+    },
+    {
+      "date": "2026-08-17",
       "value": 3.5
     }
   ]

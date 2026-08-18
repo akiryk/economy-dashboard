@@ -13,7 +13,7 @@
   "transformation": "Provider-published daily value",
   "sourceName": "Board of Governors of the Federal Reserve System via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/DGS10",
-  "retrievedAt": "2026-08-15",
+  "retrievedAt": "2026-08-18",
   "observations": [
     {
       "date": "1962-01-02",
@@ -67446,6 +67446,10 @@
     {
       "date": "2026-08-13",
       "value": 4.63
+    },
+    {
+      "date": "2026-08-14",
+      "value": 4.68
     }
   ]
 }
