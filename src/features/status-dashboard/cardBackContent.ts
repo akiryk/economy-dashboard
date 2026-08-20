@@ -140,18 +140,18 @@ export function getSp500BackContent(
   stateLabel: string,
 ): DashboardCardBackContent {
   const whatItShows = drawdown === 0
-    ? `The S&P 500 is at its highest level in the available FRED history. The index is ${level.toLocaleString('en-US', { maximumFractionDigits: 2 })}${yearToDateChange === null ? '' : `, with a year-to-date change of ${yearToDateChange.toFixed(1)}%`}.`
-    : `The S&P 500 is ${Math.abs(drawdown).toFixed(1)}% below its highest level in the available FRED history. The index is ${level.toLocaleString('en-US', { maximumFractionDigits: 2 })}${yearToDateChange === null ? '' : `, with a year-to-date change of ${yearToDateChange.toFixed(1)}%`}.`
+    ? `At the latest available close, the S&P 500 is at its highest level in the available FRED history. The closing index is ${level.toLocaleString('en-US', { maximumFractionDigits: 2 })}${yearToDateChange === null ? '' : `, with a year-to-date change of ${yearToDateChange.toFixed(1)}%`}.`
+    : `At the latest available close, the S&P 500 is ${Math.abs(drawdown).toFixed(1)}% below its highest level in the available FRED history. The closing index is ${level.toLocaleString('en-US', { maximumFractionDigits: 2 })}${yearToDateChange === null ? '' : `, with a year-to-date change of ${yearToDateChange.toFixed(1)}%`}.`
   const interpretations: Record<string, string> = {
-    'At high': 'The market is trading at its recent-history peak.',
-    'Near high': 'The market is trading near its recent-history peak.',
-    'Modest pullback': 'The market has pulled back modestly from its recent-history peak.',
+    'At high': 'The latest available close is at its recent-history peak.',
+    'Near high': 'The latest available close is near its recent-history peak.',
+    'Modest pullback': 'The latest available close is modestly below its recent-history peak.',
     'Meaningful pullback': "The market is meaningfully below its recent-history peak, but not yet past the dashboard's correction threshold.",
     'Correction or worse': 'The market is more than 10% below its recent-history peak.',
   }
   return {
     whatItShows,
-    howToReadIt: `${interpretations[stateLabel]} FRED provides only limited S&P history here, so this is not necessarily an all-time drawdown. Equity-market movement does not establish economic causation.`,
+    howToReadIt: `${interpretations[stateLabel]} This prior-close context is not an intraday or real-time quote. FRED provides only limited S&P history here, so this is not necessarily an all-time drawdown. Equity-market movement does not establish economic causation.`,
   }
 }
 

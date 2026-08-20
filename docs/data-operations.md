@@ -441,6 +441,11 @@ Follow every step; do not start by editing dates or tests.
 
 ## S&P 500 decision record
 
+The product contract is **delayed/prior-close economic context (Option A)**.
+The tile is not a live quote and does not promise the current trading day's
+level. Its front says `Prior close`, retains the exact observation date, and its
+accessible chart and contextual back repeat the closing-value limitation.
+
 The current `SP500` series is the official S&P Dow Jones daily closing index as
 redistributed by FRED, with about ten years available under its license. A daily
 09:17 UTC check usually captures the prior U.S. market close after FRED
@@ -453,15 +458,14 @@ architecture. It would require an explicitly licensed redistribution source,
 market-calendar and market-hours logic, API credentials and rate limits,
 server-side retrieval/caching (not a browser secret), outage and stale-quote
 states, after-hours semantics, historical backfill rights, and a cost decision.
-No provider change is justified by this audit alone.
+This contract fits a broad descriptive economic dashboard: daily market noise
+does not warrant the licensing, cost, credential, caching, market-hours, and
+reliability architecture of a same-day or real-time market product. No provider
+or architecture change is required.
 
 ## Recommended follow-up stories
 
-1. **Evaluate S&P 500 product requirements.** Decide whether prior-close data is
-   sufficient. Only if the owner requires more current data should a separate
-   licensing, provider, server-side caching, market-hours, and failure-state
-   story proceed.
-2. **Tune schedules only from evidence.** Consider less frequent checks for
+1. **Tune schedules only from evidence.** Consider less frequent checks for
    annual/irregular sources or provider-calendar dispatches after health
    telemetry exists; keep the current cron unchanged in this story.
 

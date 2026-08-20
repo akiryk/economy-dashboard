@@ -79,9 +79,9 @@ export function Sp500StatusTile({ theme }: MarketsCreditTileProps) {
     className="status-tile--markets status-tile--wide" label="S&P 500" seriesLabel="S&P 500 index level"
     freshnessKeys={sp500Slugs}
     hero={model.headline.value.toLocaleString('en-US', { maximumFractionDigits: 2 })} state={model.state} stateLabel={model.stateLabel === 'At high' ? 'At record high' : model.stateLabel.replace('high', 'record high')}
-    secondary={`YTD ${model.yearToDateChange === null ? 'unavailable' : signedPercent(model.yearToDateChange)}`}
+    secondary={`Prior close · YTD ${model.yearToDateChange === null ? 'unavailable' : signedPercent(model.yearToDateChange)}`}
     observations={model.sparkline} theme={theme} asOf={date}
-    sparklineSummary={`S&P 500 index level over one year, ending at ${model.headline.value.toLocaleString('en-US', { maximumFractionDigits: 2 })} on ${date}. Missing market days remain gaps.`}
+    sparklineSummary={`S&P 500 closing index level over one year, ending at the latest available close of ${model.headline.value.toLocaleString('en-US', { maximumFractionDigits: 2 })} on ${date}. This is not an intraday quote; missing market days remain gaps.`}
     dateFormatter={formatHistoryYear}
     reservedRangeDescription="No historical percentile is shown because an index level trends over time and its percentile would be misleading."
     backContent={getSp500BackContent(model.drawdown, model.headline.value, model.yearToDateChange, model.stateLabel)}

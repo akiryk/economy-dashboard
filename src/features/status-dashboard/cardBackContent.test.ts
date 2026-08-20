@@ -85,9 +85,11 @@ describe('dashboard card back content', () => {
 
   it('limits S&P claims to available FRED history', () => {
     const content = getSp500BackContent(-4.2, 6_340, 7.8, 'Modest pullback')
+    expect(content.whatItShows).toContain('latest available close')
     expect(content.whatItShows).toContain('available FRED history')
     expect(content.howToReadIt).toContain('not necessarily an all-time drawdown')
-    expect(content.howToReadIt).toContain('pulled back modestly')
+    expect(content.howToReadIt).toContain('modestly below')
+    expect(content.howToReadIt).toContain('not an intraday or real-time quote')
   })
 
   it('explains high-yield risk premiums without deterministic safety or recession claims', () => {
