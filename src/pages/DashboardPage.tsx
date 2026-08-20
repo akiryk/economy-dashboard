@@ -13,6 +13,12 @@ const wageComparisonSupportingSlugs = [
   "nominal-wage-growth",
   "headline-cpi-inflation-seasonally-adjusted",
 ] as const;
+const purchasingPowerSupportingSlugs = [
+  "real-hourly-purchasing-power-change-4-year",
+  "real-hourly-purchasing-power-change-20-year",
+  "production-worker-hourly-earnings",
+  "cpi-w-index-seasonally-adjusted",
+] as const;
 const cpiSupportingSlugs = [
   "headline-pce-inflation",
   "core-cpi-inflation",
@@ -92,6 +98,12 @@ export function DashboardPage() {
           supportingSlugs={wageComparisonSupportingSlugs}
           label="wages versus inflation"
           variant="wages-comparison"
+        />
+        <EconomicSeriesCard
+          slug="real-hourly-purchasing-power-change-10-year"
+          supportingSlugs={purchasingPowerSupportingSlugs}
+          label="long-run worker purchasing power"
+          variant="purchasing-power"
         />
         <EconomicSeriesCard
           slug="headline-cpi-inflation"

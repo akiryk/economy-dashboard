@@ -13,6 +13,7 @@ import { InflationDriversSummary } from './InflationDriversSummary'
 import { RecentInflationMomentumSummary } from './RecentInflationMomentumSummary'
 import { MortgageRateSummary } from './MortgageRateSummary'
 import { PolicyRateSummary } from './PolicyRateSummary'
+import { PurchasingPowerSummary } from './PurchasingPowerSummary'
 
 const noSupportingSlugs: readonly string[] = []
 const ClaimsComparisonSummary = lazy(() =>
@@ -42,6 +43,7 @@ interface EconomicSeriesCardProps {
     | 'manufacturing-comparison'
     | 'mortgage-rate'
     | 'policy-rate'
+    | 'purchasing-power'
     | 'household-comparison'
     | 'productivity-level'
     | 'rate-comparison'
@@ -159,6 +161,16 @@ export function EconomicSeriesCard({
         cpiInflation={seriesState.supportingSeries[1]!}
       />,
     )
+  }
+
+  if (variant === 'purchasing-power') {
+    return withFreshness(<PurchasingPowerSummary
+      tenYear={seriesState.series}
+      fourYear={seriesState.supportingSeries[0]!}
+      twentyYear={seriesState.supportingSeries[1]!}
+      wages={seriesState.supportingSeries[2]!}
+      cpi={seriesState.supportingSeries[3]!}
+    />)
   }
 
   if (variant === 'household-comparison') {

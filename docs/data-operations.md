@@ -93,7 +93,7 @@ runbook, and production verification. Dates are the latest committed/deployed
 observations at the cadence-review snapshot. A quarter stored as its first calendar date
 is shown here as the user-facing quarter.
 
-### Research dashboard (`/`) — 25 cards
+### Research dashboard (`/`) — 26 cards
 
 | # | Card | Primary and materially visible supporting data | Latest committed | Contract |
 |---:|---|---|---|---|
@@ -103,25 +103,26 @@ is shown here as the user-facing quarter.
 | 4 | What’s the inflation rate? | `CPIAUCNS` → `headline-cpi-inflation.json`; `CPILFESL` → `core-cpi-inflation.json`; `PCEPI` → `headline-pce-inflation.json` | CPI Jul 2026; PCE Jun 2026 | BLS-CPI, BEA-M |
 | 5 | What is inflation doing recently? | `CPIAUCNS`, `CPIAUCSL`, `CPILFESL` → headline/core index, 3-month, and 12-month JSON files | Jul 2026 | BLS-CPI |
 | 6 | Are workers’ wages keeping up with prices? | `CES0500000003`, `CPIAUCSL` → `nominal-wage-growth.json`, `real-wage-growth.json`, `headline-cpi-inflation-seasonally-adjusted.json` | Jul 2026 | BLS-EMP, BLS-CPI |
-| 7 | What is driving inflation? | Table 7 → `inflation-contributions.json`, `inflation-contribution-history.json`; category IDs → shelter/energy/food CPI JSON | Jul 2026 | BLS-T7, BLS-CPI |
-| 8 | Is unemployment high or low? | `UNRATE` → `unemployment-rate.json` | Jul 2026 | BLS-EMP |
-| 9 | What share of prime-age adults are employed? | `LNS12300060` → `prime-age-employment-ratio.json` | Jul 2026 | BLS-EMP |
-| 10 | Are employers adding jobs? | `PAYEMS` → `monthly-payroll-change.json`, `payroll-growth.json` | Jul 2026 | BLS-EMP |
-| 11 | Is job growth keeping up with the labor force? | Federal Reserve Figure 2 plus `PAYEMS` → `estimated-breakeven-employment-growth.json`, `job-growth-breakeven-comparison.json` | actual comparison through 2026 Q2; source projections through Q4 | FED-RESEARCH, BLS-EMP |
-| 12 | Are layoffs beginning to rise? | `JTSLDR`, `ICSA`, `IC4WSA` → matching layoffs/claims JSON files | JOLTS Jun 2026; claims week ending Aug 8 | BLS-JOLTS, DOL-W |
-| 13 | Are households saving less of their income? | `PSAVERT` → `personal-saving-rate.json`; BEA workbook → `saving-rate-by-income-decile.json` | Jun 2026; distribution 2023 | BEA-M, BEA-IRR |
-| 14 | How much of a median household’s income would it take to own a typical home? | Atlanta Fed national HOAM workbook → `home-ownership-cost-share.json` | May 2026 | HOAM-M |
-| 15 | How much new housing is being started? | `HOUST`, `POPTHM` → matching JSON; Census detail IDs → `housing-construction-details.json`, `housing-supply-composition.json` | headline Jul 2026 | CENSUS-HOUSING, BEA-M |
-| 16 | Are U.S. manufacturers producing more goods? | `IPMAN` → `manufacturing-output.json` | Jul 2026 | FED-G17 |
-| 17 | Are businesses investing more in productive assets? | `PNFIC1` → `real-business-investment-level.json`, `real-business-investment-growth.json` | 2026 Q2 | BEA-Q |
-| 18 | How large are corporate profits relative to the economy? | `CPATAX / GDP` → `corporate-profit-share.json` | 2026 Q1 | BEA-Q |
-| 19 | Where has the Fed set short-term interest rates? | `DFEDTARL`, `DFEDTARU`, historical `DFEDTAR`; supporting `DFF`, `DPRIME` | effective state Aug 17, 2026 | FED-POLICY |
-| 20 | Is the yield curve inverted? | `GS10`, `TB3MS`, `FEDFUNDS` → ten-year, three-month, and effective-rate JSON files | Jul 2026 | FED-RATES-M |
-| 21 | How high are mortgage rates? | `MORTGAGE30US` → `mortgage-rate-30-year.json` | Aug 13, 2026 | PMMS-W |
-| 22 | How large is the federal budget deficit relative to the economy? | `FYFSGDA188S` → `federal-budget-balance.json` | FY 2025 | FISCAL |
-| 23 | How large is federal debt held by the public relative to the economy? | `FYGFGDQ188S` → `federal-debt-held-by-public.json` | 2026 Q1 | FISCAL |
-| 24 | How large is the U.S. trade deficit relative to the economy? | `A019RE1Q156NBEA` plus four trade-component IDs → `trade-balance-share-of-gdp.json` and four component JSON files | 2026 Q2 | BEA-Q |
-| 25 | How heavily are imported goods being taxed? | `B235RC1Q027SBEA / A255RC1Q027SBEA` → `effective-tariff-burden.json`; Fed Figure 5 → `core-goods-pce-inflation.json` | 2026 Q2; context Feb 2026 | BEA-Q, FED-RESEARCH |
+| 7 | How has workers’ purchasing power changed over time? | `AHETPI`, `CWSR0000SA0` → exact real-hourly ratio and rolling 4-, 10-, and 20-year change JSON | Jul 2026 | BLS-EMP, BLS-CPI |
+| 8 | What is driving inflation? | Table 7 → `inflation-contributions.json`, `inflation-contribution-history.json`; category IDs → shelter/energy/food CPI JSON | Jul 2026 | BLS-T7, BLS-CPI |
+| 9 | Is unemployment high or low? | `UNRATE` → `unemployment-rate.json` | Jul 2026 | BLS-EMP |
+| 10 | What share of prime-age adults are employed? | `LNS12300060` → `prime-age-employment-ratio.json` | Jul 2026 | BLS-EMP |
+| 11 | Are employers adding jobs? | `PAYEMS` → `monthly-payroll-change.json`, `payroll-growth.json` | Jul 2026 | BLS-EMP |
+| 12 | Is job growth keeping up with the labor force? | Federal Reserve Figure 2 plus `PAYEMS` → `estimated-breakeven-employment-growth.json`, `job-growth-breakeven-comparison.json` | actual comparison through 2026 Q2; source projections through Q4 | FED-RESEARCH, BLS-EMP |
+| 13 | Are layoffs beginning to rise? | `JTSLDR`, `ICSA`, `IC4WSA` → matching layoffs/claims JSON files | JOLTS Jun 2026; claims week ending Aug 8 | BLS-JOLTS, DOL-W |
+| 14 | Are households saving less of their income? | `PSAVERT` → `personal-saving-rate.json`; BEA workbook → `saving-rate-by-income-decile.json` | Jun 2026; distribution 2023 | BEA-M, BEA-IRR |
+| 15 | How much of a median household’s income would it take to own a typical home? | Atlanta Fed national HOAM workbook → `home-ownership-cost-share.json` | May 2026 | HOAM-M |
+| 16 | How much new housing is being started? | `HOUST`, `POPTHM` → matching JSON; Census detail IDs → `housing-construction-details.json`, `housing-supply-composition.json` | headline Jul 2026 | CENSUS-HOUSING, BEA-M |
+| 17 | Are U.S. manufacturers producing more goods? | `IPMAN` → `manufacturing-output.json` | Jul 2026 | FED-G17 |
+| 18 | Are businesses investing more in productive assets? | `PNFIC1` → `real-business-investment-level.json`, `real-business-investment-growth.json` | 2026 Q2 | BEA-Q |
+| 19 | How large are corporate profits relative to the economy? | `CPATAX / GDP` → `corporate-profit-share.json` | 2026 Q1 | BEA-Q |
+| 20 | Where has the Fed set short-term interest rates? | `DFEDTARL`, `DFEDTARU`, historical `DFEDTAR`; supporting `DFF`, `DPRIME` | effective state Aug 17, 2026 | FED-POLICY |
+| 21 | Is the yield curve inverted? | `GS10`, `TB3MS`, `FEDFUNDS` → ten-year, three-month, and effective-rate JSON files | Jul 2026 | FED-RATES-M |
+| 22 | How high are mortgage rates? | `MORTGAGE30US` → `mortgage-rate-30-year.json` | Aug 13, 2026 | PMMS-W |
+| 23 | How large is the federal budget deficit relative to the economy? | `FYFSGDA188S` → `federal-budget-balance.json` | FY 2025 | FISCAL |
+| 24 | How large is federal debt held by the public relative to the economy? | `FYGFGDQ188S` → `federal-debt-held-by-public.json` | 2026 Q1 | FISCAL |
+| 25 | How large is the U.S. trade deficit relative to the economy? | `A019RE1Q156NBEA` plus four trade-component IDs → `trade-balance-share-of-gdp.json` and four component JSON files | 2026 Q2 | BEA-Q |
+| 26 | How heavily are imported goods being taxed? | `B235RC1Q027SBEA / A255RC1Q027SBEA` → `effective-tariff-burden.json`; Fed Figure 5 → `core-goods-pce-inflation.json` | 2026 Q2; context Feb 2026 | BEA-Q, FED-RESEARCH |
 
 ### Status board (`/dashboard`) — 10 tiles
 

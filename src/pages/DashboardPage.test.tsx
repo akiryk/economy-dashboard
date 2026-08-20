@@ -134,6 +134,12 @@ vi.mock('../features/economic-series/charts/RealWageGrowthChart', () => ({
   },
 }))
 
+vi.mock('../features/economic-series/charts/PurchasingPowerChart', () => ({
+  PurchasingPowerChart: ({ years, variant = 'compact' }: { years: number; variant?: string }) => (
+    <figure data-testid="purchasing-power-chart" data-years={years} data-variant={variant} data-zero-line="true" />
+  ),
+}))
+
 vi.mock('../features/economic-series/charts/JobGrowthBreakevenChart', () => ({
   JobGrowthBreakevenChart: () => (
     <figure
@@ -232,13 +238,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('25 cards in 9 categories')).toBeVisible()
+    expect(within(navigation).getByText('26 cards in 9 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(25)
+    expect(links).toHaveLength(26)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -246,6 +252,7 @@ describe('DashboardPage economic series', () => {
       'What’s the inflation rate?',
       'What is inflation doing recently?',
       'Are workers’ wages keeping up with prices?',
+      'How has workers’ purchasing power changed over time?',
       'What is driving inflation?',
       'Is unemployment high or low?',
       'What share of prime-age adults are employed?',
@@ -494,6 +501,7 @@ describe('DashboardPage economic series', () => {
         'What’s the inflation rate?',
         'What is inflation doing recently?',
         'Are workers’ wages keeping up with prices?',
+        'How has workers’ purchasing power changed over time?',
         'What is driving inflation?',
       ])
     })
@@ -512,7 +520,7 @@ describe('DashboardPage economic series', () => {
         'Are layoffs beginning to rise?',
       ])
     })
-    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(25))
+    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(26))
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'personal-saving-rate-question',
     ])
@@ -989,6 +997,7 @@ describe('DashboardPage economic series', () => {
         'What’s the inflation rate?',
         'What is inflation doing recently?',
         'Are workers’ wages keeping up with prices?',
+        'How has workers’ purchasing power changed over time?',
         'What is driving inflation?',
       ])
     const latestReading = within(comparison)

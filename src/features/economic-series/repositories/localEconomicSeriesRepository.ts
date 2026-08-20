@@ -49,6 +49,11 @@ const localSeriesLoaders: Readonly<
   'monthly-payroll-change': () => import('../data/monthly-payroll-change.json'),
   'nominal-wage-growth': () => import('../data/nominal-wage-growth.json'),
   'real-wage-growth': () => import('../data/real-wage-growth.json'),
+  'real-hourly-purchasing-power-change-4-year': () => import('../data/real-hourly-purchasing-power-change-4-year.json'),
+  'real-hourly-purchasing-power-change-10-year': () => import('../data/real-hourly-purchasing-power-change-10-year.json'),
+  'real-hourly-purchasing-power-change-20-year': () => import('../data/real-hourly-purchasing-power-change-20-year.json'),
+  'production-worker-hourly-earnings': () => import('../data/production-worker-hourly-earnings.json'),
+  'cpi-w-index-seasonally-adjusted': () => import('../data/cpi-w-index-seasonally-adjusted.json'),
   'quarterly-real-disposable-income-per-capita-growth': () =>
     import('../data/quarterly-real-disposable-income-per-capita-growth.json'),
   'quarterly-real-consumer-spending-per-capita-growth': () =>

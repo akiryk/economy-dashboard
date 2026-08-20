@@ -29,6 +29,10 @@ const navigationGroups = [
         title: 'Are workers’ wages keeping up with prices?',
       },
       {
+        id: 'worker-purchasing-power-history-card',
+        title: 'How has workers’ purchasing power changed over time?',
+      },
+      {
         id: 'inflation-drivers-card',
         title: 'What is driving inflation?',
       },
