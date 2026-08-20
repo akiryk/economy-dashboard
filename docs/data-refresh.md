@@ -1,6 +1,6 @@
 # Economic data refresh
 
-This is the authoritative technical inventory for sources, transformations, generated coverage, and refresh behavior. For the shorter product-level explanation of what each visible card shows and why, see [`product-overview.md`](product-overview.md).
+This is the authoritative technical inventory for sources, transformations, generated coverage, and refresh behavior. For the shorter product-level explanation of what each visible card shows and why, see [`product-overview.md`](product-overview.md). For the canonical card/tile mapping, source-specific freshness contracts, operational ownership, and incident runbook, see [`data-operations.md`](data-operations.md).
 
 ## Data flow
 
@@ -12,7 +12,7 @@ FRED, BEA, Federal Reserve Board, BLS, or Atlanta Fed source -> Node refresh com
 
 The generated JSON is committed with the application, so the dashboard remains usable if FRED is unavailable. The browser never receives the API key and never contacts FRED.
 
-The existing scheduled `.github/workflows/refresh-and-deploy.yml` workflow runs `npm run data:refresh` daily. The future streamlined `/dashboard` uses this same path; it does not introduce a second workflow, backend, runtime secret, page-load FRED request, or intraday polling.
+The existing scheduled `.github/workflows/refresh-and-deploy.yml` workflow runs `npm run data:refresh` daily. The streamlined `/dashboard` uses this same path; it does not introduce a second workflow, backend, runtime secret, page-load FRED request, or intraday polling.
 
 ## Supported-series configuration
 

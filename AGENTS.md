@@ -202,6 +202,12 @@ Treat `docs/product-overview.md` as the current product inventory and purpose st
 
 Treat `docs/data-refresh.md` as the technical source and transformation inventory. Avoid duplicating that full inventory in the README.
 
+Treat `docs/data-operations.md` as the canonical visible-measure mapping,
+freshness-contract registry, and data-incident runbook. When a card or tile may
+be stale, follow that runbook before changing data, tests, providers, or UI.
+Update it whenever a visible measure, source, retrieval path, publication
+cadence, manual responsibility, or freshness rule changes.
+
 Documents under `docs/archive/` are historical context, not current project status.
 
 ---

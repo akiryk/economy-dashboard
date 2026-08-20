@@ -13,6 +13,7 @@ See:
 - [`docs/dashboard-review-guide.md`](docs/dashboard-review-guide.md) for reviewing Phase 1 and choosing the next product objective.
 - [`docs/phase-1-limitations.md`](docs/phase-1-limitations.md) and [`docs/phase-1-closeout.md`](docs/phase-1-closeout.md) for accepted constraints and verification evidence.
 - [`docs/data-refresh.md`](docs/data-refresh.md) for the authoritative source, transformation, coverage, and refresh inventory.
+- [`docs/data-operations.md`](docs/data-operations.md) for card-by-card freshness expectations, operational ownership, and stale-data incident response.
 - [`docs/charting.md`](docs/charting.md), [`docs/data-model.md`](docs/data-model.md), and [`docs/compact-card-architecture.md`](docs/compact-card-architecture.md) for implementation architecture.
 
 ## Technology

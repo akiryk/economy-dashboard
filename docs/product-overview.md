@@ -143,6 +143,7 @@ The current home page is a research-oriented briefing: compact cards make 25 mea
 
 - [`product-principles.md`](product-principles.md): presentation and interpretation principles.
 - [`data-refresh.md`](data-refresh.md): exact sources, transformations, coverage, and refresh behavior.
+- [`data-operations.md`](data-operations.md): visible-measure mapping, freshness contracts, operational ownership, and stale-data incident response.
 - [`charting.md`](charting.md): chart behavior, range controls, zoom, and accessibility.
 - [`data-model.md`](data-model.md): domain model and repository boundary.
 - [`dashboard-review-guide.md`](dashboard-review-guide.md): product-owner review prompts.
