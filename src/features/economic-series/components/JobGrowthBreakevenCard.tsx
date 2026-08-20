@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { JobGrowthBreakevenDataset } from '../models/jobGrowthBreakeven'
 import { localJobGrowthBreakevenRepository } from '../repositories/jobGrowthBreakevenRepository'
 import { JobGrowthBreakevenSummary } from './JobGrowthBreakevenSummary'
+import { FreshnessScope } from '../../data-freshness/FreshnessContext'
 
 type State =
   | { status: 'loading' }
@@ -36,5 +37,7 @@ export function JobGrowthBreakevenCard() {
       </p>
     )
   }
-  return <JobGrowthBreakevenSummary dataset={state.dataset} />
+  return <FreshnessScope datasetKeys={['estimated-breakeven-employment-growth', 'job-growth-breakeven-comparison', 'monthly-payroll-change']}>
+    <JobGrowthBreakevenSummary dataset={state.dataset} />
+  </FreshnessScope>
 }

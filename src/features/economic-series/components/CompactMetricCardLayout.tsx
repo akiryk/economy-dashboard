@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { FreshnessNotice } from '../../data-freshness/FreshnessNotice'
 
 interface CompactMetricCardLayoutProps {
   cardId: string
@@ -34,6 +35,8 @@ export function CompactMetricCardLayout({
         <h3 id={questionId}>{question}</h3>
         <div className="series-card__title">{measureLabel}</div>
       </header>
+
+      <FreshnessNotice />
 
       <div
         className={`series-card__headline${compactVisual ? ' series-card__headline--with-compact-visual' : ''}`}

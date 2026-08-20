@@ -44,6 +44,7 @@ export function RealWageStatusTile({ theme }: { theme: 'light' | 'dark' }) {
   const period = formatDashboardPeriod(headline.date, 'monthly')
   return <EconomicStatusTile
     label="Real wage growth"
+    freshnessKeys={realWageSlugs}
     seriesLabel="real wage growth for all private employees"
     hero={formatSignedPercent(headline.value)}
     state={state}

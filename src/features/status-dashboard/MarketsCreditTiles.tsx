@@ -55,6 +55,7 @@ export function MortgageRateStatusTile({ theme }: MarketsCreditTileProps) {
   return <EconomicStatusTile
     className="status-tile--markets status-tile--markets-start"
     label="30-year mortgage rate" seriesLabel="Freddie Mac 30-year fixed mortgage rate"
+    freshnessKeys={mortgageRateSlugs}
     hero={rate(model.headline.value)} state="normal"
     stateLabel="Current average"
     secondary={mortgageDirection}
@@ -76,6 +77,7 @@ export function Sp500StatusTile({ theme }: MarketsCreditTileProps) {
   const date = formatDashboardPeriod(model.headline.date, 'daily')
   return <EconomicStatusTile
     className="status-tile--markets status-tile--wide" label="S&P 500" seriesLabel="S&P 500 index level"
+    freshnessKeys={sp500Slugs}
     hero={model.headline.value.toLocaleString('en-US', { maximumFractionDigits: 2 })} state={model.state} stateLabel={model.stateLabel === 'At high' ? 'At record high' : model.stateLabel.replace('high', 'record high')}
     secondary={`YTD ${model.yearToDateChange === null ? 'unavailable' : signedPercent(model.yearToDateChange)}`}
     observations={model.sparkline} theme={theme} asOf={date}
@@ -96,6 +98,7 @@ export function HighYieldSpreadStatusTile({ theme }: MarketsCreditTileProps) {
   const date = formatDashboardPeriod(model.headline.date, 'daily')
   return <EconomicStatusTile
     className="status-tile--markets" label="High-yield spread" seriesLabel="high-yield option-adjusted spread"
+    freshnessKeys={highYieldSlugs}
     hero={`${Math.round(model.basisPoints)} bps`} state={model.state} stateLabel={model.stateLabel}
     secondary="" observations={model.sparkline} theme={theme} asOf={date}
     sparklineSummary={`High-yield option-adjusted credit spread over one year, ending at ${Math.round(model.basisPoints)} basis points on ${date}. Wider spreads mean investors demand more compensation for credit risk; missing days remain gaps.`}

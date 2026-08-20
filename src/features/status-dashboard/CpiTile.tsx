@@ -2,6 +2,8 @@ import { EconomicStatusTile } from './EconomicStatusTile'
 import type { CpiTileModel } from './cpiTileModel'
 import { getInflationBackContent } from './cardBackContent'
 
+const cpiSlugs = ['dashboard-headline-cpi-inflation'] as const
+
 function formatPercent(value: number): string {
   return `${value.toFixed(1)}%`
 }
@@ -32,6 +34,7 @@ export function CpiTile({ model, theme }: CpiTileProps) {
   return (
     <EconomicStatusTile
       label="Inflation"
+      freshnessKeys={cpiSlugs}
       seriesLabel="headline CPI-U inflation"
       hero={formatPercent(model.headline.value)}
       state={model.state}

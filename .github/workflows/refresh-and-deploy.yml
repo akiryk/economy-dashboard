@@ -119,6 +119,12 @@ jobs:
         id: test
         run: npm test
 
+      - name: Evaluate manual-source reminders
+        if: always() && steps.install.outcome == 'success'
+        id: reminders
+        continue-on-error: true
+        run: npm run operations:reminders -- --output .workflow-diagnostics/reminders.json --ui-output public/data-freshness.json
+
       - name: Install Chromium for browser smoke tests
         id: chromium
         run: npx playwright install --with-deps chromium
@@ -197,12 +203,6 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist
-
-      - name: Evaluate manual-source reminders
-        if: always() && steps.install.outcome == 'success'
-        id: reminders
-        continue-on-error: true
-        run: npm run operations:reminders -- --output .workflow-diagnostics/reminders.json
 
       - name: Upload manual-source reminders
         if: always()

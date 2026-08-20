@@ -258,6 +258,24 @@ npm run operations:record-source-review -- \
 Review the resulting JSON diff, then verify, commit, push, and deploy it. Never
 advance a review date without checking the official URL stored in that file.
 
+### Public freshness presentation
+
+The application reads the sanitized static `data-freshness.json` manifest once
+at startup. It does not poll, contact providers, compare observation ages, or
+run release-calendar logic in React. The build workflow derives manual-review
+exceptions from the operational reminder state before building; other consumers
+may publish evaluator results through the same minimal schema. Operational
+categories, stack traces, workflow names, file paths, and provider-response
+details are never included in the public manifest.
+
+Healthy datasets render no extra UI. `late-provider` appears as a neutral source
+delay, `warning` as a non-alarming review/confirmation notice, and
+`unexpectedly-stale` or `failure` as a stronger textual alert. Observation dates
+remain visible. Research cards scope the notice across their materially visible
+primary/supporting datasets, status tiles use the same dataset keys, and OECD
+uses only the snapshot-level contract; accepted country-specific lag continues
+to appear as the existing stale/N/A row treatment rather than a global warning.
+
 **State vocabulary**
 
 - **Healthy:** the latest release expected by the contract is deployed.
@@ -399,8 +417,9 @@ Follow every step; do not start by editing dates or tests.
   and distinguish “not released,” “provider lag,” and “repository stale” when
   the caller supplies the corresponding evidence. The scheduled workflow does
   not yet persist or alert on this structured output.
-- There is no card-level stale warning. The UI truthfully shows observation
-  periods but does not flag a known missed release.
+- The UI now supplements observation periods with a restrained exception notice
+  when the public freshness manifest identifies provider delay, manual/unknown
+  status, unexpected staleness, or failure. Healthy data remain uncluttered.
 - Actionable workflow and exhausted-retry failures create a deduplicated GitHub
   owner issue and later record recovery. Table 7 manual need and periodic
   irregular-source review remain separate reminder work.
@@ -438,14 +457,11 @@ No provider change is justified by this audit alone.
 
 ## Recommended follow-up stories
 
-1. **Design card-level freshness presentation.** Only after the evaluator exists,
-   define accessible UI states for healthy, provider-delayed, unknown/manual,
-   and known stale without treating normal monthly/quarterly lag as failure.
-2. **Evaluate S&P 500 product requirements.** Decide whether prior-close data is
+1. **Evaluate S&P 500 product requirements.** Decide whether prior-close data is
    sufficient. Only if the owner requires more current data should a separate
    licensing, provider, server-side caching, market-hours, and failure-state
    story proceed.
-3. **Tune schedules only from evidence.** Consider less frequent checks for
+2. **Tune schedules only from evidence.** Consider less frequent checks for
    annual/irregular sources or provider-calendar dispatches after health
    telemetry exists; keep the current cron unchanged in this story.
 

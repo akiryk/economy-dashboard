@@ -8,6 +8,8 @@ import type {
 } from './cpiTileModel'
 import type { DashboardSparklineReference } from './dashboardSparklineOptions'
 import type { DashboardCardBackContent } from './cardBackContent'
+import { FreshnessScope } from '../data-freshness/FreshnessContext'
+import { FreshnessNotice } from '../data-freshness/FreshnessNotice'
 
 interface EconomicStatusTileProps {
   label: string
@@ -28,6 +30,7 @@ interface EconomicStatusTileProps {
   backContent: DashboardCardBackContent
   sparklineWindow?: string
   className?: string
+  freshnessKeys: readonly string[]
 }
 
 export function EconomicStatusTile({
@@ -49,6 +52,7 @@ export function EconomicStatusTile({
   backContent,
   sparklineWindow,
   className,
+  freshnessKeys,
 }: EconomicStatusTileProps) {
   const [flipped, setFlipped] = useState(false)
   const labelId = useId()
@@ -66,6 +70,7 @@ export function EconomicStatusTile({
   }
 
   return (
+    <FreshnessScope datasetKeys={freshnessKeys}>
     <article
       className={`status-tile status-tile--flippable${className ? ` ${className}` : ''}`}
       data-state={state}
@@ -80,6 +85,7 @@ export function EconomicStatusTile({
       <div className="status-tile__flip-inner">
         <div className="status-tile__face status-tile__face--front" aria-hidden={flipped} inert={flipped}>
           <h3 className="status-tile__label" aria-hidden="true">{label}</h3>
+          <FreshnessNotice />
           <div className="status-tile__hero-row">
             <p className="status-tile__hero">{hero}</p>
             <p className="status-tile__state">{stateLabel}</p>
@@ -121,5 +127,6 @@ export function EconomicStatusTile({
         </div>
       </div>
     </article>
+    </FreshnessScope>
   )
 }

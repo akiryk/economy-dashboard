@@ -20,6 +20,8 @@ The `/compare` page gives the U.S. readings context without turning unlike natio
 
 Every home-page card is compact by default and expands in place with a **More** control. This progressive-disclosure pattern separates a quick briefing from the evidence needed to inspect it.
 
+Freshness exceptions supplement this pattern without becoming permanent card chrome. Healthy data show only their normal observation period. A neutral inline notice distinguishes a provider that has not advanced from a manual or indeterminate source; a stronger text-and-border treatment identifies data known to be overdue or blocked by failure. The same sanitized dataset state is reused on research cards, status tiles, and comparisons, and no UI code infers staleness merely from an observation's age.
+
 The compact card normally keeps these elements visible:
 
 - a plain-language question and precise measure label;

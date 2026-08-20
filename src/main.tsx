@@ -4,6 +4,7 @@ import { router } from './app/router'
 import { AppRouterProvider } from './app/AppRouterProvider'
 import './styles/tokens.css'
 import './styles/global.css'
+import { FreshnessProvider } from './features/data-freshness/FreshnessContext'
 
 const rootElement = document.getElementById('root')
 
@@ -13,6 +14,8 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <AppRouterProvider router={router} />
+    <FreshnessProvider>
+      <AppRouterProvider router={router} />
+    </FreshnessProvider>
   </StrictMode>,
 )

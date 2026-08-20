@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
+import { FreshnessScope } from '../../data-freshness/FreshnessContext'
 import type { EconomicSeries } from '../models/economicSeries'
 import { localEconomicSeriesRepository } from '../repositories/localEconomicSeriesRepository'
 import { EconomicSeriesSummary } from './EconomicSeriesSummary'
@@ -139,59 +140,70 @@ export function EconomicSeriesCard({
     )
   }
 
+  const additionalFreshnessKeys = variant === 'inflation-drivers'
+    ? ['inflation-contributions']
+    : slug === 'personal-saving-rate'
+      ? ['saving-rate-by-income-decile']
+      : []
+  const withFreshness = (content: ReactNode) => (
+    <FreshnessScope datasetKeys={[slug, ...supportingSlugs, ...additionalFreshnessKeys]}>
+      {content}
+    </FreshnessScope>
+  )
+
   if (variant === 'wages-comparison') {
-    return (
+    return withFreshness(
       <WagesComparisonSummary
         realWageGrowth={seriesState.series}
         nominalWageGrowth={seriesState.supportingSeries[0]!}
         cpiInflation={seriesState.supportingSeries[1]!}
-      />
+      />,
     )
   }
 
   if (variant === 'household-comparison') {
-    return (
+    return withFreshness(
       <HouseholdComparisonSummary
         income={seriesState.series}
         spending={seriesState.supportingSeries[0]!}
-      />
+      />,
     )
   }
 
   if (variant === 'productivity-level') {
-    return <ProductivityLevelSummary series={seriesState.series} />
+    return withFreshness(<ProductivityLevelSummary series={seriesState.series} />)
   }
 
   if (variant === 'manufacturing-comparison') {
-    return <ManufacturingComparisonSummary output={seriesState.series} employment={seriesState.supportingSeries[0]!} />
+    return withFreshness(<ManufacturingComparisonSummary output={seriesState.series} employment={seriesState.supportingSeries[0]!} />)
   }
 
   if (variant === 'rate-comparison') {
-    return <RateComparisonSummary tenYear={seriesState.series} threeMonth={seriesState.supportingSeries[0]!} federalFunds={seriesState.supportingSeries[1]!} />
+    return withFreshness(<RateComparisonSummary tenYear={seriesState.series} threeMonth={seriesState.supportingSeries[0]!} federalFunds={seriesState.supportingSeries[1]!} />)
   }
 
   if (variant === 'mortgage-rate') {
-    return <MortgageRateSummary series={seriesState.series} />
+    return withFreshness(<MortgageRateSummary series={seriesState.series} />)
   }
 
   if (variant === 'policy-rate') {
-    return <PolicyRateSummary lower={seriesState.series} upper={seriesState.supportingSeries[0]!} historicalTarget={seriesState.supportingSeries[1]!} prime={seriesState.supportingSeries[2]!} effective={seriesState.supportingSeries[3]!} />
+    return withFreshness(<PolicyRateSummary lower={seriesState.series} upper={seriesState.supportingSeries[0]!} historicalTarget={seriesState.supportingSeries[1]!} prime={seriesState.supportingSeries[2]!} effective={seriesState.supportingSeries[3]!} />)
   }
 
   if (variant === 'claims-comparison') {
-    return (
+    return withFreshness(
       <Suspense fallback={<p className="status-message">Loading layoffs card…</p>}>
         <ClaimsComparisonSummary
           joltsLayoffRate={seriesState.series}
           movingAverage={seriesState.supportingSeries[0]!}
           weeklyClaims={seriesState.supportingSeries[1]!}
         />
-      </Suspense>
+      </Suspense>,
     )
   }
 
   if (variant === 'inflation-momentum') {
-    return (
+    return withFreshness(
       <RecentInflationMomentumSummary
         threeMonthHeadline={seriesState.series}
         twelveMonthHeadline={seriesState.supportingSeries[0]!}
@@ -199,34 +211,34 @@ export function EconomicSeriesCard({
         threeMonthCore={seriesState.supportingSeries[2]!}
         headlineNsaLevels={seriesState.supportingSeries[3]!}
         headlineSaLevels={seriesState.supportingSeries[4]!}
-      />
+      />,
     )
   }
 
   if (variant === 'headline-core-comparison') {
-    return (
+    return withFreshness(
       <InflationComparisonSummary
         core={seriesState.series}
         headline={seriesState.supportingSeries[0]!}
         variant="year-over-year"
-      />
+      />,
     )
   }
 
   if (variant === 'inflation-drivers') {
-    return (
+    return withFreshness(
       <InflationDriversSummary
         headline={seriesState.series}
         supportingSeries={seriesState.supportingSeries}
-      />
+      />,
     )
   }
 
-  return (
+  return withFreshness(
     <EconomicSeriesSummary
       collapsible={collapsible}
       series={seriesState.series}
       supportingSeries={seriesState.supportingSeries}
-    />
+    />,
   )
 }

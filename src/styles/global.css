@@ -575,6 +575,30 @@ p {
 }
 
 .status-message,
+.freshness-notice {
+  margin: 0 0 var(--space-4);
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #b58a27;
+  border-radius: var(--radius-small);
+  background: #fff8df;
+  color: #5f460d;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.freshness-notice--late-provider {
+  border-color: #7c8792;
+  background: #f3f5f7;
+  color: #38434d;
+}
+
+.freshness-notice--unexpectedly-stale,
+.freshness-notice--failure {
+  border-color: #b42318;
+  background: #fff1f0;
+  color: #7a1b13;
+}
+
 .series-card {
   padding: var(--space-8);
   background: var(--color-surface);

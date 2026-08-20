@@ -1,5 +1,6 @@
 import { lazy, Suspense, useMemo, useState } from 'react'
 import type { EconomicSeries } from '../models/economicSeries'
+import { FreshnessNotice } from '../../data-freshness/FreshnessNotice'
 import type { TimeRange } from '../utils/chartData'
 import { calculateChartSummary } from '../utils/chartData'
 import {
@@ -67,6 +68,7 @@ export function HouseholdComparisonSummary({
         </h3>
         <p className="series-card__title">Real Income and Spending Per Person</p>
       </header>
+      <FreshnessNotice />
       <div className="series-current" aria-label="Latest shared quarterly real per-capita income and spending growth">
         <p className="series-current__label">Latest shared quarter: {latestAvailable ? formatObservationPeriod(latestAvailable.date, 'quarterly') : 'unavailable'}</p>
         <p className="series-current__comparison"><strong>Real disposable income per person: {formatSignedPercentage(latestAvailable?.incomeGrowth ?? null)}</strong><br /><strong>Real consumer spending per person: {formatSignedPercentage(latestAvailable?.spendingGrowth ?? null)}</strong></p>

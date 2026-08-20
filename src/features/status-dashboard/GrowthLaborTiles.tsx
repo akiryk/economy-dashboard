@@ -61,6 +61,7 @@ export function GdpStatusTile({ theme }: GrowthLaborTileProps) {
   const period = formatDashboardPeriod(model.headline.date, 'quarterly')
   return <EconomicStatusTile
       label="GDP growth"
+      freshnessKeys={gdpSlugs}
       seriesLabel="real GDP growth"
       hero={formatDashboardPercent(model.headline.value)}
       state={model.state}
@@ -95,6 +96,7 @@ export function UnemploymentStatusTile({ theme }: GrowthLaborTileProps) {
   }
   return <EconomicStatusTile
       label="Unemployment"
+      freshnessKeys={unemploymentSlugs}
       seriesLabel="unemployment rate"
       hero={formatDashboardPercent(model.headline.value)}
       state={model.state}
@@ -136,6 +138,7 @@ export function PayrollStatusTile({ theme }: GrowthLaborTileProps) {
     .toLocaleString('en-US')
   return <EconomicStatusTile
     label="Payroll growth"
+    freshnessKeys={payrollSlugs}
     seriesLabel="three-month payroll-growth pace"
     hero={hero}
     state={model.state}
@@ -170,6 +173,7 @@ export function InitialClaimsStatusTile({ theme }: GrowthLaborTileProps) {
   }
   return <EconomicStatusTile
       label="Initial claims"
+      freshnessKeys={claimsSlugs}
       seriesLabel="initial claims four-week average"
       hero={formatClaims(model.headline.value)}
       state={model.state}
@@ -203,6 +207,7 @@ export function SahmStatusTile({ theme }: GrowthLaborTileProps) {
   }
   return <EconomicStatusTile
       label="Sahm Rule"
+      freshnessKeys={sahmSlugs}
       seriesLabel="Sahm Rule gap"
       hero={model.headline.value.toFixed(2)}
       state={model.state}

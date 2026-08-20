@@ -1,5 +1,6 @@
 import { lazy, Suspense, useMemo, useState } from 'react'
 import type { EconomicSeries } from '../models/economicSeries'
+import { FreshnessNotice } from '../../data-freshness/FreshnessNotice'
 import type { TimeRange } from '../utils/chartData'
 import { formatDate, formatObservationPeriod, formatSignedPercentage } from '../utils/economicSeries'
 import { alignManufacturingObservations, filterManufacturingByTimeRange, normalizeManufacturingComparison, toNormalizedObservations } from '../utils/manufacturingComparisonData'
@@ -33,6 +34,7 @@ export function ManufacturingComparisonSummary({ output, employment }: { output:
 
   return <article id="manufacturing-output-versus-employment-card" className="series-card" aria-labelledby="manufacturing-output-versus-employment-question">
     <header className="series-card__header"><p className="series-card__eyebrow">Business and manufacturing</p><h3 id="manufacturing-output-versus-employment-question">Are manufacturing output and jobs moving together?</h3><p className="series-card__title">Manufacturing output versus employment</p></header>
+    <FreshnessNotice />
     <div className="series-current" aria-label="Manufacturing changes since selected-range baseline"><p className="series-current__label">Since {baseline ? formatObservationPeriod(baseline.date, 'monthly') : 'an unavailable baseline'}:</p><p className="series-current__comparison"><strong>Output {formatSignedPercentage(outputChange)}</strong><br /><strong>Jobs {formatSignedPercentage(employmentChange)}</strong></p><p className="series-current__period">Through {latest ? formatObservationPeriod(latest.date, 'monthly') : 'an unavailable month'}</p></div>
     <TimeRangeControl selectedRange={selectedRange} onRangeChange={zoom.selectPreset} contextLabel="Manufacturing output versus employment" />
     <HistoricalZoomControls active={zoom.active} visiblePeriod={zoom.visiblePeriod} onMove={zoom.move} onResize={zoom.resize} onReset={zoom.reset} />

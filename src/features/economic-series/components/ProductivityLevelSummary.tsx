@@ -1,5 +1,6 @@
 import { lazy, Suspense, useMemo, useState } from 'react'
 import type { EconomicSeries } from '../models/economicSeries'
+import { FreshnessNotice } from '../../data-freshness/FreshnessNotice'
 import {
   calculateChartSummary,
   filterObservationsByTimeRange,
@@ -33,6 +34,7 @@ export function ProductivityLevelSummary({ series }: { series: EconomicSeries })
   const selectedLabel = selectedRange === 'max' ? 'available series' : `selected ${selectedRange.replace('y', '-year')} period`
   return <article id="labor-productivity-level-card" className="series-card" aria-labelledby="labor-productivity-level-question">
     <header className="series-card__header"><p className="series-card__eyebrow">Productive capacity</p><h3 id="labor-productivity-level-question">How much more productive is the economy than in the past?</h3><p className="series-card__title">Productivity Over Time</p></header>
+    <FreshnessNotice />
     <div className="series-current" aria-label="Cumulative productivity change"><p className="series-current__value">{formatSignedPercentage(latest?.changeFromBaseline ?? null)}</p><p className="series-current__label">Productivity is {latest && latest.changeFromBaseline !== null && latest.changeFromBaseline < 0 ? 'lower' : 'higher'} than at the start of the {selectedLabel}</p><p className="series-current__period">{baseline ? formatObservationPeriod(baseline.date, 'quarterly') : 'Baseline unavailable'} to {latest ? formatObservationPeriod(latest.date, 'quarterly') : 'latest unavailable'}</p></div>
     <TimeRangeControl selectedRange={selectedRange} onRangeChange={zoom.selectPreset} contextLabel="Productivity over time" />
     <HistoricalZoomControls active={zoom.active} visiblePeriod={zoom.visiblePeriod} onMove={zoom.move} onResize={zoom.resize} onReset={zoom.reset} />

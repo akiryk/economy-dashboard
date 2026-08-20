@@ -1,5 +1,6 @@
 import { lazy, Suspense, useMemo, useState } from "react";
 import type { EconomicSeries } from "../models/economicSeries";
+import { FreshnessNotice } from '../../data-freshness/FreshnessNotice'
 import type { TimeRange } from "../utils/chartData";
 import {
   alignInflationObservations,
@@ -81,6 +82,7 @@ export function InflationComparisonSummary({
         <h3 id={`${id}-question`}>{question}</h3>
         <p className="series-card__title">{title}</p>
       </header>
+      <FreshnessNotice />
 
       <div className="series-current" aria-label={latestLabel}>
         <p className="series-current__value">
