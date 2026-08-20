@@ -24,6 +24,7 @@ import { deriveHistoricalBandContext } from '../utils/historicalBandContext'
 import { deriveHousingStartsCompactData } from '../utils/housingStartsData'
 import { deriveManufacturingOutputGrowth } from '../utils/manufacturingOutputGrowth'
 import { deriveBudgetBalanceCompactContext } from '../utils/budgetBalanceContext'
+import { formatAnnualizedHousingUnits, formatObservationPeriod } from '../utils/economicSeries'
 import { CompactHistoricalMetricChart } from './CompactHistoricalMetricChart'
 
 vi.mock('./HistoricalBandChart', () => ({
@@ -149,11 +150,11 @@ describe('CompactHistoricalMetricChart', () => {
     const chart = screen.getByTestId('historical-band-chart')
     expect(chart).toHaveAttribute(
       'data-caption',
-      'Federal deficit as a share of GDP · Displayed: 2021–2025',
+      expect.stringMatching(/^Federal deficit as a share of GDP · Displayed: \d{4}–\d{4}$/),
     )
     expect(chart).toHaveAttribute(
       'data-comparison-label',
-      'Historical bands use annual federal deficit magnitudes from 1946–2025',
+      expect.stringMatching(/^Historical bands use annual federal deficit magnitudes from 1946–\d{4}$/),
     )
     expect(chart).toHaveAttribute('data-zero-line', 'true')
     expect(chart).toHaveAttribute('data-latest-marker', 'true')
@@ -182,7 +183,7 @@ describe('CompactHistoricalMetricChart', () => {
     const chart = screen.getByTestId('historical-band-chart')
     expect(chart).toHaveAttribute(
       'data-caption',
-      'Personal saving rate · June 2021–June 2026',
+      expect.stringMatching(/^Personal saving rate · [A-Z][a-z]+ \d{4}–[A-Z][a-z]+ \d{4}$/),
     )
     expect(chart).toHaveAttribute('data-zero-line', 'false')
     expect(chart).toHaveAttribute('data-interactive', 'true')
@@ -236,14 +237,19 @@ describe('CompactHistoricalMetricChart', () => {
     />)
 
     const chart = screen.getByTestId('historical-band-chart')
+    const selectedRawAverage = compact.rawAverages.find(
+      ({ date }) => date === '2026-06-01',
+    )?.value ?? null
     expect(chart).toHaveAttribute(
       'data-caption',
-      'Housing starts per 1,000 residents · June 2021–June 2026',
+      expect.stringMatching(/^Housing starts per 1,000 residents · [A-Z][a-z]+ \d{4}–[A-Z][a-z]+ \d{4}$/),
     )
     expect(chart).toHaveAttribute('data-summary', 'Population-normalized accessible summary')
     expect(chart).toHaveAttribute('data-zero-line', 'false')
     expect(chart).toHaveAttribute('data-latest-marker', 'true')
-    expect(chart).toHaveTextContent('Three-month-average annualized starts: 1.35 million')
+    expect(chart).toHaveTextContent(
+      `Three-month-average annualized starts: ${formatAnnualizedHousingUnits(selectedRawAverage)}`,
+    )
     expect(chart).toHaveTextContent('Historical position: typical by historical standards')
   })
 
@@ -263,9 +269,42 @@ describe('CompactHistoricalMetricChart', () => {
       pairedValueFormatter={(value) => value?.toFixed(1) ?? 'Unavailable'}
     />)
     const chart = screen.getByTestId('historical-band-chart')
+    const selectedAverage = derived.averages.find(
+      ({ date }) => date === '2026-06-01',
+    )?.value
     expect(chart).toHaveAttribute('data-zero-line', 'true')
     expect(chart).toHaveAttribute('data-latest-marker', 'true')
-    expect(chart).toHaveTextContent('Three-month-average production index: 98.7')
+    expect(chart).toHaveTextContent(
+      `Three-month-average production index: ${selectedAverage?.toFixed(1) ?? 'Unavailable'}`,
+    )
     expect(chart).toHaveTextContent('Historical position: typical by the standards of the past 25 years')
+  })
+
+  it('renders a newly appended valid observation without a production-current expectation', () => {
+    const observations = Array.from({ length: 314 }, (_, index) => {
+      const date = new Date(Date.UTC(2000, index, 1)).toISOString().slice(0, 10)
+      return { date, value: 90 + index * 0.05 }
+    })
+    const advanced = [...observations, { date: '2026-03-01', value: 108 }]
+    const derived = deriveManufacturingOutputGrowth(advanced)
+    const model = deriveHistoricalBandContext(
+      derived.growth,
+      manufacturingOutputCompactDefinition.historicalBands,
+    )
+
+    expect(model.status).toBe('ready')
+    if (model.status !== 'ready') return
+    expect(model.latestObservation.date).toBe('2026-03-01')
+
+    render(<CompactHistoricalMetricChart
+      model={model}
+      definition={manufacturingOutputCompactDefinition}
+      observations={derived.growth}
+    />)
+
+    expect(screen.getByTestId('historical-band-chart')).toHaveAttribute(
+      'data-caption',
+      expect.stringContaining(formatObservationPeriod('2026-03-01', 'monthly')),
+    )
   })
 })

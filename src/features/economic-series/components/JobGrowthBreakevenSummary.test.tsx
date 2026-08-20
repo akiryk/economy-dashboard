@@ -7,6 +7,8 @@ import {
   type JobGrowthBreakevenDataset,
 } from '../models/jobGrowthBreakeven'
 import { JobGrowthBreakevenSummary } from './JobGrowthBreakevenSummary'
+import { formatObservationPeriod } from '../utils/economicSeries'
+import { deriveJobGrowthBreakevenContext, formatSignedPp } from '../utils/jobGrowthBreakevenContext'
 
 vi.mock('../charts/JobGrowthBreakevenChart', () => ({
   JobGrowthBreakevenChart: ({
@@ -25,12 +27,14 @@ vi.mock('../charts/JobGrowthBreakevenChart', () => ({
 }))
 
 const production = validateJobGrowthBreakevenDataset(productionData)
+const productionContext = deriveJobGrowthBreakevenContext(production)
 
 function withLatestGap(gap: number): JobGrowthBreakevenDataset {
+  const latestDate = productionContext.latest?.date
   return {
     ...production,
     observations: production.observations.map((item) =>
-      item.date === '2026-06-01' && item.status === 'available'
+      item.date === latestDate && item.status === 'available'
         ? { ...item, gapPercentagePoints: gap }
         : item),
   }
@@ -44,17 +48,18 @@ describe('JobGrowthBreakevenSummary', () => {
     const card = screen.getByRole('article', {
       name: 'Is job growth keeping up with the labor force?',
     })
-    expect(within(card).getByText('+0.7 pp')).toBeVisible()
+    expect(within(card).getByText(
+      formatSignedPp(productionContext.latest!.gapPercentagePoints),
+    )).toBeVisible()
     expect(within(card).getByText(
       'Payroll growth above the estimated breakeven pace',
     )).toBeVisible()
-    expect(within(card).getByText(
-      'June 2026 · Latest three-month annualized rate',
-    )).toBeVisible()
-    expect(within(card).getByText(/^Yes —/)).toBeVisible()
-    expect(within(card).getByText('0.84% annualized')).toBeVisible()
-    expect(within(card).getByText('0.15% annualized')).toBeVisible()
-    expect(within(card).getByText('+0.7 percentage points')).toBeVisible()
+    expect(within(card).getByText(new RegExp(
+      `${formatObservationPeriod(productionContext.latest!.date, 'monthly')} · Latest three-month annualized rate`,
+    ))).toBeVisible()
+    expect(within(card).getByText(productionContext.answer)).toBeVisible()
+    expect(within(card).getAllByText(/\d+\.\d+% annualized/)).toHaveLength(2)
+    expect(within(card).getByText(/[−+]?\d+\.\d percentage points/)).toBeVisible()
     expect(await within(card).findByTestId('job-growth-breakeven-chart'))
       .toHaveAttribute('data-zero-line', 'true')
   })
@@ -79,9 +84,7 @@ describe('JobGrowthBreakevenSummary', () => {
       .not.toBeInTheDocument()
     await user.click(within(card).getByRole('button', { name: /More/ }))
     expect(within(card).getByText('Latest underlying comparison')).toBeVisible()
-    expect(within(card).getByText('+111K per month')).toBeVisible()
-    expect(within(card).getByText('+20K per month')).toBeVisible()
-    expect(within(card).getByText('+91K per month')).toBeVisible()
+    expect(within(card).getAllByText(/[−+]?\d+K per month/)).toHaveLength(3)
     expect(within(card).getByText('What this tells you')).toBeVisible()
     expect(within(card).getByText('What this leaves out')).toBeVisible()
     expect(within(card).getByRole('button', { name: '20 years' }))

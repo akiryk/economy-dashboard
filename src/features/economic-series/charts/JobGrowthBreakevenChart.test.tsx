@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import productionData from '../data/job-growth-breakeven-comparison.json'
 import { validateJobGrowthBreakevenDataset } from '../models/jobGrowthBreakeven'
+import { formatObservationPeriod } from '../utils/economicSeries'
+import { deriveJobGrowthBreakevenContext } from '../utils/jobGrowthBreakevenContext'
 import { JobGrowthBreakevenChart } from './JobGrowthBreakevenChart'
 
 const chart = vi.hoisted(() => ({
@@ -15,6 +17,7 @@ const init = vi.hoisted(() => vi.fn(() => chart))
 vi.mock('echarts/core', () => ({ init, use: vi.fn() }))
 
 const production = validateJobGrowthBreakevenDataset(productionData)
+const productionContext = deriveJobGrowthBreakevenContext(production)
 
 afterEach(() => {
   cleanup()
@@ -25,7 +28,7 @@ describe('JobGrowthBreakevenChart', () => {
   it('renders five years, historical bands, a zero line and latest marker', () => {
     render(<JobGrowthBreakevenChart dataset={production} />)
     expect(screen.getByText(
-      'Actual minus estimated breakeven growth · 2021 Q2–2026 Q2',
+      new RegExp(`^Actual minus estimated breakeven growth · .*–${formatObservationPeriod(productionContext.latest!.date, 'quarterly')}$`),
     )).toBeVisible()
     expect(screen.getByText(
       'Zero = payroll growth matched the estimated breakeven pace',
@@ -60,12 +63,13 @@ describe('JobGrowthBreakevenChart', () => {
     })
 
     fireEvent.focus(interaction)
-    expect(screen.getByRole('status')).toHaveTextContent(
-      '2026 Q2Gap: +0.7 ppActual payroll growth: 0.84% annualized' +
-      'Estimated breakeven growth: 0.15% annualized' +
-      'Actual job growth: +111K per month' +
-      'Estimated breakeven: +20K per monthDifference: +91K per month',
+    const status = screen.getByRole('status')
+    expect(status).toHaveTextContent(
+      formatObservationPeriod(productionContext.latest!.date, 'quarterly'),
     )
+    expect(status).toHaveTextContent(/Gap: [−+]?\d+\.\d pp/)
+    expect(status).toHaveTextContent(/Actual payroll growth: \d+\.\d+% annualized/)
+    expect(status).toHaveTextContent(/Estimated breakeven growth: \d+\.\d+% annualized/)
     fireEvent.keyDown(interaction, { key: 'ArrowLeft' })
     expect(screen.getByRole('status')).toHaveTextContent('2026 Q1')
     fireEvent.keyDown(interaction, { key: 'Escape' })
@@ -75,13 +79,15 @@ describe('JobGrowthBreakevenChart', () => {
       clientX: 100,
       pointerType: 'mouse',
     })
-    expect(screen.getByRole('status')).toHaveTextContent('2026 Q2')
+    expect(screen.getByRole('status')).toHaveTextContent(
+      formatObservationPeriod(productionContext.latest!.date, 'quarterly'),
+    )
     fireEvent.pointerLeave(interaction, { pointerType: 'mouse' })
     fireEvent.pointerDown(interaction, {
       clientX: 100,
       pointerType: 'touch',
     })
-    expect(screen.getByRole('status')).toHaveTextContent('Difference: +91K')
+    expect(screen.getByRole('status')).toHaveTextContent(/Difference: [−+]?\d+K/)
   })
 
   it('explains percentage points, the estimated baseline, and historical bands', async () => {

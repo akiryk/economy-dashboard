@@ -11,16 +11,31 @@ import type { InflationDriversSupportingTrendsModel } from '../features/economic
 import type { RealWageGrowthModel } from '../features/economic-series/utils/realWageGrowth'
 import joltsLayoffsData from '../features/economic-series/data/jolts-layoffs-and-discharges-rate.json'
 import realGdpGrowthData from '../features/economic-series/data/real-gdp-growth.json'
+import inflationContributionData from '../features/economic-series/data/inflation-contributions.json'
 import { validateEconomicSeries } from '../features/economic-series/models/validateEconomicSeries'
 import { localEconomicSeriesRepository } from '../features/economic-series/repositories/localEconomicSeriesRepository'
 import {
+  findLatestNonNullObservation,
+  formatAnnualizedHousingUnits,
   formatObservationPeriod,
   formatPercentage,
+  formatSignedPercentage,
   formatSignedPercentagePoints,
 } from '../features/economic-series/utils/economicSeries'
 import { filterObservationsByTimeRange } from '../features/economic-series/utils/chartData'
 import { classifyCpiAssessment, formatCpiAssessment, formatCpiPolicyReference } from '../features/economic-series/utils/cpiData'
 import { deriveRecentInflationMomentumModel } from '../features/economic-series/utils/recentInflationMomentum'
+import { deriveHousingStartsCompactData } from '../features/economic-series/utils/housingStartsData'
+import { deriveManufacturingOutputGrowth } from '../features/economic-series/utils/manufacturingOutputGrowth'
+import { derivePayrollGrowthContext } from '../features/economic-series/utils/payrollGrowthContext'
+import { deriveSavingRateContext, formatSavingRateChange } from '../features/economic-series/utils/savingRateContext'
+import { deriveUnemploymentContext } from '../features/economic-series/utils/unemploymentContext'
+import { derivePrimeAgeEmploymentContext } from '../features/economic-series/utils/primeAgeEmploymentContext'
+import {
+  buildInflationContributionCategories,
+  deriveCompactInflationDriversModel,
+  type InflationContributionObservation,
+} from '../features/economic-series/utils/inflationContributions'
 import {
   deriveYieldCurveObservations,
   formatYieldCurveAnswer,
@@ -265,6 +280,13 @@ describe('DashboardPage economic series', () => {
 
   it('renders independent GDP and CPI cards with frequency-aware content', async () => {
     const user = userEvent.setup()
+    const [gdp, cpi] = await Promise.all([
+      localEconomicSeriesRepository.getBySlug('real-gdp-growth'),
+      localEconomicSeriesRepository.getBySlug('headline-cpi-inflation'),
+    ])
+    if (!gdp || !cpi) throw new Error('Expected committed GDP and CPI series')
+    const latestGdp = findLatestNonNullObservation(gdp.observations)!
+    const latestCpi = findLatestNonNullObservation(cpi.observations)!
     render(<DashboardPage />)
 
     const gdpCard = await screen.findByRole('article', {
@@ -287,9 +309,13 @@ describe('DashboardPage economic series', () => {
     await user.click(within(gdpCard).getByText('Series details'))
     await user.click(within(cpiCard).getByText('Series details'))
     expect(within(gdpCard).getByText('Quarterly')).toBeVisible()
-    expect(within(gdpCard).getAllByText('2026 Q1')).not.toHaveLength(0)
+    expect(within(gdpCard).getAllByText(
+      formatObservationPeriod(latestGdp.date, 'quarterly'),
+    )).not.toHaveLength(0)
     expect(within(cpiCard).getByText('Monthly')).toBeVisible()
-    expect(within(cpiCard).getAllByText('May 2026')).not.toHaveLength(0)
+    expect(within(cpiCard).getAllByText(
+      formatObservationPeriod(latestCpi.date, 'monthly'),
+    )).not.toHaveLength(0)
     expect(
       within(cpiCard).getByText('U.S. Bureau of Labor Statistics via FRED'),
     ).toBeVisible()
@@ -533,10 +559,22 @@ describe('DashboardPage economic series', () => {
       headlineNsaLevels: headlineNsaLevels!,
       headlineSaLevels: headlineSaLevels!,
     })
+    const contributionObservations = inflationContributionData.observations as InflationContributionObservation[]
+    const currentContribution = contributionObservations.at(-1)!
+    const priorContributionDate = new Date(`${currentContribution.date}T00:00:00Z`)
+    priorContributionDate.setUTCFullYear(priorContributionDate.getUTCFullYear() - 1)
+    const priorContribution = contributionObservations.find(
+      ({ date }) => date === priorContributionDate.toISOString().slice(0, 10),
+    ) ?? null
+    const contributionModel = deriveCompactInflationDriversModel({
+      headlineInflation: currentContribution.headline,
+      headlinePeriod: currentContribution.date,
+      categories: buildInflationContributionCategories(currentContribution, priorContribution),
+    })!
 
     expect(within(drivers).getByText('Category contributions to overall CPI inflation'))
       .toBeVisible()
-    expect(within(drivers).getByText('Inflation is broad across several categories.'))
+    expect(within(drivers).getByText(contributionModel.summary))
       .toBeVisible()
     expect(within(drivers).queryByText(/\d+\.\d%/, {
       selector: '.series-current__value',
@@ -567,15 +605,18 @@ describe('DashboardPage economic series', () => {
       'Shown for current contributors with a directly comparable CPI series.',
     )).toBeVisible()
     expect(within(momentum).getByText(momentumModel.answer)).toBeVisible()
-    expect(within(momentum).getByText('3.4%')).toBeVisible()
+    expect(within(momentum).getByText(
+      formatPercentage(momentumModel.twelveMonthRate),
+    )).toBeVisible()
     expect(within(momentum).getByText('12-month inflation')).toBeVisible()
-    expect(within(momentum).getByText('3.0%')).toBeVisible()
-    expect(within(momentum).queryByText('~3.0%')).not.toBeInTheDocument()
+    expect(within(momentum).getByText(
+      formatPercentage(momentumModel.conditionalRate),
+    )).toBeVisible()
     expect(within(momentum).getByText(
       'In 3 months if the recent pace continues',
     )).toBeVisible()
     expect(momentum.querySelector('.recent-inflation-momentum__hero'))
-      .toHaveTextContent('3.4%')
+      .toHaveTextContent(formatPercentage(momentumModel.twelveMonthRate))
     expect(within(momentum).getByText('Previous 3 months, annualized')).toBeVisible()
     expect(within(momentum).getByText('Latest 3 months, annualized')).toBeVisible()
     expect(within(momentum).getByText(momentumModel.differenceLabel!)).toBeVisible()
@@ -591,7 +632,9 @@ describe('DashboardPage economic series', () => {
     expect(momentum.querySelector('svg area')).not.toBeInTheDocument()
     expect(within(momentum).getByText(
       /The graphic compares adjacent, non-overlapping three-month windows/,
-    )).toHaveTextContent('the change was −6.8 percentage points')
+    )).toHaveTextContent(
+      `the change was ${formatSignedPercentagePoints(momentumModel.difference)} percentage points`,
+    )
     expect(within(momentum).getByText(
       /The graphic compares adjacent, non-overlapping three-month windows/,
     )).toHaveTextContent('not a forecast')
@@ -761,6 +804,15 @@ describe('DashboardPage economic series', () => {
 
   it('renders payroll momentum with signed values and a paired recent table', async () => {
     const user = userEvent.setup()
+    const [averages, monthly] = await Promise.all([
+      localEconomicSeriesRepository.getBySlug('payroll-growth'),
+      localEconomicSeriesRepository.getBySlug('monthly-payroll-change'),
+    ])
+    if (!averages || !monthly) throw new Error('Expected committed payroll series')
+    const payrollModel = derivePayrollGrowthContext(
+      averages.observations,
+      monthly.observations,
+    )
     render(<DashboardPage />)
 
     const payroll = await screen.findByRole('article', {
@@ -772,7 +824,7 @@ describe('DashboardPage economic series', () => {
     expect(current).toHaveTextContent(/[−+]?\d+K/)
     expect(current).toHaveTextContent('Latest three-month average')
     expect(current).toHaveTextContent(
-      'Job growth has nearly stalled. Payrolls fell by 23,000 in July, while the latest three-month average is +20,000 jobs per month.',
+      payrollModel.answer,
     )
     expect(current).toHaveAccessibleName(
       /middle 50% ranges from [−+]?\d+K to [−+]?\d+K.*middle 80% ranges from [−+]?\d+K to [−+]?\d+K/,
@@ -1085,7 +1137,9 @@ describe('DashboardPage economic series', () => {
       name: 'Are layoffs beginning to rise?',
     })
 
-    expect(within(card).getByText('1.1%')).toBeVisible()
+    expect(within(card).getByText(
+      formatPercentage(findLatestNonNullObservation(joltsLayoffsSeries.observations)?.value ?? null),
+    )).toBeVisible()
     expect(within(card).getByText(latestJoltsLayoffsPeriod)).toBeVisible()
     expect(within(card).getByText(
       'No — layoffs are not beginning to rise.',
@@ -1144,6 +1198,11 @@ describe('DashboardPage economic series', () => {
 
   it('renders labor levels with monthly context and accessible tables', async () => {
     const user = userEvent.setup()
+    const unemploymentSeries = (await localEconomicSeriesRepository.getBySlug('unemployment-rate'))!
+    const primeAgeSeries = (await localEconomicSeriesRepository.getBySlug('prime-age-employment-ratio'))!
+    const latestUnemployment = findLatestNonNullObservation(unemploymentSeries.observations)!
+    const unemploymentModel = deriveUnemploymentContext(unemploymentSeries.observations)
+    const primeAgeModel = derivePrimeAgeEmploymentContext(primeAgeSeries.observations)
     render(<DashboardPage />)
 
     const unemployment = await screen.findByRole('article', {
@@ -1157,21 +1216,21 @@ describe('DashboardPage economic series', () => {
     })
 
     const unemploymentCallout = within(unemployment).getByLabelText(
-      /The unemployment rate was 4.1% in July 2026/,
+      new RegExp(`The unemployment rate was ${formatPercentage(latestUnemployment.value)} in ${formatObservationPeriod(latestUnemployment.date, 'monthly')}`),
     )
     expect(unemploymentCallout)
-      .toHaveTextContent('4.1%')
+      .toHaveTextContent(formatPercentage(latestUnemployment.value))
     expect(unemploymentCallout).toHaveTextContent(
       'Share of the labor force without a job and actively looking for work',
     )
     expect(unemploymentCallout).toHaveTextContent(
-      'Unemployment is low compared with the past 25 years.',
+      unemploymentModel.levelStatement,
     )
     expect(unemploymentCallout).toHaveTextContent(
-      'Unemployment is little changed from a year ago.',
+      unemploymentModel.directionStatement,
     )
     expect(unemploymentCallout).toHaveAccessibleName(
-      /middle 50% ranges from 4.3% to 6.4%.*middle 80% ranges from 3.7% to 9.0%/,
+      /middle 50% ranges from \d+\.\d% to \d+\.\d%.*middle 80% ranges from \d+\.\d% to \d+\.\d%/,
     )
     expect(within(unemployment).getByTestId('production-compact-chart'))
       .toHaveAttribute('data-show-zero', 'false')
@@ -1184,7 +1243,7 @@ describe('DashboardPage economic series', () => {
       'Share of adults ages 25–54 who are employed',
     )
     expect(primeAgeCallout).toHaveTextContent(
-      'Prime-age employment is high compared with the past 25 years.',
+      primeAgeModel.levelStatement,
     )
     expect(primeAgeCallout).toHaveAccessibleName(
       /line runs from [A-Z][a-z]+ \d{4} through [A-Z][a-z]+ \d{4}/,
@@ -1196,7 +1255,9 @@ describe('DashboardPage economic series', () => {
       .toHaveAttribute('data-show-zero', 'false')
     expect(within(primeAge).getByTestId('production-compact-chart'))
       .toHaveAttribute('data-interactive', 'true')
-    expect(within(unemployment).getByText(/July 2026/)).toBeVisible()
+    expect(within(unemployment).getByText(
+      new RegExp(`${formatObservationPeriod(latestUnemployment.date, 'monthly')} · Percent`),
+    )).toBeVisible()
     expect(within(primeAge).getByText(/[A-Z][a-z]+ \d{4}/)).toBeVisible()
     expect(within(primeAge).queryByRole('button', { name: '5 years' }))
       .not.toBeInTheDocument()
@@ -1341,23 +1402,26 @@ describe('DashboardPage economic series', () => {
 
   it('renders a direction-first compact personal saving rate card and preserves More', async () => {
     const user = userEvent.setup()
+    const savingSeries = (await localEconomicSeriesRepository.getBySlug('personal-saving-rate'))!
+    const latestSaving = findLatestNonNullObservation(savingSeries.observations)!
+    const savingModel = deriveSavingRateContext(savingSeries.observations)
     render(<DashboardPage />)
     const card = await screen.findByRole('article', {
       name: 'Are households saving less of their income?',
     })
 
     const current = within(card).getByLabelText(/The personal saving rate was/)
-    expect(current).toHaveTextContent('2.7%')
+    expect(current).toHaveTextContent(formatPercentage(latestSaving.value))
     expect(current).toHaveTextContent('Share of disposable personal income saved')
-    expect(current).toHaveTextContent('June 2026')
+    expect(current).toHaveTextContent(formatObservationPeriod(latestSaving.date, 'monthly'))
     expect(current).toHaveTextContent(
-      'Yes — households are saving a smaller share of their income than a year ago.',
+      savingModel.directionStatement,
     )
     expect(current).toHaveTextContent(
-      'The saving rate is low by historical standards.',
+      savingModel.levelStatement,
     )
     expect(current).toHaveTextContent(
-      'Down 1.9 percentage points from a year earlier',
+      formatSavingRateChange(savingModel.twelveMonthChange),
     )
     expect(within(card).getByTestId('production-compact-chart'))
       .toHaveAttribute('data-show-zero', 'false')
@@ -1400,7 +1464,12 @@ describe('DashboardPage economic series', () => {
     const housing = screen.getByRole('region', { name: 'Housing' })
     const cards = await within(housing).findAllByRole('article')
     const affordability = (await localEconomicSeriesRepository.getBySlug('home-ownership-cost-share'))!
+    const starts = (await localEconomicSeriesRepository.getBySlug('housing-starts'))!
+    const population = (await localEconomicSeriesRepository.getBySlug('us-population-monthly'))!
     const latestAffordability = [...affordability.observations].reverse().find(({ value }) => value !== null)!
+    const latestStartsAverage = findLatestNonNullObservation(
+      deriveHousingStartsCompactData(starts.observations, population.observations).rawAverages,
+    )!
     expect(cards.map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'home-ownership-cost-share-question',
       'housing-starts-question',
@@ -1412,8 +1481,12 @@ describe('DashboardPage economic series', () => {
     expect(within(cards[0]!).getByText(/well above the 30% affordability threshold/)).toBeVisible()
     expect(within(cards[0]!).getByText(/required income share is high|very high/)).toBeVisible()
     expect(within(cards[0]!).getByRole('button', { name: /More/ })).toHaveAttribute('aria-expanded', 'false')
-    expect(within(cards[1]!).getAllByText('1.35 million')).not.toHaveLength(0)
-    expect(within(cards[1]!).getByText(/June 2026 · Thousands of units/)).toBeVisible()
+    expect(within(cards[1]!).getAllByText(
+      formatAnnualizedHousingUnits(latestStartsAverage.value),
+    )).not.toHaveLength(0)
+    expect(within(cards[1]!).getByText(new RegExp(
+      `${formatObservationPeriod(latestStartsAverage.date, 'monthly')} · Thousands of units`,
+    ))).toBeVisible()
     expect(within(cards[1]!).getByText('Three-month average annualized pace')).toBeVisible()
     expect(within(cards[1]!).getByText(/Builders are starting housing at an annualized pace/)).toBeVisible()
     expect(within(cards[1]!).getByText(/Relative to the U.S. population/)).toBeVisible()
@@ -1505,8 +1578,14 @@ describe('DashboardPage economic series', () => {
     const manufacturing = screen.getByRole('region', { name: 'Business and manufacturing' })
     expect(housing.compareDocumentPosition(manufacturing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     const card = await within(manufacturing).findByRole('article', { name: 'Are U.S. manufacturers producing more goods?' })
+    const manufacturingSeries = (await localEconomicSeriesRepository.getBySlug('manufacturing-output'))!
+    const latestManufacturingGrowth = findLatestNonNullObservation(
+      deriveManufacturingOutputGrowth(manufacturingSeries.observations).growth,
+    )!
     expect(within(manufacturing).getAllByRole('article')).toHaveLength(3)
-    expect(within(card).getByText('+1.3%')).toBeVisible()
+    expect(within(card).getByText(
+      formatSignedPercentage(latestManufacturingGrowth.value),
+    )).toBeVisible()
     expect(within(card).getByText(/Yes — U.S. manufacturers are producing more/)).toBeVisible()
     expect(within(card).getByText(/current growth rate is typical/)).toBeVisible()
     expect(within(card).getByTestId('production-compact-chart')).toHaveAttribute('data-show-zero', 'true')

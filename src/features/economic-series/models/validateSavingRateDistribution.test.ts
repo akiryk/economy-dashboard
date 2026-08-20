@@ -6,10 +6,15 @@ import { validateSavingRateDistribution } from './validateSavingRateDistribution
 describe('validateSavingRateDistribution', () => {
   it('accepts the committed chronological ten-decile dataset', () => {
     const data = validateSavingRateDistribution(rawData)
-    expect(data.observations).toHaveLength(24 * 10)
+    const years = new Set(data.observations.map(({ year }) => year))
+    expect(data.observations).toHaveLength(years.size * savingRateDeciles.length)
     expect(data.observations.slice(0, 10).map(({ decile }) => decile))
       .toEqual(savingRateDeciles.map(({ id }) => id))
-    expect(data.observations.at(-1)).toMatchObject({ year: 2023, decile: '90-100%', rate: 46.6 })
+    expect(data.observations.at(-1)).toMatchObject({
+      year: Math.max(...years),
+      decile: savingRateDeciles.at(-1)?.id,
+      rate: expect.any(Number),
+    })
   })
 
   it('rejects duplicate year-and-decile observations', () => {

@@ -178,6 +178,16 @@ Prefer deterministic tests.
 
 Avoid brittle snapshot tests.
 
+Tests must not depend on the current production observation, date, or displayed
+value unless that exact observation is intentionally the subject of the test.
+For UI and component behavior, use controlled fixtures whose dates and values
+are owned by the test. When a test intentionally exercises committed production
+data, assert structural, chronology, coverage, validation, transformation,
+reconciliation, and rendering invariants, or derive the expected current result
+from that dataset. Do not encode a currently published value as a permanent
+invariant. Exact numeric assertions remain appropriate for controlled fixtures
+and named historical regressions.
+
 ---
 
 # Git

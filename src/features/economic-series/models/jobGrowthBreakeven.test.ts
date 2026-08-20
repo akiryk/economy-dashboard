@@ -10,25 +10,25 @@ describe('job-growth breakeven runtime validators', () => {
   it('validates production data against published Federal Reserve benchmarks', () => {
     const source = validateBreakevenEmploymentDataset(breakevenData)
     const comparison = validateJobGrowthBreakevenDataset(comparisonData)
-    expect(source.observations).toHaveLength(268)
+    expect(source.observations.length).toBeGreaterThanOrEqual(268)
     expect(source.observations.find(({ date }) => date === '1960-03-01'))
       .toMatchObject({ estimatedMonthlyJobGrowth: 84.124763 })
     expect(source.observations.find(({ date }) => date === '2020-12-01'))
       .toMatchObject({ estimatedMonthlyJobGrowth: 49.207317 })
-    expect(source.observations.find(({ date }) => date === '2026-06-01'))
-      .toEqual({
-        date: '2026-06-01',
-        estimatedMonthlyJobGrowth: 20.29385,
-        estimateStatus: 'projection',
-      })
-    const latest = comparison.observations.find(
-      ({ date }) => date === '2026-06-01',
+    const latestSource = source.observations.at(-1)!
+    expect(latestSource.estimatedMonthlyJobGrowth).toBeTypeOf('number')
+    expect(['historical', 'projection']).toContain(latestSource.estimateStatus)
+    const latest = [...comparison.observations].reverse().find(
+      ({ status }) => status === 'available',
     )
     expect(latest?.status).toBe('available')
     if (latest?.status !== 'available') return
-    expect(latest.actualAverageMonthlyJobGrowth).toBe(111.33333333333333)
-    expect(latest.monthlyJobGrowthDifference).toBe(91.03948333333332)
-    expect(latest.gapPercentagePoints).toBe(0.6911808742970482)
+    expect(latest.monthlyJobGrowthDifference).toBeCloseTo(
+      latest.actualAverageMonthlyJobGrowth - latest.estimatedBreakevenMonthlyJobGrowth,
+    )
+    expect(latest.gapPercentagePoints).toBeCloseTo(
+      latest.actualAnnualizedPayrollGrowthRate - latest.estimatedAnnualizedBreakevenGrowthRate,
+    )
   })
 
   it('rejects duplicate source periods', () => {

@@ -307,9 +307,14 @@ Follow every step; do not start by editing dates or tests.
   explicit owner alert.
 - Global deployment metadata can appear recent because one daily series updated
   even when another visible series is stale.
-- The August 19 failure shows that tests still contain hard-coded current display
-  values. Normal releases can therefore block all refreshed datasets and Pages
-  deployment, even though retrieval validation succeeds.
+- The August 19 failure showed that tests contained hard-coded current display
+  values. Story 94 repaired the incident and established the repository testing
+  rule in `AGENTS.md`: normal data advancement is expected, and a failed
+  current-value assertion is not evidence that provider data is wrong. When
+  refresh retrieval and validation succeed but verification fails, first decide
+  whether the assertion encodes a true invariant or mutable production state;
+  use a controlled fixture or dataset-derived expectation for the latter while
+  preserving corruption and transformation checks.
 - HOAM, BEA distributional saving, and Federal Reserve research tables have
   schedules too irregular for a simple age threshold.
 - Licensed FRED market data (`SP500`, `BAMLH0A0HYM2`) are operationally fragile
@@ -334,27 +339,23 @@ No provider change is justified by this audit alone.
 
 ## Recommended follow-up stories
 
-1. **Make release-sensitive tests data-advance-safe.** Replace hard-coded current
-   housing/manufacturing/capacity display values with controlled fixtures or
-   dataset-derived expectations while retaining genuine corruption checks. Then
-   rerun the normal refresh so the July observations can deploy.
-2. **Add a machine-readable freshness registry and evaluator.** Encode contract
+1. **Add a machine-readable freshness registry and evaluator.** Encode contract
    type, expected calendar/review rule, grace period, manual status, and last
    provider check; emit per-dataset health without changing UI.
-3. **Publish structured workflow diagnostics and owner alerts.** Distinguish
+2. **Publish structured workflow diagnostics and owner alerts.** Distinguish
    provider delay, access/auth, schema, validation, test, push, and deployment;
    notify only actionable/repeated/manual conditions.
-4. **Add manual-source reminders.** Trigger a Table 7 owner reminder on each CPI
+3. **Add manual-source reminders.** Trigger a Table 7 owner reminder on each CPI
    release while official GitHub access is blocked, plus quarterly reviews for
    breakeven and other irregular research tables.
-5. **Design card-level freshness presentation.** Only after the evaluator exists,
+4. **Design card-level freshness presentation.** Only after the evaluator exists,
    define accessible UI states for healthy, provider-delayed, unknown/manual,
    and known stale without treating normal monthly/quarterly lag as failure.
-6. **Evaluate S&P 500 product requirements.** Decide whether prior-close data is
+5. **Evaluate S&P 500 product requirements.** Decide whether prior-close data is
    sufficient. Only if the owner requires more current data should a separate
    licensing, provider, server-side caching, market-hours, and failure-state
    story proceed.
-7. **Tune schedules only from evidence.** Consider less frequent checks for
+6. **Tune schedules only from evidence.** Consider less frequent checks for
    annual/irregular sources or provider-calendar dispatches after health
    telemetry exists; keep the current cron unchanged in this story.
 

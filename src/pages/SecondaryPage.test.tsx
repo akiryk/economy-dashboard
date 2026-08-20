@@ -1,6 +1,9 @@
 import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { localEconomicSeriesRepository } from '../features/economic-series/repositories/localEconomicSeriesRepository'
+import { formatCapacityUtilizationComparison } from '../features/economic-series/utils/capacityUtilizationContext'
+import { findLatestNonNullObservation, formatPercentage } from '../features/economic-series/utils/economicSeries'
 import { SecondaryPage } from './SecondaryPage'
 
 vi.mock('../features/economic-series/charts/EconomicTimeSeriesChart', () => ({
@@ -52,6 +55,10 @@ describe('SecondaryPage', () => {
   })
 
   it('retains the household debt-burden card outside the main dashboard', async () => {
+    const series = (await localEconomicSeriesRepository.getBySlug(
+      'household-debt-service-ratio',
+    ))!
+    const latest = findLatestNonNullObservation(series.observations)!
     render(<SecondaryPage />)
 
     const households = screen.getByRole('region', { name: 'Households' })
@@ -61,7 +68,7 @@ describe('SecondaryPage', () => {
 
     expect(card).toHaveAttribute('id', 'household-debt-service-ratio-card')
     expect(within(card).getByLabelText('Latest household debt-service ratio'))
-      .toHaveTextContent('11.2%')
+      .toHaveTextContent(formatPercentage(latest.value))
   })
 
   it('retains the manufacturing output-versus-employment research card', async () => {
@@ -86,11 +93,18 @@ describe('SecondaryPage', () => {
     const card = await within(section).findByRole('article', {
       name: 'How much spare industrial capacity is there?',
     })
+    const series = (await localEconomicSeriesRepository.getBySlug(
+      'industrial-capacity-utilization',
+    ))!
+    const latest = findLatestNonNullObservation(series.observations)!
 
-    expect(within(card).getByLabelText('Latest industrial capacity utilization')).toHaveTextContent('76.1%')
+    expect(within(card).getByLabelText('Latest industrial capacity utilization'))
+      .toHaveTextContent(formatPercentage(latest.value))
     expect(within(card).getByText('Industrial capacity currently in use')).toBeVisible()
     expect(within(card).getByText(/leaving more spare capacity than normal/)).toBeVisible()
-    expect(within(card).getByText('76.1% in use, about 3.3 percentage points below the 1972–2025 long-run average of 79.4%.')).toBeVisible()
+    expect(within(card).getByText(
+      formatCapacityUtilizationComparison(latest.value),
+    )).toBeVisible()
     expect(within(card).getByRole('button', { name: 'Maximum' })).toBeVisible()
     await user.click(within(card).getByText('Series details'))
     expect(within(card).getByRole('link', { name: /79.4%/ })).toHaveAttribute('href', 'https://www.federalreserve.gov/releases/g17/current/table0.htm')

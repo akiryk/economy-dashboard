@@ -13,7 +13,7 @@
   "transformation": "Provider-published daily value",
   "sourceName": "Board of Governors of the Federal Reserve System via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/DFEDTARU",
-  "retrievedAt": "2026-08-18",
+  "retrievedAt": "2026-08-20",
   "observations": [
     {
       "date": "2008-12-16",
@@ -25829,6 +25829,18 @@
     },
     {
       "date": "2026-08-17",
+      "value": 3.75
+    },
+    {
+      "date": "2026-08-18",
+      "value": 3.75
+    },
+    {
+      "date": "2026-08-19",
+      "value": 3.75
+    },
+    {
+      "date": "2026-08-20",
       "value": 3.75
     }
   ]
