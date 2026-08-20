@@ -13,6 +13,7 @@ import {
   productivitySeriesConfiguration,
   tariffBurdenConfiguration,
   corporateProfitShareConfiguration,
+  purchasingPowerSeriesConfiguration,
 } from './fred/seriesConfigurations'
 import {
   refreshAllEconomicData,
@@ -23,6 +24,7 @@ import {
   refreshProductivityData,
   refreshTariffBurdenData,
   refreshCorporateProfitShareData,
+  refreshPurchasingPowerData,
 } from './refreshEconomicData'
 
 const temporaryDirectories: string[] = []
@@ -1200,5 +1202,36 @@ describe('refreshEconomicData', () => {
     })).rejects.toThrow('not a valid ZIP archive')
 
     expect(await readFile(outputFile, 'utf8')).toBe(existing)
+  })
+
+  it('fetches both purchasing-power inputs and atomically writes validated full-history outputs', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'purchasing-power-data-'))
+    temporaryDirectories.push(directory)
+    const config = {
+      ...purchasingPowerSeriesConfiguration,
+      wageSource: { ...purchasingPowerSeriesConfiguration.wageSource, outputFile: path.join(directory, 'wage.json'), minimumUsableObservations: 1 },
+      cpiSource: { ...purchasingPowerSeriesConfiguration.cpiSource, outputFile: path.join(directory, 'cpi.json'), minimumUsableObservations: 1 },
+      levelOutputFile: path.join(directory, 'level.json'),
+      rollingOutputFiles: {
+        48: path.join(directory, '4-year.json'), 120: path.join(directory, '10-year.json'), 240: path.join(directory, '20-year.json'),
+      },
+    }
+    const requested: string[] = []
+    const result = await refreshPurchasingPowerData({
+      apiKey: 'test-key', retrievedAt: '2020-01-01', config,
+      fetchImplementation: async (input) => {
+        const id = new URL(String(input)).searchParams.get('series_id')!
+        requested.push(id)
+        return new Response(JSON.stringify({ observations: Array.from({ length: 241 }, (_, index) => ({
+          date: new Date(Date.UTC(2000, index, 1)).toISOString().slice(0, 10),
+          value: String(id === 'AHETPI' ? 20 + index / 10 : 100 + index / 5),
+        })) }), { status: 200 })
+      },
+    })
+    expect(requested.sort()).toEqual(['AHETPI', 'CWSR0000SA0'])
+    expect(result.level.observations).toHaveLength(241)
+    for (const file of [config.wageSource.outputFile, config.cpiSource.outputFile, config.levelOutputFile, ...Object.values(config.rollingOutputFiles)]) {
+      expect(validateEconomicSeries(JSON.parse(await readFile(file, 'utf8'))).observations.length).toBeGreaterThan(0)
+    }
   })
 })

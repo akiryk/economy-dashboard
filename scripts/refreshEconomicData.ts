@@ -5,6 +5,7 @@ import { fetchFredObservations } from './fred/fredClient'
 import { normalizeFredSeries } from './fred/normalizeFredSeries'
 import { derivePayrollSeries } from './fred/derivePayrollSeries'
 import { deriveWageSeries } from './fred/deriveWageSeries'
+import { buildPurchasingPowerSeries, purchasingPowerWindows } from './fred/derivePurchasingPowerSeries'
 import { deriveQuarterlyGrowthSeries } from './fred/deriveQuarterlyGrowthSeries'
 import { deriveTariffBurdenSeries } from './fred/deriveTariffBurdenSeries'
 import { deriveCorporateProfitShareSeries } from './fred/deriveCorporateProfitShareSeries'
@@ -20,6 +21,8 @@ import {
   type PayrollSeriesConfig,
   type FredSeriesConfig,
   type WageSeriesConfig,
+  purchasingPowerSeriesConfiguration,
+  type PurchasingPowerSeriesConfig,
   type CpiSeriesConfig,
   householdComparisonConfiguration,
   personalSavingRateConfiguration,
@@ -98,6 +101,15 @@ export type RefreshOutcome =
   | { status: 'failed'; config: WageSeriesConfig; message: string }
   | {
       status: 'updated'
+      config: PurchasingPowerSeriesConfig
+      series: EconomicSeries
+      derivedSeries: EconomicSeries[]
+      sourceObservationCount: number
+      cpiSourceObservationCount: number
+    }
+  | { status: 'failed'; config: PurchasingPowerSeriesConfig; message: string }
+  | {
+      status: 'updated'
       config: CpiSeriesConfig
       series: Awaited<ReturnType<typeof refreshCpiData>>['headlineInflation']
       relatedSeries: EconomicSeries[]
@@ -120,6 +132,7 @@ interface RefreshAllEconomicDataOptions {
   configurations?: readonly FredSeriesConfig[]
   payrollConfiguration?: PayrollSeriesConfig | false
   wageConfiguration?: WageSeriesConfig | false
+  purchasingPowerConfiguration?: PurchasingPowerSeriesConfig | false
   cpiConfiguration?: CpiSeriesConfig | false
   householdConfiguration?: HouseholdComparisonConfig | false
   savingRateConfiguration?: FredSeriesConfig | false
@@ -327,6 +340,41 @@ export async function refreshWageData({
     },
   ])
   return { ...series, sourceObservationCount: response.observations.length }
+}
+
+export async function refreshPurchasingPowerData({
+  apiKey,
+  retrievedAt,
+  config = purchasingPowerSeriesConfiguration,
+  fetchImplementation,
+}: {
+  apiKey: string
+  retrievedAt: string
+  config?: PurchasingPowerSeriesConfig
+  fetchImplementation?: typeof fetch
+}) {
+  const [wageResponse, cpiResponse] = await Promise.all([
+    fetchFredObservations(apiKey, config.wageSource, fetchImplementation),
+    fetchFredObservations(apiKey, config.cpiSource, fetchImplementation),
+  ])
+  const wageSeries = normalizeFredSeries(wageResponse, retrievedAt, config.wageSource)
+  const cpiSeries = normalizeFredSeries(cpiResponse, retrievedAt, config.cpiSource)
+  const { level, rolling } = buildPurchasingPowerSeries(wageSeries, cpiSeries, retrievedAt, config)
+  await writeEconomicSeriesGroupAtomically([
+    { outputPath: path.resolve(config.wageSource.outputFile), series: wageSeries },
+    { outputPath: path.resolve(config.cpiSource.outputFile), series: cpiSeries },
+    { outputPath: path.resolve(config.levelOutputFile), series: level },
+    ...purchasingPowerWindows.map((window) => ({
+      outputPath: path.resolve(config.rollingOutputFiles[window]),
+      series: rolling[window],
+    })),
+  ])
+  return {
+    level,
+    rolling,
+    sourceObservationCount: wageResponse.observations.length,
+    cpiSourceObservationCount: cpiResponse.observations.length,
+  }
 }
 
 export async function refreshHouseholdComparisonData({
@@ -580,6 +628,31 @@ export async function refreshAllEconomicData(
     }
   }
 
+  const purchasingPowerConfig =
+    options.purchasingPowerConfiguration === undefined
+      ? options.configurations === undefined
+        ? purchasingPowerSeriesConfiguration
+        : false
+      : options.purchasingPowerConfiguration
+  if (purchasingPowerConfig) {
+    try {
+      const result = await refreshPurchasingPowerData({
+        apiKey, retrievedAt, config: purchasingPowerConfig, fetchImplementation,
+      })
+      outcomes.push({
+        status: 'updated', config: purchasingPowerConfig, series: result.level,
+        derivedSeries: purchasingPowerWindows.map((window) => result.rolling[window]),
+        sourceObservationCount: result.sourceObservationCount,
+        cpiSourceObservationCount: result.cpiSourceObservationCount,
+      })
+    } catch (error: unknown) {
+      outcomes.push({
+        status: 'failed', config: purchasingPowerConfig,
+        message: error instanceof Error ? error.message : 'Unknown failure',
+      })
+    }
+  }
+
   const householdConfig =
     options.householdConfiguration === undefined
       ? options.configurations === undefined
@@ -818,6 +891,8 @@ async function main(): Promise<void> {
         `Failed ${
           outcome.config.dataHandling === 'cpi-derived'
             ? 'CPIAUCNS/CPIAUCSL/CPILFESL'
+            : outcome.config.dataHandling === 'purchasing-power-derived'
+              ? 'AHETPI/CWSR0000SA0'
             : outcome.config.dataHandling === 'hoam-provider'
               ? 'Atlanta Fed HOAM'
               : outcome.config.providerSeriesId
@@ -838,7 +913,18 @@ async function main(): Promise<void> {
     console.log(
       `Latest: ${latest?.date ?? 'unavailable'} (${latest?.value ?? 'missing'})`,
     )
-    if ('relatedSeries' in outcome) {
+    if ('derivedSeries' in outcome) {
+      for (const related of outcome.derivedSeries) {
+        console.log(`Derived output: ${related.slug}, ${related.observations.length} observations, ${related.observations[0]?.date} to ${related.observations.at(-1)?.date}`)
+      }
+      console.log(`CPI-W source observations: ${outcome.cpiSourceObservationCount}`)
+      console.log(`Outputs: ${[
+        outcome.config.wageSource.outputFile,
+        outcome.config.cpiSource.outputFile,
+        outcome.config.levelOutputFile,
+        ...Object.values(outcome.config.rollingOutputFiles),
+      ].map((file) => path.resolve(file)).join(', ')}`)
+    } else if ('relatedSeries' in outcome) {
       for (const related of outcome.relatedSeries) {
         console.log(
           `Related output: ${related.slug}, ${related.observations.length} observations, ${related.observations[0]?.date} to ${related.observations.at(-1)?.date}`,

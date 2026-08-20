@@ -132,6 +132,17 @@ Some cards require a different comparison set. Home-ownership affordability uses
 
 ## Context for the simplified `/dashboard` page
 
+### Prepared data capability, not yet a visible card
+
+The repository now contains a long-run worker purchasing-power foundation for a
+future measure. It pairs production and nonsupervisory private-sector hourly
+earnings (`AHETPI`, underlying BLS `CES0500000008`) with seasonally adjusted
+CPI-W (`CWSR0000SA0`) and supports exact 4-, 10-, and 20-year changes back to
+1968, 1974, and 1984 respectively. This intentionally consistent worker
+population differs from the existing broad all-private short-term real-wage
+card and is never spliced with it. No new card, control, or visible inventory
+item is introduced by this data-only capability.
+
 The current home page is a research-oriented briefing: compact cards make 25 measures scannable, while **More** preserves substantial evidence and documentation. The separately implemented `/dashboard` is simpler still. Its ten tiles cover GDP growth, unemployment, payroll growth, initial claims, headline CPI, real wage growth for all private employees, the Sahm Rule, the 30-year mortgage rate, the S&P 500, and the high-yield credit spread. Each hero matches its sparkline: headline CPI-U's not-seasonally-adjusted 12-month change over five years; exact-ratio real wage growth over five years with zero as the purchasing-power reference; Freddie Mac's weekly 30-year fixed mortgage rate over five years; the S&P 500 prior closing index level over one year; and the corresponding measure for every other tile. S&P drawdown remains contextual state logic rather than replacing the index-level hero, and its year-to-date comparison uses the latest valid prior-year-end observation. High-yield percentage-point source values are presented as basis points. Expected inflation (`T10YIE`), the effective federal funds rate, and the yield curve remain valid data elsewhere in the application but are intentionally omitted from this pared-down page. The tile fronts preserve the status scan; their contextual backs explain the displayed readings with deterministic metric-specific rules and no runtime AI-generated commentary. The page should continue to make explicit what it omits or combines. In particular:
 
 - decide which small set of signals best serves the new page’s purpose rather than reproducing all 25 cards;

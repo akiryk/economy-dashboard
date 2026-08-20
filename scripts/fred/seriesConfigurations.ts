@@ -864,6 +864,42 @@ export const wageSeriesConfiguration: WageSeriesConfig = {
   sourceUrl: 'https://fred.stlouisfed.org/series/CES0500000003',
 }
 
+export interface PurchasingPowerSeriesConfig {
+  dataHandling: 'purchasing-power-derived'
+  wageSource: FredSeriesConfig
+  cpiSource: FredSeriesConfig
+  levelOutputFile: string
+  rollingOutputFiles: Record<48 | 120 | 240, string>
+}
+
+export const purchasingPowerSeriesConfiguration: PurchasingPowerSeriesConfig = {
+  dataHandling: 'purchasing-power-derived',
+  wageSource: {
+    dataHandling: 'provider-level', id: 'production-worker-hourly-earnings', slug: 'production-worker-hourly-earnings',
+    outputFile: 'src/features/economic-series/data/production-worker-hourly-earnings.json', providerSeriesId: 'AHETPI',
+    frequency: 'monthly', fredFrequency: 'm', historyPolicy: { type: 'full' }, minimumUsableObservations: 700,
+    title: 'Average Hourly Earnings of Production and Nonsupervisory Employees, Total Private', shortTitle: 'Production and nonsupervisory hourly earnings',
+    description: 'Average hourly earnings of production and nonsupervisory employees on private nonfarm payrolls.',
+    question: 'How has the purchasing power of an hour of work changed?', units: 'Dollars per hour', seasonalAdjustment: 'Seasonally adjusted',
+    transformation: 'Provider-published monthly level', sourceName: 'U.S. Bureau of Labor Statistics via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/AHETPI',
+  },
+  cpiSource: {
+    dataHandling: 'provider-level', id: 'cpi-w-index-seasonally-adjusted', slug: 'cpi-w-index-seasonally-adjusted',
+    outputFile: 'src/features/economic-series/data/cpi-w-index-seasonally-adjusted.json', providerSeriesId: 'CWSR0000SA0',
+    frequency: 'monthly', fredFrequency: 'm', historyPolicy: { type: 'full' }, minimumUsableObservations: 700,
+    title: 'Consumer Price Index for Urban Wage Earners and Clerical Workers: All Items', shortTitle: 'CPI-W',
+    description: 'All-items CPI for urban wage earners and clerical workers.', question: 'How has the purchasing power of an hour of work changed?',
+    units: 'Index 1982–1984 = 100', seasonalAdjustment: 'Seasonally adjusted', transformation: 'Provider-published monthly level',
+    sourceName: 'U.S. Bureau of Labor Statistics via FRED', sourceUrl: 'https://fred.stlouisfed.org/series/CWSR0000SA0',
+  },
+  levelOutputFile: 'src/features/economic-series/data/real-hourly-purchasing-power.json',
+  rollingOutputFiles: {
+    48: 'src/features/economic-series/data/real-hourly-purchasing-power-change-4-year.json',
+    120: 'src/features/economic-series/data/real-hourly-purchasing-power-change-10-year.json',
+    240: 'src/features/economic-series/data/real-hourly-purchasing-power-change-20-year.json',
+  },
+}
+
 export interface CpiSeriesConfig {
   dataHandling: 'cpi-derived'
   headlineSource: FredSeriesConfig

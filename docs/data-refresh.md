@@ -31,6 +31,7 @@ The existing scheduled `.github/workflows/refresh-and-deploy.yml` workflow runs 
 - Payroll growth (`PAYEMS`, monthly source level), derived into `monthly-payroll-change.json` and `payroll-growth.json`.
 - Kansas City Fed Labor Market Conditions Indicators (`FRBKCLMCILA` activity and `FRBKCLMCIM` momentum, monthly), written as separate provider-published standardized indexes for briefing use.
 - Wages versus inflation (`CES0500000003` plus `CPIAUCSL`), derived into `nominal-wage-growth.json` and `real-wage-growth.json`; the supporting seasonally adjusted CPI comparison is persisted separately from the NSA headline card.
+- Long-run worker purchasing power uses seasonally adjusted production/nonsupervisory hourly earnings (`AHETPI`, underlying BLS `CES0500000008`) and seasonally adjusted CPI-W (`CWSR0000SA0`). Both input levels, their exact-month ratio, and rolling 4-, 10-, and 20-year changes are committed for a future card; this foundation does not alter the existing all-private real-wage card.
 - Real disposable income per capita and real consumer spending per capita (`A229RX0Q048SBEA` and `A794RX0Q048SBEA`, quarterly source levels), derived into quarterly per-capita growth outputs.
 - Personal saving rate (`PSAVERT`, monthly), written to `personal-saving-rate.json`.
 - Saving rate by income decile (BEA Distribution of Personal Saving workbook, annual), written to `saving-rate-by-income-decile.json`.
@@ -435,6 +436,38 @@ and a projected 20.29385 thousand in 2026 Q2.
 
 The nominal and real wage outputs are validated and staged together, then replaced through the existing rollback-protected grouped writer. Failure preserves both prior wage files without rolling back unrelated successful sources. Successful reporting includes the `CES0500000003` source count and both generated ranges.
 
+### Long-run worker purchasing-power foundation
+
+The normal daily `npm run data:refresh` path fetches the full monthly histories
+of `AHETPI` and `CWSR0000SA0` from FRED. `AHETPI` is BLS
+`CES0500000008`, Average Hourly Earnings of Production and Nonsupervisory
+Employees, Total Private: dollars per hour, seasonally adjusted, beginning
+January 1964. This worker population covers production employees in
+goods-producing industries and nonsupervisory employees in private
+service-providing industries—roughly four-fifths of private nonfarm payroll
+employment. `CWSR0000SA0` is the seasonally adjusted monthly CPI-W All Items
+index (1982–84 = 100). CPI-W follows the BLS Real Earnings convention for this
+worker population; neither input replaces the all-private/CPI-U pair used by the
+visible short-term real-wage card.
+
+The refresh atomically validates and writes both source-level files plus
+`real-hourly-purchasing-power.json` and the 4-, 10-, and 20-year change files.
+For an exact shared calendar month, the real level is `AHETPI / CWSR0000SA0`.
+For `N` equal to 48, 120, or 240 months, the rolling value is
+`((realLevel_t / realLevel_t-N) - 1) × 100`. Calculations retain full floating-
+point precision. Dates are sorted and joined by exact month; missing, nonfinite,
+or nonpositive inputs remain unavailable, and a missing exact base month does
+not select a neighbor. No interpolation, forward fill, rounding, or population
+splice occurs.
+
+The committed August 20 refresh contains 751 aligned real-level observations
+from January 1964 through July 2026. Exact-lookback histories begin January
+1968 (703 4-year observations), January 1974 (631 10-year observations), and
+January 1984 (511 20-year observations), all through July 2026. The derived
+latest month is always the latest month with both valid inputs. If FRED advances
+one component first, the prior common month remains the latest derived result;
+the grouped write and next daily check prevent a mixed-period value.
+
 The verification standard is reproducibility from the documented published wage and CPI component series using the exact multiplicative formula. Verification compares the derived result with BLS's official published real-earnings change as a diagnostic, not an equality requirement, and documents any small rounding-level discrepancy. Because BLS may calculate its official change from higher-precision underlying estimates, the dashboard can occasionally differ from the published BLS figure by 0.1 percentage point after rounding. The implementation must not substitute nominal wage growth minus inflation or special-case a release to force agreement.
 
 ## Household derivations and writes
@@ -478,6 +511,7 @@ Leading unavailable values are removed so generated growth files begin with a va
 - IC4WSA: 3,103 weekly observations, January 28, 1967–July 11, 2026; this defines the relationship card's full shared coverage.
 - `CES0500000003` nominal wage growth: 233 observations, March 2007–July 2026; July growth is 3.153276665752669% from the public FRED levels.
 - `CES0500000003`/`CPIAUCSL` exact real wage growth: 233 aligned observations, March 2007–July 2026; July is -0.1457635665407575% and displays as -0.1%.
+- `AHETPI` and `CWSR0000SA0` long-run purchasing power: 751 exact-month real-level observations, January 1964–July 2026; rolling 4-/10-/20-year histories contain 703/631/511 observations beginning January 1968/1974/1984.
 - A939RX0Q048SBEA source: 317 level observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
 - OPHNFB source and level output: 317 index observations, 1947 Q1–2026 Q1; generated growth: 313 observations, 1948 Q1–2026 Q1.
 - A229RX0Q048SBEA source: 317 level observations; generated growth: 313 observations, 1948 Q1–2026 Q1.
