@@ -185,6 +185,38 @@ release/market-day counts, manual-review evidence, OECD peer coverage, or a
 pipeline failure to the same evaluator. Do not interpret the inspection
 command's warning as proof that the economic data are stale.
 
+### Structured workflow diagnostics and owner alerts
+
+Every refresh/build run classifies actionable failures using the canonical
+diagnostic categories in
+`src/features/data-freshness/operationalDiagnostics.ts`. The workflow uploads an
+`operational-diagnostics` JSON artifact containing the affected dataset group,
+freshness contracts, category, pipeline stage, timestamp, retry status,
+last-known-good preservation status, action requirement, concise reason, and
+run URL. Detailed step logs remain the place to diagnose the underlying error;
+diagnostic text must never contain credentials, response bodies that may include
+secrets, or raw environment values.
+
+The existing GitHub Issues notification channel is the owner alert mechanism.
+An actionable refresh/build/deployment incident opens the single issue titled
+`[Data operations] Refresh or deployment requires attention`. The workflow
+updates that issue only when the diagnostic fingerprint changes, so an unchanged
+incident does not notify on every daily run. A successful later workflow adds a
+recovery comment and closes the issue. Subscribe to repository issue
+notifications to receive these alerts outside GitHub.
+
+No issue is opened for a release that is not due, a provider that has not yet
+advanced, or a transient request that succeeds within its bounded retries. An
+OECD command failure occurs only after its bounded retries are exhausted and is
+therefore classified as a repeated refresh failure. Manual-source reminders are
+separate operational work; the known Table 7 access diagnostic does not create
+an alert under this mechanism.
+
+During an incident, open the linked workflow run, download its
+`operational-diagnostics` artifact, identify the failed step, and follow the
+source-specific contract and incident runbook below. A diagnostic says what the
+workflow established; an `unknown-failure` does not assign fault to a provider.
+
 **State vocabulary**
 
 - **Healthy:** the latest release expected by the contract is deployed.
@@ -277,13 +309,13 @@ Follow every step; do not start by editing dates or tests.
 | Condition | Can the current system distinguish it? | Gap/action |
 |---|---|---|
 | Provider has not released vs expected date not arrived | Yes when automation supplies the evaluator with release/provider evidence; otherwise the result is explicitly indeterminate. Table 7 remains indeterminate under the official-host 403. | Provider checks and release calendars must remain explicit evidence; the local inspection command does not contact providers. |
-| Provider unreachable, timeout, HTTP error | Yes in command/workflow logs; OECD has bounded retry. | No owner notification beyond GitHub's workflow status. |
-| Authentication/authorization | HTTP/missing-secret errors are visible; Table 7 403 is explicitly classified. | Add structured failure categories and notification. |
+| Provider unreachable, timeout, HTTP error | Yes in command/workflow logs; OECD has bounded retry. Exhausted retries produce structured diagnostics and an owner issue. | Inspect the artifact and detailed failed-step log before attributing fault. |
+| Authentication/authorization | HTTP/missing-secret errors are visible; Table 7 403 is explicitly classified. | Actionable workflow failures produce a deduplicated owner issue; Table 7 remains part of the separate manual-source process. |
 | Endpoint/URL changed | Usually surfaces as HTTP, redirect-host, identity, or schema failure. | Requires agent investigation; discontinuation is not automatically inferred. |
 | Parsing/schema/content change | Yes, provider-specific parsers and domain validation fail safely. | Diagnostics vary by source; preserve detailed non-secret reason. |
 | Derived generation/validation/write failure | Yes; nonzero command and atomic/group rollback preserve good files. | The evaluator records a dataset-specific pipeline failure when supplied by automation. |
 | Refresh succeeded but tests failed | Yes; workflow blocks commit/deploy and the evaluator supports a distinct verification-failure reason. | Tests use controlled or dataset-derived expectations so ordinary source advancement is not itself a failure. |
-| Commit/push/deploy failed | Yes; explicit workflow steps and prior Pages artifact remain. | Human must inspect GitHub; no dedicated alert routing. |
+| Commit/push/deploy failed | Yes; explicit workflow stages preserve prior production and create/update the owner issue. | Follow its workflow link and structured category; recovery is recorded when a later run succeeds. |
 | Manual ingestion required | Yes for Table 7; partially documented for irregular research sources. | Add owner reminders and review dates. |
 | Source discontinued | Not reliably. | Periodic official-source review and explicit lifecycle state needed. |
 | One dataset stale while global metadata looks recent | The per-dataset registry/evaluator can distinguish it when given provider and pipeline evidence; `latestDatasetDate` alone still cannot. | Future workflow diagnostics and alerts should persist and publish evaluator output. |
@@ -327,9 +359,9 @@ Follow every step; do not start by editing dates or tests.
   not yet persist or alert on this structured output.
 - There is no card-level stale warning. The UI truthfully shows observation
   periods but does not flag a known missed release.
-- Workflow failures depend on GitHub's normal notification surface; Table 7
-  manual need, repeated OECD failure, and irregular-source review have no
-  explicit owner alert.
+- Actionable workflow and exhausted-retry failures create a deduplicated GitHub
+  owner issue and later record recovery. Table 7 manual need and periodic
+  irregular-source review remain separate reminder work.
 - Global deployment metadata can appear recent because one daily series updated
   even when another visible series is stale.
 - The August 19 failure showed that tests contained hard-coded current display
@@ -364,20 +396,17 @@ No provider change is justified by this audit alone.
 
 ## Recommended follow-up stories
 
-1. **Publish structured workflow diagnostics and owner alerts.** Distinguish
-   provider delay, access/auth, schema, validation, test, push, and deployment;
-   notify only actionable/repeated/manual conditions.
-2. **Add manual-source reminders.** Trigger a Table 7 owner reminder on each CPI
+1. **Add manual-source reminders.** Trigger a Table 7 owner reminder on each CPI
    release while official GitHub access is blocked, plus quarterly reviews for
    breakeven and other irregular research tables.
-3. **Design card-level freshness presentation.** Only after the evaluator exists,
+2. **Design card-level freshness presentation.** Only after the evaluator exists,
    define accessible UI states for healthy, provider-delayed, unknown/manual,
    and known stale without treating normal monthly/quarterly lag as failure.
-4. **Evaluate S&P 500 product requirements.** Decide whether prior-close data is
+3. **Evaluate S&P 500 product requirements.** Decide whether prior-close data is
    sufficient. Only if the owner requires more current data should a separate
    licensing, provider, server-side caching, market-hours, and failure-state
    story proceed.
-5. **Tune schedules only from evidence.** Consider less frequent checks for
+4. **Tune schedules only from evidence.** Consider less frequent checks for
    annual/irregular sources or provider-calendar dispatches after health
    telemetry exists; keep the current cron unchanged in this story.
 

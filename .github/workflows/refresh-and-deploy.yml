@@ -32,6 +32,11 @@ jobs:
       deploy_required: ${{ steps.decision.outputs.deploy_required }}
       deployment_commit: ${{ steps.commit.outputs.deployment_commit }}
       latest_dataset_date: ${{ steps.metadata.outputs.latest_dataset_date }}
+      diagnostic_actionable: ${{ steps.diagnostic.outputs.actionable }}
+      diagnostic_category: ${{ steps.diagnostic.outputs.category }}
+      diagnostic_stage: ${{ steps.diagnostic.outputs.stage }}
+      diagnostic_dataset: ${{ steps.diagnostic.outputs.dataset }}
+      diagnostic_reason: ${{ steps.diagnostic.outputs.reason }}
     steps:
       - name: Check out main
         uses: actions/checkout@v7
@@ -45,6 +50,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
+        id: install
         run: npm ci
 
       - name: Check official BLS Table 7 retrieval
@@ -53,12 +59,14 @@ jobs:
         run: npm run data:refresh-inflation-contributions
 
       - name: Refresh economic datasets
+        id: refresh
         if: github.event_name != 'push'
         run: npm run data:refresh
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
 
       - name: Refresh international comparison datasets
+        id: oecd
         if: github.event_name != 'push'
         continue-on-error: true
         run: npm run data:refresh-international
@@ -74,6 +82,7 @@ jobs:
           done < <(git diff --name-only -- 'src/features/economic-series/data/*.json')
 
       - name: Validate refresh scope
+        id: scope
         shell: bash
         run: |
           unexpected_tracked="$(git diff --name-only -- . ':(exclude)src/features/economic-series/data/*.json')"
@@ -95,26 +104,33 @@ jobs:
           fi
 
       - name: Lint
+        id: lint
         run: npm run lint
 
       - name: Typecheck
+        id: typecheck
         run: npm run typecheck
 
       - name: Test
+        id: test
         run: npm test
 
       - name: Install Chromium for browser smoke tests
+        id: chromium
         run: npx playwright install --with-deps chromium
 
       - name: Run browser smoke tests
+        id: smoke
         run: npm run test:smoke
 
       - name: Build GitHub Pages application
+        id: build
         run: npm run build
         env:
           VITE_BASE_PATH: /economy-dashboard/
 
       - name: Check whitespace errors
+        id: whitespace
         run: git diff --check
 
       - name: Decide whether deployment is required
@@ -172,10 +188,76 @@ jobs:
         uses: actions/configure-pages@v6
 
       - name: Upload validated Pages artifact
+        id: pages_artifact
         if: steps.decision.outputs.deploy_required == 'true'
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist
+
+      - name: Classify operational diagnostics
+        if: always()
+        id: diagnostic
+        shell: bash
+        env:
+          INSTALL_OUTCOME: ${{ steps.install.outcome }}
+          REFRESH_OUTCOME: ${{ steps.refresh.outcome }}
+          OECD_OUTCOME: ${{ steps.oecd.outcome }}
+          SCOPE_OUTCOME: ${{ steps.scope.outcome }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+          TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
+          TEST_OUTCOME: ${{ steps.test.outcome }}
+          CHROMIUM_OUTCOME: ${{ steps.chromium.outcome }}
+          SMOKE_OUTCOME: ${{ steps.smoke.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+          WHITESPACE_OUTCOME: ${{ steps.whitespace.outcome }}
+          COMMIT_OUTCOME: ${{ steps.commit.outcome }}
+          ARTIFACT_OUTCOME: ${{ steps.pages_artifact.outcome }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          category=''
+          stage=''
+          dataset='visible-economic-datasets'
+          contracts='BEA-Q,BEA-M,BLS-EMP,BLS-CPI'
+          retry='not-applicable'
+          reason=''
+
+          if [[ "$REFRESH_OUTCOME" == 'failure' ]]; then
+            category='unknown-failure'; stage='retrieval'; reason='The automatic economic-data refresh failed; inspect the failed refresh step.'
+          elif [[ "$OECD_OUTCOME" == 'failure' ]]; then
+            category='repeated-refresh-failure'; stage='retrieval'; dataset='international-comparisons'; contracts='OECD'; retry='retries-exhausted'; reason='The OECD refresh exhausted its bounded retries; last-known-good comparison data remain deployed.'
+          elif [[ "$SCOPE_OUTCOME" == 'failure' ]]; then
+            category='persistence-write-failure'; stage='persistence'; reason='Refresh output escaped the permitted dataset scope.'
+          elif [[ "$TEST_OUTCOME" == 'failure' || "$LINT_OUTCOME" == 'failure' || "$TYPECHECK_OUTCOME" == 'failure' || "$SMOKE_OUTCOME" == 'failure' || "$BUILD_OUTCOME" == 'failure' || "$WHITESPACE_OUTCOME" == 'failure' || "$CHROMIUM_OUTCOME" == 'failure' ]]; then
+            category='verification-test-failure'; stage='verification'; reason='Repository verification prevented the refreshed or pushed revision from reaching production.'
+          elif [[ "$COMMIT_OUTCOME" == 'failure' ]]; then
+            category='commit-push-failure'; stage='commit-push'; reason='Validated data could not be committed or pushed.'
+          elif [[ "$ARTIFACT_OUTCOME" == 'failure' ]]; then
+            category='deployment-failure'; stage='deployment'; reason='The validated Pages artifact could not be prepared for deployment.'
+          elif [[ "$INSTALL_OUTCOME" == 'failure' ]]; then
+            category='unknown-failure'; stage='verification'; reason='Workflow dependency installation failed before diagnostics could classify a dataset operation.'
+          fi
+
+          mkdir -p .workflow-diagnostics
+          if [[ -z "$category" ]]; then
+            printf '{"schemaVersion":1,"diagnostics":[]}\n' > .workflow-diagnostics/report.json
+            echo 'actionable=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo 'actionable=true' >> "$GITHUB_OUTPUT"
+          echo "category=$category" >> "$GITHUB_OUTPUT"
+          echo "stage=$stage" >> "$GITHUB_OUTPUT"
+          echo "dataset=$dataset" >> "$GITHUB_OUTPUT"
+          echo "reason=$reason" >> "$GITHUB_OUTPUT"
+          npm run diagnostics:write -- --output .workflow-diagnostics/report.json --category "$category" --stage "$stage" --dataset "$dataset" --contracts "$contracts" --retry "$retry" --reason "$reason" --workflow-url "$WORKFLOW_URL"
+
+      - name: Upload operational diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: operational-diagnostics
+          path: .workflow-diagnostics/report.json
+          if-no-files-found: warn
 
       - name: Summarize refresh and build
         if: always()
@@ -222,3 +304,80 @@ jobs:
             echo "- Commit: ${{ needs.refresh-and-build.outputs.deployment_commit }}"
             echo "- Latest dataset date: ${{ needs.refresh-and-build.outputs.latest_dataset_date }}"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  operational-notify:
+    needs: [refresh-and-build, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Notify owner or record recovery
+        uses: actions/github-script@v8
+        env:
+          BUILD_RESULT: ${{ needs.refresh-and-build.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+          DIAGNOSTIC_ACTIONABLE: ${{ needs.refresh-and-build.outputs.diagnostic_actionable }}
+          DIAGNOSTIC_CATEGORY: ${{ needs.refresh-and-build.outputs.diagnostic_category }}
+          DIAGNOSTIC_STAGE: ${{ needs.refresh-and-build.outputs.diagnostic_stage }}
+          DIAGNOSTIC_DATASET: ${{ needs.refresh-and-build.outputs.diagnostic_dataset }}
+          DIAGNOSTIC_REASON: ${{ needs.refresh-and-build.outputs.diagnostic_reason }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          script: |
+            const title = '[Data operations] Refresh or deployment requires attention'
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            })
+            const existing = issues.data.find((issue) => issue.title === title)
+            const buildFailed = process.env.BUILD_RESULT !== 'success'
+            const deployFailed = process.env.DEPLOY_RESULT === 'failure' || process.env.DEPLOY_RESULT === 'cancelled'
+            const classified = process.env.DIAGNOSTIC_ACTIONABLE === 'true'
+            const actionable = buildFailed || deployFailed || classified
+
+            if (!actionable) {
+              if (existing) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existing.number,
+                  body: `Recovered: the refresh/build and applicable Pages deployment completed successfully.\n\nRun: ${process.env.WORKFLOW_URL}`,
+                })
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existing.number,
+                  state: 'closed',
+                  state_reason: 'completed',
+                })
+              }
+              return
+            }
+
+            const category = deployFailed
+              ? 'deployment-failure'
+              : process.env.DIAGNOSTIC_CATEGORY || 'unknown-failure'
+            const stage = deployFailed
+              ? 'deployment'
+              : process.env.DIAGNOSTIC_STAGE || 'unknown'
+            const dataset = process.env.DIAGNOSTIC_DATASET || 'visible-economic-datasets'
+            const reason = deployFailed
+              ? 'A verified Pages artifact did not deploy successfully; the previously deployed site remains available.'
+              : process.env.DIAGNOSTIC_REASON || 'The workflow failed before a more specific diagnostic could be produced.'
+            const fingerprint = `${category}|${stage}|${dataset}|${reason}`
+            const marker = `<!-- diagnostic:${fingerprint} -->`
+            const body = `${marker}\n### Action required\n\n- **Affected data:** ${dataset}\n- **Category:** ${category}\n- **Stage:** ${stage}\n- **Production:** Last-known-good data remain deployed; inspect freshness before assuming they are current.\n- **Automatic retry:** The next scheduled run will retry provider work; code/configuration failures require investigation.\n- **Owner action:** Ask an agent to inspect the linked run and structured \`operational-diagnostics\` artifact.\n- **Reason:** ${reason}\n- **Workflow:** ${process.env.WORKFLOW_URL}`
+
+            if (!existing) {
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body })
+            } else if (!existing.body?.includes(marker)) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body,
+              })
+            }

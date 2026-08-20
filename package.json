@@ -18,6 +18,7 @@
     "data:refresh-international": "tsx scripts/refreshInternationalComparisons.ts",
     "data:refresh-saving-distribution": "tsx scripts/refreshSavingRateDistribution.ts",
     "data:freshness": "tsx scripts/inspectDataFreshness.ts",
+    "diagnostics:write": "tsx scripts/writeWorkflowDiagnostic.ts",
     "lint": "eslint .",
     "perf:measure": "tsx scripts/perf/measure.ts",
     "test:smoke": "npm run build && tsx scripts/smoke/idlePerformance.ts",
