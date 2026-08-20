@@ -19,6 +19,8 @@
     "data:refresh-saving-distribution": "tsx scripts/refreshSavingRateDistribution.ts",
     "data:freshness": "tsx scripts/inspectDataFreshness.ts",
     "diagnostics:write": "tsx scripts/writeWorkflowDiagnostic.ts",
+    "operations:reminders": "tsx scripts/evaluateSourceReminders.ts",
+    "operations:record-source-review": "tsx scripts/recordSourceReview.ts",
     "lint": "eslint .",
     "perf:measure": "tsx scripts/perf/measure.ts",
     "test:smoke": "npm run build && tsx scripts/smoke/idlePerformance.ts",

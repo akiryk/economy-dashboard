@@ -217,6 +217,47 @@ During an incident, open the linked workflow run, download its
 source-specific contract and incident runbook below. A diagnostic says what the
 workflow established; an `unknown-failure` does not assign fault to a provider.
 
+### Manual-source and irregular-source reminders
+
+The scheduled workflow also runs `npm run operations:reminders`. Its
+`manual-source-reminders` JSON artifact is derived from committed source periods,
+the freshness registry, and the persistent review state in
+`config/manual-source-reviews.json`. Outstanding reminders use the same GitHub
+Issues mechanism as operational alerts, under the separate title
+`[Data operations] Manual source review required`. A reminder is planned work,
+not a pipeline failure.
+
+For Table 7, a reminder is keyed to the newest CPI month when the committed
+Table 7 history ends earlier. Repeated daily runs keep the same key and do not
+renotify. After the official workbook is validated, committed, and deployed,
+the periods match, the condition clears, and the workflow closes the issue. A
+later CPI month creates a new reminder. The owner or agent must still download
+from the official BLS page and use the documented manual ingestion path; an
+HTTP 403 never means that no release exists.
+
+`FED-RESEARCH` and `BEA-IRR` receive 92-day official-page reviews. `HOAM-M`
+receives a 62-day review because its automatic workbook check has no dependable
+dated release calendar and an unchanged workbook needs periodic confirmation.
+The dates are review intervals, not claims about publication dates and not age
+limits on the economic observations. Inspect current state with:
+
+```bash
+npm run operations:reminders
+```
+
+After actually checking the official source, record the review and exact
+observed version with:
+
+```bash
+npm run operations:record-source-review -- \
+  --source FED-RESEARCH \
+  --reviewed-at 2026-11-19T18:00:00.000Z \
+  --observed-version "Figure 2 remains dated 2026-04-02"
+```
+
+Review the resulting JSON diff, then verify, commit, push, and deploy it. Never
+advance a review date without checking the official URL stored in that file.
+
 **State vocabulary**
 
 - **Healthy:** the latest release expected by the contract is deployed.
@@ -316,7 +357,7 @@ Follow every step; do not start by editing dates or tests.
 | Derived generation/validation/write failure | Yes; nonzero command and atomic/group rollback preserve good files. | The evaluator records a dataset-specific pipeline failure when supplied by automation. |
 | Refresh succeeded but tests failed | Yes; workflow blocks commit/deploy and the evaluator supports a distinct verification-failure reason. | Tests use controlled or dataset-derived expectations so ordinary source advancement is not itself a failure. |
 | Commit/push/deploy failed | Yes; explicit workflow stages preserve prior production and create/update the owner issue. | Follow its workflow link and structured category; recovery is recorded when a later run succeeds. |
-| Manual ingestion required | Yes for Table 7; partially documented for irregular research sources. | Add owner reminders and review dates. |
+| Manual ingestion required | Yes. Table 7 period mismatch and due irregular-source reviews create stable, deduplicated owner reminders. | Complete the documented official-source action; successful ingestion/review clears or advances the reminder state. |
 | Source discontinued | Not reliably. | Periodic official-source review and explicit lifecycle state needed. |
 | One dataset stale while global metadata looks recent | The per-dataset registry/evaluator can distinguish it when given provider and pipeline evidence; `latestDatasetDate` alone still cannot. | Future workflow diagnostics and alerts should persist and publish evaluator output. |
 
@@ -343,11 +384,12 @@ Follow every step; do not start by editing dates or tests.
 
 ### Checked too infrequently or not at all
 
-- The breakeven Figure 2 command is not scheduled. Because the source is
-  irregular, a fixed daily fetch is unnecessary, but a quarterly official-page
-  review/reminder is warranted.
-- Table 7 automation cannot determine freshness under the BLS 403. A human must
-  check every CPI release and supply the official workbook.
+- The breakeven Figure 2 command is not scheduled. Its 92-day official-page
+  review is persisted in the manual-source review state and produces a reminder
+  when due.
+- Table 7 automation cannot determine freshness under the BLS 403. A CPI/Table
+  7 period mismatch now reminds the owner to check and supply the official
+  workbook without labeling the manual requirement as failure.
 - Daily S&P 500 is appropriate only for an end-of-day briefing. It cannot promise
   same-day before the daily workflow, delayed intraday, or real-time values.
 
@@ -396,17 +438,14 @@ No provider change is justified by this audit alone.
 
 ## Recommended follow-up stories
 
-1. **Add manual-source reminders.** Trigger a Table 7 owner reminder on each CPI
-   release while official GitHub access is blocked, plus quarterly reviews for
-   breakeven and other irregular research tables.
-2. **Design card-level freshness presentation.** Only after the evaluator exists,
+1. **Design card-level freshness presentation.** Only after the evaluator exists,
    define accessible UI states for healthy, provider-delayed, unknown/manual,
    and known stale without treating normal monthly/quarterly lag as failure.
-3. **Evaluate S&P 500 product requirements.** Decide whether prior-close data is
+2. **Evaluate S&P 500 product requirements.** Decide whether prior-close data is
    sufficient. Only if the owner requires more current data should a separate
    licensing, provider, server-side caching, market-hours, and failure-state
    story proceed.
-4. **Tune schedules only from evidence.** Consider less frequent checks for
+3. **Tune schedules only from evidence.** Consider less frequent checks for
    annual/irregular sources or provider-calendar dispatches after health
    telemetry exists; keep the current cron unchanged in this story.
 

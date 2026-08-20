@@ -37,6 +37,10 @@ jobs:
       diagnostic_stage: ${{ steps.diagnostic.outputs.stage }}
       diagnostic_dataset: ${{ steps.diagnostic.outputs.dataset }}
       diagnostic_reason: ${{ steps.diagnostic.outputs.reason }}
+      reminder_actionable: ${{ steps.reminders.outputs.actionable }}
+      reminder_keys: ${{ steps.reminders.outputs.keys }}
+      reminder_reason: ${{ steps.reminders.outputs.reason }}
+      reminder_evaluation: ${{ steps.reminders.outcome }}
     steps:
       - name: Check out main
         uses: actions/checkout@v7
@@ -194,6 +198,20 @@ jobs:
         with:
           path: dist
 
+      - name: Evaluate manual-source reminders
+        if: always() && steps.install.outcome == 'success'
+        id: reminders
+        continue-on-error: true
+        run: npm run operations:reminders -- --output .workflow-diagnostics/reminders.json
+
+      - name: Upload manual-source reminders
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: manual-source-reminders
+          path: .workflow-diagnostics/reminders.json
+          if-no-files-found: warn
+
       - name: Classify operational diagnostics
         if: always()
         id: diagnostic
@@ -212,6 +230,7 @@ jobs:
           WHITESPACE_OUTCOME: ${{ steps.whitespace.outcome }}
           COMMIT_OUTCOME: ${{ steps.commit.outcome }}
           ARTIFACT_OUTCOME: ${{ steps.pages_artifact.outcome }}
+          REMINDER_OUTCOME: ${{ steps.reminders.outcome }}
           WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           category=''
@@ -233,6 +252,8 @@ jobs:
             category='commit-push-failure'; stage='commit-push'; reason='Validated data could not be committed or pushed.'
           elif [[ "$ARTIFACT_OUTCOME" == 'failure' ]]; then
             category='deployment-failure'; stage='deployment'; reason='The validated Pages artifact could not be prepared for deployment.'
+          elif [[ "$REMINDER_OUTCOME" == 'failure' ]]; then
+            category='validation-derivation-failure'; stage='validation'; dataset='manual-source-review-state'; contracts='BLS-T7,FED-RESEARCH,BEA-IRR,HOAM-M'; reason='Manual-source reminder state could not be evaluated; economic data and deployment remain isolated from this failure.'
           elif [[ "$INSTALL_OUTCOME" == 'failure' ]]; then
             category='unknown-failure'; stage='verification'; reason='Workflow dependency installation failed before diagnostics could classify a dataset operation.'
           fi
@@ -322,6 +343,10 @@ jobs:
           DIAGNOSTIC_STAGE: ${{ needs.refresh-and-build.outputs.diagnostic_stage }}
           DIAGNOSTIC_DATASET: ${{ needs.refresh-and-build.outputs.diagnostic_dataset }}
           DIAGNOSTIC_REASON: ${{ needs.refresh-and-build.outputs.diagnostic_reason }}
+          REMINDER_ACTIONABLE: ${{ needs.refresh-and-build.outputs.reminder_actionable }}
+          REMINDER_KEYS: ${{ needs.refresh-and-build.outputs.reminder_keys }}
+          REMINDER_REASON: ${{ needs.refresh-and-build.outputs.reminder_reason }}
+          REMINDER_EVALUATION: ${{ needs.refresh-and-build.outputs.reminder_evaluation }}
           WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         with:
           script: |
@@ -354,30 +379,67 @@ jobs:
                   state_reason: 'completed',
                 })
               }
-              return
+            } else {
+              const category = deployFailed
+                ? 'deployment-failure'
+                : process.env.DIAGNOSTIC_CATEGORY || 'unknown-failure'
+              const stage = deployFailed
+                ? 'deployment'
+                : process.env.DIAGNOSTIC_STAGE || 'unknown'
+              const dataset = process.env.DIAGNOSTIC_DATASET || 'visible-economic-datasets'
+              const reason = deployFailed
+                ? 'A verified Pages artifact did not deploy successfully; the previously deployed site remains available.'
+                : process.env.DIAGNOSTIC_REASON || 'The workflow failed before a more specific diagnostic could be produced.'
+              const fingerprint = `${category}|${stage}|${dataset}|${reason}`
+              const marker = `<!-- diagnostic:${fingerprint} -->`
+              const body = `${marker}\n### Action required\n\n- **Affected data:** ${dataset}\n- **Category:** ${category}\n- **Stage:** ${stage}\n- **Production:** Last-known-good data remain deployed; inspect freshness before assuming they are current.\n- **Automatic retry:** The next scheduled run will retry provider work; code/configuration failures require investigation.\n- **Owner action:** Ask an agent to inspect the linked run and structured \`operational-diagnostics\` artifact.\n- **Reason:** ${reason}\n- **Workflow:** ${process.env.WORKFLOW_URL}`
+
+              if (!existing) {
+                await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body })
+              } else if (!existing.body?.includes(marker)) {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existing.number,
+                  body,
+                })
+              }
             }
 
-            const category = deployFailed
-              ? 'deployment-failure'
-              : process.env.DIAGNOSTIC_CATEGORY || 'unknown-failure'
-            const stage = deployFailed
-              ? 'deployment'
-              : process.env.DIAGNOSTIC_STAGE || 'unknown'
-            const dataset = process.env.DIAGNOSTIC_DATASET || 'visible-economic-datasets'
-            const reason = deployFailed
-              ? 'A verified Pages artifact did not deploy successfully; the previously deployed site remains available.'
-              : process.env.DIAGNOSTIC_REASON || 'The workflow failed before a more specific diagnostic could be produced.'
-            const fingerprint = `${category}|${stage}|${dataset}|${reason}`
-            const marker = `<!-- diagnostic:${fingerprint} -->`
-            const body = `${marker}\n### Action required\n\n- **Affected data:** ${dataset}\n- **Category:** ${category}\n- **Stage:** ${stage}\n- **Production:** Last-known-good data remain deployed; inspect freshness before assuming they are current.\n- **Automatic retry:** The next scheduled run will retry provider work; code/configuration failures require investigation.\n- **Owner action:** Ask an agent to inspect the linked run and structured \`operational-diagnostics\` artifact.\n- **Reason:** ${reason}\n- **Workflow:** ${process.env.WORKFLOW_URL}`
-
-            if (!existing) {
-              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body })
-            } else if (!existing.body?.includes(marker)) {
+            const reminderTitle = '[Data operations] Manual source review required'
+            const reminderIssue = issues.data.find((issue) => issue.title === reminderTitle)
+            const reminderActionable = process.env.REMINDER_ACTIONABLE === 'true'
+            const reminderEvaluated = process.env.REMINDER_EVALUATION === 'success'
+            if (reminderEvaluated && !reminderActionable && reminderIssue) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: reminderIssue.number,
+                body: `Completed: no manual-source reminder remains outstanding.\n\nRun: ${process.env.WORKFLOW_URL}`,
+              })
               await github.rest.issues.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: existing.number,
-                body,
+                issue_number: reminderIssue.number,
+                state: 'closed',
+                state_reason: 'completed',
               })
+            } else if (reminderActionable) {
+              const reminderMarker = `<!-- reminder:${process.env.REMINDER_KEYS} -->`
+              const reminderBody = `${reminderMarker}\n### Manual action required\n\n${process.env.REMINDER_REASON}\n\nThis is a planned source-review or ingestion responsibility, not a system failure. Follow \`docs/data-operations.md\` and inspect the \`manual-source-reminders\` artifact.\n\nWorkflow: ${process.env.WORKFLOW_URL}`
+              if (!reminderIssue) {
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: reminderTitle,
+                  body: reminderBody,
+                })
+              } else if (!reminderIssue.body?.includes(reminderMarker)) {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: reminderIssue.number,
+                  body: reminderBody,
+                })
+              }
             }
