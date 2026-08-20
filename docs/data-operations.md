@@ -3,7 +3,7 @@
 This is the canonical operational view of data used by every visible card and
 tile on `/`, `/dashboard`, and `/compare`. It answers: **Should newer data
 exist, how can an agent determine what went wrong, and what should happen
-next?** The audit snapshot is dated **August 19, 2026**.
+next?** The cadence review is dated **August 20, 2026**.
 
 [`data-refresh.md`](data-refresh.md) remains authoritative for exact
 transformations, validation rules, generated coverage, and implementation
@@ -38,20 +38,18 @@ official release calendar and actual provider state. Never use an unofficial
 mirror, proxy series, carried-forward value, fabricated observation, or new
 provider merely to make a date look current.
 
-## Current audit summary
+## Current operational summary
 
-The last deployed data commit before this audit is `e137a1a` from the successful
-August 18 scheduled run. The August 19 run
-([GitHub Actions 32239773038](https://github.com/akiryk/economy-dashboard/actions/runs/32239773038))
-retrieved and validated newer data, but verification failed before commit and
-deployment because four tests asserted release-sensitive display values. The
-failures covered July housing starts, July manufacturing output, July capacity
-utilization on the non-audited `/secondary` route, and paired compact-chart
-values. Production correctly retained the last verified artifact. This is a
-**repository verification failure after successful retrieval**, not a provider
-delay. Story 93 documents it but does not change tests or data.
+The August 19 verification incident was repaired by replacing mutable
+latest-value assertions with controlled or dataset-derived expectations. The
+subsequent scheduled refresh advanced the affected housing, manufacturing, and
+market datasets, and the push-triggered runs through August 20 completed their
+verification, browser smoke, build, deployment, and operational-notification
+jobs. The workflow now emits structured diagnostics, durable manual-source
+reminders, and a public exception manifest. This evidence shows that recent
+failures were validation/test issues rather than a refresh-frequency problem.
 
-At the audit date, the visible data are otherwise consistent with their normal
+At the cadence-review date, the visible data are consistent with their normal
 publication lags. Notable states are:
 
 - July BLS employment and CPI data are current.
@@ -60,12 +58,10 @@ publication lags. Notable states are:
 - Freddie Mac's August 13 weekly rate is current on Wednesday, August 19; the
   next normal PMMS publication is Thursday, August 20 at noon ET.
 - July BLS Table 7 contributions are committed through the manual fallback.
-- Daily S&P 500 data are committed through the August 17 close in the August 18
-  artifact. This is suitable for a delayed end-of-day dashboard, not for an
-  intraday market product.
-- The July housing and manufacturing observations published August 18 were
-  retrieved by the August 19 workflow but did not reach production because of
-  the test failure described above.
+- Daily S&P 500 data are committed through the August 19 close. This is suitable
+  for a delayed end-of-day dashboard, not for an intraday market product.
+- July housing and manufacturing observations published August 18 are now
+  committed and deployed.
 
 ### Provider cross-checks on August 19, 2026
 
@@ -80,11 +76,11 @@ means current under the applicable contract, not equal to today's date.
 | BLS productivity | 2026 Q2 initial released Aug 6 | 2026 Q2 | Current |
 | BEA GDP | 2026 Q2 advance available; second estimate due Aug 26 | 2026 Q2 | Current; revisions expected |
 | BEA Personal Income and Outlays | June available; July due Aug 26 | June | Current |
-| Census housing starts | July released Aug 18 | June | Known newer data retrieved; blocked by verification failure |
-| Federal Reserve G.17 manufacturing | July released Aug 18 | June | Known newer data retrieved; blocked by verification failure |
+| Census housing starts | July released Aug 18 | July | Current |
+| Federal Reserve G.17 manufacturing | July released Aug 18 | July | Current |
 | Freddie Mac PMMS | Aug 13 is latest before Aug 20 Thursday release | Aug 13 | Current |
 | BLS Table 7 | July workbook available with July CPI release | July | Current through manual fallback |
-| S&P 500 via FRED | Business-day closing series; recheck FRED after each close | Aug 17 | Warning while Aug 19 workflow failure prevents normal advancement; not a real-time breach |
+| S&P 500 via FRED | Business-day closing series; recheck FRED after each close | Aug 19 | Current for the prior-close product contract |
 | OECD | Mixed peer periods accepted by configured 3-month/2-quarter limits | Apr–Jul or Q1–Q2 | Current under peer-specific limits |
 | HOAM / BEA distribution / Fed research tables | No stable dated calendar for exact next update | May 2026 / 2023 / publication-vintage dates | No known provider advancement; quarterly manual review still needed |
 
@@ -94,7 +90,7 @@ The **Contract** column joins each UI row to the operational source table below,
 which supplies provider, exact identifier, publication timing, command,
 automation status, freshness rule, failure isolation, human responsibility,
 runbook, and production verification. Dates are the latest committed/deployed
-observations at the audit snapshot. A quarter stored as its first calendar date
+observations at the cadence-review snapshot. A quarter stored as its first calendar date
 is shown here as the user-facing quarter.
 
 ### Research dashboard (`/`) — 25 cards
@@ -115,8 +111,8 @@ is shown here as the user-facing quarter.
 | 12 | Are layoffs beginning to rise? | `JTSLDR`, `ICSA`, `IC4WSA` → matching layoffs/claims JSON files | JOLTS Jun 2026; claims week ending Aug 8 | BLS-JOLTS, DOL-W |
 | 13 | Are households saving less of their income? | `PSAVERT` → `personal-saving-rate.json`; BEA workbook → `saving-rate-by-income-decile.json` | Jun 2026; distribution 2023 | BEA-M, BEA-IRR |
 | 14 | How much of a median household’s income would it take to own a typical home? | Atlanta Fed national HOAM workbook → `home-ownership-cost-share.json` | May 2026 | HOAM-M |
-| 15 | How much new housing is being started? | `HOUST`, `POPTHM` → matching JSON; Census detail IDs → `housing-construction-details.json`, `housing-supply-composition.json` | headline Jun 2026; July retrieved but blocked | CENSUS-HOUSING, BEA-M |
-| 16 | Are U.S. manufacturers producing more goods? | `IPMAN` → `manufacturing-output.json` | Jun 2026; July retrieved but blocked | FED-G17 |
+| 15 | How much new housing is being started? | `HOUST`, `POPTHM` → matching JSON; Census detail IDs → `housing-construction-details.json`, `housing-supply-composition.json` | headline Jul 2026 | CENSUS-HOUSING, BEA-M |
+| 16 | Are U.S. manufacturers producing more goods? | `IPMAN` → `manufacturing-output.json` | Jul 2026 | FED-G17 |
 | 17 | Are businesses investing more in productive assets? | `PNFIC1` → `real-business-investment-level.json`, `real-business-investment-growth.json` | 2026 Q2 | BEA-Q |
 | 18 | How large are corporate profits relative to the economy? | `CPATAX / GDP` → `corporate-profit-share.json` | 2026 Q1 | BEA-Q |
 | 19 | Where has the Fed set short-term interest rates? | `DFEDTARL`, `DFEDTARU`, historical `DFEDTAR`; supporting `DFF`, `DPRIME` | effective state Aug 17, 2026 | FED-POLICY |
@@ -139,7 +135,7 @@ is shown here as the user-facing quarter.
 | 6 | Real wage growth | Shared exact-ratio `CES0500000003 / CPIAUCSL` derivation | Jul 2026 | BLS-EMP, BLS-CPI |
 | 7 | Sahm Rule | `SAHMREALTIME` | Jul 2026 | BLS-EMP |
 | 8 | 30-year mortgage rate | `MORTGAGE30US` | Aug 13, 2026 | PMMS-W |
-| 9 | S&P 500 | FRED `SP500`, daily close | Aug 17, 2026 | MARKET-D |
+| 9 | S&P 500 | FRED `SP500`, daily close | Aug 19, 2026 | MARKET-D |
 | 10 | High-yield spread | FRED `BAMLH0A0HYM2`, daily | Aug 14, 2026 | MARKET-D |
 
 ### International comparison (`/compare`) — five measures
@@ -377,67 +373,56 @@ Follow every step; do not start by editing dates or tests.
 | Commit/push/deploy failed | Yes; explicit workflow stages preserve prior production and create/update the owner issue. | Follow its workflow link and structured category; recovery is recorded when a later run succeeds. |
 | Manual ingestion required | Yes. Table 7 period mismatch and due irregular-source reviews create stable, deduplicated owner reminders. | Complete the documented official-source action; successful ingestion/review clears or advances the reminder state. |
 | Source discontinued | Not reliably. | Periodic official-source review and explicit lifecycle state needed. |
-| One dataset stale while global metadata looks recent | The per-dataset registry/evaluator can distinguish it when given provider and pipeline evidence; `latestDatasetDate` alone still cannot. | Future workflow diagnostics and alerts should persist and publish evaluator output. |
+| One dataset stale while global metadata looks recent | Yes. The per-dataset registry/evaluator and public exception manifest operate independently of global `latestDatasetDate`. | Inspect the visible notice and structured diagnostic artifact; global deployment metadata is not dataset-level freshness evidence. |
 
-## Gap analysis
+## Refresh-cadence decision record
 
-### Cadence appropriate
+The workflow retains one scheduled check at **09:17 UTC every day**. This is the
+best current engineering tradeoff: observed releases have been captured by the
+next successful run, unchanged retrieval-only rewrites are suppressed, no
+provider has shown rate-limit or request-cost pressure, and the recent stale
+incident was caused by release-sensitive tests rather than insufficient
+checking. Splitting the shared retrieval into many release-calendar cron jobs
+would add failure modes without improving any freshness contract.
 
-- Daily checking is operationally appropriate for FRED-backed monthly,
-  quarterly, weekly, and daily series: it catches releases without encoding
-  dozens of changing calendars, and unchanged retrieval dates are discarded.
-- Daily is appropriate for BLS category CPI and Census housing details, although
-  those sources publish monthly or less often.
-- Weekly PMMS and claims are well served by daily checks.
-- OECD's daily nonblocking check is reasonable because peer release timing is
-  heterogeneous and the complete snapshot is protected.
+Push-triggered and manual runs remain available. Push runs verify and deploy the
+committed snapshot without contacting providers; scheduled and manually
+dispatched runs execute provider refreshes. After a failure, the next daily run
+retries automatically, while an operator can dispatch an immediate recovery
+run. Diagnostics distinguish provider delay, source restriction, validation
+failure, and deployment failure, so unchanged requests do not create alerts.
 
-### Checked more often than useful
+Every operational source family was reviewed against the August 19 source audit,
+the successful recovery refresh, and workflow diagnostics through August 20:
 
-- Annual BEA distributional saving and irregular Federal Reserve research tables
-  do not need daily network traffic. The overhead is small, but quarterly source
-  review plus release-aware checks would be clearer.
-- Quarterly and annual FRED series are checked daily, but the shared request path
-  and metadata-only suppression make this acceptable rather than harmful.
+| Contract | Decision | Evidence and rationale |
+|---|---|---|
+| BEA-Q | Retain daily check | Shared FRED retrieval caught Q2 releases and revisions promptly; unchanged calls are cheap and no rate pressure or missed release was observed. |
+| BEA-M | Retain daily check | Monthly releases and population inputs propagate at different times; daily checking avoids duplicating BEA calendars and stayed within contract. |
+| BEA-IRR | Retain daily shared retrieval plus 92-day review | The annual workbook adds negligible work inside the existing command. The persisted quarterly review prevents silent staleness without a brittle guessed release date. |
+| BLS-EMP | Retain daily check | July employment data arrived within the release/FRED grace cycle; daily checks also capture revisions without a special calendar. |
+| BLS-CPI | Retain daily check | July headline, core, and category data advanced within the intended cycle despite intermediary propagation differences. |
+| BLS-T7 | Retain daily official-access diagnostic and manual monthly fallback | GitHub-hosted retrieval remains blocked by BLS HTTP 403. The nonblocking attempt exposes that restriction; CPI/Table 7 mismatch reminders ensure a release cannot remain silently stale. |
+| BLS-JOLTS | Retain daily check | Its calendar differs from the Employment Situation; June remained correctly current before the September 1 July release. |
+| BLS-PROD | Retain daily check | Quarterly initial estimates and revisions share the inexpensive FRED path and Q2 was captured on time. |
+| DOL-W | Retain daily check | Daily checking catches Thursday claims promptly and naturally handles holiday publication changes; no additional intraday cadence is warranted. |
+| CENSUS-HOUSING | Retain daily check | July data were retrieved on the first scheduled check after release. The earlier production delay was a test failure, now repaired, not a cadence failure. |
+| FED-G17 | Retain daily check | July manufacturing data were retrieved on the first scheduled check after release; the same repaired verification issue, not timing, delayed deployment. |
+| FED-POLICY | Retain daily check | Event-driven target changes can occur between scheduled meetings and propagate through FRED; daily is sufficient for a descriptive dashboard. |
+| FED-RATES-M | Retain daily check | Monthly averages share FRED retrieval and advance after month end; there is no evidence that calendar scheduling would improve freshness. |
+| FISCAL | Retain daily shared retrieval | Annual and quarterly series are inexpensive members of the common FRED request path; age is evaluated against release state rather than calendar recency. |
+| HOAM-M | Retain daily retrieval plus 62-day review | The workbook has source-dependent lag and no dependable release date. Daily unchanged checks are low-noise, while the review reminder detects prolonged non-advancement. |
+| PMMS-W | Retain daily check | It captures Thursday publication and Wednesday holiday exceptions without another schedule. No weekly release was missed. |
+| MARKET-D | Retain one daily check at 09:17 UTC | This timing normally captures the previous U.S. close after FRED propagation and exactly matches the Story 99 prior-close contract. More frequent checks would imply a product freshness promise the tile does not make. |
+| FED-RESEARCH | Retain mixed cadence: daily shared Figure 5 check; unscheduled Figure 2 with 92-day review | Publication vintages are irregular. Persistent review reminders make the unscheduled source visible; speculative daily scraping of Figure 2 would add traffic without a known release benefit. |
+| OECD | Retain daily nonblocking check | Peer releases are heterogeneous. Bounded retries and last-known-good snapshot isolation have prevented provider delay from blocking domestic deployment; no rate-limit pattern warrants reducing or increasing cadence. |
 
-### Checked too infrequently or not at all
-
-- The breakeven Figure 2 command is not scheduled. Its 92-day official-page
-  review is persisted in the manual-source review state and produces a reminder
-  when due.
-- Table 7 automation cannot determine freshness under the BLS 403. A CPI/Table
-  7 period mismatch now reminds the owner to check and supply the official
-  workbook without labeling the manual requirement as failure.
-- Daily S&P 500 is appropriate only for an end-of-day briefing. It cannot promise
-  same-day before the daily workflow, delayed intraday, or real-time values.
-
-### Freshness and visibility gaps
-
-- The release-aware registry and evaluator now encode domestic source contracts
-  and distinguish “not released,” “provider lag,” and “repository stale” when
-  the caller supplies the corresponding evidence. The scheduled workflow does
-  not yet persist or alert on this structured output.
-- The UI now supplements observation periods with a restrained exception notice
-  when the public freshness manifest identifies provider delay, manual/unknown
-  status, unexpected staleness, or failure. Healthy data remain uncluttered.
-- Actionable workflow and exhausted-retry failures create a deduplicated GitHub
-  owner issue and later record recovery. Table 7 manual need and periodic
-  irregular-source review remain separate reminder work.
-- Global deployment metadata can appear recent because one daily series updated
-  even when another visible series is stale.
-- The August 19 failure showed that tests contained hard-coded current display
-  values. Story 94 repaired the incident and established the repository testing
-  rule in `AGENTS.md`: normal data advancement is expected, and a failed
-  current-value assertion is not evidence that provider data is wrong. When
-  refresh retrieval and validation succeed but verification fails, first decide
-  whether the assertion encodes a true invariant or mutable production state;
-  use a controlled fixture or dataset-derived expectation for the latter while
-  preserving corruption and transformation checks.
-- HOAM, BEA distributional saving, and Federal Reserve research tables have
-  schedules too irregular for a simple age threshold.
-- Licensed FRED market data (`SP500`, `BAMLH0A0HYM2`) are operationally fragile
-  for long-history or real-time ambitions. Current committed-use contracts are
-  narrower and valid.
+This review makes **no schedule change**. Request volume therefore does not
+decrease, but scheduling complexity also does not increase; workflow duration
+remains dominated by verification and browser checks, not unchanged provider
+requests. Existing freshness contracts, reminders, retry behavior, and
+last-known-good preservation ensure no source becomes more susceptible to
+silent staleness.
 
 ## S&P 500 decision record
 
@@ -462,12 +447,6 @@ This contract fits a broad descriptive economic dashboard: daily market noise
 does not warrant the licensing, cost, credential, caching, market-hours, and
 reliability architecture of a same-day or real-time market product. No provider
 or architecture change is required.
-
-## Recommended follow-up stories
-
-1. **Tune schedules only from evidence.** Consider less frequent checks for
-   annual/irregular sources or provider-calendar dispatches after health
-   telemetry exists; keep the current cron unchanged in this story.
 
 ## Authoritative schedule and operations references
 
