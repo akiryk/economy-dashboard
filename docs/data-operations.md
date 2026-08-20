@@ -161,6 +161,30 @@ Reserve core-goods PCE paths. Table 7 and OECD are separate workflow steps.
 Push-triggered runs verify and deploy committed data but intentionally do not
 contact providers.
 
+The canonical machine-readable mapping is
+`src/features/data-freshness/freshnessRegistry.ts`. It assigns every materially
+visible research-card, status-tile, and comparison dataset to one or more of the
+contracts below. `evaluateFreshness.ts` evaluates supplied provider/release and
+pipeline evidence without consulting the browser, mutating economic data, or
+using a generic age limit. Its structured result identifies the dataset,
+contract, deployed and provider periods, state, reason, required human action,
+and diagnostic detail. A failure while evaluating one dataset is isolated as an
+indeterminate warning for that dataset.
+
+During an incident, inspect committed artifacts with:
+
+```bash
+npm run data:freshness -- --dataset housing-starts
+```
+
+Omit `--dataset` for the complete JSON report. This command deliberately makes
+no live provider requests: it verifies and reports the committed observation,
+then returns `warning` because provider/release evidence is unavailable. Refresh
+automation and future alerting consumers can pass provider checks, completed
+release/market-day counts, manual-review evidence, OECD peer coverage, or a
+pipeline failure to the same evaluator. Do not interpret the inspection
+command's warning as proof that the economic data are stale.
+
 **State vocabulary**
 
 - **Healthy:** the latest release expected by the contract is deployed.
@@ -186,8 +210,8 @@ contact providers.
 | BLS-JOLTS | BLS JOLTS `JTSLDR` via FRED | Monthly on a separately dated BLS calendar, usually roughly one month later than the Employment Situation; revisions occur. | `data:refresh`; automatic daily | Healthy through the latest scheduled JOLTS reference month. Example: June 2026 is healthy until the July release on Sep 1. Unexpected after official/FRED advancement plus one successful daily cycle. | Do not judge by the current calendar month. Inspect the JOLTS calendar and FRED before diagnosing. Preserve prior data on failure. |
 | BLS-PROD | BLS nonfarm-business productivity `OPHNFB` via FRED | Quarterly initial and revised releases, tied to BEA GDP schedule; revisions are expected. | `data:refresh`; automatic daily | Healthy through latest scheduled initial/revision. Unexpected after FRED advanced plus one successful daily cycle. | Validate level and derived growth as one group; repair alignment/schema rather than substituting a different productivity measure. |
 | DOL-W | ETA weekly claims `ICSA`, official `IC4WSA`, via FRED | Weekly, normally Thursday 8:30 ET for week ending the prior Saturday; revised following week. | `data:refresh`; automatic daily | Healthy before Thursday with prior week's value; after release allow FRED propagation and the next successful daily cycle. More than one expected weekly release behind is unexpected. | Inspect DOL release and FRED. Wait for confirmed provider lag; repair retrieval for known available data. Both series remain separate and missing weeks are not filled. |
-| CENSUS-HOUSING | Census/HUD via FRED: regions `HOUSTNE/HOUSTMW/HOUSTS/HOUSTW`; population `CNERPOP/CMWRPOP/CSOUPOP/CWSTPOP`; permits `PERMIT/PERMIT1/PERMIT24/PERMIT5`; starts `HOUST/HOUST1F/HOUST2F/HOUST5F`; under construction `UNDCONTSA/UNDCON1USA/UNDCON24USA/UNDCON5MUSA`; completions `COMPUTSA/COMPU1USA/COMPU24USA/COMPU5MUSA`; seven `NHSUSSP*` price buckets; size `COMPSFLAM1FQ` | Headline monthly, usually the 12th workday; revised permits later and annual/quarterly detail on source-specific schedules. Revisions are normal. | `data:refresh`; automatic daily | Headline healthy through latest Census release month. Supporting annual/quarterly tables use their own published periods. Unexpected after official/FRED advancement plus one successful daily cycle. | Grouped detail writes preserve both files. On Aug 19, July was retrieved but verification blocked it: fix release-sensitive tests in a follow-up, rerun refresh, and deploy. Do not force all detail to the headline month. |
-| FED-G17 | Federal Reserve G.17 `IPMAN` via FRED | Monthly at 9:15 ET on published dates; each release revises recent months and annual revisions can alter history. | `data:refresh`; automatic daily | Healthy through latest scheduled G.17 month. Unexpected after official/FRED advancement plus one successful daily cycle. | On Aug 19, July was retrieved but verification blocked it. Repair tests separately, preserve provider revisions, rerun refresh, verify production. |
+| CENSUS-HOUSING | Census/HUD via FRED: regions `HOUSTNE/HOUSTMW/HOUSTS/HOUSTW`; population `CNERPOP/CMWRPOP/CSOUPOP/CWSTPOP`; permits `PERMIT/PERMIT1/PERMIT24/PERMIT5`; starts `HOUST/HOUST1F/HOUST2F/HOUST5F`; under construction `UNDCONTSA/UNDCON1USA/UNDCON24USA/UNDCON5MUSA`; completions `COMPUTSA/COMPU1USA/COMPU24USA/COMPU5MUSA`; seven `NHSUSSP*` price buckets; size `COMPSFLAM1FQ` | Headline monthly, usually the 12th workday; revised permits later and annual/quarterly detail on source-specific schedules. Revisions are normal. | `data:refresh`; automatic daily | Headline healthy through latest Census release month. Supporting annual/quarterly tables use their own published periods. Unexpected after official/FRED advancement plus one successful daily cycle. | Grouped detail writes preserve both files. Release-sensitive tests use controlled or dataset-derived expectations, so normal source advancement is accepted. Do not force all detail to the headline month. |
+| FED-G17 | Federal Reserve G.17 `IPMAN` via FRED | Monthly at 9:15 ET on published dates; each release revises recent months and annual revisions can alter history. | `data:refresh`; automatic daily | Healthy through latest scheduled G.17 month. Unexpected after official/FRED advancement plus one successful daily cycle. | Preserve provider revisions and use controlled or dataset-derived test expectations. Investigate provider, retrieval, validation, and deployment evidence separately. |
 | FED-POLICY | Federal Reserve/FOMC via FRED: `DFEDTARL`, `DFEDTARU`, discontinued `DFEDTAR`, plus `DFF`, `DPRIME` | Event-driven target changes after FOMC action; effective and prime rates can update on business days. An unchanged old effective state can be fully current. | `data:refresh`; automatic daily | Compare the current official target range, not observation age. Unexpected if an announced effective change is absent after FRED advances and one daily cycle. | Bounds validate on the exact date and replace coherently. Never invent a range or infer a policy change from market rates. |
 | FED-RATES-M | Federal Reserve monthly averages via FRED: `GS10`, `TB3MS`, `FEDFUNDS` | Monthly averages after month end; underlying Treasury/Fed rates are daily but this card intentionally uses monthly series. Revisions are possible. | `data:refresh`; automatic daily | Healthy through most recently completed month once FRED publishes it. Current-month absence is normal. Unexpected after monthly series advances plus one cycle. | Do not substitute daily status-tile series into the research card without a product decision. Preserve exact monthly alignment. |
 | FISCAL | BEA/Federal fiscal ratios via FRED: annual `FYFSGDA188S`, quarterly `FYGFGDQ188S` | Annual or quarterly national-accounts data with source-dependent lag and revisions. | `data:refresh`; automatic daily | Release-aware: compare the official/FRED series. Annual dates may be many months old and healthy. Unexpected only after provider advancement plus one cycle, or after two expected publication periods without a provider explanation. | Investigate provider calendar/series notes for discontinuation before changing sources. Owner decides any replacement. |
@@ -252,17 +276,17 @@ Follow every step; do not start by editing dates or tests.
 
 | Condition | Can the current system distinguish it? | Gap/action |
 |---|---|---|
-| Provider has not released vs expected date not arrived | Generally no; agents must consult calendars. Table 7 can distinguish current release when accessible. | Machine-readable calendars/freshness contracts are a follow-up. |
+| Provider has not released vs expected date not arrived | Yes when automation supplies the evaluator with release/provider evidence; otherwise the result is explicitly indeterminate. Table 7 remains indeterminate under the official-host 403. | Provider checks and release calendars must remain explicit evidence; the local inspection command does not contact providers. |
 | Provider unreachable, timeout, HTTP error | Yes in command/workflow logs; OECD has bounded retry. | No owner notification beyond GitHub's workflow status. |
 | Authentication/authorization | HTTP/missing-secret errors are visible; Table 7 403 is explicitly classified. | Add structured failure categories and notification. |
 | Endpoint/URL changed | Usually surfaces as HTTP, redirect-host, identity, or schema failure. | Requires agent investigation; discontinuation is not automatically inferred. |
 | Parsing/schema/content change | Yes, provider-specific parsers and domain validation fail safely. | Diagnostics vary by source; preserve detailed non-secret reason. |
-| Derived generation/validation/write failure | Yes; nonzero command and atomic/group rollback preserve good files. | No centralized source health record. |
-| Refresh succeeded but tests failed | Yes; workflow blocks commit/deploy. August 19 demonstrates it. | Release-sensitive test hardening is urgent. |
+| Derived generation/validation/write failure | Yes; nonzero command and atomic/group rollback preserve good files. | The evaluator records a dataset-specific pipeline failure when supplied by automation. |
+| Refresh succeeded but tests failed | Yes; workflow blocks commit/deploy and the evaluator supports a distinct verification-failure reason. | Tests use controlled or dataset-derived expectations so ordinary source advancement is not itself a failure. |
 | Commit/push/deploy failed | Yes; explicit workflow steps and prior Pages artifact remain. | Human must inspect GitHub; no dedicated alert routing. |
 | Manual ingestion required | Yes for Table 7; partially documented for irregular research sources. | Add owner reminders and review dates. |
 | Source discontinued | Not reliably. | Periodic official-source review and explicit lifecycle state needed. |
-| One dataset stale while global metadata looks recent | Not reliably. `latestDatasetDate` is only the newest retrieval date across datasets. | Add per-dataset freshness evaluation/manifest. |
+| One dataset stale while global metadata looks recent | The per-dataset registry/evaluator can distinguish it when given provider and pipeline evidence; `latestDatasetDate` alone still cannot. | Future workflow diagnostics and alerts should persist and publish evaluator output. |
 
 ## Gap analysis
 
@@ -297,9 +321,10 @@ Follow every step; do not start by editing dates or tests.
 
 ### Freshness and visibility gaps
 
-- There is no release-aware machine-readable freshness manifest for domestic
-  sources and no automated distinction between “not released,” “provider lag,”
-  and “repository stale.”
+- The release-aware registry and evaluator now encode domestic source contracts
+  and distinguish “not released,” “provider lag,” and “repository stale” when
+  the caller supplies the corresponding evidence. The scheduled workflow does
+  not yet persist or alert on this structured output.
 - There is no card-level stale warning. The UI truthfully shows observation
   periods but does not flag a known missed release.
 - Workflow failures depend on GitHub's normal notification surface; Table 7
@@ -339,23 +364,20 @@ No provider change is justified by this audit alone.
 
 ## Recommended follow-up stories
 
-1. **Add a machine-readable freshness registry and evaluator.** Encode contract
-   type, expected calendar/review rule, grace period, manual status, and last
-   provider check; emit per-dataset health without changing UI.
-2. **Publish structured workflow diagnostics and owner alerts.** Distinguish
+1. **Publish structured workflow diagnostics and owner alerts.** Distinguish
    provider delay, access/auth, schema, validation, test, push, and deployment;
    notify only actionable/repeated/manual conditions.
-3. **Add manual-source reminders.** Trigger a Table 7 owner reminder on each CPI
+2. **Add manual-source reminders.** Trigger a Table 7 owner reminder on each CPI
    release while official GitHub access is blocked, plus quarterly reviews for
    breakeven and other irregular research tables.
-4. **Design card-level freshness presentation.** Only after the evaluator exists,
+3. **Design card-level freshness presentation.** Only after the evaluator exists,
    define accessible UI states for healthy, provider-delayed, unknown/manual,
    and known stale without treating normal monthly/quarterly lag as failure.
-5. **Evaluate S&P 500 product requirements.** Decide whether prior-close data is
+4. **Evaluate S&P 500 product requirements.** Decide whether prior-close data is
    sufficient. Only if the owner requires more current data should a separate
    licensing, provider, server-side caching, market-hours, and failure-state
    story proceed.
-6. **Tune schedules only from evidence.** Consider less frequent checks for
+5. **Tune schedules only from evidence.** Consider less frequent checks for
    annual/irregular sources or provider-calendar dispatches after health
    telemetry exists; keep the current cron unchanged in this story.
 

@@ -100,6 +100,10 @@ const localSeriesLoaders: Readonly<
   'core-goods-pce-inflation': () => import('../data/core-goods-pce-inflation.json'),
 }
 
+export const localEconomicSeriesSlugs = Object.freeze(
+  Object.keys(localSeriesLoaders),
+)
+
 export const localEconomicSeriesRepository: EconomicSeriesRepository = {
   async getBySlug(slug) {
     const loadSeries = localSeriesLoaders[slug]

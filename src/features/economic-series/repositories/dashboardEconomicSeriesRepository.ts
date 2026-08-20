@@ -22,6 +22,10 @@ const dashboardSeriesLoaders: Readonly<
   'real-wage-growth': () => import('../data/real-wage-growth.json'),
 }
 
+export const dashboardEconomicSeriesSlugs = Object.freeze(
+  Object.keys(dashboardSeriesLoaders),
+)
+
 export const dashboardEconomicSeriesRepository =
   createDashboardEconomicSeriesRepository(
     dashboardSeriesLoaders,
