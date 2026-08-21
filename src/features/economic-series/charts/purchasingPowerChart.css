@@ -7,7 +7,7 @@
 .purchasing-power-chart__periods, .purchasing-power-chart__footer { display: flex; justify-content: space-between; gap: var(--space-2); color: var(--color-text-muted); font-size: .78rem; }
 .purchasing-power-chart__footer { align-items: flex-start; margin-top: var(--space-1); }
 .purchasing-power-chart__footer p { margin: 0; }
-.purchasing-power-chart__tooltip { position: absolute; top: .25rem; z-index: 3; display: grid; transform: translateX(-50%); min-width: 9rem; padding: .5rem; border: 1px solid var(--color-border); border-radius: .3rem; background: var(--color-surface); box-shadow: 0 .25rem .75rem rgb(23 32 42 / 14%); font-size: .8rem; pointer-events: none; }
+.purchasing-power-chart__tooltip { position: absolute; bottom: calc(100% + var(--space-2)); z-index: 3; display: grid; transform: translateX(-50%); min-width: 9rem; padding: .5rem; border: 1px solid var(--color-border); border-radius: .3rem; background: var(--color-surface); box-shadow: 0 .25rem .75rem rgb(23 32 42 / 14%); font-size: .8rem; pointer-events: none; }
 .purchasing-power-chart__tooltip span:first-child { font-weight: 700; }
 @media (max-width: 44rem) { .purchasing-power-chart--expanded .purchasing-power-chart__interaction, .purchasing-power-chart--expanded .purchasing-power-chart__canvas { min-height: 18rem; height: 18rem; } }
 @media (prefers-reduced-motion: reduce) { .purchasing-power-chart * { scroll-behavior: auto !important; } }
