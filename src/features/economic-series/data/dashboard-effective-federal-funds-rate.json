@@ -13,7 +13,7 @@
   "transformation": "Provider-published daily value",
   "sourceName": "Board of Governors of the Federal Reserve System via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/DFF",
-  "retrievedAt": "2026-08-25",
+  "retrievedAt": "2026-08-26",
   "observations": [
     {
       "date": "1954-07-01",
@@ -105413,6 +105413,18 @@
     },
     {
       "date": "2026-08-21",
+      "value": 3.63
+    },
+    {
+      "date": "2026-08-22",
+      "value": 3.63
+    },
+    {
+      "date": "2026-08-23",
+      "value": 3.63
+    },
+    {
+      "date": "2026-08-24",
       "value": 3.63
     }
   ]
