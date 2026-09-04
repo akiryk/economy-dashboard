@@ -363,8 +363,8 @@ jobs:
         id: metadata
         shell: bash
         run: |
-          echo "deployment_commit=$(node -p \"require('./dist/deployment-metadata.json').deploymentCommit\")" >> "$GITHUB_OUTPUT"
-          echo "latest_dataset_date=$(node -p \"require('./dist/deployment-metadata.json').latestDatasetDate\")" >> "$GITHUB_OUTPUT"
+          node -e 'const metadata = require("./dist/deployment-metadata.json"); console.log("deployment_commit=" + metadata.deploymentCommit)' >> "$GITHUB_OUTPUT"
+          node -e 'const metadata = require("./dist/deployment-metadata.json"); console.log("latest_dataset_date=" + metadata.latestDatasetDate)' >> "$GITHUB_OUTPUT"
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
