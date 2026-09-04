@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { freshnessHealthStates, type FreshnessHealthState } from './freshnessTypes'
+import {
+  dashboardRefreshDatasetId,
+  freshnessHealthStates,
+  type FreshnessHealthState,
+  type PublicFreshnessState,
+} from './freshnessTypes'
 
-export interface PublicFreshnessState {
-  datasetId: string
-  state: FreshnessHealthState
-  message: string
-}
+export type { PublicFreshnessState } from './freshnessTypes'
 
 interface PublicFreshnessManifest {
   schemaVersion: 1
@@ -82,4 +83,9 @@ export function useScopedFreshness(): PublicFreshnessState | null {
   const keys = useContext(FreshnessKeysContext)
   return useMemo(() => keys.flatMap((key) => states.get(key) ?? [])
     .sort((left, right) => priority[right.state] - priority[left.state])[0] ?? null, [keys, states])
+}
+
+// eslint-disable-next-line react-refresh/only-export-components -- the hook consumes the private manifest provider.
+export function useDashboardRefreshFreshness(): PublicFreshnessState | null {
+  return useContext(FreshnessManifestContext).get(dashboardRefreshDatasetId) ?? null
 }

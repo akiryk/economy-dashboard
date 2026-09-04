@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: read
       pages: read
     outputs:
       data_changed: ${{ steps.changes.outputs.data_changed }}
@@ -124,6 +125,26 @@ jobs:
         id: reminders
         continue-on-error: true
         run: npm run operations:reminders -- --output .workflow-diagnostics/reminders.json --ui-output public/data-freshness.json
+
+      - name: Check for an unresolved refresh incident
+        if: github.event_name == 'push'
+        id: existing_incident
+        uses: actions/github-script@v8
+        with:
+          result-encoding: string
+          script: |
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            })
+            return issues.data.some((issue) =>
+              issue.title === '[Data operations] Refresh or deployment requires attention')
+
+      - name: Preserve unresolved refresh notice
+        if: steps.existing_incident.outputs.result == 'true'
+        run: npm run freshness:write-refresh-failure -- --input public/data-freshness.json --output public/data-freshness.json
 
       - name: Install Chromium for browser smoke tests
         id: chromium
@@ -298,9 +319,67 @@ jobs:
             echo "- Latest dataset date: ${LATEST_DATASET_DATE:-not prepared}"
           } >> "$GITHUB_STEP_SUMMARY"
 
-  deploy:
+  prepare-failure-notice:
     needs: refresh-and-build
-    if: needs.refresh-and-build.outputs.deploy_required == 'true'
+    if: always() && github.event_name != 'push' && needs.refresh-and-build.result == 'failure'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    outputs:
+      deployment_commit: ${{ steps.metadata.outputs.deployment_commit }}
+      latest_dataset_date: ${{ steps.metadata.outputs.latest_dataset_date }}
+    steps:
+      - name: Check out last committed data
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Preserve manual-source notices
+        continue-on-error: true
+        run: npm run operations:reminders -- --ui-output public/data-freshness.json
+
+      - name: Add dashboard refresh failure notice
+        run: npm run freshness:write-refresh-failure -- --input public/data-freshness.json --output public/data-freshness.json
+
+      - name: Build last-known-good application
+        run: npm run build
+        env:
+          VITE_BASE_PATH: /economy-dashboard/
+
+      - name: Prepare Pages fallback and deployment metadata
+        run: npm run pages:prepare
+        env:
+          DEPLOYMENT_COMMIT: ${{ github.sha }}
+
+      - name: Read fallback deployment metadata
+        id: metadata
+        shell: bash
+        run: |
+          echo "deployment_commit=$(node -p \"require('./dist/deployment-metadata.json').deploymentCommit\")" >> "$GITHUB_OUTPUT"
+          echo "latest_dataset_date=$(node -p \"require('./dist/deployment-metadata.json').latestDatasetDate\")" >> "$GITHUB_OUTPUT"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload status-only Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    needs: [refresh-and-build, prepare-failure-notice]
+    if: >-
+      always() &&
+      ((needs.refresh-and-build.result == 'success' && needs.refresh-and-build.outputs.deploy_required == 'true') ||
+      needs.prepare-failure-notice.result == 'success')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -317,17 +396,25 @@ jobs:
       - name: Summarize deployment
         if: always()
         shell: bash
+        env:
+          VERIFIED_COMMIT: ${{ needs.refresh-and-build.outputs.deployment_commit }}
+          FALLBACK_COMMIT: ${{ needs.prepare-failure-notice.outputs.deployment_commit }}
+          VERIFIED_DATASET_DATE: ${{ needs.refresh-and-build.outputs.latest_dataset_date }}
+          FALLBACK_DATASET_DATE: ${{ needs.prepare-failure-notice.outputs.latest_dataset_date }}
         run: |
+          commit="${VERIFIED_COMMIT:-$FALLBACK_COMMIT}"
+          latest_date="${VERIFIED_DATASET_DATE:-$FALLBACK_DATASET_DATE}"
           {
             echo '## GitHub Pages deployment'
             echo "- Job result: ${{ job.status }}"
             echo "- URL: ${{ steps.deployment.outputs.page_url }}"
-            echo "- Commit: ${{ needs.refresh-and-build.outputs.deployment_commit }}"
-            echo "- Latest dataset date: ${{ needs.refresh-and-build.outputs.latest_dataset_date }}"
+            echo "- Commit: $commit"
+            echo "- Latest dataset date: $latest_date"
+            echo "- Refresh failure notice: ${{ needs.prepare-failure-notice.result == 'success' }}"
           } >> "$GITHUB_STEP_SUMMARY"
 
   operational-notify:
-    needs: [refresh-and-build, deploy]
+    needs: [refresh-and-build, prepare-failure-notice, deploy]
     if: always()
     runs-on: ubuntu-latest
     permissions:
@@ -347,6 +434,7 @@ jobs:
           REMINDER_KEYS: ${{ needs.refresh-and-build.outputs.reminder_keys }}
           REMINDER_REASON: ${{ needs.refresh-and-build.outputs.reminder_reason }}
           REMINDER_EVALUATION: ${{ needs.refresh-and-build.outputs.reminder_evaluation }}
+          EVENT_NAME: ${{ github.event_name }}
           WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         with:
           script: |
@@ -361,10 +449,11 @@ jobs:
             const buildFailed = process.env.BUILD_RESULT !== 'success'
             const deployFailed = process.env.DEPLOY_RESULT === 'failure' || process.env.DEPLOY_RESULT === 'cancelled'
             const classified = process.env.DIAGNOSTIC_ACTIONABLE === 'true'
-            const actionable = buildFailed || deployFailed || classified
+            const refreshRun = process.env.EVENT_NAME !== 'push'
+            const actionable = deployFailed || (refreshRun && (buildFailed || classified))
 
             if (!actionable) {
-              if (existing) {
+              if (refreshRun && existing) {
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,

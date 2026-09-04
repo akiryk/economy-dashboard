@@ -2,6 +2,7 @@ import { render, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { FreshnessProvider, FreshnessScope, type PublicFreshnessState } from './FreshnessContext'
 import { FreshnessNotice } from './FreshnessNotice'
+import { DashboardFreshnessAlert } from './DashboardFreshnessAlert'
 
 function renderNotice(states: readonly PublicFreshnessState[], keys = ['shared-series']) {
   return render(
@@ -37,5 +38,33 @@ describe('FreshnessNotice', () => {
       { datasetId: 'supporting', state: 'unexpectedly-stale', message: 'Supporting data overdue.' },
     ], ['primary', 'supporting'])
     expect(within(view.container).getByRole('alert')).toHaveTextContent('Supporting data overdue.')
+  })
+})
+
+describe('DashboardFreshnessAlert', () => {
+  it('renders the global refresh failure prominently', () => {
+    const view = render(
+      <FreshnessProvider initialStates={[{
+        datasetId: 'dashboard-refresh',
+        state: 'failure',
+        message: 'Data is possibly out of date.',
+      }]}
+      >
+        <DashboardFreshnessAlert />
+      </FreshnessProvider>,
+    )
+    const alert = within(view.container).getByRole('alert')
+    expect(alert).toHaveClass('dashboard-refresh-alert')
+    expect(within(alert).getByText('Data is possibly out of date.', { selector: 'strong' }))
+      .toBeVisible()
+  })
+
+  it('stays absent without a refresh failure', () => {
+    const view = render(
+      <FreshnessProvider initialStates={[]}>
+        <DashboardFreshnessAlert />
+      </FreshnessProvider>,
+    )
+    expect(within(view.container).queryByRole('alert')).not.toBeInTheDocument()
   })
 })

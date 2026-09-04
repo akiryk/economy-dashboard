@@ -8,6 +8,14 @@ export const freshnessHealthStates = [
 
 export type FreshnessHealthState = (typeof freshnessHealthStates)[number]
 
+export interface PublicFreshnessState {
+  datasetId: string
+  state: FreshnessHealthState
+  message: string
+}
+
+export const dashboardRefreshDatasetId = 'dashboard-refresh'
+
 export type FreshnessContractId =
   | 'BEA-Q'
   | 'BEA-M'

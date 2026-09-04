@@ -273,6 +273,20 @@ primary/supporting datasets, status tiles use the same dataset keys, and OECD
 uses only the snapshot-level contract; accepted country-specific lag continues
 to appear as the existing stale/N/A row treatment rather than a global warning.
 
+Scheduled and manually dispatched refreshes have a separate whole-dashboard
+failure surface. If retrieval, validation, verification, commit, or artifact
+preparation fails before refreshed data can deploy, a fallback job checks out
+the unchanged committed revision, adds only the sanitized `dashboard-refresh`
+failure state to `data-freshness.json`, rebuilds that last-known-good revision,
+and deploys it with the prominent `Data is possibly out of date.` alert. The
+unverified refreshed working tree is never included. The next successful
+refresh regenerates the manifest without that state and clears the alert.
+Push-triggered runs do not contact providers, so they neither create nor clear
+the refresh incident. When deploying an unrelated code push, they preserve an
+existing alert while the operational incident issue remains open. A GitHub
+Pages deployment outage cannot update the page it prevents from deploying; the
+existing issue notification remains the fallback for that case.
+
 **State vocabulary**
 
 - **Healthy:** the latest release expected by the contract is deployed.
