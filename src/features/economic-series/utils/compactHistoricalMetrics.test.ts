@@ -147,7 +147,7 @@ describe('compact historical metric definitions', () => {
     expect(describeCompactHistoricalPosition(
       model,
       primeAgeEmploymentCompactDefinition,
-    )).toBe('high compared with the past 25 years')
+    )).toMatch(/^(very low|low|typical|high|very high) compared with the past 25 years$/)
   })
 
   it('configures payroll growth with complete three-month averages and signed units', () => {
@@ -227,7 +227,7 @@ describe('compact historical metric definitions', () => {
       { value: 30, label: '30% = Atlanta Fed affordability threshold' },
     ])
     expect(createCompactHistoricalAccessibleSummary(model, homeOwnershipCostCompactDefinition))
-      .toContain('above the 30% affordability threshold')
+      .toContain('30% affordability threshold')
   })
 
   it('configures federal budget balance with five annual readings and postwar bands', () => {

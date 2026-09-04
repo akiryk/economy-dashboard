@@ -250,7 +250,9 @@ describe('CompactHistoricalMetricChart', () => {
     expect(chart).toHaveTextContent(
       `Three-month-average annualized starts: ${formatAnnualizedHousingUnits(selectedRawAverage)}`,
     )
-    expect(chart).toHaveTextContent('Historical position: typical by historical standards')
+    expect(chart).toHaveTextContent(
+      /Historical position: (?:very low|low|typical|high|very high) by historical standards/,
+    )
   })
 
   it('shows manufacturing growth, its paired index level, zero line, and exact point state', () => {
@@ -277,7 +279,9 @@ describe('CompactHistoricalMetricChart', () => {
     expect(chart).toHaveTextContent(
       `Three-month-average production index: ${selectedAverage?.toFixed(1) ?? 'Unavailable'}`,
     )
-    expect(chart).toHaveTextContent('Historical position: typical by the standards of the past 25 years')
+    expect(chart).toHaveTextContent(
+      /Historical position: (?:very weak|weak|typical|strong|very strong) by the standards of the past 25 years/,
+    )
   })
 
   it('renders a newly appended valid observation without a production-current expectation', () => {

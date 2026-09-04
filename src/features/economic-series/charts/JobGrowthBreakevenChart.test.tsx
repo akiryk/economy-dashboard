@@ -71,7 +71,13 @@ describe('JobGrowthBreakevenChart', () => {
     expect(status).toHaveTextContent(/Actual payroll growth: \d+\.\d+% annualized/)
     expect(status).toHaveTextContent(/Estimated breakeven growth: \d+\.\d+% annualized/)
     fireEvent.keyDown(interaction, { key: 'ArrowLeft' })
-    expect(screen.getByRole('status')).toHaveTextContent('2026 Q1')
+    const previous = productionContext.historicalBands.status === 'ready'
+      ? productionContext.historicalBands.recentObservations.at(-2)
+      : null
+    expect(previous).toBeDefined()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      formatObservationPeriod(previous!.date, 'quarterly'),
+    )
     fireEvent.keyDown(interaction, { key: 'Escape' })
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
 

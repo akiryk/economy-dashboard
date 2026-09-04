@@ -8,7 +8,11 @@ import {
 } from '../models/jobGrowthBreakeven'
 import { JobGrowthBreakevenSummary } from './JobGrowthBreakevenSummary'
 import { formatObservationPeriod } from '../utils/economicSeries'
-import { deriveJobGrowthBreakevenContext, formatSignedPp } from '../utils/jobGrowthBreakevenContext'
+import {
+  deriveJobGrowthBreakevenContext,
+  formatJobGrowthBreakevenHeroLabel,
+  formatSignedPp,
+} from '../utils/jobGrowthBreakevenContext'
 
 vi.mock('../charts/JobGrowthBreakevenChart', () => ({
   JobGrowthBreakevenChart: ({
@@ -52,7 +56,7 @@ describe('JobGrowthBreakevenSummary', () => {
       formatSignedPp(productionContext.latest!.gapPercentagePoints),
     )).toBeVisible()
     expect(within(card).getByText(
-      'Payroll growth above the estimated breakeven pace',
+      formatJobGrowthBreakevenHeroLabel(productionContext.state),
     )).toBeVisible()
     expect(within(card).getByText(new RegExp(
       `${formatObservationPeriod(productionContext.latest!.date, 'monthly')} · Latest three-month annualized rate`,

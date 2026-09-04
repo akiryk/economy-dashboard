@@ -132,7 +132,14 @@ describe('EconomicSeriesSummary', () => {
 
   it('updates the summary and chart data when a range is selected', async () => {
     const user = userEvent.setup()
-    render(<EconomicSeriesSummary series={series} />)
+    const rangeSeries = {
+      ...series,
+      observations: series.observations.map((observation, index, observations) => ({
+        ...observation,
+        value: index === observations.length - 22 ? -1 : 1,
+      })),
+    }
+    render(<EconomicSeriesSummary series={rangeSeries} />)
 
     expect(screen.getByText(/At least one observation was below zero/)).toBeVisible()
     await user.click(screen.getByRole('button', { name: '5 years' }))
@@ -147,7 +154,7 @@ describe('EconomicSeriesSummary', () => {
       observations: EconomicObservation[]
     }
     expect(latestChartProps.observations).toHaveLength(21)
-    expect(latestChartProps.observations.at(-1)).toEqual(series.observations.at(-1))
+    expect(latestChartProps.observations.at(-1)).toEqual(rangeSeries.observations.at(-1))
   })
 
   it('zooms summaries independently, resets, and clears zoom on preset changes', async () => {

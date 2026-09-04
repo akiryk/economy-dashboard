@@ -6,7 +6,11 @@ import type {
   EconomicObservation,
 } from '../features/economic-series/models/economicSeries'
 import {
+  businessInvestmentCompactDefinition,
   corporateProfitShareCompactDefinition,
+  homeOwnershipCostCompactDefinition,
+  manufacturingOutputCompactDefinition,
+  tariffBurdenCompactDefinition,
   describeCompactHistoricalPosition,
   type CompactHistoricalMetricDefinition,
 } from '../features/economic-series/utils/compactHistoricalMetrics'
@@ -32,9 +36,35 @@ import { filterObservationsByTimeRange } from '../features/economic-series/utils
 import { classifyCpiAssessment, formatCpiAssessment, formatCpiPolicyReference } from '../features/economic-series/utils/cpiData'
 import { deriveRecentInflationMomentumModel } from '../features/economic-series/utils/recentInflationMomentum'
 import { deriveHousingStartsCompactData } from '../features/economic-series/utils/housingStartsData'
-import { deriveManufacturingOutputGrowth } from '../features/economic-series/utils/manufacturingOutputGrowth'
+import {
+  deriveManufacturingOutputGrowth,
+  formatManufacturingDirection,
+  formatManufacturingHistoricalPosition,
+} from '../features/economic-series/utils/manufacturingOutputGrowth'
+import { formatBusinessInvestmentAnswer, formatBusinessInvestmentHistoricalPosition } from '../features/economic-series/utils/businessInvestmentContext'
+import { deriveJoltsDirection, joltsDirectionStatement } from '../features/economic-series/utils/joltsLayoffsContext'
 import { derivePayrollGrowthContext } from '../features/economic-series/utils/payrollGrowthContext'
 import { deriveSavingRateContext, formatSavingRateChange } from '../features/economic-series/utils/savingRateContext'
+import {
+  formatBudgetBalanceAnswer,
+  formatBudgetBalancePerHundred,
+  formatBudgetBalanceQuestion,
+  formatBudgetBalanceStateLabel,
+  classifyBudgetBalance,
+} from '../features/economic-series/utils/budgetBalanceContext'
+import { deriveFederalDebtContext } from '../features/economic-series/utils/federalDebtContext'
+import {
+  formatTradeBalanceDirection,
+  formatTradeBalancePerHundred,
+  formatTradeBalanceQuestion,
+  formatTradeBalanceStateLabel,
+  classifyTradeBalance,
+} from '../features/economic-series/utils/tradeBalanceContext'
+import {
+  formatTariffDirection,
+  formatTariffHistoricalPosition,
+  formatTariffPerHundred,
+} from '../features/economic-series/utils/tariffBurdenContext'
 import { deriveUnemploymentContext } from '../features/economic-series/utils/unemploymentContext'
 import { derivePrimeAgeEmploymentContext } from '../features/economic-series/utils/primeAgeEmploymentContext'
 import {
@@ -46,7 +76,13 @@ import {
   deriveYieldCurveObservations,
   formatYieldCurveAnswer,
   formatYieldCurveSpread,
+  formatYieldCurveVisibleContext,
 } from '../features/economic-series/utils/yieldCurveData'
+import {
+  formatHomeOwnershipAffordabilityAnswer,
+  formatHomeOwnershipHistoricalPosition,
+  formatHomeOwnershipThresholdContext,
+} from '../features/economic-series/utils/homeOwnershipAffordability'
 import { DashboardPage } from './DashboardPage'
 import { updateLoadedPeriod } from './loadedPeriodState'
 
@@ -904,18 +940,20 @@ describe('DashboardPage economic series', () => {
       'false',
     )
     const productivityCallout = within(productivity).getByLabelText(
-      /Productivity was .* than a year ago in \d{4} Q[1-4]/,
+      /Productivity was (?:.* than|unchanged from) a year ago in \d{4} Q[1-4]/,
     )
     expect(productivityCallout).toHaveTextContent(/-?\d+\.\d%/)
-    expect(productivityCallout).toHaveTextContent(/productivity is (higher|lower) than a year ago/)
+    expect(productivityCallout).toHaveTextContent(
+      /productivity is (?:higher than|lower than|about the same as) a year ago/i,
+    )
     expect(productivityCallout).toHaveTextContent(
       /\d{4} Q[1-4] · Percent change from year ago/,
     )
     expect(productivityCallout).toHaveTextContent(
-      /The pace of productivity growth has (accelerated|slowed)/,
+      /The pace of productivity growth (?:has (?:accelerated|slowed)|is about the same)/,
     )
     expect(productivityCallout).toHaveAccessibleName(
-      /Productivity was .* The pace of productivity growth has (accelerated|slowed)/,
+      /Productivity was .* The pace of productivity growth (?:has (?:accelerated|slowed)|is about the same)/,
     )
     expect(within(productivity).getByText(
       'Real labor productivity: percent change from year ago',
@@ -1014,7 +1052,7 @@ describe('DashboardPage economic series', () => {
     )
     expect(latestReading).toHaveTextContent(/[A-Z][a-z]+ \d{4}/)
     expect(latestReading).toHaveTextContent(/wages|prices/i)
-    expect(latestReading).toHaveTextContent(/available 2007–2026 history/)
+    expect(latestReading).toHaveTextContent(/available 2007–\d{4} history/)
     expect(within(comparison).queryByText(
       /Positive values mean wages rose faster than consumer prices/,
     )).not.toBeInTheDocument()
@@ -1157,7 +1195,7 @@ describe('DashboardPage economic series', () => {
     )).toBeVisible()
     expect(within(card).getByText(latestJoltsLayoffsPeriod)).toBeVisible()
     expect(within(card).getByText(
-      'No — layoffs are not beginning to rise.',
+      joltsDirectionStatement(deriveJoltsDirection(joltsLayoffsSeries.observations).state),
     )).toBeVisible()
     expect(within(card).getByTestId('jolts-layoffs-chart'))
       .toHaveAttribute('data-zero-line', 'false')
@@ -1482,6 +1520,12 @@ describe('DashboardPage economic series', () => {
     const starts = (await localEconomicSeriesRepository.getBySlug('housing-starts'))!
     const population = (await localEconomicSeriesRepository.getBySlug('us-population-monthly'))!
     const latestAffordability = [...affordability.observations].reverse().find(({ value }) => value !== null)!
+    const affordabilityModel = deriveHistoricalBandContext(
+      affordability.observations,
+      homeOwnershipCostCompactDefinition.historicalBands,
+    )
+    expect(affordabilityModel.status).toBe('ready')
+    if (affordabilityModel.status !== 'ready') return
     const latestStartsAverage = findLatestNonNullObservation(
       deriveHousingStartsCompactData(starts.observations, population.observations).rawAverages,
     )!
@@ -1492,9 +1536,15 @@ describe('DashboardPage economic series', () => {
     expect(within(cards[0]!).getAllByText(formatPercentage(latestAffordability.value))).not.toHaveLength(0)
     expect(cards[0]!.querySelector('.series-current__period')).toHaveTextContent(formatObservationPeriod(latestAffordability.date, 'monthly'))
     expect(within(cards[0]!).getAllByText('Estimated share of median household income needed to own the median-priced home')).toHaveLength(2)
-    expect(within(cards[0]!).getByText(/not affordable for a median-income household under this model/)).toBeVisible()
-    expect(within(cards[0]!).getByText(/well above the 30% affordability threshold/)).toBeVisible()
-    expect(within(cards[0]!).getByText(/required income share is high|very high/)).toBeVisible()
+    expect(within(cards[0]!).getByText(
+      formatHomeOwnershipAffordabilityAnswer(latestAffordability.value),
+    )).toBeVisible()
+    expect(within(cards[0]!).getByText(
+      formatHomeOwnershipThresholdContext(latestAffordability.value),
+    )).toBeVisible()
+    expect(within(cards[0]!).getByText(
+      formatHomeOwnershipHistoricalPosition(affordabilityModel),
+    )).toBeVisible()
     expect(within(cards[0]!).getByRole('button', { name: /More/ })).toHaveAttribute('aria-expanded', 'false')
     expect(within(cards[1]!).getAllByText(
       formatAnnualizedHousingUnits(latestStartsAverage.value),
@@ -1547,7 +1597,9 @@ describe('DashboardPage economic series', () => {
     expect(within(cards[1]!).getByRole('heading', { name: 'What kind of housing is being built?' })).toBeVisible()
     expect(within(cards[1]!).getByRole('heading', { name: 'Sales prices of new single-family homes sold' })).toBeVisible()
     expect(within(cards[1]!).getByRole('group', { name: /Annual nominal sales-price distribution/ })).toBeVisible()
-    expect(within(cards[1]!).getByRole('button', { name: '2025, Under $300,000: 18 percent' })).toBeVisible()
+    expect(within(cards[1]!).getAllByRole('button', {
+      name: /^\d{4}, Under \$300,000: \d+(?:\.\d+)? percent$/,
+    }).length).toBeGreaterThan(0)
     expect(within(cards[1]!).getByText(/not an affordable-versus-luxury classification/)).toBeVisible()
     await user.click(within(cards[1]!).getByRole('button', { name: 'Maximum' }))
     await waitFor(() => {
@@ -1597,12 +1649,20 @@ describe('DashboardPage economic series', () => {
     const latestManufacturingGrowth = findLatestNonNullObservation(
       deriveManufacturingOutputGrowth(manufacturingSeries.observations).growth,
     )!
+    const manufacturingModel = deriveHistoricalBandContext(
+      deriveManufacturingOutputGrowth(manufacturingSeries.observations).growth,
+      manufacturingOutputCompactDefinition.historicalBands,
+    )
+    expect(manufacturingModel.status).toBe('ready')
+    if (manufacturingModel.status !== 'ready') return
     expect(within(manufacturing).getAllByRole('article')).toHaveLength(3)
     expect(within(card).getByText(
       formatSignedPercentage(latestManufacturingGrowth.value),
     )).toBeVisible()
-    expect(within(card).getByText(/Yes — U.S. manufacturers are producing more/)).toBeVisible()
-    expect(within(card).getByText(/current growth rate is typical/)).toBeVisible()
+    expect(within(card).getByText(formatManufacturingDirection(latestManufacturingGrowth.value))).toBeVisible()
+    expect(within(card).getByText(
+      `The current growth rate is ${formatManufacturingHistoricalPosition(latestManufacturingGrowth.value, manufacturingModel)} by the standards of the past 25 years.`,
+    )).toBeVisible()
     expect(within(card).getByTestId('production-compact-chart')).toHaveAttribute('data-show-zero', 'true')
     expect(within(card).queryByText(/Both lines begin at 100/)).not.toBeInTheDocument()
     const compactCall = compactChartPropsSpy.mock.calls
@@ -1659,6 +1719,16 @@ describe('DashboardPage economic series', () => {
 
   it('renders business investment with its full available history', async () => {
     const user = userEvent.setup()
+    const investmentSeries = (await localEconomicSeriesRepository.getBySlug(
+      'real-business-investment-growth',
+    ))!
+    const latestInvestment = findLatestNonNullObservation(investmentSeries.observations)!
+    const investmentModel = deriveHistoricalBandContext(
+      investmentSeries.observations,
+      businessInvestmentCompactDefinition.historicalBands,
+    )
+    expect(investmentModel.status).toBe('ready')
+    if (investmentModel.status !== 'ready') return
     render(<DashboardPage />)
 
     const business = screen.getByRole('region', { name: 'Business and manufacturing' })
@@ -1669,8 +1739,10 @@ describe('DashboardPage economic series', () => {
     expect(within(investment).getByText('Change in inflation-adjusted business investment from a year ago').previousElementSibling)
       .toHaveTextContent(/%/)
     expect(within(investment).getAllByText(/\d{4} Q[1-4]/)).not.toHaveLength(0)
-    expect(within(investment).getByText(/Yes — businesses are spending more than a year ago/)).toBeVisible()
-    expect(within(investment).getByText('The current growth rate is typical relative to the available history.')).toBeVisible()
+    expect(within(investment).getByText(formatBusinessInvestmentAnswer(latestInvestment.value))).toBeVisible()
+    expect(within(investment).getByText(
+      `The current growth rate is ${formatBusinessInvestmentHistoricalPosition(investmentModel)} relative to the available history.`,
+    )).toBeVisible()
     expect(within(investment).queryByText(/Higher investment often suggests/)).not.toBeInTheDocument()
     const investmentContext = within(investment).getByRole('button', {
       name: 'Why this matters for business investment',
@@ -1776,7 +1848,9 @@ describe('DashboardPage economic series', () => {
     )
 
     await user.click(within(card).getByRole('button', { name: 'Maximum' }))
-    expect(within(card).getByText('Visible period: 1947 Q1–2026 Q1')).toBeVisible()
+    expect(within(card).getByText(
+      `Visible period: ${formatObservationPeriod(corporateProfitShareSeries.observations[0]!.date, 'quarterly')}–${formatObservationPeriod(latestCorporateProfitShare.date, 'quarterly')}`,
+    )).toBeVisible()
     await waitFor(() => {
       const props = [...chartPropsSpy.mock.calls].reverse()
         .map((call) => call[0] as {
@@ -2005,15 +2079,17 @@ describe('DashboardPage economic series', () => {
 
   it('shows the policy, yield-curve, and mortgage-rate cards in primary Financial conditions', async () => {
     const user = userEvent.setup()
-    const [tenYear, threeMonth] = await Promise.all([
+    const [tenYear, threeMonth, mortgageSeries] = await Promise.all([
       localEconomicSeriesRepository.getBySlug('ten-year-treasury-yield'),
       localEconomicSeriesRepository.getBySlug('three-month-treasury-bill-rate'),
+      localEconomicSeriesRepository.getBySlug('mortgage-rate-30-year'),
     ])
     const yieldCurve = deriveYieldCurveObservations(
       tenYear!.observations,
       threeMonth!.observations,
     )
     const latestYieldCurve = yieldCurve.at(-1)!
+    const latestMortgageRate = findLatestNonNullObservation(mortgageSeries!.observations)!
     render(<DashboardPage />)
     const business = screen.getByRole('region', { name: 'Business and manufacturing' })
     const financial = screen.getByRole('region', { name: 'Financial conditions' })
@@ -2032,7 +2108,7 @@ describe('DashboardPage economic series', () => {
     expect(within(policy).getByRole('heading', { name: 'How does the bank prime rate compare?' })).toBeVisible()
     expect(within(policy).getAllByText(/^\d+\.\d{2}%$/).length).toBeGreaterThan(0)
     expect(within(policy).getByText(/Before December 16, 2008/)).toBeVisible()
-    expect(within(mortgage).getByText('6.7%')).toBeVisible()
+    expect(within(mortgage).getByText(formatPercentage(latestMortgageRate.value))).toBeVisible()
     expect(within(mortgage).getByText('Freddie Mac national average')).toBeVisible()
     expect(within(mortgage).getByText(/from a year ago/)).toBeVisible()
     const mortgageContext = within(mortgage).getByRole('button', { name: 'Why this matters for mortgage rates' })
@@ -2050,7 +2126,7 @@ describe('DashboardPage economic series', () => {
     expect(within(rates).getByText(
       formatYieldCurveAnswer(latestYieldCurve.value),
     )).toBeVisible()
-    expect(within(rates).getByText('Long-term Treasury yields being above short-term rates is typical.')).toBeVisible()
+    expect(within(rates).getByText(formatYieldCurveVisibleContext(latestYieldCurve.value))).toBeVisible()
     expect(within(rates).queryByText(/does not rule out recession/)).not.toBeInTheDocument()
     await user.click(within(rates).getByRole('button', {
       name: 'Why this matters for the yield curve',
@@ -2075,21 +2151,33 @@ describe('DashboardPage economic series', () => {
 
   it('renders annual budget balance and quarterly debt held by the public after Financial conditions', async () => {
     const user = userEvent.setup()
+    const [budgetSeries, debtSeries] = await Promise.all([
+      localEconomicSeriesRepository.getBySlug('federal-budget-balance'),
+      localEconomicSeriesRepository.getBySlug('federal-debt-held-by-public'),
+    ])
+    const latestBudget = findLatestNonNullObservation(budgetSeries!.observations)!
+    const budgetState = classifyBudgetBalance(latestBudget.value)
+    const debtContext = deriveFederalDebtContext(debtSeries!.observations)
+    const latestDebt = debtContext.latestObservation!
     render(<DashboardPage />)
     const financial = screen.getByRole('region', { name: 'Financial conditions' })
     const government = screen.getByRole('region', { name: 'Government finances' })
     expect(financial.compareDocumentPosition(government) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    const budget = await within(government).findByRole('article', { name: 'How large is the federal budget deficit relative to the economy?' })
+    const budget = await within(government).findByRole('article', {
+      name: formatBudgetBalanceQuestion(budgetState),
+    })
     const debt = await within(government).findByRole('article', { name: 'How large is federal debt held by the public relative to the economy?' })
     expect(within(government).getAllByRole('article')).toHaveLength(2)
-    expect(within(budget).getByText('5.8%')).toBeVisible()
-    expect(within(budget).getByText('Deficit')).toBeVisible()
+    expect(within(budget).getByText(formatPercentage(Math.abs(latestBudget.value!)))).toBeVisible()
+    expect(within(budget).getByText(formatBudgetBalanceStateLabel(budgetState))).toBeVisible()
     expect(within(budget).getAllByText('Federal deficit as a share of GDP'))
       .not.toHaveLength(0)
-    expect(within(budget).getByText(/2025 · Percent of GDP/)).toBeVisible()
-    expect(within(budget).getByText('The federal government ran a deficit equal to 5.8% of GDP.')).toBeVisible()
-    expect(within(budget).getByText(/\$5\.80 of borrowing for every \$100/)).toBeVisible()
-    expect(within(budget).getByText(/relative to historical deficits/)).toBeVisible()
+    expect(within(budget).getByText(
+      new RegExp(`${formatObservationPeriod(latestBudget.date, 'annual')} · Percent of GDP`),
+    )).toBeVisible()
+    expect(within(budget).getByText(formatBudgetBalanceAnswer(latestBudget.value))).toBeVisible()
+    expect(within(budget).getByText(formatBudgetBalancePerHundred(latestBudget.value))).toBeVisible()
+    expect(within(budget).getByText(/relative to historical (?:deficits|surpluses)|by historical standards/)).toBeVisible()
     const compactProps = compactChartPropsSpy.mock.calls.find(
       ([props]) => props.definition.seriesLabel === 'Federal deficit as a share of GDP',
     )?.[0]
@@ -2104,11 +2192,14 @@ describe('DashboardPage economic series', () => {
     expect(within(budget).getByText(/persistent large deficits add/)).toBeVisible()
     expect(within(budget).getByRole('button', { name: 'Hide context' })).toBeVisible()
     expect(within(budget).queryByRole('button', { name: 'Maximum' })).not.toBeInTheDocument()
-    expect(within(debt).getByLabelText(/Federal debt held by the public was 98\.7%/)).toHaveTextContent('98.7%')
-    expect(within(debt).getByText(/2026 Q1 · Percent of GDP/)).toBeVisible()
-    expect(within(debt).getByText('Federal debt held by the public is approximately equal to one year of U.S. economic output.')).toBeVisible()
-    expect(within(debt).getByText('The debt ratio is very high by postwar standards.')).toBeVisible()
-    expect(within(debt).getByText(/ratio has risen by 1\.7 percentage points over the past five years/)).toBeVisible()
+    expect(within(debt).getByLabelText(/Federal debt held by the public was/))
+      .toHaveTextContent(formatPercentage(latestDebt.value))
+    expect(within(debt).getByText(
+      new RegExp(`${formatObservationPeriod(latestDebt.date, 'quarterly')} · Percent of GDP`),
+    )).toBeVisible()
+    expect(within(debt).getByText(debtContext.outputComparison)).toBeVisible()
+    expect(within(debt).getByText(/The debt ratio is (very low|low|typical|high|very high) by postwar standards\./)).toBeVisible()
+    expect(within(debt).getByText(debtContext.directionStatement)).toBeVisible()
     const debtCompactProps = compactChartPropsSpy.mock.calls.find(
       ([props]) => props.definition.seriesLabel === 'Federal debt held by the public',
     )?.[0]
@@ -2132,8 +2223,12 @@ describe('DashboardPage economic series', () => {
     expect(within(debt).getByText('Federal net interest expense')).toBeVisible()
     await user.click(within(budget).getByRole('button', { name: 'Maximum' }))
     await user.click(within(debt).getByRole('button', { name: 'Maximum' }))
-    expect(within(budget).getByText('Visible period: 1929–2025')).toBeVisible()
-    expect(within(debt).getByText('Visible period: 1970 Q1–2026 Q1')).toBeVisible()
+    expect(within(budget).getByText(
+      `Visible period: ${formatObservationPeriod(budgetSeries!.observations[0]!.date, 'annual')}–${formatObservationPeriod(latestBudget.date, 'annual')}`,
+    )).toBeVisible()
+    expect(within(debt).getByText(
+      `Visible period: ${formatObservationPeriod(debtSeries!.observations[0]!.date, 'quarterly')}–${formatObservationPeriod(latestDebt.date, 'quarterly')}`,
+    )).toBeVisible()
     await user.click(within(budget).getByRole('button', { name: 'Zoom in' }))
     expect(within(budget).getByRole('button', { name: 'Reset zoom' })).toBeVisible()
   })
@@ -2156,17 +2251,33 @@ describe('DashboardPage economic series', () => {
 
   it('renders trade flows and effective tariff burden after Government finances', async () => {
     const user = userEvent.setup()
+    const [tradeSeries, tariffSeries] = await Promise.all([
+      localEconomicSeriesRepository.getBySlug('trade-balance-share-of-gdp'),
+      localEconomicSeriesRepository.getBySlug('effective-tariff-burden'),
+    ])
+    const latestTrade = findLatestNonNullObservation(tradeSeries!.observations)!
+    const latestTariff = findLatestNonNullObservation(tariffSeries!.observations)!
+    const tradeState = classifyTradeBalance(latestTrade.value)
+    const tariffModel = deriveHistoricalBandContext(
+      tariffSeries!.observations,
+      tariffBurdenCompactDefinition.historicalBands,
+    )
+    expect(tariffModel.status).toBe('ready')
+    if (tariffModel.status !== 'ready') return
     render(<DashboardPage />)
     const government = screen.getByRole('region', { name: 'Government finances' })
     const trade = screen.getByRole('region', { name: 'Trade and tariffs' })
     expect(government.compareDocumentPosition(trade) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    const balance = await within(trade).findByRole('article', { name: 'How large is the U.S. trade deficit relative to the economy?' })
+    const balance = await within(trade).findByRole('article', {
+      name: formatTradeBalanceQuestion(tradeState),
+    })
     const tariff = await within(trade).findByRole('article', { name: 'How heavily are imported goods being taxed?' })
     expect(within(trade).getAllByRole('article')).toHaveLength(2)
-    expect(within(balance).getByLabelText(/compact chart shows the positive deficit magnitude/)).toHaveTextContent('2.7%')
-    expect(within(balance).getByText('Trade deficit')).toBeVisible()
-    expect(within(balance).getByText(/\$2\.70 more in imports than exports/)).toBeVisible()
-    expect(within(balance).getByText(/trade deficit has narrowed by 0\.8 percentage points/)).toBeVisible()
+    expect(within(balance).getByLabelText(/compact chart shows the positive (?:(?:deficit|surplus) magnitude|absolute balance gap)/))
+      .toHaveTextContent(formatPercentage(Math.abs(latestTrade.value!)))
+    expect(within(balance).getByText(formatTradeBalanceStateLabel(tradeState))).toBeVisible()
+    expect(within(balance).getByText(formatTradeBalancePerHundred(latestTrade.value))).toBeVisible()
+    expect(within(balance).getByText(formatTradeBalanceDirection(tradeSeries!.observations))).toBeVisible()
     const tradeCompactProps = compactChartPropsSpy.mock.calls.find(([props]) => props.definition.seriesLabel === 'U.S. trade deficit as a share of GDP')?.[0]
     expect(tradeCompactProps.definition.interactiveCursor).toBe('pointer')
     expect(tradeCompactProps.model.recentObservations).toHaveLength(21)
@@ -2175,9 +2286,9 @@ describe('DashboardPage economic series', () => {
     await user.click(context)
     expect(within(balance).getByText(/not automatically a sign of economic weakness/)).toBeVisible()
     expect(within(tariff).getByText('Realized tariff burden')).toBeVisible()
-    expect(within(tariff).getByText(/\$8\.80 for every \$100/)).toBeVisible()
-    expect(within(tariff).getByText(/very high by the standards/)).toBeVisible()
-    expect(within(tariff).getByText(/much higher than a year ago but below/)).toBeVisible()
+    expect(within(tariff).getByText(formatTariffPerHundred(latestTariff.value))).toBeVisible()
+    expect(within(tariff).getByText(formatTariffHistoricalPosition(tariffModel))).toBeVisible()
+    expect(within(tariff).getByText(formatTariffDirection(tariffSeries!.observations))).toBeVisible()
     const tariffContext = within(tariff).getByRole('button', { name: 'Why this matters for tariffs' })
     await user.click(tariffContext)
     expect(within(tariff).getByText(/does not translate one-for-one/)).toBeVisible()

@@ -104,27 +104,22 @@ describe('filterObservationsByTimeRange', () => {
 
 describe('calculateChartSummary', () => {
   it.each([
-    [
-      realGdpPerCapitaGrowthData,
-      -7.823996152921375,
-      12.233931552587652,
-    ],
-    [
-      laborProductivityGrowthData,
-      -2.1720641151455555,
-      7.169858347526281,
-    ],
+    realGdpPerCapitaGrowthData,
+    laborProductivityGrowthData,
   ])(
     'summarizes a Story 11 full-history series',
-    (data, minimum, maximum) => {
+    (data) => {
       const series = validateEconomicSeries(data)
-      expect(calculateChartSummary(series.observations)).toMatchObject({
-        minimum: { value: minimum },
-        maximum: { value: maximum },
+      const summary = calculateChartSummary(series.observations)
+      expect(summary).toMatchObject({
         latest: series.observations.at(-1),
         hasBelowZero: true,
         observationCount: series.observations.filter(({ value }) => value !== null).length,
       })
+      const finiteValues = series.observations.flatMap(({ value }) =>
+        value === null ? [] : [value])
+      expect(summary.minimum?.value).toBe(Math.min(...finiteValues))
+      expect(summary.maximum?.value).toBe(Math.max(...finiteValues))
     },
   )
 
