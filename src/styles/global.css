@@ -125,7 +125,7 @@ p {
   font-weight: 600;
 }
 
-.dashboard-refresh-alert {
+.page-intro .dashboard-refresh-alert {
   color: #ba0d0d;
   font-size: 1rem;
   line-height: 1.3;
