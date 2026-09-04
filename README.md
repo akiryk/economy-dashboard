@@ -123,9 +123,10 @@ gh secret set FRED_API_KEY --repo akiryk/economy-dashboard
 Every refresh runs lint, typecheck, tests, the production build, and
 `git diff --check`. Metadata-only retrieval-date rewrites are discarded. With
 no substantive tracked dataset changes, the scheduled run succeeds without a
-commit or deployment. With valid changes, the workflow commits only dataset
-JSON using the `github-actions[bot]` identity and deploys the already validated
-artifact in the same workflow. A refresh, validation, build, push, artifact, or
+commit or deployment. With valid changes, the workflow commits the dataset JSON
+and durable successful-refresh date using the `github-actions[bot]` identity,
+then deploys the already validated artifact in the same workflow. A refresh,
+validation, build, push, artifact, or
 deployment failure stops the workflow before the Pages deployment completes,
 so GitHub Pages continues serving the previous successful artifact.
 
@@ -133,7 +134,9 @@ To verify the deployed revision and newest dataset retrieval date, open:
 
 **https://akiryk.github.io/economy-dashboard/deployment-metadata.json**
 
-The `deploymentCommit` identifies the deployed repository revision, and
+The `deploymentCommit` identifies the deployed repository revision,
 `latestDatasetDate` reports the newest `retrievedAt` value in the deployed
-dataset inventory. The same retrieval dates remain visible in each card's
+dataset inventory, and `lastSuccessfulDataRefreshDate` records the most recent
+successful substantive data ingestion shown in the home-page headline. The
+same retrieval dates remain visible in each card's
 Series details disclosure.

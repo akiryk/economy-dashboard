@@ -20,6 +20,7 @@
     "data:freshness": "tsx scripts/inspectDataFreshness.ts",
     "diagnostics:write": "tsx scripts/writeWorkflowDiagnostic.ts",
     "freshness:write-refresh-failure": "tsx scripts/writePublicRefreshFailure.ts",
+    "refresh:record-success": "tsx scripts/recordSuccessfulDataRefresh.ts",
     "operations:reminders": "tsx scripts/evaluateSourceReminders.ts",
     "operations:record-source-review": "tsx scripts/recordSourceReview.ts",
     "lint": "eslint .",

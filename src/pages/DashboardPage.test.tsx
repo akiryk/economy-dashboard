@@ -505,7 +505,7 @@ describe('DashboardPage economic series', () => {
     const households = screen.getByRole('region', { name: 'Households' })
     expect(screen.getByRole('heading', {
       level: 1,
-      name: 'U.S. Economy, August 13, 2026',
+      name: 'U.S. Economy, September 4, 2026',
     })).toBeVisible()
     expect(within(growth).queryByText(
       /Growth measures how much the economy is producing/,

@@ -323,6 +323,13 @@ existing issue notification remains the fallback for that case.
 | FED-RESEARCH | Federal Reserve Board [accessible Figure 2](https://www.federalreserve.gov/econres/notes/feds-notes/labor-force-growth-breakeven-employment-and-potential-gdp-growth-accessible-20260402.htm) and [accessible Figure 5](https://www.federalreserve.gov/econres/notes/feds-notes/detecting-tariff-effects-on-consumer-prices-in-real-time-part-II-accessible-20260408.htm) | Irregular publication-vintage research, no fixed update schedule. Figure 2 includes labeled projections; Figure 5 currently ends Feb 2026. | Breakeven: `data:refresh-job-growth-breakeven` (**not scheduled**). Figure 5: `data:refresh-core-goods-pce` (included in daily `data:refresh`). | No generic age threshold. Healthy while official publication is unchanged. Warning requires quarterly manual source-page review. Unexpected when official source changes/supersedes the table and repository remains unchanged after its applicable check. | Do not relabel projections as observations. Agent investigates official replacement/publication; owner decides whether a superseding source is definitionally compatible. |
 | OECD | OECD Data Explorer SDMX dataflows listed in the UI matrix and `international-comparison-registry.md` | Mixed monthly/quarterly, heterogeneous national release timing and revisions. | `data:refresh-international`; automatic daily, nonblocking diagnostic; three bounded retries for timeouts/429/5xx | Healthy when U.S. is current, at least 8/10 peers are current, monthly peers trail newest by ≤3 periods and quarterly by ≤2. Older peers display stale/N/A. Unexpected when OECD advanced but complete validated snapshot cannot deploy for three consecutive daily checks. | Every failure preserves the full last-good snapshot and does not block unrelated data. Inspect OECD response/schema; repair version/dimensions only after authoritative review. Do not forward-fill peers. |
 
+The home-page headline date is global operational context, not a dataset-level
+freshness verdict. It records the UTC date of the most recent successful
+substantive ingestion and advances only with validated changed datasets.
+Unchanged checks, code-only deployments, and failure-notice deployments retain
+the prior date. Continue to use the contracts above and visible observation
+periods to judge the freshness of an individual measure.
+
 ## Standard stale-data incident runbook
 
 Follow every step; do not start by editing dates or tests.

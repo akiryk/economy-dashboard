@@ -631,8 +631,13 @@ Production is served at
 [`https://akiryk.github.io/economy-dashboard/`](https://akiryk.github.io/economy-dashboard/).
 The deployed
 [`deployment-metadata.json`](https://akiryk.github.io/economy-dashboard/deployment-metadata.json)
-reports the exact `deploymentCommit` and the newest deployed dataset
-`latestDatasetDate`. The application also shows each individual dataset's
+reports the exact `deploymentCommit`, the newest deployed dataset
+`latestDatasetDate`, and `lastSuccessfulDataRefreshDate`, the UTC calendar date
+when substantive provider changes most recently passed verification and were
+accepted for deployment. The durable refresh date is committed with validated
+dataset changes, so failed, unchanged, and code-only deployments preserve it;
+it drives the home-page headline and is distinct from an observation date or
+the newest per-file retrieval timestamp. The application also shows each individual dataset's
 retrieval date under the relevant card's Series details disclosure.
 
 ## OECD international comparisons

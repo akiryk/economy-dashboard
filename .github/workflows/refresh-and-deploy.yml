@@ -120,6 +120,9 @@ jobs:
         id: test
         run: npm test
 
+      - name: Record successful substantive data refresh
+        run: npm run refresh:record-success -- --file src/features/data-freshness/data/refresh-metadata.json --date "$(date -u +%F)" --event-name "${{ github.event_name }}" --data-changed "${{ steps.changes.outputs.data_changed }}"
+
       - name: Evaluate manual-source reminders
         if: always() && steps.install.outcome == 'success'
         id: reminders
@@ -187,8 +190,8 @@ jobs:
           if [[ "$DATA_CHANGED" == 'true' ]]; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add -- 'src/features/economic-series/data/*.json'
-            unexpected_staged="$(git diff --cached --name-only -- . ':(exclude)src/features/economic-series/data/*.json')"
+            git add -- 'src/features/economic-series/data/*.json' 'src/features/data-freshness/data/refresh-metadata.json'
+            unexpected_staged="$(git diff --cached --name-only -- . ':(exclude)src/features/economic-series/data/*.json' ':(exclude)src/features/data-freshness/data/refresh-metadata.json')"
             if [[ -n "$unexpected_staged" ]]; then
               echo 'Refusing to commit files outside the dataset directory.' >&2
               printf '%s\n' "$unexpected_staged" >&2

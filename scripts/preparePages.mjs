@@ -5,6 +5,9 @@ const dataDirectory = path.resolve(
   'src/features/economic-series/data',
 )
 const outputDirectory = path.resolve('dist')
+const refreshMetadataPath = path.resolve(
+  'src/features/data-freshness/data/refresh-metadata.json',
+)
 
 async function latestDatasetDate() {
   const files = (await readdir(dataDirectory))
@@ -29,6 +32,9 @@ await copyFile(
 const metadata = {
   deploymentCommit: process.env.DEPLOYMENT_COMMIT ?? 'local-build',
   latestDatasetDate: await latestDatasetDate(),
+  lastSuccessfulDataRefreshDate: JSON.parse(
+    await readFile(refreshMetadataPath, 'utf8'),
+  ).lastSuccessfulDataRefreshDate,
 }
 await writeFile(
   path.join(outputDirectory, 'deployment-metadata.json'),

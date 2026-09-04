@@ -3,6 +3,8 @@ import { DashboardNavigation } from "../components/layout/DashboardNavigation";
 import { EconomicSeriesCard } from "../features/economic-series/components/EconomicSeriesCard";
 import { JobGrowthBreakevenCard } from "../features/economic-series/components/JobGrowthBreakevenCard";
 import { DashboardFreshnessAlert } from "../features/data-freshness/DashboardFreshnessAlert";
+import dashboardRefreshMetadata from "../features/data-freshness/data/refresh-metadata.json";
+import { formatDashboardHeading } from "../features/data-freshness/dashboardRefreshMetadata";
 
 const payrollSupportingSlugs = ["monthly-payroll-change"] as const;
 const weeklyClaimsSupportingSlugs = ["initial-unemployment-claims"] as const;
@@ -52,7 +54,9 @@ export function DashboardPage() {
   return (
     <div className="page">
       <section className="page-intro" aria-labelledby="dashboard-heading">
-        <h1 id="dashboard-heading">U.S. Economy, August 13, 2026</h1>
+        <h1 id="dashboard-heading">
+          {formatDashboardHeading(dashboardRefreshMetadata)}
+        </h1>
         <DashboardFreshnessAlert />
       </section>
 
