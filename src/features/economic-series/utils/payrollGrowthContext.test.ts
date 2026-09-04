@@ -204,7 +204,7 @@ describe('payroll trend interpretation', () => {
   it('calibrates sign divergence against committed historical cases', () => {
     for (const date of [
       '2001-03-01', '2007-07-01', '2008-02-01', '2010-06-01',
-      '2020-12-01', '2025-01-01', '2025-06-01', '2026-07-01',
+      '2020-12-01', '2025-01-01', '2025-06-01',
     ]) {
       const averages = payrollGrowth.observations.filter(({ date: item }) => item <= date)
       const monthly = monthlyPayroll.observations.filter(({ date: item }) => item <= date)

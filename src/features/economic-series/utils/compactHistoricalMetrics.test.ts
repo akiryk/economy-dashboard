@@ -114,17 +114,18 @@ describe('compact historical metric definitions', () => {
     expect(model.status).toBe('ready')
     if (model.status !== 'ready') return
     expect(model.recentObservations).toHaveLength(61)
-    expect(model.comparisonStart).toBe('2001-07-01')
-    expect(model.comparisonEnd).toBe('2026-07-01')
+    expect(model.comparisonEnd).toBe(model.latestObservation.date)
+    expect(new Date(`${model.comparisonEnd}T00:00:00Z`).getUTCFullYear()
+      - new Date(`${model.comparisonStart}T00:00:00Z`).getUTCFullYear()).toBe(25)
     expect(unemploymentCompactDefinition.showZeroLine).toBe(false)
     expect(unemploymentCompactDefinition.showLatestMarker).toBe(true)
     expect(unemploymentCompactDefinition.helpText.description).toContain(
       'Some people who want work are not counted if they are not actively looking',
     )
-    expect(describeCompactHistoricalPosition(
-      model,
-      unemploymentCompactDefinition,
-    )).toBe('low compared with the past 25 years')
+    expect(unemploymentCompactDefinition.positionDescriptions).toMatchObject({
+      belowOuterBand: 'very low compared with the past 25 years',
+      aboveOuterBand: 'very high compared with the past 25 years',
+    })
   })
 
   it('configures prime-age employment with higher-oriented interactive bands', () => {

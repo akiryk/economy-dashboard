@@ -5,13 +5,19 @@ import type {
   EconomicFrequency,
   EconomicObservation,
 } from '../features/economic-series/models/economicSeries'
-import type { CompactHistoricalMetricDefinition } from '../features/economic-series/utils/compactHistoricalMetrics'
+import {
+  corporateProfitShareCompactDefinition,
+  describeCompactHistoricalPosition,
+  type CompactHistoricalMetricDefinition,
+} from '../features/economic-series/utils/compactHistoricalMetrics'
 import type { HistoricalBandResult } from '../features/economic-series/utils/historicalBandContext'
+import { deriveHistoricalBandContext } from '../features/economic-series/utils/historicalBandContext'
 import type { InflationDriversSupportingTrendsModel } from '../features/economic-series/utils/inflationCategoryTrends'
 import type { RealWageGrowthModel } from '../features/economic-series/utils/realWageGrowth'
 import joltsLayoffsData from '../features/economic-series/data/jolts-layoffs-and-discharges-rate.json'
 import realGdpGrowthData from '../features/economic-series/data/real-gdp-growth.json'
 import inflationContributionData from '../features/economic-series/data/inflation-contributions.json'
+import corporateProfitShareData from '../features/economic-series/data/corporate-profit-share.json'
 import { validateEconomicSeries } from '../features/economic-series/models/validateEconomicSeries'
 import { localEconomicSeriesRepository } from '../features/economic-series/repositories/localEconomicSeriesRepository'
 import {
@@ -1721,16 +1727,33 @@ describe('DashboardPage economic series', () => {
 
   it('renders the corporate profit share as a scale-adjusted ratio', async () => {
     const user = userEvent.setup()
+    const corporateProfitShareSeries = validateEconomicSeries(corporateProfitShareData)
+    const latestCorporateProfitShare = findLatestNonNullObservation(
+      corporateProfitShareSeries.observations,
+    )
+    expect(latestCorporateProfitShare).not.toBeNull()
+    if (!latestCorporateProfitShare) return
+    const latestCorporateProfitShareValue = latestCorporateProfitShare.value
+    expect(latestCorporateProfitShareValue).not.toBeNull()
+    if (latestCorporateProfitShareValue === null) return
+    const corporateProfitShareHistory = deriveHistoricalBandContext(
+      corporateProfitShareSeries.observations,
+      corporateProfitShareCompactDefinition.historicalBands,
+    )
+    expect(corporateProfitShareHistory.status).toBe('ready')
+    if (corporateProfitShareHistory.status !== 'ready') return
     render(<DashboardPage />)
     const card = await screen.findByRole('article', {
       name: 'How large are corporate profits relative to the economy?',
     })
 
     expect(within(card).getByLabelText(/economy-wide national-accounts ratio/))
-      .toHaveTextContent('11.4%')
+      .toHaveTextContent(formatPercentage(latestCorporateProfitShareValue))
     expect(within(card).getAllByText('Adjusted after-tax corporate profits as a share of GDP')).toHaveLength(2)
-    expect(within(card).getByText('About $11.37 in adjusted after-tax corporate profit for every $100 of GDP.')).toBeVisible()
-    expect(within(card).getByText('The current corporate-profit share is very high by the standards of the past 25 years.')).toBeVisible()
+    expect(within(card).getByText(`About $${latestCorporateProfitShareValue.toFixed(2)} in adjusted after-tax corporate profit for every $100 of GDP.`)).toBeVisible()
+    expect(within(card).getByText(
+      `The current corporate-profit share is ${describeCompactHistoricalPosition(corporateProfitShareHistory, corporateProfitShareCompactDefinition)}.`,
+    )).toBeVisible()
     expect(within(card).queryByText(/sustained rise since the 1990s/)).not.toBeInTheDocument()
     await user.click(within(card).getByRole('button', {
       name: 'Why this matters for corporate profits',
