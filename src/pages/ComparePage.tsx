@@ -1,5 +1,7 @@
 import { InternationalComparisonCard } from '../features/international-comparison/components/InternationalComparisonCard'
 import { internationalComparisonRepository } from '../features/international-comparison/repositories/internationalComparisonRepository'
+import { FreshnessScope } from '../features/data-freshness/FreshnessContext'
+import { FreshnessNotice } from '../features/data-freshness/FreshnessNotice'
 import '../styles/comparePage.css'
 
 export function ComparePage() {
@@ -11,6 +13,9 @@ export function ComparePage() {
           See how the United States compares with other wealthy economies
           across measures used in this dashboard.
         </p>
+        <FreshnessScope datasetKeys={['international-comparisons']}>
+          <FreshnessNotice />
+        </FreshnessScope>
       </section>
       <section className="compare-page__grid" aria-label="International economic comparisons">
         <InternationalComparisonCard

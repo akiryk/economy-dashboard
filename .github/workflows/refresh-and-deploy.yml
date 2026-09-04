@@ -129,6 +129,10 @@ jobs:
         continue-on-error: true
         run: npm run operations:reminders -- --output .workflow-diagnostics/reminders.json --ui-output public/data-freshness.json
 
+      - name: Publish scoped OECD refresh failure
+        if: steps.oecd.outcome == 'failure'
+        run: npm run freshness:write-refresh-failure -- --input public/data-freshness.json --output public/data-freshness.json --dataset international-comparisons
+
       - name: Check for an unresolved refresh incident
         if: github.event_name == 'push'
         id: existing_incident
@@ -142,12 +146,17 @@ jobs:
               state: 'open',
               per_page: 100,
             })
-            return issues.data.some((issue) =>
-              issue.title === '[Data operations] Refresh or deployment requires attention')
+            const issue = issues.data.find((candidate) =>
+              candidate.title === '[Data operations] Refresh or deployment requires attention')
+            if (!issue) return ''
+            return issue.body?.match(/- \*\*Affected data:\*\* ([^\n]+)/)?.[1]
+              ?? 'visible-economic-datasets'
 
       - name: Preserve unresolved refresh notice
-        if: steps.existing_incident.outputs.result == 'true'
-        run: npm run freshness:write-refresh-failure -- --input public/data-freshness.json --output public/data-freshness.json
+        if: steps.existing_incident.outputs.result != ''
+        env:
+          AFFECTED_DATASET: ${{ steps.existing_incident.outputs.result }}
+        run: npm run freshness:write-refresh-failure -- --input public/data-freshness.json --output public/data-freshness.json --dataset "$AFFECTED_DATASET"
 
       - name: Install Chromium for browser smoke tests
         id: chromium

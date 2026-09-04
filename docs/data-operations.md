@@ -273,6 +273,16 @@ primary/supporting datasets, status tiles use the same dataset keys, and OECD
 uses only the snapshot-level contract; accepted country-specific lag continues
 to appear as the existing stale/N/A row treatment rather than a global warning.
 
+Global warning routing is fail-safe. Dataset failures default to the prominent
+home-page warning unless the freshness registry explicitly marks the dataset
+`scoped-only` with a reason and public message. `international-comparisons` is
+the sole scoped-only exception because it appears only on the secondary
+`/compare` page and safely preserves a complete last-known-good snapshot. Its
+failure remains visible once at the top of that page, in workflow diagnostics,
+and in the owner issue; it does not imply that primary U.S. dashboard data are
+out of date. Provider names are not allowlisted, so any future dataset defaults
+to the global warning until its specific product surface is reviewed.
+
 Scheduled and manually dispatched refreshes have a separate whole-dashboard
 failure surface. If retrieval, validation, verification, commit, or artifact
 preparation fails before refreshed data can deploy, a fallback job checks out
@@ -283,7 +293,8 @@ unverified refreshed working tree is never included. The next successful
 refresh regenerates the manifest without that state and clears the alert.
 Push-triggered runs do not contact providers, so they neither create nor clear
 the refresh incident. When deploying an unrelated code push, they preserve an
-existing alert while the operational incident issue remains open. A GitHub
+existing alert on the affected surface according to the registry policy while
+the operational incident issue remains open. A GitHub
 Pages deployment outage cannot update the page it prevents from deploying; the
 existing issue notification remains the fallback for that case.
 

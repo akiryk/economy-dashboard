@@ -4,6 +4,7 @@ import {
   dashboardRefreshDatasetId,
   type PublicFreshnessState,
 } from '../src/features/data-freshness/freshnessTypes'
+import { globalAlertPolicyForDataset } from '../src/features/data-freshness/freshnessRegistry'
 
 interface PublicFreshnessManifest {
   schemaVersion: 1
@@ -29,16 +30,24 @@ function parseManifest(value: unknown): PublicFreshnessManifest {
 export function withRefreshFailure(
   manifest: PublicFreshnessManifest,
   generatedAt: string,
+  affectedDatasetId = dashboardRefreshDatasetId,
 ): PublicFreshnessManifest {
+  const policy = globalAlertPolicyForDataset(affectedDatasetId)
+  const datasetId = policy.visibility === 'global'
+    ? dashboardRefreshDatasetId
+    : affectedDatasetId
+  const message = policy.visibility === 'global'
+    ? 'Data is possibly out of date.'
+    : policy.publicMessage
   return {
     schemaVersion: 1,
     generatedAt,
     datasets: [
-      ...manifest.datasets.filter(({ datasetId }) => datasetId !== dashboardRefreshDatasetId),
+      ...manifest.datasets.filter((dataset) => dataset.datasetId !== datasetId),
       {
-        datasetId: dashboardRefreshDatasetId,
+        datasetId,
         state: 'failure',
-        message: 'Data is possibly out of date.',
+        message,
       },
     ],
   }
@@ -47,12 +56,15 @@ export function withRefreshFailure(
 async function main() {
   const inputPath = resolve(argument('input'))
   const outputPath = resolve(argument('output'))
+  const datasetId = process.argv.includes('--dataset')
+    ? argument('dataset')
+    : dashboardRefreshDatasetId
   const manifest = parseManifest(JSON.parse(await readFile(inputPath, 'utf8')) as unknown)
   const generatedAt = new Date().toISOString()
   await mkdir(dirname(outputPath), { recursive: true })
   await writeFile(
     outputPath,
-    `${JSON.stringify(withRefreshFailure(manifest, generatedAt), null, 2)}\n`,
+    `${JSON.stringify(withRefreshFailure(manifest, generatedAt, datasetId), null, 2)}\n`,
     { encoding: 'utf8', mode: 0o644 },
   )
 }

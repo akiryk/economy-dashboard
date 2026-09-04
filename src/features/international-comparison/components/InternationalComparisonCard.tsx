@@ -1,6 +1,4 @@
 import { metricCountryReadings, peerCountries, type InternationalMetric } from '../models/internationalComparison'
-import { FreshnessScope } from '../../data-freshness/FreshnessContext'
-import { FreshnessNotice } from '../../data-freshness/FreshnessNotice'
 
 interface InternationalComparisonCardProps {
   metric: InternationalMetric
@@ -46,7 +44,7 @@ export function InternationalComparisonCard({ metric }: InternationalComparisonC
   const spread = maximum - minimum
   const unitedStatesRank = available.findIndex(({ countryCode }) => countryCode === 'USA') + 1
 
-  return <FreshnessScope datasetKeys={['international-comparisons']}>
+  return (
     <article className="comparison-card" aria-labelledby={`${metric.id}-heading`}>
       <header className="comparison-card__header">
         <p className="comparison-card__eyebrow">{metric.title}</p>
@@ -65,8 +63,6 @@ export function InternationalComparisonCard({ metric }: InternationalComparisonC
               : 'Numeric order is descriptive; higher or lower is not inherently better.'}
         </p>
       </header>
-      <FreshnessNotice />
-
       <ol className="comparison-card__list">
         {available.map((reading) => {
           const width = spread === 0 ? 100 : 12 + ((reading.observation.value - minimum) / spread) * 88
@@ -115,5 +111,5 @@ export function InternationalComparisonCard({ metric }: InternationalComparisonC
         <a href={metric.source.url}>OECD Data Explorer source</a>
       </details>
     </article>
-  </FreshnessScope>
+  )
 }

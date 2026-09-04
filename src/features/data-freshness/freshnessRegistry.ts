@@ -118,6 +118,22 @@ export const visibleDatasetFreshnessById = new Map(
   visibleDatasetFreshnessRegistry.map((definition) => [definition.datasetId, definition]),
 )
 
+export type GlobalAlertPolicy =
+  | { visibility: 'global' }
+  | { visibility: 'scoped-only'; reason: string; publicMessage: string }
+
+const scopedOnlyAlertPolicies = new Map<string, GlobalAlertPolicy>([
+  ['international-comparisons', {
+    visibility: 'scoped-only',
+    reason: 'OECD data appear only on the secondary comparison page, which can safely retain its last-known-good snapshot.',
+    publicMessage: 'International comparison data could not be refreshed; last-known-good data are shown.',
+  }],
+])
+
+export function globalAlertPolicyForDataset(datasetId: string): GlobalAlertPolicy {
+  return scopedOnlyAlertPolicies.get(datasetId) ?? { visibility: 'global' }
+}
+
 const seriesSlugToDataset = new Map<string, VisibleDatasetFreshnessDefinition>()
 for (const definition of visibleDatasetFreshnessRegistry) {
   for (const slug of definition.seriesSlugs) {

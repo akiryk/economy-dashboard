@@ -8,6 +8,7 @@ import { internationalMetricIds } from '../international-comparison/models/inter
 import {
   freshnessContracts,
   freshnessDatasetForSeriesSlug,
+  globalAlertPolicyForDataset,
   visibleDatasetFreshnessRegistry,
 } from './freshnessRegistry'
 
@@ -47,5 +48,26 @@ describe('visible dataset freshness registry', () => {
         expect(freshnessContracts[contractId], definition.datasetId).toBeDefined()
       }
     }
+  })
+})
+
+describe('global alert routing', () => {
+  it('routes OECD comparison failures only to their affected surface', () => {
+    expect(globalAlertPolicyForDataset('international-comparisons')).toMatchObject({
+      visibility: 'scoped-only',
+      reason: expect.any(String),
+    })
+  })
+
+  it('keeps the scoped-only exception list explicit and tied to a registered dataset', () => {
+    expect(visibleDatasetFreshnessRegistry
+      .filter(({ datasetId }) => globalAlertPolicyForDataset(datasetId).visibility === 'scoped-only')
+      .map(({ datasetId }) => datasetId))
+      .toEqual(['international-comparisons'])
+  })
+
+  it('defaults unknown and newly added datasets to the global warning', () => {
+    expect(globalAlertPolicyForDataset('unregistered-critical-source'))
+      .toEqual({ visibility: 'global' })
   })
 })

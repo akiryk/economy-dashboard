@@ -1,5 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
+import { FreshnessProvider } from '../features/data-freshness/FreshnessContext'
+import { DashboardFreshnessAlert } from '../features/data-freshness/DashboardFreshnessAlert'
 import { ComparePage } from './ComparePage'
 
 afterEach(cleanup)
@@ -21,5 +23,25 @@ describe('ComparePage', () => {
     expect(screen.getAllByRole('listitem')).toHaveLength(50)
     expect(screen.getAllByText('U.S. focus')).toHaveLength(5)
     expect(screen.getAllByRole('link', { name: 'OECD Data Explorer source' })).toHaveLength(5)
+  })
+
+  it('shows one scoped OECD failure without creating a dashboard warning', () => {
+    render(
+      <FreshnessProvider initialStates={[{
+        datasetId: 'international-comparisons',
+        state: 'failure',
+        message: 'International comparison data could not be refreshed; last-known-good data are shown.',
+      }]}
+      >
+        <ComparePage />
+        <DashboardFreshnessAlert />
+      </FreshnessProvider>,
+    )
+
+    expect(screen.getAllByRole('alert')).toHaveLength(1)
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Data update failed: International comparison data could not be refreshed; last-known-good data are shown.',
+    )
+    expect(document.querySelector('.dashboard-refresh-alert')).not.toBeInTheDocument()
   })
 })
