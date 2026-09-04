@@ -13,7 +13,7 @@
   "transformation": "Percent change from year ago",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/GDPC1",
-  "retrievedAt": "2026-08-03",
+  "retrievedAt": "2026-09-04",
   "observations": [
     {
       "date": "1948-01-01",
@@ -1269,7 +1269,7 @@
     },
     {
       "date": "2026-04-01",
-      "value": 2.10182
+      "value": 2.09767
     }
   ]
 }

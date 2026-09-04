@@ -13,7 +13,7 @@
   "transformation": "Percent change from year ago, calculated by the application using exact 12-month matching",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/PCEPI",
-  "retrievedAt": "2026-08-03",
+  "retrievedAt": "2026-09-04",
   "observations": [
     {
       "date": "1960-01-01",
@@ -3197,15 +3197,19 @@
     },
     {
       "date": "2026-04-01",
-      "value": 3.790725326991673
+      "value": 3.8018232263178797
     },
     {
       "date": "2026-05-01",
-      "value": 4.078968191169485
+      "value": 4.111410033233098
     },
     {
       "date": "2026-06-01",
-      "value": 3.668052673520439
+      "value": 3.71697056247684
+    },
+    {
+      "date": "2026-07-01",
+      "value": 3.7011657214870874
     }
   ]
 }

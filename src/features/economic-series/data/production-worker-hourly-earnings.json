@@ -13,7 +13,7 @@
   "transformation": "Provider-published monthly level",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/AHETPI",
-  "retrievedAt": "2026-08-20",
+  "retrievedAt": "2026-09-04",
   "observations": [
     {
       "date": "1964-01-01",
@@ -3013,11 +3013,15 @@
     },
     {
       "date": "2026-06-01",
-      "value": 32.36
+      "value": 32.38
     },
     {
       "date": "2026-07-01",
-      "value": 32.4
+      "value": 32.42
+    },
+    {
+      "date": "2026-08-01",
+      "value": 32.53
     }
   ]
 }

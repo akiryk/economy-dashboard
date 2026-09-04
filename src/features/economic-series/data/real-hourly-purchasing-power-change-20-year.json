@@ -13,7 +13,7 @@
   "transformation": "((real level at t / real level at t-240 months) - 1) × 100; exact-month alignment, no interpolation or intermediate rounding",
   "sourceName": "U.S. Bureau of Labor Statistics wage and CPI-W data via FRED; calculated by the application",
   "sourceUrl": "https://fred.stlouisfed.org/series/AHETPI",
-  "retrievedAt": "2026-08-20",
+  "retrievedAt": "2026-09-04",
   "observations": [
     {
       "date": "1984-01-01",
@@ -2053,11 +2053,11 @@
     },
     {
       "date": "2026-06-01",
-      "value": 17.322229785761234
+      "value": 17.39474043457816
     },
     {
       "date": "2026-07-01",
-      "value": 17.68322804042528
+      "value": 17.755872008351492
     }
   ],
   "sources": [

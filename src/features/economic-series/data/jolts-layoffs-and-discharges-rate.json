@@ -13,7 +13,7 @@
   "transformation": "Provider-published monthly rate",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/JTSLDR",
-  "retrievedAt": "2026-08-05",
+  "retrievedAt": "2026-09-04",
   "observations": [
     {
       "date": "2000-12-01",
@@ -1242,6 +1242,10 @@
     {
       "date": "2026-06-01",
       "value": 1.1
+    },
+    {
+      "date": "2026-07-01",
+      "value": 1
     }
   ]
 }
