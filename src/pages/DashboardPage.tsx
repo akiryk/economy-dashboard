@@ -4,7 +4,7 @@ import { EconomicSeriesCard } from "../features/economic-series/components/Econo
 import { JobGrowthBreakevenCard } from "../features/economic-series/components/JobGrowthBreakevenCard";
 import { DashboardFreshnessAlert } from "../features/data-freshness/DashboardFreshnessAlert";
 import dashboardRefreshMetadata from "../features/data-freshness/data/refresh-metadata.json";
-import { formatDashboardHeading } from "../features/data-freshness/dashboardRefreshMetadata";
+import { DashboardHeading } from "../features/data-freshness/DashboardHeading";
 
 const payrollSupportingSlugs = ["monthly-payroll-change"] as const;
 const weeklyClaimsSupportingSlugs = ["initial-unemployment-claims"] as const;
@@ -54,9 +54,7 @@ export function DashboardPage() {
   return (
     <div className="page">
       <section className="page-intro" aria-labelledby="dashboard-heading">
-        <h1 id="dashboard-heading">
-          {formatDashboardHeading(dashboardRefreshMetadata)}
-        </h1>
+        <DashboardHeading metadata={dashboardRefreshMetadata} />
         <DashboardFreshnessAlert />
       </section>
 

@@ -2,6 +2,17 @@
 
 Phase 1 is complete. Continue evolving the repository through small, reviewable stories or similarly scoped work items. Favor simplicity, correctness, and maintainability over clever abstractions.
 
+## Mandatory story protocol
+
+For every user story, feature, bug fix, or behavioral code change, you MUST use
+the repository skill at
+`.agents/skills/economy-dashboard-story/SKILL.md` before editing files and
+follow every required gate in that skill. Read `LEARNINGS.md` completely during
+the skill's preflight. A story is not complete if the skill is unavailable or
+any required preflight, forward-change, regression-audit, verification, push,
+or deployment gate is skipped or fails. Read-only explanation and diagnosis do
+not invoke this protocol.
+
 ---
 
 # Project Philosophy

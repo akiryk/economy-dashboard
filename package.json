@@ -26,6 +26,8 @@
     "lint": "eslint .",
     "perf:measure": "tsx scripts/perf/measure.ts",
     "test:smoke": "npm run build && tsx scripts/smoke/idlePerformance.ts",
+    "test:policy": "tsx scripts/checkTestPolicy.ts",
+    "pretest": "npm run test:policy",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b --noEmit",
