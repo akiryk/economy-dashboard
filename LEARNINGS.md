@@ -53,3 +53,24 @@ and records a forward-change check in its completion report.
 
 **Executable checks:** Controlled tests should exercise at least two successive
 valid values when advancement itself is the behavior under test.
+
+## Refresh failure boundaries must match data dependencies
+
+**Invariant:** A failure in one independently publishable refresh unit must not
+discard valid updates from unrelated units, while every genuinely dependent
+output must remain atomic.
+
+**Observed failure:** On September 10, 2026, a transient FRED HTTP 502 for
+initial unemployment claims caused the main refresh command to exit nonzero.
+The workflow discarded successful unrelated work, retained the prior mortgage
+observation, and deployed a whole-dashboard warning.
+
+**Required prevention:** Model refresh units, artifacts, dependencies, and
+visible freshness mappings explicitly. Partial publication may proceed only
+after the complete mixed old/new snapshot passes repository verification.
+Skipped units do not count as recovered, and global verification or deployment
+failures remain globally blocking.
+
+**Executable checks:** Validate unique artifact ownership, full visible-artifact
+coverage, dependency references, and exact unit-to-dataset mappings. Fault-test
+both independent and grouped failures before enabling partial publication.

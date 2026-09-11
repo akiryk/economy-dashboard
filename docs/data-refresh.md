@@ -14,6 +14,30 @@ The generated JSON is committed with the application, so the dashboard remains u
 
 The existing scheduled `.github/workflows/refresh-and-deploy.yml` workflow runs `npm run data:refresh` daily. The streamlined `/dashboard` uses this same path; it does not introduce a second workflow, backend, runtime secret, page-load FRED request, or intraday polling.
 
+### Refresh-unit inventory
+
+`scripts/refresh/refreshUnitRegistry.ts` is the canonical inventory of safe
+refresh boundaries. A refresh unit names its source family and source
+identifiers, owns one or more atomic output artifacts, records dependencies on
+other units, and maps those artifacts to the existing visible-dataset freshness
+registry. Direct FRED configurations produce one unit each unless their outputs
+belong to an explicit multi-output derivation such as CPI, productivity, or
+business investment.
+
+`scripts/refresh/refreshUnit.ts` defines the structured `updated`, `no-change`,
+`failed`, and dependency-blocked `skipped` result states that resilient
+orchestration will emit. Failed and skipped results identify the artifacts
+preserved at their last-known-good state; failed results contain only a
+sanitized category, pipeline stage, and reason. This inventory does not itself
+change current refresh or deployment behavior; later resilient orchestration
+must execute and report against these declared boundaries.
+
+Automated tests require unique unit IDs and artifact ownership, valid acyclic
+dependencies, existing artifact paths, exact affected-dataset mappings, an
+owner for every committed economic-data artifact, and an owner for every
+artifact in the visible freshness registry. This turns refresh ownership into a
+maintained invariant rather than a one-time audit.
+
 ## Supported-series configuration
 
 `scripts/fred/seriesConfigurations.ts` contains an explicit list of supported series. Each entry defines its slug, output file, provider identifier, FRED and domain frequencies, observation start, transformation, minimum history, and domain metadata. The list currently contains:

@@ -168,6 +168,16 @@ contract, deployed and provider periods, state, reason, required human action,
 and diagnostic detail. A failure while evaluating one dataset is isolated as an
 indeterminate warning for that dataset.
 
+The complementary refresh-unit inventory lives in
+`scripts/refresh/refreshUnitRegistry.ts`. It maps each independently safe
+refresh boundary to its atomic artifacts and derives the affected visible
+dataset IDs from this freshness registry. Coverage tests reject missing or
+duplicate artifact ownership, invalid unit dependencies, and disagreement
+between artifact ownership and affected-dataset mapping. The inventory and
+structured result types are currently architectural contracts; the existing
+all-or-nothing workflow behavior remains in place until the later partial
+publication stories adopt them.
+
 During an incident, inspect committed artifacts with:
 
 ```bash
