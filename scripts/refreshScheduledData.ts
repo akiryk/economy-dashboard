@@ -14,6 +14,7 @@ import {
   type RefreshUnitResult,
 } from './refresh/refreshUnit'
 import { refreshUnitRegistry } from './refresh/refreshUnitRegistry'
+import { writeRefreshUnitResultFile } from './refresh/refreshUnitResultFile'
 import { refreshCoreGoodsPceInflation } from './refreshCoreGoodsPceInflation'
 import {
   refreshBusinessInvestmentData,
@@ -58,6 +59,7 @@ interface RunScheduledRefreshCommandOptions {
   refresh?: (options: ScheduledRefreshOptions) => Promise<RefreshUnitResult[]>
   logResult?: (result: RefreshUnitResult) => void
   warn?: (message: string) => void
+  recordResults?: (results: readonly RefreshUnitResult[]) => Promise<void>
 }
 
 export function classifyScheduledRefreshCompletion(
@@ -74,12 +76,14 @@ export async function runScheduledRefreshCommand(
     refresh = refreshScheduledData,
     logResult = logRefreshUnitResult,
     warn = console.warn,
+    recordResults = async () => undefined,
   }: RunScheduledRefreshCommandOptions = {},
 ): Promise<ScheduledRefreshCompletion> {
   const results = await refresh(options)
   for (const result of results) {
     logResult(result)
   }
+  await recordResults(results)
 
   const completion = classifyScheduledRefreshCompletion(results)
   if (completion === 'partial-success') {
@@ -292,9 +296,21 @@ async function main(): Promise<void> {
     )
   }
 
+  const resultsOutputIndex = process.argv.indexOf('--results-output')
+  const resultsOutput = resultsOutputIndex >= 0
+    ? process.argv[resultsOutputIndex + 1]
+    : undefined
+  if (resultsOutputIndex >= 0 && !resultsOutput) {
+    throw new Error('--results-output requires a path')
+  }
+
   await runScheduledRefreshCommand({
     apiKey,
     retrievedAt: new Date().toISOString().slice(0, 10),
+  }, {
+    recordResults: resultsOutput
+      ? (results) => writeRefreshUnitResultFile(resultsOutput, results)
+      : undefined,
   })
 }
 

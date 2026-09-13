@@ -134,7 +134,16 @@ describe('scheduled refresh runner coverage', () => {
     const refreshStep = workflow.slice(indexes[0], oecdStepIndex)
     expect(refreshStep).not.toContain('continue-on-error')
     expect(workflow).toContain(
-      "git add -- 'src/features/economic-series/data/*.json' 'src/features/data-freshness/data/refresh-metadata.json'",
+      "git add -- 'src/features/economic-series/data/*.json' 'src/features/data-freshness/data/refresh-metadata.json' public/data-freshness.json",
+    )
+    expect(workflow).toContain(
+      `"$FRESHNESS_CHANGED" == 'true'`,
+    )
+    expect(workflow).toContain(
+      "if: steps.existing_incident.outputs.result == 'visible-economic-datasets'",
+    )
+    expect(workflow).toContain(
+      'A verified partial-success snapshot deployed; affected datasets retain last-known-good data while healthy datasets advanced normally.',
     )
   })
 })
@@ -142,6 +151,7 @@ describe('scheduled refresh runner coverage', () => {
 describe('scheduled refresh publication boundary', () => {
   it('completes successfully with a failed unit and a later independent update', async () => {
     const logged: RefreshUnitResult[] = []
+    const recorded: RefreshUnitResult[][] = []
     const warnings: string[] = []
     const results = [
       result('claims', 'failed'),
@@ -153,12 +163,14 @@ describe('scheduled refresh publication boundary', () => {
       {
         refresh: async () => results,
         logResult: (entry) => { logged.push(entry) },
+        recordResults: async (entries) => { recorded.push([...entries]) },
         warn: (message) => { warnings.push(message) },
       },
     )
 
     expect(completion).toBe('partial-success')
     expect(logged).toEqual(results)
+    expect(recorded).toEqual([results])
     expect(warnings).toEqual([
       'Scheduled refresh completed with preserved scoped failures: claims',
     ])

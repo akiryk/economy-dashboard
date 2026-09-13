@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import { FreshnessScope } from '../../data-freshness/FreshnessContext'
+import { economicSeriesFreshnessKeys } from '../utils/economicSeriesFreshnessKeys'
 import type { EconomicSeries } from '../models/economicSeries'
 import { localEconomicSeriesRepository } from '../repositories/localEconomicSeriesRepository'
 import { EconomicSeriesSummary } from './EconomicSeriesSummary'
@@ -142,13 +143,12 @@ export function EconomicSeriesCard({
     )
   }
 
-  const additionalFreshnessKeys = variant === 'inflation-drivers'
-    ? ['inflation-contributions']
-    : slug === 'personal-saving-rate'
-      ? ['saving-rate-by-income-decile']
-      : []
   const withFreshness = (content: ReactNode) => (
-    <FreshnessScope datasetKeys={[slug, ...supportingSlugs, ...additionalFreshnessKeys]}>
+    <FreshnessScope datasetKeys={economicSeriesFreshnessKeys({
+      slug,
+      supportingSlugs,
+      variant,
+    })}>
       {content}
     </FreshnessScope>
   )

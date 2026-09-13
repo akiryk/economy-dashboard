@@ -181,8 +181,9 @@ units are skipped explicitly; retryable network/429/5xx failures receive at
 most three deterministic attempts; and every outcome records its affected
 datasets and preserved or changed artifacts. The Table 7 and OECD workflow
 steps emit the same outcome shape while retaining their established
-nonblocking policies. A normal-unit failure still blocks verification and
-deployment until the partial-publication story changes that gate.
+nonblocking policies. Known unit failures preserve their artifacts and flow
+into the public dataset-level manifest; the mixed snapshot must still pass all
+repository verification before publication.
 
 During an incident, inspect committed artifacts with:
 
@@ -214,9 +215,11 @@ The existing GitHub Issues notification channel is the owner alert mechanism.
 An actionable refresh/build/deployment incident opens the single issue titled
 `[Data operations] Refresh or deployment requires attention`. The workflow
 updates that issue only when the diagnostic fingerprint changes, so an unchanged
-incident does not notify on every daily run. A successful later workflow adds a
-recovery comment and closes the issue. Subscribe to repository issue
-notifications to receive these alerts outside GitHub.
+incident does not notify on every daily run. A successful later check of every
+previously failed unit adds a recovery comment and closes the issue, including
+a successful no-change provider check. A partial-success deployment keeps the
+issue actionable and identifies the affected datasets. Subscribe to repository
+issue notifications to receive these alerts outside GitHub.
 
 No issue is opened for a release that is not due, a provider that has not yet
 advanced, or a transient request that succeeds within its bounded retries. An
@@ -273,11 +276,14 @@ advance a review date without checking the official URL stored in that file.
 
 ### Public freshness presentation
 
-The application reads the sanitized static `data-freshness.json` manifest once
-at startup. It does not poll, contact providers, compare observation ages, or
-run release-calendar logic in React. The build workflow derives manual-review
-exceptions from the operational reminder state before building; other consumers
-may publish evaluator results through the same minimal schema. Operational
+The application reads the sanitized, committed static `data-freshness.json`
+manifest once at startup. It does not poll, contact providers, compare observation ages, or
+run release-calendar logic in React. The build workflow merges refresh-unit
+failures and manual-review exceptions before verification. Failed or dependency-
+skipped units set every affected dataset to `failure`; successful updated or
+no-change checks clear prior pipeline failures automatically. An unchanged
+manifest retains its generation timestamp, while a status-only change is
+eligible for its own verified commit and deployment. Operational
 categories, stack traces, workflow names, file paths, and provider-response
 details are never included in the public manifest.
 
@@ -289,15 +295,13 @@ primary/supporting datasets, status tiles use the same dataset keys, and OECD
 uses only the snapshot-level contract; accepted country-specific lag continues
 to appear as the existing stale/N/A row treatment rather than a global warning.
 
-Global warning routing is fail-safe. Dataset failures default to the prominent
-home-page warning unless the freshness registry explicitly marks the dataset
-`scoped-only` with a reason and public message. `international-comparisons` is
-the sole scoped-only exception because it appears only on the secondary
-`/compare` page and safely preserves a complete last-known-good snapshot. Its
-failure remains visible once at the top of that page, in workflow diagnostics,
-and in the owner issue; it does not imply that primary U.S. dashboard data are
-out of date. Provider names are not allowlisted, so any future dataset defaults
-to the global warning until its specific product surface is reviewed.
+Known refresh-unit failures are scoped by the registry's mechanically checked
+unit-to-artifact-to-dataset mapping. They render only inside research cards,
+status tiles, or comparison modules that declare those dataset keys; healthy
+surfaces receive no failure chrome. `international-comparisons` remains a
+single snapshot-level notice at the top of `/compare`. Unknown or repository-
+wide failures continue through the global fallback rather than being guessed
+into a dataset scope.
 
 Scheduled and manually dispatched refreshes have a separate whole-dashboard
 failure surface. If retrieval, validation, verification, commit, or artifact
@@ -308,9 +312,10 @@ and deploys it with the prominent `Data is possibly out of date.` alert. The
 unverified refreshed working tree is never included. The next successful
 refresh regenerates the manifest without that state and clears the alert.
 Push-triggered runs do not contact providers, so they neither create nor clear
-the refresh incident. When deploying an unrelated code push, they preserve an
-existing alert on the affected surface according to the registry policy while
-the operational incident issue remains open. A GitHub
+committed scoped refresh state. When deploying an unrelated code push, the
+committed manifest preserves affected-surface notices while the operational
+incident remains open; only a repository-wide incident preserves the global
+fallback alert. A GitHub
 Pages deployment outage cannot update the page it prevents from deploying; the
 existing issue notification remains the fallback for that case.
 

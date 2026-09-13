@@ -7,6 +7,7 @@ import {
   executeRegisteredRefreshUnit,
   logRefreshUnitResult,
 } from './refresh/executeRegisteredRefreshUnit'
+import { writeRefreshUnitResultFile } from './refresh/refreshUnitResultFile'
 
 const OUTPUT = path.resolve('src/features/economic-series/data/international-comparisons.json')
 
@@ -85,6 +86,14 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     },
   })
   logRefreshUnitResult(result)
+  const resultsOutputIndex = process.argv.indexOf('--results-output')
+  const resultsOutput = resultsOutputIndex >= 0
+    ? process.argv[resultsOutputIndex + 1]
+    : undefined
+  if (resultsOutputIndex >= 0 && !resultsOutput) {
+    throw new Error('--results-output requires a path')
+  }
+  if (resultsOutput) await writeRefreshUnitResultFile(resultsOutput, [result])
   if (result.status === 'failed' || result.status === 'skipped') {
     process.exitCode = 1
   }

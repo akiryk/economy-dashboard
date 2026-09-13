@@ -1,4 +1,10 @@
-import type { FreshnessContractId } from './freshnessTypes'
+import type { FreshnessContractId, PublicFreshnessState } from './freshnessTypes'
+
+export interface PublicFreshnessManifest {
+  schemaVersion: 1
+  generatedAt: string | null
+  datasets: PublicFreshnessState[]
+}
 
 export interface ManualSourceReviewState {
   contractId: FreshnessContractId
@@ -26,6 +32,56 @@ export type ManualSourceReminder =
     reason: string
     sourceUrl: string
   }
+
+const manualDatasetIds = new Set([
+  'inflation-contributions',
+  'estimated-breakeven-employment-growth',
+  'job-growth-breakeven-comparison',
+  'core-goods-pce-inflation',
+  'saving-rate-by-income-decile',
+  'home-ownership-cost-share',
+])
+
+function reminderDatasetIds(reminder: ManualSourceReminder): readonly string[] {
+  return reminder.contractId === 'BLS-T7'
+    ? ['inflation-contributions']
+    : reminder.contractId === 'FED-RESEARCH'
+      ? ['estimated-breakeven-employment-growth', 'job-growth-breakeven-comparison', 'core-goods-pce-inflation']
+      : reminder.contractId === 'BEA-IRR'
+        ? ['saving-rate-by-income-decile']
+        : ['home-ownership-cost-share']
+}
+
+export function withManualReminderStates(
+  manifest: PublicFreshnessManifest,
+  reminders: readonly ManualSourceReminder[],
+  generatedAt: string,
+): PublicFreshnessManifest {
+  const states = new Map(manifest.datasets
+    .filter((state) => !(manualDatasetIds.has(state.datasetId) && state.state === 'warning'))
+    .map((state) => [state.datasetId, state]))
+  for (const reminder of reminders) {
+    const message = reminder.kind === 'table-7-release'
+      ? 'The detailed inflation-category breakdown requires manual processing and may trail headline CPI.'
+      : 'This research source is awaiting its scheduled official-source review.'
+    for (const datasetId of reminderDatasetIds(reminder)) {
+      if (!states.has(datasetId)) {
+        states.set(datasetId, { datasetId, state: 'warning', message })
+      }
+    }
+  }
+  const datasets = [...states.values()]
+    .sort((left, right) => left.datasetId.localeCompare(right.datasetId))
+  const previous = [...manifest.datasets]
+    .sort((left, right) => left.datasetId.localeCompare(right.datasetId))
+  return {
+    schemaVersion: 1,
+    generatedAt: JSON.stringify(datasets) === JSON.stringify(previous)
+      ? manifest.generatedAt
+      : generatedAt,
+    datasets,
+  }
+}
 
 export interface ReminderEvaluationInput {
   evaluatedAt: string

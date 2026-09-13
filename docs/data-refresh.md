@@ -588,7 +588,7 @@ both downloads and both runtime models validate before any target is replaced.
 Temporary files and backups protect the pair during replacement; a failure
 before or during the grouped write restores or retains both prior files.
 
-Failure of one source does not stop the next or roll back an unrelated successful file. Each single-source quarterly derivation replaces only its own validated output. CPI, PAYEMS, wage, household comparison, corporate profit-share, and effective-tariff failures preserve their complete output groups. After all entries run, any failure produces a nonzero exit status and the command identifies which outputs updated and which were preserved.
+Failure of one source does not stop the next or roll back an unrelated successful file. Each single-source quarterly derivation replaces only its own validated output. CPI, PAYEMS, wage, household comparison, corporate profit-share, and effective-tariff failures preserve their complete output groups. After all entries run, known unit failures produce structured scoped results without a nonzero exit; unexpected orchestration or atomicity failures remain nonzero and globally blocking.
 
 ## Manual refresh
 
@@ -632,11 +632,13 @@ For each scheduled or manual run, the workflow:
    credential-free OECD international refresh as a separate visible diagnostic;
 3. restores files whose only difference is `retrievedAt`, so an unchanged
    provider dataset does not create a daily metadata-only commit;
-4. rejects tracked or untracked refresh output outside
-   `src/features/economic-series/data/*.json`;
+4. merges scoped failure/recovery state into `public/data-freshness.json`, then
+   rejects tracked output outside the economic-data, refresh-metadata, and
+   public-freshness allowlist;
 5. runs lint, typecheck, all tests, the Pages-aware production build, and
    `git diff --check`;
-6. commits and pushes only validated dataset JSON when substantive data changed;
+6. commits and pushes only validated dataset JSON and freshness state when
+   substantive data or scoped status changed;
 7. uploads that validated build and deploys it directly in the same workflow.
 
 The normal refresh command records one structured outcome per unit and does
@@ -648,14 +650,24 @@ snapshot that fails scope validation, lint, typechecking, tests, browser smoke,
 the production build, or diff checks is not committed or deployed through this
 path.
 
-The automation commit is `chore(data): automated economic data refresh` and is
-authored by `github-actions[bot]`. The workflow uses the repository-scoped
+Every failed or skipped result maps through the refresh-unit registry to the
+affected public dataset IDs. A later `updated` or `no-change` result clears the
+prior pipeline-failure state; an unattempted or dependency-skipped result does
+not. Freshness-only recovery and failure changes deploy even when no economic
+observation changed. Partial-success diagnostics keep the owner issue open and
+link to the run, while the generic dashboard warning remains reserved for
+global failures that prevent safe publication.
+
+The automation commit is `chore(data): automated economic data refresh` when
+economic data changed and `chore(data): automated freshness status update` for
+a status-only change. Both are authored by `github-actions[bot]`. The workflow uses the repository-scoped
 `GITHUB_TOKEN`; it does not require or use a personal access token. Keeping the
 commit and deployment in one workflow avoids relying on an automation push to
 trigger a second workflow.
 
-If no substantive tracked data changes, a normal run completes successfully
-without committing, uploading an artifact, or deploying. A manual operator can
+If neither substantive data nor scoped freshness state changes, a normal run
+completes successfully without committing, uploading a Pages artifact, or
+deploying. A manual operator can
 deploy the current validated data and code explicitly:
 
 ```bash

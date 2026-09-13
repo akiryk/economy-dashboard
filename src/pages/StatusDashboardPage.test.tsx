@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { EconomicSeries } from '../features/economic-series/models/economicSeries'
 import { dashboardEconomicSeriesRepository } from '../features/economic-series/repositories/dashboardEconomicSeriesRepository'
+import { FreshnessProvider } from '../features/data-freshness/FreshnessContext'
 import { StatusDashboardPage } from './StatusDashboardPage'
 
 const chart = vi.hoisted(() => ({ setOption: vi.fn(), resize: vi.fn(), dispose: vi.fn() }))
@@ -92,6 +93,27 @@ afterEach(() => {
 })
 
 describe('StatusDashboardPage', () => {
+  it('scopes a refresh failure to affected tiles without warning healthy tiles', async () => {
+    render(
+      <FreshnessProvider initialStates={[{
+        datasetId: 'initial-unemployment-claims',
+        state: 'failure',
+        message: 'The latest automatic update failed; the last successfully validated observation is shown.',
+      }]}
+      >
+        <StatusDashboardPage />
+      </FreshnessProvider>,
+    )
+
+    const alert = await screen.findByRole('alert')
+    expect(alert).toHaveTextContent(
+      'Data update failed: The latest automatic update failed; the last successfully validated observation is shown.',
+    )
+    expect(alert.closest('article')).toHaveAccessibleName('Initial claims')
+    expect(within(screen.getByRole('article', { name: '30-year mortgage rate' }))
+      .queryByRole('alert')).not.toBeInTheDocument()
+  })
+
   it('renders ten single-purpose status tiles from local series', async () => {
     render(<StatusDashboardPage />)
 

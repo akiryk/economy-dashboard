@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { completeSourceReview, evaluateManualSourceReminders } from './manualSourceReminders'
+import {
+  completeSourceReview,
+  evaluateManualSourceReminders,
+  withManualReminderStates,
+} from './manualSourceReminders'
 
 const intervals = new Map([['FED-RESEARCH', 92]] as const)
 const review = {
@@ -56,5 +60,36 @@ describe('manual-source reminders', () => {
       evaluatedAt: '2026-07-04T00:00:00.000Z', latestCpiPeriod: '2026-01-01',
       latestTable7Period: '2026-01-01', reviews, reviewIntervals: intervals,
     })).toHaveLength(1)
+  })
+
+  it('preserves pipeline failures while adding and clearing manual reminders', () => {
+    const reminder = evaluateManualSourceReminders({
+      evaluatedAt: '2030-02-03T00:00:00.000Z',
+      latestCpiPeriod: '2030-01-01',
+      latestTable7Period: '2029-12-01',
+      reviews: [],
+      reviewIntervals: new Map(),
+    })
+    const withReminder = withManualReminderStates({
+      schemaVersion: 1,
+      generatedAt: '2030-02-02T00:00:00.000Z',
+      datasets: [{
+        datasetId: 'initial-unemployment-claims',
+        state: 'failure',
+        message: 'Controlled pipeline failure.',
+      }],
+    }, reminder, '2030-02-03T00:00:00.000Z')
+
+    expect(withReminder.datasets).toEqual([
+      expect.objectContaining({ datasetId: 'inflation-contributions', state: 'warning' }),
+      expect.objectContaining({ datasetId: 'initial-unemployment-claims', state: 'failure' }),
+    ])
+    expect(withManualReminderStates(
+      withReminder,
+      [],
+      '2030-02-04T00:00:00.000Z',
+    ).datasets).toEqual([
+      expect.objectContaining({ datasetId: 'initial-unemployment-claims', state: 'failure' }),
+    ])
   })
 })

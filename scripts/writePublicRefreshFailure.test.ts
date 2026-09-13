@@ -43,6 +43,20 @@ describe('public refresh failure manifest', () => {
     expect(result.datasets[0]?.message).toBe('Data is possibly out of date.')
   })
 
+  it('preserves the generation timestamp for an unchanged repeated failure', () => {
+    const prior = withRefreshFailure({
+      schemaVersion: 1,
+      generatedAt: null,
+      datasets: [],
+    }, '2030-02-03T04:05:06.000Z', 'international-comparisons')
+
+    expect(withRefreshFailure(
+      prior,
+      '2030-02-04T04:05:06.000Z',
+      'international-comparisons',
+    ).generatedAt).toBe('2030-02-03T04:05:06.000Z')
+  })
+
   it('routes an OECD failure to its comparison dataset without a global warning', () => {
     const result = withRefreshFailure({
       schemaVersion: 1,

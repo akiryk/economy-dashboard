@@ -39,17 +39,20 @@ export function withRefreshFailure(
   const message = policy.visibility === 'global'
     ? 'Data is possibly out of date.'
     : policy.publicMessage
+  const datasets: PublicFreshnessState[] = [
+    ...manifest.datasets.filter((dataset) => dataset.datasetId !== datasetId),
+    {
+      datasetId,
+      state: 'failure',
+      message,
+    },
+  ]
   return {
     schemaVersion: 1,
-    generatedAt,
-    datasets: [
-      ...manifest.datasets.filter((dataset) => dataset.datasetId !== datasetId),
-      {
-        datasetId,
-        state: 'failure',
-        message,
-      },
-    ],
+    generatedAt: JSON.stringify(datasets) === JSON.stringify(manifest.datasets)
+      ? manifest.generatedAt
+      : generatedAt,
+    datasets,
   }
 }
 

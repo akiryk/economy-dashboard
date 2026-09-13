@@ -38,6 +38,8 @@ jobs:
       diagnostic_stage: ${{ steps.diagnostic.outputs.stage }}
       diagnostic_dataset: ${{ steps.diagnostic.outputs.dataset }}
       diagnostic_reason: ${{ steps.diagnostic.outputs.reason }}
+      scoped_failure_actionable: ${{ steps.scoped.outputs.actionable }}
+      scoped_failure_datasets: ${{ steps.scoped.outputs.datasets }}
       reminder_actionable: ${{ steps.reminders.outputs.actionable }}
       reminder_keys: ${{ steps.reminders.outputs.keys }}
       reminder_reason: ${{ steps.reminders.outputs.reason }}
@@ -66,7 +68,7 @@ jobs:
       - name: Refresh economic datasets
         id: refresh
         if: github.event_name != 'push'
-        run: npm run data:refresh
+        run: npm run data:refresh -- --results-output .workflow-diagnostics/scheduled-refresh-results.json
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
 
@@ -74,7 +76,28 @@ jobs:
         id: oecd
         if: always() && github.event_name != 'push' && steps.install.outcome == 'success'
         continue-on-error: true
-        run: npm run data:refresh-international
+        run: npm run data:refresh-international -- --results-output .workflow-diagnostics/oecd-refresh-results.json
+
+      - name: Publish scoped refresh-unit state
+        id: scoped
+        if: always() && github.event_name != 'push' && steps.refresh.outcome == 'success'
+        shell: bash
+        run: |
+          result_args=(--results .workflow-diagnostics/scheduled-refresh-results.json)
+          if [[ -f .workflow-diagnostics/oecd-refresh-results.json ]]; then
+            result_args+=(--results .workflow-diagnostics/oecd-refresh-results.json)
+          fi
+          npm run data:apply-refresh-results -- --input public/data-freshness.json --output public/data-freshness.json "${result_args[@]}"
+
+      - name: Publish scoped OECD refresh failure
+        if: steps.oecd.outcome == 'failure'
+        run: npm run freshness:write-refresh-failure -- --input public/data-freshness.json --output public/data-freshness.json --dataset international-comparisons
+
+      - name: Evaluate manual-source reminders
+        if: always() && steps.install.outcome == 'success'
+        id: reminders
+        continue-on-error: true
+        run: npm run operations:reminders -- --output .workflow-diagnostics/reminders.json --ui-output public/data-freshness.json
 
       - name: Discard retrieval-date-only rewrites
         if: github.event_name != 'push'
@@ -90,10 +113,10 @@ jobs:
         id: scope
         shell: bash
         run: |
-          unexpected_tracked="$(git diff --name-only -- . ':(exclude)src/features/economic-series/data/*.json')"
-          unexpected_untracked="$(git ls-files --others --exclude-standard)"
+          unexpected_tracked="$(git diff --name-only -- . ':(exclude)src/features/economic-series/data/*.json' ':(exclude)public/data-freshness.json')"
+          unexpected_untracked="$(git ls-files --others --exclude-standard -- . ':(exclude).workflow-diagnostics/*')"
           if [[ -n "$unexpected_tracked" || -n "$unexpected_untracked" ]]; then
-            echo 'The refresh changed files outside the committed dataset directory.' >&2
+            echo 'The refresh changed files outside the permitted generated-data scope.' >&2
             printf '%s\n%s\n' "$unexpected_tracked" "$unexpected_untracked" >&2
             exit 1
           fi
@@ -106,6 +129,16 @@ jobs:
             echo 'data_changed=false' >> "$GITHUB_OUTPUT"
           else
             echo 'data_changed=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Detect freshness-state changes
+        id: freshness_changes
+        shell: bash
+        run: |
+          if git diff --quiet -- public/data-freshness.json; then
+            echo 'freshness_changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'freshness_changed=true' >> "$GITHUB_OUTPUT"
           fi
 
       - name: Lint
@@ -122,16 +155,6 @@ jobs:
 
       - name: Record successful substantive data refresh
         run: npm run refresh:record-success -- --file src/features/data-freshness/data/refresh-metadata.json --date "$(date -u +%F)" --event-name "${{ github.event_name }}" --data-changed "${{ steps.changes.outputs.data_changed }}"
-
-      - name: Evaluate manual-source reminders
-        if: always() && steps.install.outcome == 'success'
-        id: reminders
-        continue-on-error: true
-        run: npm run operations:reminders -- --output .workflow-diagnostics/reminders.json --ui-output public/data-freshness.json
-
-      - name: Publish scoped OECD refresh failure
-        if: steps.oecd.outcome == 'failure'
-        run: npm run freshness:write-refresh-failure -- --input public/data-freshness.json --output public/data-freshness.json --dataset international-comparisons
 
       - name: Check for an unresolved refresh incident
         if: github.event_name == 'push'
@@ -153,7 +176,7 @@ jobs:
               ?? 'visible-economic-datasets'
 
       - name: Preserve unresolved refresh notice
-        if: steps.existing_incident.outputs.result != ''
+        if: steps.existing_incident.outputs.result == 'visible-economic-datasets'
         env:
           AFFECTED_DATASET: ${{ steps.existing_incident.outputs.result }}
         run: npm run freshness:write-refresh-failure -- --input public/data-freshness.json --output public/data-freshness.json --dataset "$AFFECTED_DATASET"
@@ -181,10 +204,11 @@ jobs:
         shell: bash
         env:
           DATA_CHANGED: ${{ steps.changes.outputs.data_changed }}
+          FRESHNESS_CHANGED: ${{ steps.freshness_changes.outputs.freshness_changed }}
           DEPLOY_CURRENT: ${{ inputs.deploy_current || 'false' }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [[ "$EVENT_NAME" == 'push' || "$DATA_CHANGED" == 'true' || "$DEPLOY_CURRENT" == 'true' ]]; then
+          if [[ "$EVENT_NAME" == 'push' || "$DATA_CHANGED" == 'true' || "$FRESHNESS_CHANGED" == 'true' || "$DEPLOY_CURRENT" == 'true' ]]; then
             echo 'deploy_required=true' >> "$GITHUB_OUTPUT"
           else
             echo 'deploy_required=false' >> "$GITHUB_OUTPUT"
@@ -195,19 +219,25 @@ jobs:
         shell: bash
         env:
           DATA_CHANGED: ${{ steps.changes.outputs.data_changed }}
+          FRESHNESS_CHANGED: ${{ steps.freshness_changes.outputs.freshness_changed }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [[ "$DATA_CHANGED" == 'true' ]]; then
+          if [[ "$EVENT_NAME" != 'push' && ("$DATA_CHANGED" == 'true' || "$FRESHNESS_CHANGED" == 'true') ]]; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add -- 'src/features/economic-series/data/*.json' 'src/features/data-freshness/data/refresh-metadata.json'
-            unexpected_staged="$(git diff --cached --name-only -- . ':(exclude)src/features/economic-series/data/*.json' ':(exclude)src/features/data-freshness/data/refresh-metadata.json')"
+            git add -- 'src/features/economic-series/data/*.json' 'src/features/data-freshness/data/refresh-metadata.json' public/data-freshness.json
+            unexpected_staged="$(git diff --cached --name-only -- . ':(exclude)src/features/economic-series/data/*.json' ':(exclude)src/features/data-freshness/data/refresh-metadata.json' ':(exclude)public/data-freshness.json')"
             if [[ -n "$unexpected_staged" ]]; then
               echo 'Refusing to commit files outside the dataset directory.' >&2
               printf '%s\n' "$unexpected_staged" >&2
               exit 1
             fi
             git diff --cached --check
-            git commit -m 'chore(data): automated economic data refresh'
+            if [[ "$DATA_CHANGED" == 'true' ]]; then
+              git commit -m 'chore(data): automated economic data refresh'
+            else
+              git commit -m 'chore(data): automated freshness status update'
+            fi
             git push origin HEAD:main
           fi
           echo "deployment_commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -245,6 +275,14 @@ jobs:
           path: .workflow-diagnostics/reminders.json
           if-no-files-found: warn
 
+      - name: Upload refresh-unit results
+        if: always() && github.event_name != 'push'
+        uses: actions/upload-artifact@v7
+        with:
+          name: refresh-unit-results
+          path: .workflow-diagnostics/*-refresh-results.json
+          if-no-files-found: warn
+
       - name: Classify operational diagnostics
         if: always()
         id: diagnostic
@@ -264,6 +302,11 @@ jobs:
           COMMIT_OUTCOME: ${{ steps.commit.outcome }}
           ARTIFACT_OUTCOME: ${{ steps.pages_artifact.outcome }}
           REMINDER_OUTCOME: ${{ steps.reminders.outcome }}
+          SCOPED_ACTIONABLE: ${{ steps.scoped.outputs.actionable }}
+          SCOPED_CATEGORY: ${{ steps.scoped.outputs.category }}
+          SCOPED_STAGE: ${{ steps.scoped.outputs.stage }}
+          SCOPED_DATASETS: ${{ steps.scoped.outputs.datasets }}
+          SCOPED_REASON: ${{ steps.scoped.outputs.reason }}
           WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           category=''
@@ -275,8 +318,6 @@ jobs:
 
           if [[ "$REFRESH_OUTCOME" == 'failure' ]]; then
             category='unknown-failure'; stage='retrieval'; reason='The automatic economic-data refresh failed; inspect the failed refresh step.'
-          elif [[ "$OECD_OUTCOME" == 'failure' ]]; then
-            category='repeated-refresh-failure'; stage='retrieval'; dataset='international-comparisons'; contracts='OECD'; retry='retries-exhausted'; reason='The OECD refresh exhausted its bounded retries; last-known-good comparison data remain deployed.'
           elif [[ "$SCOPE_OUTCOME" == 'failure' ]]; then
             category='persistence-write-failure'; stage='persistence'; reason='Refresh output escaped the permitted dataset scope.'
           elif [[ "$TEST_OUTCOME" == 'failure' || "$LINT_OUTCOME" == 'failure' || "$TYPECHECK_OUTCOME" == 'failure' || "$SMOKE_OUTCOME" == 'failure' || "$BUILD_OUTCOME" == 'failure' || "$WHITESPACE_OUTCOME" == 'failure' || "$CHROMIUM_OUTCOME" == 'failure' ]]; then
@@ -285,6 +326,10 @@ jobs:
             category='commit-push-failure'; stage='commit-push'; reason='Validated data could not be committed or pushed.'
           elif [[ "$ARTIFACT_OUTCOME" == 'failure' ]]; then
             category='deployment-failure'; stage='deployment'; reason='The validated Pages artifact could not be prepared for deployment.'
+          elif [[ "$SCOPED_ACTIONABLE" == 'true' ]]; then
+            category="$SCOPED_CATEGORY"; stage="$SCOPED_STAGE"; dataset="$SCOPED_DATASETS"; reason="$SCOPED_REASON"
+          elif [[ "$OECD_OUTCOME" == 'failure' ]]; then
+            category='repeated-refresh-failure'; stage='retrieval'; dataset='international-comparisons'; contracts='OECD'; retry='retries-exhausted'; reason='The OECD refresh exhausted its bounded retries; last-known-good comparison data remain deployed.'
           elif [[ "$REMINDER_OUTCOME" == 'failure' ]]; then
             category='validation-derivation-failure'; stage='validation'; dataset='manual-source-review-state'; contracts='BLS-T7,FED-RESEARCH,BEA-IRR,HOAM-M'; reason='Manual-source reminder state could not be evaluated; economic data and deployment remain isolated from this failure.'
           elif [[ "$INSTALL_OUTCOME" == 'failure' ]]; then
@@ -318,6 +363,7 @@ jobs:
         shell: bash
         env:
           DATA_CHANGED: ${{ steps.changes.outputs.data_changed }}
+          FRESHNESS_CHANGED: ${{ steps.freshness_changes.outputs.freshness_changed }}
           DEPLOY_REQUIRED: ${{ steps.decision.outputs.deploy_required }}
           COMMIT_SHA: ${{ steps.commit.outputs.deployment_commit }}
           LATEST_DATASET_DATE: ${{ steps.metadata.outputs.latest_dataset_date }}
@@ -326,6 +372,8 @@ jobs:
             echo '## Economic data refresh and Pages build'
             echo "- Job result: ${{ job.status }}"
             echo "- Substantive dataset changes: ${DATA_CHANGED:-not determined}"
+            echo "- Scoped freshness-state changes: ${FRESHNESS_CHANGED:-not determined}"
+            echo "- Scoped refresh failures: ${{ steps.scoped.outputs.datasets || 'none' }}"
             echo "- Deployment requested: ${DEPLOY_REQUIRED:-not determined}"
             echo "- Deployment commit: ${COMMIT_SHA:-not created}"
             echo "- Latest dataset date: ${LATEST_DATASET_DATE:-not prepared}"
@@ -442,6 +490,7 @@ jobs:
           DIAGNOSTIC_STAGE: ${{ needs.refresh-and-build.outputs.diagnostic_stage }}
           DIAGNOSTIC_DATASET: ${{ needs.refresh-and-build.outputs.diagnostic_dataset }}
           DIAGNOSTIC_REASON: ${{ needs.refresh-and-build.outputs.diagnostic_reason }}
+          SCOPED_FAILURE_ACTIONABLE: ${{ needs.refresh-and-build.outputs.scoped_failure_actionable }}
           REMINDER_ACTIONABLE: ${{ needs.refresh-and-build.outputs.reminder_actionable }}
           REMINDER_KEYS: ${{ needs.refresh-and-build.outputs.reminder_keys }}
           REMINDER_REASON: ${{ needs.refresh-and-build.outputs.reminder_reason }}
@@ -491,9 +540,12 @@ jobs:
               const reason = deployFailed
                 ? 'A verified Pages artifact did not deploy successfully; the previously deployed site remains available.'
                 : process.env.DIAGNOSTIC_REASON || 'The workflow failed before a more specific diagnostic could be produced.'
+              const production = process.env.SCOPED_FAILURE_ACTIONABLE === 'true' && !buildFailed && !deployFailed
+                ? 'A verified partial-success snapshot deployed; affected datasets retain last-known-good data while healthy datasets advanced normally.'
+                : 'Last-known-good data remain deployed; inspect freshness before assuming they are current.'
               const fingerprint = `${category}|${stage}|${dataset}|${reason}`
               const marker = `<!-- diagnostic:${fingerprint} -->`
-              const body = `${marker}\n### Action required\n\n- **Affected data:** ${dataset}\n- **Category:** ${category}\n- **Stage:** ${stage}\n- **Production:** Last-known-good data remain deployed; inspect freshness before assuming they are current.\n- **Automatic retry:** The next scheduled run will retry provider work; code/configuration failures require investigation.\n- **Owner action:** Ask an agent to inspect the linked run and structured \`operational-diagnostics\` artifact.\n- **Reason:** ${reason}\n- **Workflow:** ${process.env.WORKFLOW_URL}`
+              const body = `${marker}\n### Action required\n\n- **Affected data:** ${dataset}\n- **Category:** ${category}\n- **Stage:** ${stage}\n- **Production:** ${production}\n- **Automatic retry:** The next scheduled run will retry provider work; code/configuration failures require investigation.\n- **Owner action:** Ask an agent to inspect the linked run and structured \`operational-diagnostics\` artifact.\n- **Reason:** ${reason}\n- **Workflow:** ${process.env.WORKFLOW_URL}`
 
               if (!existing) {
                 await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body })

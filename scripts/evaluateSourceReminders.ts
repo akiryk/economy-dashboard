@@ -3,6 +3,8 @@ import { dirname, resolve } from 'node:path'
 import { freshnessContracts } from '../src/features/data-freshness/freshnessRegistry'
 import {
   evaluateManualSourceReminders,
+  withManualReminderStates,
+  type PublicFreshnessManifest,
   type ManualSourceReviewState,
 } from '../src/features/data-freshness/manualSourceReminders'
 import type { FreshnessContractId } from '../src/features/data-freshness/freshnessTypes'
@@ -64,29 +66,11 @@ if (output) {
 }
 const uiOutput = argument('ui-output')
 if (uiOutput) {
-  const datasetStates = new Map<string, { datasetId: string; state: 'warning'; message: string }>()
-  for (const reminder of reminders) {
-    const datasetIds = reminder.contractId === 'BLS-T7'
-      ? ['inflation-contributions']
-      : reminder.contractId === 'FED-RESEARCH'
-        ? ['estimated-breakeven-employment-growth', 'job-growth-breakeven-comparison', 'core-goods-pce-inflation']
-        : reminder.contractId === 'BEA-IRR'
-          ? ['saving-rate-by-income-decile']
-          : ['home-ownership-cost-share']
-    const message = reminder.kind === 'table-7-release'
-      ? 'The detailed inflation-category breakdown requires manual processing and may trail headline CPI.'
-      : 'This research source is awaiting its scheduled official-source review.'
-    for (const datasetId of datasetIds) {
-      datasetStates.set(datasetId, { datasetId, state: 'warning', message })
-    }
-  }
   const uiPath = resolve(uiOutput)
+  const current = await json(uiOutput) as PublicFreshnessManifest
+  const updated = withManualReminderStates(current, reminders, report.generatedAt)
   await mkdir(dirname(uiPath), { recursive: true })
-  await writeFile(uiPath, `${JSON.stringify({
-    schemaVersion: 1,
-    generatedAt: report.generatedAt,
-    datasets: [...datasetStates.values()],
-  }, null, 2)}\n`, { encoding: 'utf8', mode: 0o644 })
+  await writeFile(uiPath, `${JSON.stringify(updated, null, 2)}\n`, { encoding: 'utf8', mode: 0o644 })
 }
 if (process.env.GITHUB_OUTPUT) {
   const summary = reminders.map(({ reason }) => reason).join(' | ')
