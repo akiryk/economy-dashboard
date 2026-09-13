@@ -1,5 +1,9 @@
 # Epic: Resilient Partial Data Refresh and Deployment
 
+**Status:** Complete. Stories 104–108 established the refresh-unit registry,
+resilient orchestration, verified partial publication, scoped freshness and
+operational reporting, and controlled end-to-end fault-injection coverage.
+
 ## Summary
 
 Refactor the economic-data refresh and deployment pipeline so that a failure affecting one independent refresh unit does not prevent unrelated successfully refreshed data from being validated, committed, and deployed.
@@ -411,6 +415,15 @@ Add end-to-end controlled failure tests covering:
 Use the claims-versus-mortgage scenario as a canonical regression case.
 
 Audit documentation and remove any obsolete assumptions that a refresh run must be all-success or all-failure.
+
+Completed by Story 108. The acceptance suite in
+`scripts/refresh/resilientRefreshPipeline.test.ts` exercises the canonical
+claims-versus-mortgage failure, simultaneous failures, grouped-output
+preservation, unrelated advancement, and no-change recovery through execution,
+result persistence, scheduled-command classification, and public freshness
+state. Workflow contract tests separately enforce that verification failures
+cannot publish the mixed workspace and that Pages deployment failures remain
+global operational failures.
 
 ## Definition of done
 

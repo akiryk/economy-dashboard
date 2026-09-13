@@ -125,10 +125,13 @@ Every refresh runs lint, typecheck, tests, the production build, and
 no substantive tracked dataset changes, the scheduled run succeeds without a
 commit or deployment. With valid changes, the workflow commits the dataset JSON
 and durable successful-refresh date using the `github-actions[bot]` identity,
-then deploys the already validated artifact in the same workflow. A refresh,
-validation, build, push, artifact, or
-deployment failure stops the workflow before the Pages deployment completes,
-so GitHub Pages continues serving the previous successful artifact.
+then deploys the already validated artifact in the same workflow. A known
+refresh-unit failure preserves only that unit's last-known-good files while
+unrelated updates remain eligible for verification and deployment. Global
+orchestration, validation, build, push, artifact, or deployment failures do not
+publish the unverified workspace; GitHub Pages continues serving or rebuilds
+from the previous committed snapshot with a global failure notice when that
+fallback can be deployed.
 
 To verify the deployed revision and newest dataset retrieval date, open:
 

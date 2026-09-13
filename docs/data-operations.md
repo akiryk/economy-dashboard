@@ -304,13 +304,16 @@ wide failures continue through the global fallback rather than being guessed
 into a dataset scope.
 
 Scheduled and manually dispatched refreshes have a separate whole-dashboard
-failure surface. If retrieval, validation, verification, commit, or artifact
-preparation fails before refreshed data can deploy, a fallback job checks out
-the unchanged committed revision, adds only the sanitized `dashboard-refresh`
-failure state to `data-freshness.json`, rebuilds that last-known-good revision,
-and deploys it with the prominent `Data is possibly out of date.` alert. The
-unverified refreshed working tree is never included. The next successful
-refresh regenerates the manifest without that state and clears the alert.
+failure surface. A known unit-level retrieval, parsing, derivation, or
+validation failure remains scoped when its artifacts were preserved and the
+mixed snapshot passes verification. If orchestration, atomicity, scope,
+repository verification, commit, or artifact preparation instead prevents a
+safe snapshot from deploying, a fallback job checks out the unchanged
+committed revision, adds only the sanitized `dashboard-refresh` failure state
+to `data-freshness.json`, rebuilds that last-known-good revision, and deploys it
+with the prominent `Data is possibly out of date.` alert. The unverified
+refreshed working tree is never included. The next successful refresh
+regenerates the manifest without that state and clears the alert.
 Push-triggered runs do not contact providers, so they neither create nor clear
 committed scoped refresh state. When deploying an unrelated code push, the
 committed manifest preserves affected-surface notices while the operational

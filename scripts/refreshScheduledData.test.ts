@@ -146,6 +146,56 @@ describe('scheduled refresh runner coverage', () => {
       'A verified partial-success snapshot deployed; affected datasets retain last-known-good data while healthy datasets advanced normally.',
     )
   })
+
+  it('keeps verification failures globally blocking without publishing the mixed workspace', () => {
+    const workflow = readFileSync(
+      '.github/workflows/refresh-and-deploy.yml',
+      'utf8',
+    )
+    const verificationSteps = [
+      '- name: Validate refresh scope',
+      '- name: Lint',
+      '- name: Typecheck',
+      '- name: Test',
+      '- name: Run browser smoke tests',
+      '- name: Build GitHub Pages application',
+      '- name: Check whitespace errors',
+    ]
+    const commitIndex = workflow.indexOf('- name: Commit validated dataset changes')
+    const artifactIndex = workflow.indexOf('- name: Upload validated Pages artifact')
+
+    for (const step of verificationSteps) {
+      const index = workflow.indexOf(step)
+      const nextStep = workflow.indexOf('\n      - name:', index + step.length)
+      expect(index, step).toBeGreaterThan(-1)
+      expect(index, step).toBeLessThan(commitIndex)
+      expect(workflow.slice(index, nextStep)).not.toContain('continue-on-error')
+    }
+    expect(commitIndex).toBeLessThan(artifactIndex)
+    expect(workflow).toContain('- name: Check out last committed data')
+    expect(workflow).toContain('- name: Build last-known-good application')
+    expect(workflow).toContain('- name: Add dashboard refresh failure notice')
+  })
+
+  it('treats a Pages deployment failure as a global operational failure', () => {
+    const workflow = readFileSync(
+      '.github/workflows/refresh-and-deploy.yml',
+      'utf8',
+    )
+    const deployJobIndex = workflow.indexOf('\n  deploy:')
+    const notifyJobIndex = workflow.indexOf('\n  operational-notify:')
+    const deployJob = workflow.slice(deployJobIndex, notifyJobIndex)
+    const notifyJob = workflow.slice(notifyJobIndex)
+
+    expect(deployJob).toContain('uses: actions/deploy-pages@v5')
+    expect(deployJob).not.toContain('continue-on-error')
+    expect(notifyJob).toContain(
+      "const deployFailed = process.env.DEPLOY_RESULT === 'failure' || process.env.DEPLOY_RESULT === 'cancelled'",
+    )
+    expect(notifyJob).toContain(
+      'const actionable = deployFailed || (refreshRun && (buildFailed || classified))',
+    )
+  })
 })
 
 describe('scheduled refresh publication boundary', () => {
