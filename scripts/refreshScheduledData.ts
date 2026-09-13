@@ -52,6 +52,47 @@ interface ScheduledRefreshOptions {
   now?: () => Date
 }
 
+export type ScheduledRefreshCompletion = 'complete' | 'partial-success'
+
+interface RunScheduledRefreshCommandOptions {
+  refresh?: (options: ScheduledRefreshOptions) => Promise<RefreshUnitResult[]>
+  logResult?: (result: RefreshUnitResult) => void
+  warn?: (message: string) => void
+}
+
+export function classifyScheduledRefreshCompletion(
+  results: readonly RefreshUnitResult[],
+): ScheduledRefreshCompletion {
+  return results.some(({ status }) => status === 'failed' || status === 'skipped')
+    ? 'partial-success'
+    : 'complete'
+}
+
+export async function runScheduledRefreshCommand(
+  options: ScheduledRefreshOptions,
+  {
+    refresh = refreshScheduledData,
+    logResult = logRefreshUnitResult,
+    warn = console.warn,
+  }: RunScheduledRefreshCommandOptions = {},
+): Promise<ScheduledRefreshCompletion> {
+  const results = await refresh(options)
+  for (const result of results) {
+    logResult(result)
+  }
+
+  const completion = classifyScheduledRefreshCompletion(results)
+  if (completion === 'partial-success') {
+    const affectedUnitIds = results
+      .filter(({ status }) => status === 'failed' || status === 'skipped')
+      .map(({ unitId }) => unitId)
+    warn(
+      `Scheduled refresh completed with preserved scoped failures: ${affectedUnitIds.join(', ')}`,
+    )
+  }
+  return completion
+}
+
 export function createScheduledRefreshRunners({
   apiKey,
   retrievedAt,
@@ -251,16 +292,10 @@ async function main(): Promise<void> {
     )
   }
 
-  const results = await refreshScheduledData({
+  await runScheduledRefreshCommand({
     apiKey,
     retrievedAt: new Date().toISOString().slice(0, 10),
   })
-  for (const result of results) {
-    logRefreshUnitResult(result)
-  }
-  if (results.some(({ status }) => status === 'failed' || status === 'skipped')) {
-    process.exitCode = 1
-  }
 }
 
 const isDirectExecution = process.argv[1] !== undefined &&

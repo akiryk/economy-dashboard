@@ -39,12 +39,16 @@ at most three deterministic attempts; schema, validation, access, and
 persistence failures are not retried. Any artifact mutation detected after a
 failed attempt is a global atomicity violation.
 
-Story 105 does not enable partial publication. After every eligible unit has
-been attempted, a failed or skipped normal unit still makes `data:refresh` exit
-unsuccessfully. Table 7 and OECD remain separate nonblocking workflow steps and
-emit the same structured result shape; OECD retains its existing three-attempt
-unit policy. Partial verification, commit, and deployment are deferred to
-the next story.
+After every eligible unit has been attempted, failed and dependency-skipped
+normal units are reported as scoped failures without making `data:refresh` exit
+unsuccessfully. Their artifacts remain at the last-known-good state. The
+workflow therefore continues through the complete repository verification
+suite and may commit and deploy substantive changes from successful independent
+units. Orchestration/configuration exceptions, artifact atomicity violations,
+scope violations, verification failures, builds, commits, and deployments
+remain globally blocking. Table 7 and OECD remain separate nonblocking workflow
+steps and emit the same structured result shape; OECD retains its existing
+three-attempt unit policy.
 
 Automated tests require unique unit IDs and artifact ownership, valid acyclic
 dependencies, existing artifact paths, exact affected-dataset mappings, an
@@ -636,9 +640,13 @@ For each scheduled or manual run, the workflow:
 7. uploads that validated build and deploys it directly in the same workflow.
 
 The normal refresh command records one structured outcome per unit and does
-not stop when an independent unit fails. At this stage of the epic, any normal
-unit failure still prevents the later verification/deployment steps; resilient
-partial publication is introduced separately.
+not stop or exit unsuccessfully when a known independent unit fails. The
+workflow validates the complete mixed old/new snapshot and, when at least one
+substantive dataset changed, commits and deploys successful independent updates.
+Failed and dependency-skipped units retain their committed artifacts. A mixed
+snapshot that fails scope validation, lint, typechecking, tests, browser smoke,
+the production build, or diff checks is not committed or deployed through this
+path.
 
 The automation commit is `chore(data): automated economic data refresh` and is
 authored by `github-actions[bot]`. The workflow uses the repository-scoped
