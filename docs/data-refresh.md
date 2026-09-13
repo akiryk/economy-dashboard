@@ -25,12 +25,26 @@ belong to an explicit multi-output derivation such as CPI, productivity, or
 business investment.
 
 `scripts/refresh/refreshUnit.ts` defines the structured `updated`, `no-change`,
-`failed`, and dependency-blocked `skipped` result states that resilient
-orchestration will emit. Failed and skipped results identify the artifacts
-preserved at their last-known-good state; failed results contain only a
-sanitized category, pipeline stage, and reason. This inventory does not itself
-change current refresh or deployment behavior; later resilient orchestration
-must execute and report against these declared boundaries.
+`failed`, and dependency-blocked `skipped` result states emitted by
+`scripts/refreshScheduledData.ts`. Results include attempt count and affected
+datasets. Failed and skipped results identify the artifacts preserved at their
+last-known-good state; failed results contain only a sanitized category,
+pipeline stage, and reason.
+
+The orchestrator validates runner coverage before retrieval, orders units by
+their declared dependencies, and continues after independent failures. A
+dependent unit is recorded as skipped rather than recovered when its
+prerequisite fails. Network failures, timeouts, HTTP 429, and HTTP 5xx receive
+at most three deterministic attempts; schema, validation, access, and
+persistence failures are not retried. Any artifact mutation detected after a
+failed attempt is a global atomicity violation.
+
+Story 105 does not enable partial publication. After every eligible unit has
+been attempted, a failed or skipped normal unit still makes `data:refresh` exit
+unsuccessfully. Table 7 and OECD remain separate nonblocking workflow steps and
+emit the same structured result shape; OECD retains its existing three-attempt
+unit policy. Partial verification, commit, and deployment are deferred to
+the next story.
 
 Automated tests require unique unit IDs and artifact ownership, valid acyclic
 dependencies, existing artifact paths, exact affected-dataset mappings, an
@@ -365,7 +379,8 @@ when that direct field is present. A negative rate means estimated personal
 outlays exceeded disposable personal income for the group, not that every
 household in it dissaved.
 
-`npm run data:refresh` runs the BEA update after all FRED updates. The narrower
+`npm run data:refresh` runs the BEA unit after the FRED units even if an
+unrelated FRED unit failed. The narrower
 `npm run data:refresh-saving-distribution` command requires no API key and may be
 used independently. Both download the workbook; verify the worksheet and exact
 `Year`, `0-10%` through `90-100%` columns; reject duplicate or unordered years,
@@ -608,9 +623,9 @@ The browser application never receives the key.
 For each scheduled or manual run, the workflow:
 
 1. checks out `main`, restores the npm dependency cache, and runs `npm ci`;
-2. runs `npm run data:refresh` with the secret available only to that step, then
-   runs the credential-free OECD international refresh as a separate visible
-   diagnostic;
+2. checks the supported Table 7 path, runs `npm run data:refresh` with the
+   secret available only to that step, and then always attempts the
+   credential-free OECD international refresh as a separate visible diagnostic;
 3. restores files whose only difference is `retrievedAt`, so an unchanged
    provider dataset does not create a daily metadata-only commit;
 4. rejects tracked or untracked refresh output outside
@@ -619,6 +634,11 @@ For each scheduled or manual run, the workflow:
    `git diff --check`;
 6. commits and pushes only validated dataset JSON when substantive data changed;
 7. uploads that validated build and deploys it directly in the same workflow.
+
+The normal refresh command records one structured outcome per unit and does
+not stop when an independent unit fails. At this stage of the epic, any normal
+unit failure still prevents the later verification/deployment steps; resilient
+partial publication is introduced separately.
 
 The automation commit is `chore(data): automated economic data refresh` and is
 authored by `github-actions[bot]`. The workflow uses the repository-scoped

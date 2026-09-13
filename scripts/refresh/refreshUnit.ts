@@ -30,6 +30,7 @@ export interface RefreshUnitDefinition {
 interface RefreshUnitResultBase {
   unitId: string
   affectedDatasetIds: readonly string[]
+  attemptCount: number
   completedAt: string
 }
 

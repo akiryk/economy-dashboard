@@ -72,7 +72,7 @@ jobs:
 
       - name: Refresh international comparison datasets
         id: oecd
-        if: github.event_name != 'push'
+        if: always() && github.event_name != 'push' && steps.install.outcome == 'success'
         continue-on-error: true
         run: npm run data:refresh-international
 

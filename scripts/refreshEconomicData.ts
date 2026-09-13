@@ -447,6 +447,44 @@ export async function refreshProductivityData({
   }
 }
 
+export async function refreshBusinessInvestmentData({
+  apiKey,
+  retrievedAt,
+  growthConfig = fredSeriesConfigurations.find(
+    ({ slug }) => slug === 'real-business-investment-growth',
+  )!,
+  levelConfig = fredSeriesConfigurations.find(
+    ({ slug }) => slug === 'real-business-investment-level',
+  )!,
+  fetchImplementation,
+}: {
+  apiKey: string
+  retrievedAt: string
+  growthConfig?: FredSeriesConfig
+  levelConfig?: FredSeriesConfig
+  fetchImplementation?: typeof fetch
+}) {
+  if (growthConfig.providerSeriesId !== levelConfig.providerSeriesId) {
+    throw new Error('Business-investment outputs must use the same source series')
+  }
+  const response = await fetchFredObservations(
+    apiKey,
+    levelConfig,
+    fetchImplementation,
+  )
+  const level = normalizeFredSeries(response, retrievedAt, levelConfig)
+  const growth = deriveQuarterlyGrowthSeries(response, retrievedAt, growthConfig)
+  await writeEconomicSeriesGroupAtomically([
+    { outputPath: path.resolve(levelConfig.outputFile), series: level },
+    { outputPath: path.resolve(growthConfig.outputFile), series: growth },
+  ])
+  return {
+    level,
+    growth,
+    sourceObservationCount: response.observations.length,
+  }
+}
+
 export async function refreshHoamData({
   retrievedAt,
   config = hoamConfiguration,

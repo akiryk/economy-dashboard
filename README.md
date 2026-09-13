@@ -48,7 +48,7 @@ npm run data:refresh
 npm run preview
 ```
 
-`npm run data:refresh` requires `FRED_API_KEY` in an untracked `.env` file or the shell environment. It refreshes the explicitly configured FRED series and the Atlanta Fed housing-affordability workbook, validates direct and locally derived outputs, and safely preserves prior valid files when a refresh fails.
+`npm run data:refresh` requires `FRED_API_KEY` in an untracked `.env` file or the shell environment. It attempts every normal scheduled refresh unit, including configured FRED series and the supported BLS, BEA, Census/HUD, Federal Reserve, and Atlanta Fed sources. Each unit validates and atomically preserves its prior files on failure; unrelated units continue and emit structured outcomes. The command still exits unsuccessfully when a normal unit fails, so publication remains fully verification-gated.
 
 ## Product behavior
 

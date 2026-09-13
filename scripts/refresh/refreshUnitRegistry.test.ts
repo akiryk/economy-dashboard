@@ -163,6 +163,7 @@ describe('refresh unit result model', () => {
     {
       unitId: 'controlled-unit',
       affectedDatasetIds: ['controlled-dataset'],
+      attemptCount: 1,
       completedAt: '2030-02-03T04:05:06.000Z',
       status: 'updated',
       changedArtifactPaths: ['controlled.json'],
@@ -170,6 +171,7 @@ describe('refresh unit result model', () => {
     {
       unitId: 'controlled-unit',
       affectedDatasetIds: ['controlled-dataset'],
+      attemptCount: 1,
       completedAt: '2030-03-04T05:06:07.000Z',
       status: 'no-change',
       checkedArtifactPaths: ['controlled.json'],
@@ -177,6 +179,7 @@ describe('refresh unit result model', () => {
     {
       unitId: 'controlled-unit',
       affectedDatasetIds: ['controlled-dataset'],
+      attemptCount: 3,
       completedAt: '2030-04-05T06:07:08.000Z',
       status: 'failed',
       preservedArtifactPaths: ['controlled.json'],
@@ -189,6 +192,7 @@ describe('refresh unit result model', () => {
     {
       unitId: 'controlled-unit',
       affectedDatasetIds: ['controlled-dataset'],
+      attemptCount: 0,
       completedAt: '2030-05-06T07:08:09.000Z',
       status: 'skipped',
       preservedArtifactPaths: ['controlled.json'],

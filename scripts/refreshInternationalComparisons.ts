@@ -3,31 +3,34 @@ import path from 'node:path'
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'
 import { buildOecdUrl, createInternationalComparisonData, normalizeOecdMetric, oecdMetricConfigurations } from './oecd/internationalComparisons'
+import {
+  executeRegisteredRefreshUnit,
+  logRefreshUnitResult,
+} from './refresh/executeRegisteredRefreshUnit'
 
 const OUTPUT = path.resolve('src/features/economic-series/data/international-comparisons.json')
-const MAX_ATTEMPTS = 3
 
-async function fetchWithRetry(url: string, fetchImplementation: typeof fetch = fetch): Promise<string> {
-  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
-    let response: Response
-    try {
-      response = await fetchImplementation(url, { headers: { Accept: 'text/csv' }, signal: AbortSignal.timeout(30_000) })
-    } catch (error: unknown) {
-      if (attempt === MAX_ATTEMPTS) {
-        throw new Error(`OECD transient fetch failure after ${attempt} attempts: ${error instanceof Error ? error.message : String(error)}`, { cause: error })
-      }
-      await new Promise((resolve) => setTimeout(resolve, attempt * 500))
-      continue
-    }
-    if (response.ok) return response.text()
-    if (response.status !== 429 && response.status < 500) {
-      throw new Error(`OECD source/schema request failed with HTTP ${response.status}: ${url}`)
-    }
-    if (attempt === MAX_ATTEMPTS) throw new Error(`OECD transient HTTP ${response.status} after ${attempt} attempts: ${url}`)
-    const retryAfter = Number(response.headers.get('retry-after'))
-    await new Promise((resolve) => setTimeout(resolve, Number.isFinite(retryAfter) ? retryAfter * 1000 : attempt * 500))
+async function fetchOecdCsv(
+  url: string,
+  fetchImplementation: typeof fetch = fetch,
+): Promise<string> {
+  let response: Response
+  try {
+    response = await fetchImplementation(url, {
+      headers: { Accept: 'text/csv' },
+      signal: AbortSignal.timeout(30_000),
+    })
+  } catch (error: unknown) {
+    throw new Error(
+      `OECD transient fetch failure: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
+    )
   }
-  throw new Error('OECD fetch retry loop ended unexpectedly')
+  if (response.ok) return response.text()
+  if (response.status === 429 || response.status >= 500) {
+    throw new Error(`OECD transient HTTP ${response.status}: ${url}`)
+  }
+  throw new Error(`OECD source/schema request failed with HTTP ${response.status}: ${url}`)
 }
 
 export async function refreshInternationalComparisons({
@@ -41,7 +44,7 @@ export async function refreshInternationalComparisons({
 }): Promise<void> {
   const csvResponses: string[] = []
   for (const config of oecdMetricConfigurations) {
-    csvResponses.push(await fetchWithRetry(buildOecdUrl(config), fetchImplementation))
+    csvResponses.push(await fetchOecdCsv(buildOecdUrl(config), fetchImplementation))
   }
   await writeInternationalComparisonsFromCsv({ csvResponses, retrievedAt, outputPath })
 }
@@ -73,5 +76,16 @@ export async function writeInternationalComparisonsFromCsv({
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  await refreshInternationalComparisons({ retrievedAt: new Date().toISOString().slice(0, 10) })
+  const result = await executeRegisteredRefreshUnit({
+    unitId: 'oecd-international-comparisons',
+    runner: async () => {
+      await refreshInternationalComparisons({
+        retrievedAt: new Date().toISOString().slice(0, 10),
+      })
+    },
+  })
+  logRefreshUnitResult(result)
+  if (result.status === 'failed' || result.status === 'skipped') {
+    process.exitCode = 1
+  }
 }

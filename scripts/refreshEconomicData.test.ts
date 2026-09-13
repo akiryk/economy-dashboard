@@ -17,6 +17,7 @@ import {
 } from './fred/seriesConfigurations'
 import {
   refreshAllEconomicData,
+  refreshBusinessInvestmentData,
   refreshCpiData,
   refreshEconomicData,
   refreshHoamData,
@@ -38,6 +39,72 @@ afterEach(async () => {
 })
 
 describe('refreshEconomicData', () => {
+  it('refreshes business-investment level and growth as one atomic source unit', async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), 'business-investment-data-'))
+    temporaryDirectories.push(directory)
+    const growthOutputFile = path.join(directory, 'growth.json')
+    const levelOutputFile = path.join(directory, 'level.json')
+    const priorGrowth = '{"prior":"growth"}\n'
+    const priorLevel = '{"prior":"level"}\n'
+    await writeFile(growthOutputFile, priorGrowth)
+    await writeFile(levelOutputFile, priorLevel)
+    const sourceGrowth = fredSeriesConfigurations.find(
+      ({ slug }) => slug === 'real-business-investment-growth',
+    )!
+    const sourceLevel = fredSeriesConfigurations.find(
+      ({ slug }) => slug === 'real-business-investment-level',
+    )!
+    const growthConfig = {
+      ...sourceGrowth,
+      outputFile: growthOutputFile,
+      minimumUsableObservations: 2,
+    }
+    const levelConfig = {
+      ...sourceLevel,
+      outputFile: levelOutputFile,
+      minimumUsableObservations: 2,
+    }
+    let responseObservations = [
+      { date: '2029-01-01', value: '100' },
+      { date: '2029-04-01', value: '101' },
+    ]
+    let fetchCount = 0
+    const fetchImplementation: typeof fetch = async () => {
+      fetchCount += 1
+      return new Response(JSON.stringify({ observations: responseObservations }))
+    }
+
+    await expect(refreshBusinessInvestmentData({
+      apiKey: 'test-key',
+      retrievedAt: '2030-01-15',
+      growthConfig,
+      levelConfig,
+      fetchImplementation,
+    })).rejects.toThrow()
+    expect(await readFile(growthOutputFile, 'utf8')).toBe(priorGrowth)
+    expect(await readFile(levelOutputFile, 'utf8')).toBe(priorLevel)
+
+    responseObservations = Array.from({ length: 6 }, (_, index) => ({
+      date: new Date(Date.UTC(2029, index * 3, 1)).toISOString().slice(0, 10),
+      value: String(100 + index),
+    }))
+    const result = await refreshBusinessInvestmentData({
+      apiKey: 'test-key',
+      retrievedAt: '2030-06-15',
+      growthConfig,
+      levelConfig,
+      fetchImplementation,
+    })
+
+    expect(fetchCount).toBe(2)
+    expect(result.level.observations).toHaveLength(6)
+    expect(result.growth.observations).toHaveLength(2)
+    expect(validateEconomicSeries(JSON.parse(await readFile(levelOutputFile, 'utf8')))
+      .providerSeriesId).toBe('PNFIC1')
+    expect(validateEconomicSeries(JSON.parse(await readFile(growthOutputFile, 'utf8')))
+      .observations).toHaveLength(2)
+  })
+
   it('atomically preserves the prior profit-share output when either input fails', async () => {
     const directory = await mkdtemp(path.join(os.tmpdir(), 'profit-share-data-'))
     temporaryDirectories.push(directory)

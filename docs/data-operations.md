@@ -173,10 +173,16 @@ The complementary refresh-unit inventory lives in
 refresh boundary to its atomic artifacts and derives the affected visible
 dataset IDs from this freshness registry. Coverage tests reject missing or
 duplicate artifact ownership, invalid unit dependencies, and disagreement
-between artifact ownership and affected-dataset mapping. The inventory and
-structured result types are currently architectural contracts; the existing
-all-or-nothing workflow behavior remains in place until the later partial
-publication stories adopt them.
+between artifact ownership and affected-dataset mapping.
+
+`scripts/refreshScheduledData.ts` executes every normal scheduled unit against
+that registry. Independent units continue after a failure; dependency-blocked
+units are skipped explicitly; retryable network/429/5xx failures receive at
+most three deterministic attempts; and every outcome records its affected
+datasets and preserved or changed artifacts. The Table 7 and OECD workflow
+steps emit the same outcome shape while retaining their established
+nonblocking policies. A normal-unit failure still blocks verification and
+deployment until the partial-publication story changes that gate.
 
 During an incident, inspect committed artifacts with:
 
@@ -342,7 +348,7 @@ existing issue notification remains the fallback for that case.
 | PMMS-W | Freddie Mac PMMS `MORTGAGE30US` via FRED | Weekly Thursday noon ET; Wednesday on a Thursday holiday. Methodology changed in 2022; revisions are possible. | `data:refresh`; automatic daily | Prior Thursday is healthy until the next publication. Allow FRED propagation and the next daily cycle; two weekly releases behind is unexpected. | Compare Freddie PMMS page, then FRED. Individual lender quotes are not a replacement for this weekly national benchmark. |
 | MARKET-D | FRED `SP500` (S&P Dow Jones daily close, licensed ten-year history) and `BAMLH0A0HYM2` (ICE BofA daily spread) | Business-day/end-of-day data, subject to FRED/provider lag, market holidays, licensing, and revisions. | `data:refresh`; automatic daily | For this delayed dashboard, latest available FRED close through the prior business day is healthy. Two completed market days behind FRED is unexpected. Same-day or real-time freshness is outside the current contract. | Inspect market calendar, official FRED observation, workflow, and license notes. Provider replacement requires owner approval and licensing/architecture review. Never scrape an unofficial quote. |
 | FED-RESEARCH | Federal Reserve Board [accessible Figure 2](https://www.federalreserve.gov/econres/notes/feds-notes/labor-force-growth-breakeven-employment-and-potential-gdp-growth-accessible-20260402.htm) and [accessible Figure 5](https://www.federalreserve.gov/econres/notes/feds-notes/detecting-tariff-effects-on-consumer-prices-in-real-time-part-II-accessible-20260408.htm) | Irregular publication-vintage research, no fixed update schedule. Figure 2 includes labeled projections; Figure 5 currently ends Feb 2026. | Breakeven: `data:refresh-job-growth-breakeven` (**not scheduled**). Figure 5: `data:refresh-core-goods-pce` (included in daily `data:refresh`). | No generic age threshold. Healthy while official publication is unchanged. Warning requires quarterly manual source-page review. Unexpected when official source changes/supersedes the table and repository remains unchanged after its applicable check. | Do not relabel projections as observations. Agent investigates official replacement/publication; owner decides whether a superseding source is definitionally compatible. |
-| OECD | OECD Data Explorer SDMX dataflows listed in the UI matrix and `international-comparison-registry.md` | Mixed monthly/quarterly, heterogeneous national release timing and revisions. | `data:refresh-international`; automatic daily, nonblocking diagnostic; three bounded retries for timeouts/429/5xx | Healthy when U.S. is current, at least 8/10 peers are current, monthly peers trail newest by ≤3 periods and quarterly by ≤2. Older peers display stale/N/A. Unexpected when OECD advanced but complete validated snapshot cannot deploy for three consecutive daily checks. | Every failure preserves the full last-good snapshot and does not block unrelated data. Inspect OECD response/schema; repair version/dimensions only after authoritative review. Do not forward-fill peers. |
+| OECD | OECD Data Explorer SDMX dataflows listed in the UI matrix and `international-comparison-registry.md` | Mixed monthly/quarterly, heterogeneous national release timing and revisions. | `data:refresh-international`; automatic daily, nonblocking diagnostic; at most three unit attempts for timeouts/429/5xx | Healthy when U.S. is current, at least 8/10 peers are current, monthly peers trail newest by ≤3 periods and quarterly by ≤2. Older peers display stale/N/A. Unexpected when OECD advanced but complete validated snapshot cannot deploy for three consecutive daily checks. | Every failure preserves the full last-good snapshot and does not block unrelated data. Inspect OECD response/schema; repair version/dimensions only after authoritative review. Do not forward-fill peers. |
 
 The home-page headline date is global operational context, not a dataset-level
 freshness verdict. It records the UTC date of the most recent successful

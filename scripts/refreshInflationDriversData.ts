@@ -2,6 +2,10 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { refreshCategoryCpiSeries } from './bls/ingestCategoryCpiSeries'
 import { refreshInflationContributions } from './bls/inflationContributionAutomation'
+import {
+  executeRegisteredRefreshUnit,
+  logRefreshUnitResult,
+} from './refresh/executeRegisteredRefreshUnit'
 
 export async function refreshInflationDriversData({
   rootDirectory = process.cwd(),
@@ -38,7 +42,18 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const mode = process.argv.includes('--contributions-only')
     ? 'contributions-only'
     : process.argv.includes('--categories-only') ? 'categories-only' : 'all'
-  refreshInflationDriversData({ mode }).catch((error: unknown) => {
+  const run = mode === 'contributions-only'
+    ? executeRegisteredRefreshUnit({
+        unitId: 'bls-table-7-inflation-contributions',
+        runner: async () => { await refreshInflationDriversData({ mode }) },
+      }).then((result) => {
+        logRefreshUnitResult(result)
+        if (result.status === 'failed' || result.status === 'skipped') {
+          process.exitCode = 1
+        }
+      })
+    : refreshInflationDriversData({ mode })
+  run.catch((error: unknown) => {
     console.error(error instanceof Error ? error.message : error)
     process.exitCode = 1
   })

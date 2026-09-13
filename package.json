@@ -12,7 +12,7 @@
     "data:ingest-category-cpi": "tsx scripts/bls/ingestCategoryCpiSeries.ts",
     "data:refresh-job-growth-breakeven": "tsx scripts/refreshJobGrowthBreakevenData.ts",
     "data:refresh-inflation-contributions": "tsx scripts/refreshInflationDriversData.ts --contributions-only",
-    "data:refresh": "tsx scripts/refreshEconomicData.ts && tsx scripts/refreshInflationDriversData.ts --categories-only && tsx scripts/refreshSavingRateDistribution.ts && tsx scripts/refreshHousingConstructionDetails.ts && tsx scripts/refreshCoreGoodsPceInflation.ts",
+    "data:refresh": "tsx scripts/refreshScheduledData.ts",
     "data:refresh-core-goods-pce": "tsx scripts/refreshCoreGoodsPceInflation.ts",
     "data:refresh-housing-details": "tsx scripts/refreshHousingConstructionDetails.ts",
     "data:refresh-international": "tsx scripts/refreshInternationalComparisons.ts",

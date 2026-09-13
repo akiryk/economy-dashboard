@@ -4,11 +4,21 @@ import { pathToFileURL } from 'node:url'
 import { createCoreGoodsPceInflationSeries, coreGoodsPceSourceUrl } from './federalReserve/coreGoodsPceInflation'
 import { writeEconomicSeriesAtomically } from './writeEconomicSeries'
 
-export async function refreshCoreGoodsPceInflation(fetchImplementation: typeof fetch = fetch) {
+export async function refreshCoreGoodsPceInflation({
+  fetchImplementation = fetch,
+  outputPath = path.resolve(
+    'src/features/economic-series/data/core-goods-pce-inflation.json',
+  ),
+  retrievedAt = new Date().toISOString().slice(0, 10),
+}: {
+  fetchImplementation?: typeof fetch
+  outputPath?: string
+  retrievedAt?: string
+} = {}) {
   const response = await fetchImplementation(coreGoodsPceSourceUrl)
   if (!response.ok) throw new Error(`Federal Reserve request failed with HTTP ${response.status}.`)
-  const series = createCoreGoodsPceInflationSeries(await response.text(), new Date().toISOString().slice(0, 10))
-  await writeEconomicSeriesAtomically(path.resolve('src/features/economic-series/data/core-goods-pce-inflation.json'), series)
+  const series = createCoreGoodsPceInflationSeries(await response.text(), retrievedAt)
+  await writeEconomicSeriesAtomically(outputPath, series)
   return series
 }
 
