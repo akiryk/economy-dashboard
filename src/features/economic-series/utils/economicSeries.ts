@@ -121,6 +121,7 @@ export function formatSignedPercentagePoints(value: number | null): string {
 
 export type EconomicValueFormat =
   | 'credit-index'
+  | 'dollars-per-square-foot'
   | 'index'
   | 'percentage'
   | 'signed-percentage'
@@ -157,6 +158,10 @@ export function formatEconomicValue(
     ? value === null
       ? 'Unavailable'
       : value.toFixed(2)
+    : format === 'dollars-per-square-foot'
+      ? value === null
+        ? 'Unavailable'
+        : `$${value.toFixed(2)}`
     : format === 'signed-percentage'
       ? formatSignedPercentage(value)
     : format === 'signed-percentage-points'

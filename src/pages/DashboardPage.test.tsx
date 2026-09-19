@@ -304,7 +304,7 @@ describe('DashboardPage economic series', () => {
       'Are households saving less of their income?',
       'How much of a median household’s income would it take to own a typical home?',
       'How much new housing is being started?',
-      'How quickly is the cost of building a comparable home changing?',
+      'How much has the cost of building a comparable home risen?',
       'Are U.S. manufacturers producing more goods?',
       'Are businesses investing more in productive assets?',
       'How large are corporate profits relative to the economy?',
@@ -1557,8 +1557,12 @@ describe('DashboardPage economic series', () => {
     expect(within(cards[1]!).getByText(new RegExp(
       `${formatObservationPeriod(latestStartsAverage.date, 'monthly')} · Thousands of units`,
     ))).toBeVisible()
-    expect(within(cards[2]!).getByText('change from a year ago')).toBeVisible()
-    expect(within(cards[2]!).getByText(/monthly national index/)).toBeVisible()
+    expect(within(cards[2]!).getByText(
+      'Construction-cost index · 2005 = 100',
+    )).toBeVisible()
+    expect(cards[2]!.querySelector('.series-current__answer')).toHaveTextContent(
+      /2005 base-year cost level/,
+    )
     expect(within(cards[1]!).getByText('Three-month average annualized pace')).toBeVisible()
     expect(within(cards[1]!).getByText(/Builders are starting housing at an annualized pace/)).toBeVisible()
     expect(within(cards[1]!).getByText(/Relative to the U.S. population/)).toBeVisible()

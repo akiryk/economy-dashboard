@@ -1,7 +1,6 @@
 import ExcelJS from 'exceljs'
 import { describe, expect, it } from 'vitest'
 import {
-  deriveRealConstructionCostIndex,
   parseConstructionCostWorkbook,
 } from './homeConstructionCostIndex'
 
@@ -30,20 +29,5 @@ describe('Census home-construction cost ingestion', () => {
     expect(after.at(-1)?.value).toBe(119.2)
     expect(after.at(-2)?.value).toBe(118.75)
     expect(after.length).toBe(before.length + 1)
-  })
-
-  it('adjusts for CPI and preserves an explicit gap when a CPI month is absent', () => {
-    const cpi = Array.from({ length: 12 }, (_, month) => ({
-      date: `2005-${String(month + 1).padStart(2, '0')}-01`,
-      value: 100,
-    }))
-    const result = deriveRealConstructionCostIndex(
-      [{ date: '2005-01-01', value: 100 }, { date: '2006-01-01', value: 110 }],
-      cpi,
-    )
-    expect(result).toEqual([
-      { date: '2005-01-01', value: 100 },
-      { date: '2006-01-01', value: null },
-    ])
   })
 })

@@ -6,7 +6,7 @@
   "title": "Constant-quality construction cost index for new single-family houses",
   "shortTitle": "Construction cost index",
   "description": "Monthly Census constant-quality Laspeyres price index for new single-family houses under construction.",
-  "question": "How quickly are costs to build a comparable home changing?",
+  "question": "How much has the cost of building a comparable home risen?",
   "units": "Index, 2005=100",
   "frequency": "monthly",
   "seasonalAdjustment": "Not seasonally adjusted",

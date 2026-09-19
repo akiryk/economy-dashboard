@@ -17,6 +17,7 @@
     "data:refresh-core-goods-pce": "tsx scripts/refreshCoreGoodsPceInflation.ts",
     "data:refresh-housing-details": "tsx scripts/refreshHousingConstructionDetails.ts",
     "data:refresh-home-construction-cost": "tsx scripts/census/homeConstructionCostIndex.ts",
+    "data:refresh-contractor-price-per-square-foot": "tsx scripts/census/contractorBuiltPricePerSquareFoot.ts",
     "data:refresh-international": "tsx scripts/refreshInternationalComparisons.ts",
     "data:refresh-saving-distribution": "tsx scripts/refreshSavingRateDistribution.ts",
     "data:freshness": "tsx scripts/inspectDataFreshness.ts",
@@ -63,6 +64,7 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.63.0",
     "vite": "^8.1.4",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
 }

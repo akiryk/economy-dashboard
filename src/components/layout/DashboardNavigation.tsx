@@ -82,7 +82,7 @@ const navigationGroups = [
       },
       {
         id: 'single-family-construction-cost-index-card',
-        title: 'How quickly is the cost of building a comparable home changing?',
+        title: 'How much has the cost of building a comparable home risen?',
       },
     ],
   },

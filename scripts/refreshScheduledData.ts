@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url'
 import { visibleDatasetFreshnessRegistry } from '../src/features/data-freshness/freshnessRegistry'
 import { refreshSavingRateDistribution } from './bea/savingRateDistribution'
 import { refreshHomeConstructionCostIndex } from './census/homeConstructionCostIndex'
+import { refreshContractorPricePerSquareFoot } from './census/contractorBuiltPricePerSquareFoot'
 import { refreshCategoryCpiSeries } from './bls/ingestCategoryCpiSeries'
 import {
   executeRefreshUnits,
@@ -241,6 +242,9 @@ export function createScheduledRefreshRunners({
   })
   runners.set('census-hud-home-construction-cost', async () => {
     await refreshHomeConstructionCostIndex({ retrievedAt, fetchImplementation })
+  })
+  runners.set('census-hud-contractor-price-per-square-foot', async () => {
+    await refreshContractorPricePerSquareFoot({ retrievedAt, fetchImplementation })
   })
   runners.set('federal-reserve-core-goods-pce', async () => {
     await refreshCoreGoodsPceInflation({

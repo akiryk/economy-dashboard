@@ -43,7 +43,7 @@ const yieldCurveSupportingSlugs = [
   "effective-federal-funds-rate",
 ] as const;
 const housingStartsSupportingSlugs = ["us-population-monthly"] as const;
-const homeConstructionCostSupportingSlugs = ["real-single-family-construction-cost-index"] as const;
+const homeConstructionCostSupportingSlugs = ["contractor-built-price-per-square-foot"] as const;
 const policyRateSupportingSlugs = [
   "federal-funds-target-upper-bound",
   "federal-funds-target-rate-historical",

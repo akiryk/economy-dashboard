@@ -79,7 +79,7 @@ maintained invariant rather than a one-time audit.
 - Saving rate by income decile (BEA Distribution of Personal Saving workbook, annual), written to `saving-rate-by-income-decile.json`.
 - Household debt-service ratio (`TDSP`, quarterly), written as the provider-published level to `household-debt-service-ratio.json`.
 - Housing starts (`HOUST`, monthly), written as the provider-published level to `housing-starts.json`.
-- New single-family construction costs (Census/HUD Survey of Construction monthly fixed-weight workbook), written to `single-family-construction-cost-index.json`; the same monthly index is divided by not-seasonally-adjusted CPI-U and normalized to 2005 in `real-single-family-construction-cost-index.json`. Missing CPI months remain explicit gaps. Run `npm run data:refresh-home-construction-cost` independently or use the scheduled refresh. Census may revise the two most recent months.
+- New single-family construction costs use two independent official Census/HUD Survey of Construction workbooks. The monthly constant-quality Laspeyres index is written to `single-family-construction-cost-index.json` by `npm run data:refresh-home-construction-cost`; Census may revise recent months. The annual national median contract price per square foot for contractor-built homes is written to `contractor-built-price-per-square-foot.json` by `npm run data:refresh-contractor-price-per-square-foot`. The annual values are nominal, exclude the improved lot, and are never interpolated or advanced with the monthly index. Each artifact has its own refresh unit and can advance or fail without blocking the other.
 - Manufacturing output (`IPMAN`, monthly), written as the provider-published index to `manufacturing-output.json`.
 - Manufacturing employment (`MANEMP`, monthly), written as the provider-published level in thousands to `manufacturing-employment.json`.
 - Real business investment (`PNFIC1`, quarterly source level), retained in `real-business-investment-level.json` for compact-chart details and derived into exact-quarter year-over-year growth in `real-business-investment-growth.json`.
@@ -324,10 +324,16 @@ The separate construction-cost card uses the official Census/HUD monthly
 Laspeyres fixed-weight index for new single-family houses under construction.
 Its fixed 2005 house characteristics separate price change from changes in the
 mix or specification of houses. It excludes land and nonconstruction costs and
-must not be described as monthly dollars per square foot. Census publishes the
-observed contractor-built price-per-square-foot table annually; the dashboard
-links to it but does not interpolate it. The real companion divides each exact
-month by CPI-U and preserves unmatched months as null.
+must not be described as monthly dollars per square foot. The primary chart
+renders the published index level, not a year-over-year transformation.
+
+Census separately publishes the national median contract price per square foot
+for contractor-built homes in the annual Characteristics of New Housing legacy
+workbook. Its nominal values exclude the improved lot and reflect the mix of
+homes started in each year. The dashboard ingests its contiguous official
+history without interpolation. This annual workbook and the monthly index have
+separate registered refresh units, artifacts, freshness mappings, parsers, and
+last-good failure boundaries; neither waits for or modifies the other.
 
 The committed `housing-construction-details.json` dataset extends the national
 housing-start card with New Residential Construction series from Census and HUD,

@@ -4,8 +4,8 @@ import {
 import { beaSavingDistributionOutputFile } from '../bea/savingRateDistribution'
 import {
   constructionCostOutputFile,
-  realConstructionCostOutputFile,
 } from '../census/homeConstructionCostIndex'
+import { contractorPricePerSquareFootOutputFile } from '../census/contractorBuiltPricePerSquareFoot'
 import { hoamConfiguration } from '../atlantaFed/hoamWorkbook'
 import {
   corporateProfitShareConfiguration,
@@ -221,9 +221,14 @@ export const refreshUnitRegistry: readonly RefreshUnitDefinition[] = [
   unit({
     id: 'census-hud-home-construction-cost',
     sourceFamily: 'census-hud',
-    sourceIds: ['New Residential Sales construction price index workbook', 'CPIAUCNS'],
-    artifactPaths: [constructionCostOutputFile, realConstructionCostOutputFile],
-    dependencyUnitIds: ['fred-cpi'],
+    sourceIds: ['New Residential Sales construction price index workbook'],
+    artifactPaths: [constructionCostOutputFile],
+  }),
+  unit({
+    id: 'census-hud-contractor-price-per-square-foot',
+    sourceFamily: 'census-hud',
+    sourceIds: ['Characteristics of New Housing contract price per square foot workbook'],
+    artifactPaths: [contractorPricePerSquareFootOutputFile],
   }),
   unit({
     id: 'federal-reserve-core-goods-pce',

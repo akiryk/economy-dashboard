@@ -28,6 +28,7 @@ export type FreshnessContractId =
   | 'DOL-W'
   | 'CENSUS-HOUSING'
   | 'CENSUS-COST'
+  | 'CENSUS-CHARS'
   | 'FED-G17'
   | 'FED-POLICY'
   | 'FED-RATES-M'

@@ -665,6 +665,10 @@ p {
   min-height: 12rem;
 }
 
+.home-construction-cost__compact-chart .economic-chart {
+  height: 18rem;
+}
+
 .gdp-compact-preview {
   display: grid;
   min-width: 0;

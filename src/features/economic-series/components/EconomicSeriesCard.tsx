@@ -252,7 +252,7 @@ export function EconomicSeriesCard({
     return withFreshness(
       <HomeConstructionCostSummary
         nominal={seriesState.series}
-        real={seriesState.supportingSeries[0]!}
+        annualDollars={seriesState.supportingSeries[0]!}
       />,
     )
   }

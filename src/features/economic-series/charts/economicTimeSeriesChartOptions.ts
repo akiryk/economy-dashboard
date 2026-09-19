@@ -191,6 +191,8 @@ export function createEconomicTimeSeriesChartOptions({
           ? 'Jobs (thousands)'
           : valueFormat === 'thousands-units'
             ? 'Units (thousands, annual rate)'
+          : valueFormat === 'dollars-per-square-foot'
+            ? 'Nominal dollars per square foot'
           : valueFormat === 'index' || valueFormat === 'credit-index'
             ? 'Index'
             : 'Percent',
@@ -205,6 +207,8 @@ export function createEconomicTimeSeriesChartOptions({
             ? '{value}K'
             : valueFormat === 'thousands-units'
               ? '{value}K'
+            : valueFormat === 'dollars-per-square-foot'
+              ? '${value}'
             : valueFormat === 'index' || valueFormat === 'credit-index'
               ? '{value}'
               : '{value}%',

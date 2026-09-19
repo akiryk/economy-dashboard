@@ -50,7 +50,6 @@ describe('localEconomicSeriesRepository', () => {
     ['home-ownership-cost-share', 'HOAM: Annual Payment Share of Income'],
     ['housing-starts', 'HOUST'],
     ['single-family-construction-cost-index', 'PRICE_UC_FIXED'],
-    ['real-single-family-construction-cost-index', 'PRICE_UC_FIXED / CPIAUCNS'],
     ['us-population-monthly', 'POPTHM'],
     ['manufacturing-output', 'IPMAN'],
     ['manufacturing-employment', 'MANEMP'],
@@ -61,6 +60,16 @@ describe('localEconomicSeriesRepository', () => {
       slug,
       providerSeriesId,
       frequency: 'monthly',
+    })
+  })
+
+  it('loads contractor-built price per square foot as a separate annual series', async () => {
+    await expect(localEconomicSeriesRepository.getBySlug(
+      'contractor-built-price-per-square-foot',
+    )).resolves.toMatchObject({
+      slug: 'contractor-built-price-per-square-foot',
+      providerSeriesId: 'ContractMedAvgPriceSqFt: United States median',
+      frequency: 'annual',
     })
   })
 

@@ -120,6 +120,25 @@ synthetic level.
 recent observation. UI copy and tests distinguish the monthly index from the
 linked annual price-per-square-foot table.
 
+## Match chart semantics to the product question
+
+**Invariant:** A level question must lead with the published level and its path;
+a current growth rate is supporting context, not a substitute answer.
+
+**Observed failure:** The first home-construction card led with year-over-year
+inflation and charted rate changes. It was technically current but made the
+long-run increase in the cost of comparable construction difficult to see.
+
+**Required prevention:** Identify whether each story asks about a level, change,
+share, or rate before choosing the headline and chart transformation. Preserve
+the source's base and units, explain their meaning, and keep related measures
+visibly separate when they have different populations, frequencies, or units.
+
+**Executable checks:** Controlled component tests assert the dominant level,
+base label, cumulative derivation, and subordinate changes. Ingestion tests
+advance monthly and annual inputs independently, and refresh registry tests
+enforce separate artifact ownership and failure boundaries.
+
 ## Await the complete lazy-rendered collection
 
 **Invariant:** A composition test that verifies a complete section must wait for
