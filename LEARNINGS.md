@@ -62,16 +62,21 @@ formatting boundary without breaking verification.
 **Observed failure:** August 2026 CPI data made the headline-core gap exactly
 1.0 percentage point and made two values in the momentum card both display as
 3.4%. A page test hard-coded plural grammar for the gap, while another required
-the formatted rate to occur only once. Both rejected valid refreshed data.
+the formatted rate to occur only once. After those were repaired, a forward
+refresh filled a previously missing CPI index and exposed a third page test
+that required that production gap to remain forever. All rejected valid data.
 
 **Required prevention:** Test singular/plural formatting with controlled
 fixtures. In production-data composition tests, assert mutable values within a
 semantic element and treat surrounding grammar structurally. Never use a
-mutable formatted value as a unique page- or card-level selector.
+mutable formatted value as a unique page- or card-level selector. Exercise gap
+handling with a controlled fixture; production composition tests may branch on
+the derived state but must not require a dated source gap to persist.
 
 **Executable checks:** The test-policy script rejects direct
 `getByText(formatPercentage(...))` uniqueness assertions and fixed point-unit
 grammar around `formatSignedPercentagePoints(...)` in `DashboardPage.test.tsx`.
+It also rejects dated production-gap assertions in that file.
 Forward fixtures must cover a grammar boundary or duplicate display value when
 either can affect touched behavior.
 

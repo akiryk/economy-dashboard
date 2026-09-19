@@ -44,4 +44,13 @@ describe('test policy check', () => {
       )
     `)).toEqual([])
   })
+
+  it.each([
+    "date === '2025-10-01' && value === null",
+    '/official October 2025 CPI index was unavailable/',
+  ])('rejects a fixed production-data gap: %s', (assertion) => {
+    expect(dashboardPageTestPolicyViolations(assertion)).toEqual([
+      'DashboardPage.test.tsx hard-codes a mutable production-data gap.',
+    ])
+  })
 })

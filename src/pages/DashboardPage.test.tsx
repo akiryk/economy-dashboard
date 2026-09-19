@@ -750,9 +750,6 @@ describe('DashboardPage economic series', () => {
       domain.includesZero && displayRangeLabel.startsWith(
         domain.min === 0 ? '0%' : '−',
       ))).toBe(true)
-    expect(trendModel.trends.every(({ observations }) =>
-      observations.some(({ date, value }) =>
-        date === '2025-10-01' && value === null))).toBe(true)
     const accessibleSummary = within(drivers).getByText(
       /Headline CPI contribution period: [A-Z][a-z]+ \d{4}/,
     )
@@ -782,11 +779,15 @@ describe('DashboardPage economic series', () => {
       'Rolling 3-month annualized headline and core CPI',
     )).toBeVisible()
     expect(within(momentum).getByText('Conditional 12-month rate')).toBeVisible()
-    expect(within(momentum).getByText(
-      /official October 2025 CPI index was unavailable/,
-    )).toHaveTextContent(
-      'geometric mean of the official September 2025 index (324.800) and November 2025 index (324.122)',
-    )
+    if (momentumModel.baseObservation?.kind === 'interpolated') {
+      expect(within(momentum).getByText(
+        /For this derived scenario only/,
+      )).toHaveTextContent('the missing NSA index is estimated as the geometric mean')
+    } else {
+      expect(within(momentum).queryByText(
+        /For this derived scenario only/,
+      )).not.toBeInTheDocument()
+    }
     expect(within(momentum).getByText(
       /The conditional rate is not a forecast/,
     )).toBeVisible()

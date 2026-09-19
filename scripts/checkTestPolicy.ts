@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url'
 const datedDashboardHeading = /U\.S\. Economy, (?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, \d{4}/g
 const uniqueMutableFormattedValue = /(?:within\([^)]*\)\.)?getByText\(\s*formatPercentage\([^)]*\)\s*,?\s*\)/gs
 const fixedPluralAfterMutableValue = /toHaveTextContent\(\s*`[^`]*\$\{formatSignedPercentagePoints\([^}]+\)\} percentage points?[^`]*`\s*,?\s*\)/gs
+const fixedProductionGap = /(?:date\s*===\s*['"]\d{4}-\d{2}-\d{2}['"][\s\S]{0,80}value\s*===\s*null|official (?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4} CPI index was unavailable)/g
 
 export function dashboardPageTestPolicyViolations(source: string): string[] {
   return [
@@ -13,6 +14,8 @@ export function dashboardPageTestPolicyViolations(source: string): string[] {
       'DashboardPage.test.tsx requires a mutable formatted percentage to be unique within a page or card.'),
     ...[...source.matchAll(fixedPluralAfterMutableValue)].map(() =>
       'DashboardPage.test.tsx hard-codes singular or plural prose after a mutable formatted value.'),
+    ...[...source.matchAll(fixedProductionGap)].map(() =>
+      'DashboardPage.test.tsx hard-codes a mutable production-data gap.'),
   ]
 }
 
