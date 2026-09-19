@@ -13,7 +13,7 @@
   "transformation": "FRED units=pc1 transformation of CPILFESL",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/CPILFESL",
-  "retrievedAt": "2026-08-13",
+  "retrievedAt": "2026-09-19",
   "observations": [
     {
       "date": "1958-01-01",
@@ -3306,6 +3306,10 @@
     {
       "date": "2026-07-01",
       "value": 2.46652
+    },
+    {
+      "date": "2026-08-01",
+      "value": 2.44616
     }
   ]
 }

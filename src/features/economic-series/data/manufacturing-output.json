@@ -13,7 +13,7 @@
   "transformation": "Provider-published real-output index",
   "sourceName": "Board of Governors of the Federal Reserve System via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/IPMAN",
-  "retrievedAt": "2026-08-20",
+  "retrievedAt": "2026-09-19",
   "observations": [
     {
       "date": "1972-01-01",
@@ -2617,23 +2617,27 @@
     },
     {
       "date": "2026-03-01",
-      "value": 98.0678
+      "value": 98.0924
     },
     {
       "date": "2026-04-01",
-      "value": 98.7618
+      "value": 98.8563
     },
     {
       "date": "2026-05-01",
-      "value": 98.8119
+      "value": 98.9796
     },
     {
       "date": "2026-06-01",
-      "value": 99.1524
+      "value": 99.2374
     },
     {
       "date": "2026-07-01",
-      "value": 99.314
+      "value": 99.3952
+    },
+    {
+      "date": "2026-08-01",
+      "value": 99.0964
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "retrievedAt": "2026-08-26",
+  "retrievedAt": "2026-09-19",
   "regions": [
     {
       "date": "2015-01-01",
@@ -962,17 +962,24 @@
     },
     {
       "date": "2026-06-01",
-      "northeast": 140,
-      "midwest": 239,
-      "south": 738,
-      "west": 298
+      "northeast": 127,
+      "midwest": 274,
+      "south": 736,
+      "west": 302
     },
     {
       "date": "2026-07-01",
-      "northeast": 164,
-      "midwest": 173,
-      "south": 645,
-      "west": 257
+      "northeast": 173,
+      "midwest": 225,
+      "south": 667,
+      "west": 244
+    },
+    {
+      "date": "2026-08-01",
+      "northeast": 96,
+      "midwest": 198,
+      "south": 658,
+      "west": 323
     }
   ],
   "populations": [
@@ -1524,6 +1531,13 @@
         "singleFamily": 894,
         "twoToFour": 57,
         "fiveOrMore": 482
+      },
+      {
+        "date": "2026-08-01",
+        "total": 1394,
+        "singleFamily": 878,
+        "twoToFour": 49,
+        "fiveOrMore": 467
       }
     ],
     "starts": [
@@ -1984,17 +1998,24 @@
       },
       {
         "date": "2026-06-01",
-        "total": 1415,
-        "singleFamily": 897,
-        "twoToFour": 19,
-        "fiveOrMore": 499
+        "total": 1439,
+        "singleFamily": 902,
+        "twoToFour": 18,
+        "fiveOrMore": 519
       },
       {
         "date": "2026-07-01",
-        "total": 1239,
-        "singleFamily": 808,
-        "twoToFour": 10,
-        "fiveOrMore": 421
+        "total": 1309,
+        "singleFamily": 853,
+        "twoToFour": 12,
+        "fiveOrMore": 444
+      },
+      {
+        "date": "2026-08-01",
+        "total": 1275,
+        "singleFamily": 918,
+        "twoToFour": 13,
+        "fiveOrMore": 344
       }
     ],
     "underConstruction": [
@@ -2455,16 +2476,23 @@
       },
       {
         "date": "2026-06-01",
-        "total": 1264,
-        "singleFamily": 586,
-        "twoToFour": 17,
-        "fiveOrMore": 661
+        "total": 1256,
+        "singleFamily": 588,
+        "twoToFour": 16,
+        "fiveOrMore": 652
       },
       {
         "date": "2026-07-01",
-        "total": 1262,
-        "singleFamily": 579,
+        "total": 1267,
+        "singleFamily": 582,
         "twoToFour": 17,
+        "fiveOrMore": 668
+      },
+      {
+        "date": "2026-08-01",
+        "total": 1271,
+        "singleFamily": 589,
+        "twoToFour": 16,
         "fiveOrMore": 666
       }
     ],
@@ -2926,17 +2954,24 @@
       },
       {
         "date": "2026-06-01",
-        "total": 1333,
-        "singleFamily": 932,
-        "twoToFour": 15,
-        "fiveOrMore": 386
+        "total": 1345,
+        "singleFamily": 935,
+        "twoToFour": 16,
+        "fiveOrMore": 394
       },
       {
         "date": "2026-07-01",
-        "total": 1212,
-        "singleFamily": 878,
-        "twoToFour": 5,
-        "fiveOrMore": 329
+        "total": 1280,
+        "singleFamily": 911,
+        "twoToFour": 10,
+        "fiveOrMore": 359
+      },
+      {
+        "date": "2026-08-01",
+        "total": 1128,
+        "singleFamily": 816,
+        "twoToFour": 10,
+        "fiveOrMore": 302
       }
     ]
   }

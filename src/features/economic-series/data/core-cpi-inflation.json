@@ -13,7 +13,7 @@
   "transformation": "Percent change from year ago, calculated by the application",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/CPILFESL",
-  "retrievedAt": "2026-08-13",
+  "retrievedAt": "2026-09-19",
   "observations": [
     {
       "date": "1958-01-01",
@@ -3306,6 +3306,10 @@
     {
       "date": "2026-07-01",
       "value": 2.4665177892309265
+    },
+    {
+      "date": "2026-08-01",
+      "value": 2.4461631786472537
     }
   ]
 }

@@ -13,7 +13,7 @@
   "transformation": "Provider-published monthly level",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/CWSR0000SA0",
-  "retrievedAt": "2026-08-20",
+  "retrievedAt": "2026-09-19",
   "observations": [
     {
       "date": "1947-01-01",
@@ -3834,6 +3834,10 @@
     {
       "date": "2026-07-01",
       "value": 325.85
+    },
+    {
+      "date": "2026-08-01",
+      "value": 327.384
     }
   ]
 }

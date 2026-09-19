@@ -13,7 +13,7 @@
   "transformation": "Provider-published weekly value",
   "sourceName": "Freddie Mac via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/MORTGAGE30US",
-  "retrievedAt": "2026-09-04",
+  "retrievedAt": "2026-09-19",
   "observations": [
     {
       "date": "1971-04-02",
@@ -11586,6 +11586,14 @@
     {
       "date": "2026-09-03",
       "value": 6.71
+    },
+    {
+      "date": "2026-09-10",
+      "value": 6.76
+    },
+    {
+      "date": "2026-09-17",
+      "value": 6.95
     }
   ]
 }
