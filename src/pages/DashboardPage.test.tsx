@@ -1037,6 +1037,7 @@ describe('DashboardPage economic series', () => {
     const comparison = await within(prices).findByRole('article', {
       name: 'Are workers’ wages keeping up with prices?',
     })
+    await waitFor(() => expect(within(prices).getAllByRole('article')).toHaveLength(5))
     const articles = within(prices).getAllByRole('article')
     expect(articles.map((article) => within(article).getByRole('heading', { level: 3 }).textContent))
       .toEqual([
@@ -1517,7 +1518,8 @@ describe('DashboardPage economic series', () => {
     render(<DashboardPage />)
 
     const housing = screen.getByRole('region', { name: 'Housing' })
-    const cards = await within(housing).findAllByRole('article')
+    await waitFor(() => expect(within(housing).getAllByRole('article')).toHaveLength(3))
+    const cards = within(housing).getAllByRole('article')
     const affordability = (await localEconomicSeriesRepository.getBySlug('home-ownership-cost-share'))!
     const starts = (await localEconomicSeriesRepository.getBySlug('housing-starts'))!
     const population = (await localEconomicSeriesRepository.getBySlug('us-population-monthly'))!
@@ -1660,7 +1662,7 @@ describe('DashboardPage economic series', () => {
     )
     expect(manufacturingModel.status).toBe('ready')
     if (manufacturingModel.status !== 'ready') return
-    expect(within(manufacturing).getAllByRole('article')).toHaveLength(3)
+    await waitFor(() => expect(within(manufacturing).getAllByRole('article')).toHaveLength(3))
     expect(within(card).getByText(
       formatSignedPercentage(latestManufacturingGrowth.value),
     )).toBeVisible()

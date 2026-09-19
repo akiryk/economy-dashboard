@@ -119,3 +119,20 @@ synthetic level.
 **Executable checks:** Ingestion tests advance the monthly workbook and revise a
 recent observation. UI copy and tests distinguish the monthly index from the
 linked annual price-per-square-foot table.
+
+## Await the complete lazy-rendered collection
+
+**Invariant:** A composition test that verifies a complete section must wait for
+the complete collection, not merely one asynchronously loaded member.
+
+**Observed failure:** A page test awaited the third Prices card, immediately
+asserted all five cards, and passed locally only because the remaining lazy work
+finished quickly. A slower CI runner correctly exposed the race.
+
+**Required prevention:** When the assertion concerns collection membership or
+order, wait for the expected collection length before reading the collection.
+Finding one member proves only that member is ready.
+
+**Executable checks:** Dashboard section tests use `waitFor` on the full article
+count before asserting membership or order; controlled component tests remain
+independent of page-load timing.
