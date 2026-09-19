@@ -280,13 +280,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('26 cards in 9 categories')).toBeVisible()
+    expect(within(navigation).getByText('27 cards in 9 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(26)
+    expect(links).toHaveLength(27)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -304,6 +304,7 @@ describe('DashboardPage economic series', () => {
       'Are households saving less of their income?',
       'How much of a median household’s income would it take to own a typical home?',
       'How much new housing is being started?',
+      'How quickly is the cost of building a comparable home changing?',
       'Are U.S. manufacturers producing more goods?',
       'Are businesses investing more in productive assets?',
       'How large are corporate profits relative to the economy?',
@@ -564,7 +565,7 @@ describe('DashboardPage economic series', () => {
         'Are layoffs beginning to rise?',
       ])
     })
-    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(26))
+    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(27))
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'personal-saving-rate-question',
     ])
@@ -1511,7 +1512,7 @@ describe('DashboardPage economic series', () => {
       .not.toBeInTheDocument()
   })
 
-  it('renders compact affordability and preserves both Housing research views', async () => {
+  it('renders all three Housing research views', async () => {
     const user = userEvent.setup()
     render(<DashboardPage />)
 
@@ -1533,6 +1534,7 @@ describe('DashboardPage economic series', () => {
     expect(cards.map((card) => card.getAttribute('aria-labelledby'))).toEqual([
       'home-ownership-cost-share-question',
       'housing-starts-question',
+      'single-family-construction-cost-index-question',
     ])
     expect(within(cards[0]!).getAllByText(formatPercentage(latestAffordability.value))).not.toHaveLength(0)
     expect(cards[0]!.querySelector('.series-current__period')).toHaveTextContent(formatObservationPeriod(latestAffordability.date, 'monthly'))
@@ -1553,6 +1555,8 @@ describe('DashboardPage economic series', () => {
     expect(within(cards[1]!).getByText(new RegExp(
       `${formatObservationPeriod(latestStartsAverage.date, 'monthly')} · Thousands of units`,
     ))).toBeVisible()
+    expect(within(cards[2]!).getByText('change from a year ago')).toBeVisible()
+    expect(within(cards[2]!).getByText(/monthly national index/)).toBeVisible()
     expect(within(cards[1]!).getByText('Three-month average annualized pace')).toBeVisible()
     expect(within(cards[1]!).getByText(/Builders are starting housing at an annualized pace/)).toBeVisible()
     expect(within(cards[1]!).getByText(/Relative to the U.S. population/)).toBeVisible()

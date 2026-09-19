@@ -79,6 +79,7 @@ maintained invariant rather than a one-time audit.
 - Saving rate by income decile (BEA Distribution of Personal Saving workbook, annual), written to `saving-rate-by-income-decile.json`.
 - Household debt-service ratio (`TDSP`, quarterly), written as the provider-published level to `household-debt-service-ratio.json`.
 - Housing starts (`HOUST`, monthly), written as the provider-published level to `housing-starts.json`.
+- New single-family construction costs (Census/HUD Survey of Construction monthly fixed-weight workbook), written to `single-family-construction-cost-index.json`; the same monthly index is divided by not-seasonally-adjusted CPI-U and normalized to 2005 in `real-single-family-construction-cost-index.json`. Missing CPI months remain explicit gaps. Run `npm run data:refresh-home-construction-cost` independently or use the scheduled refresh. Census may revise the two most recent months.
 - Manufacturing output (`IPMAN`, monthly), written as the provider-published index to `manufacturing-output.json`.
 - Manufacturing employment (`MANEMP`, monthly), written as the provider-published level in thousands to `manufacturing-employment.json`.
 - Real business investment (`PNFIC1`, quarterly source level), retained in `real-business-investment-level.json` for compact-chart details and derived into exact-quarter year-over-year growth in `real-business-investment-growth.json`.
@@ -318,6 +319,15 @@ IPMAN file and its refresh behavior are unchanged. The original IPMAN/MANEMP
 selected-range relationship view remains on `/secondary`.
 
 ### Housing construction detail
+
+The separate construction-cost card uses the official Census/HUD monthly
+Laspeyres fixed-weight index for new single-family houses under construction.
+Its fixed 2005 house characteristics separate price change from changes in the
+mix or specification of houses. It excludes land and nonconstruction costs and
+must not be described as monthly dollars per square foot. Census publishes the
+observed contractor-built price-per-square-foot table annually; the dashboard
+links to it but does not interpolate it. The real companion divides each exact
+month by CPI-U and preserves unmatched months as null.
 
 The committed `housing-construction-details.json` dataset extends the national
 housing-start card with New Residential Construction series from Census and HUD,

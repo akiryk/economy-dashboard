@@ -2,6 +2,10 @@ import {
   visibleDatasetFreshnessRegistry,
 } from '../../src/features/data-freshness/freshnessRegistry'
 import { beaSavingDistributionOutputFile } from '../bea/savingRateDistribution'
+import {
+  constructionCostOutputFile,
+  realConstructionCostOutputFile,
+} from '../census/homeConstructionCostIndex'
 import { hoamConfiguration } from '../atlantaFed/hoamWorkbook'
 import {
   corporateProfitShareConfiguration,
@@ -213,6 +217,13 @@ export const refreshUnitRegistry: readonly RefreshUnitDefinition[] = [
       dataPath('housing-construction-details'),
       dataPath('housing-supply-composition'),
     ],
+  }),
+  unit({
+    id: 'census-hud-home-construction-cost',
+    sourceFamily: 'census-hud',
+    sourceIds: ['New Residential Sales construction price index workbook', 'CPIAUCNS'],
+    artifactPaths: [constructionCostOutputFile, realConstructionCostOutputFile],
+    dependencyUnitIds: ['fred-cpi'],
   }),
   unit({
     id: 'federal-reserve-core-goods-pce',

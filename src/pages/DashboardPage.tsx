@@ -43,6 +43,7 @@ const yieldCurveSupportingSlugs = [
   "effective-federal-funds-rate",
 ] as const;
 const housingStartsSupportingSlugs = ["us-population-monthly"] as const;
+const homeConstructionCostSupportingSlugs = ["real-single-family-construction-cost-index"] as const;
 const policyRateSupportingSlugs = [
   "federal-funds-target-upper-bound",
   "federal-funds-target-rate-historical",
@@ -171,6 +172,12 @@ export function DashboardPage() {
           slug="housing-starts"
           supportingSlugs={housingStartsSupportingSlugs}
           label="housing starts"
+        />
+        <EconomicSeriesCard
+          slug="single-family-construction-cost-index"
+          supportingSlugs={homeConstructionCostSupportingSlugs}
+          label="single-family construction costs"
+          variant="home-construction-cost"
         />
       </EconomicSection>
 

@@ -93,7 +93,7 @@ runbook, and production verification. Dates are the latest committed/deployed
 observations at the cadence-review snapshot. A quarter stored as its first calendar date
 is shown here as the user-facing quarter.
 
-### Research dashboard (`/`) — 26 cards
+### Research dashboard (`/`) — 27 cards
 
 | # | Card | Primary and materially visible supporting data | Latest committed | Contract |
 |---:|---|---|---|---|
@@ -113,16 +113,17 @@ is shown here as the user-facing quarter.
 | 14 | Are households saving less of their income? | `PSAVERT` → `personal-saving-rate.json`; BEA workbook → `saving-rate-by-income-decile.json` | Jun 2026; distribution 2023 | BEA-M, BEA-IRR |
 | 15 | How much of a median household’s income would it take to own a typical home? | Atlanta Fed national HOAM workbook → `home-ownership-cost-share.json` | May 2026 | HOAM-M |
 | 16 | How much new housing is being started? | `HOUST`, `POPTHM` → matching JSON; Census detail IDs → `housing-construction-details.json`, `housing-supply-composition.json` | headline Jul 2026 | CENSUS-HOUSING, BEA-M |
-| 17 | Are U.S. manufacturers producing more goods? | `IPMAN` → `manufacturing-output.json` | Jul 2026 | FED-G17 |
-| 18 | Are businesses investing more in productive assets? | `PNFIC1` → `real-business-investment-level.json`, `real-business-investment-growth.json` | 2026 Q2 | BEA-Q |
-| 19 | How large are corporate profits relative to the economy? | `CPATAX / GDP` → `corporate-profit-share.json` | 2026 Q1 | BEA-Q |
-| 20 | Where has the Fed set short-term interest rates? | `DFEDTARL`, `DFEDTARU`, historical `DFEDTAR`; supporting `DFF`, `DPRIME` | effective state Aug 17, 2026 | FED-POLICY |
-| 21 | Is the yield curve inverted? | `GS10`, `TB3MS`, `FEDFUNDS` → ten-year, three-month, and effective-rate JSON files | Jul 2026 | FED-RATES-M |
-| 22 | How high are mortgage rates? | `MORTGAGE30US` → `mortgage-rate-30-year.json` | Aug 13, 2026 | PMMS-W |
-| 23 | How large is the federal budget deficit relative to the economy? | `FYFSGDA188S` → `federal-budget-balance.json` | FY 2025 | FISCAL |
-| 24 | How large is federal debt held by the public relative to the economy? | `FYGFGDQ188S` → `federal-debt-held-by-public.json` | 2026 Q1 | FISCAL |
-| 25 | How large is the U.S. trade deficit relative to the economy? | `A019RE1Q156NBEA` plus four trade-component IDs → `trade-balance-share-of-gdp.json` and four component JSON files | 2026 Q2 | BEA-Q |
-| 26 | How heavily are imported goods being taxed? | `B235RC1Q027SBEA / A255RC1Q027SBEA` → `effective-tariff-burden.json`; Fed Figure 5 → `core-goods-pce-inflation.json` | 2026 Q2; context Feb 2026 | BEA-Q, FED-RESEARCH |
+| 17 | How quickly is the cost of building a comparable home changing? | Census fixed-weight monthly workbook → nominal and CPI-adjusted construction-cost index JSON | Jul 2026 | CENSUS-COST, BLS-CPI |
+| 18 | Are U.S. manufacturers producing more goods? | `IPMAN` → `manufacturing-output.json` | Jul 2026 | FED-G17 |
+| 19 | Are businesses investing more in productive assets? | `PNFIC1` → `real-business-investment-level.json`, `real-business-investment-growth.json` | 2026 Q2 | BEA-Q |
+| 20 | How large are corporate profits relative to the economy? | `CPATAX / GDP` → `corporate-profit-share.json` | 2026 Q1 | BEA-Q |
+| 21 | Where has the Fed set short-term interest rates? | `DFEDTARL`, `DFEDTARU`, historical `DFEDTAR`; supporting `DFF`, `DPRIME` | effective state Aug 17, 2026 | FED-POLICY |
+| 22 | Is the yield curve inverted? | `GS10`, `TB3MS`, `FEDFUNDS` → ten-year, three-month, and effective-rate JSON files | Jul 2026 | FED-RATES-M |
+| 23 | How high are mortgage rates? | `MORTGAGE30US` → `mortgage-rate-30-year.json` | Aug 13, 2026 | PMMS-W |
+| 24 | How large is the federal budget deficit relative to the economy? | `FYFSGDA188S` → `federal-budget-balance.json` | FY 2025 | FISCAL |
+| 25 | How large is federal debt held by the public relative to the economy? | `FYGFGDQ188S` → `federal-debt-held-by-public.json` | 2026 Q1 | FISCAL |
+| 26 | How large is the U.S. trade deficit relative to the economy? | `A019RE1Q156NBEA` plus four trade-component IDs → `trade-balance-share-of-gdp.json` and four component JSON files | 2026 Q2 | BEA-Q |
+| 27 | How heavily are imported goods being taxed? | `B235RC1Q027SBEA / A255RC1Q027SBEA` → `effective-tariff-burden.json`; Fed Figure 5 → `core-goods-pce-inflation.json` | 2026 Q2; context Feb 2026 | BEA-Q, FED-RESEARCH |
 
 ### Status board (`/dashboard`) — 10 tiles
 
@@ -348,6 +349,7 @@ existing issue notification remains the fallback for that case.
 | BLS-PROD | BLS nonfarm-business productivity `OPHNFB` via FRED | Quarterly initial and revised releases, tied to BEA GDP schedule; revisions are expected. | `data:refresh`; automatic daily | Healthy through latest scheduled initial/revision. Unexpected after FRED advanced plus one successful daily cycle. | Validate level and derived growth as one group; repair alignment/schema rather than substituting a different productivity measure. |
 | DOL-W | ETA weekly claims `ICSA`, official `IC4WSA`, via FRED | Weekly, normally Thursday 8:30 ET for week ending the prior Saturday; revised following week. | `data:refresh`; automatic daily | Healthy before Thursday with prior week's value; after release allow FRED propagation and the next successful daily cycle. More than one expected weekly release behind is unexpected. | Inspect DOL release and FRED. Wait for confirmed provider lag; repair retrieval for known available data. Both series remain separate and missing weeks are not filled. |
 | CENSUS-HOUSING | Census/HUD via FRED: regions `HOUSTNE/HOUSTMW/HOUSTS/HOUSTW`; population `CNERPOP/CMWRPOP/CSOUPOP/CWSTPOP`; permits `PERMIT/PERMIT1/PERMIT24/PERMIT5`; starts `HOUST/HOUST1F/HOUST2F/HOUST5F`; under construction `UNDCONTSA/UNDCON1USA/UNDCON24USA/UNDCON5MUSA`; completions `COMPUTSA/COMPU1USA/COMPU24USA/COMPU5MUSA`; seven `NHSUSSP*` price buckets; size `COMPSFLAM1FQ` | Headline monthly, usually the 12th workday; revised permits later and annual/quarterly detail on source-specific schedules. Revisions are normal. | `data:refresh`; automatic daily | Headline healthy through latest Census release month. Supporting annual/quarterly tables use their own published periods. Unexpected after official/FRED advancement plus one successful daily cycle. | Grouped detail writes preserve both files. Release-sensitive tests use controlled or dataset-derived expectations, so normal source advancement is accepted. Do not force all detail to the headline month. |
+| CENSUS-COST | Census/HUD Survey of Construction `price_uc_cust.xlsx`, Vertical-sheet Laspeyres fixed index; CPI-U companion for real index | Monthly with New Residential Sales. The latest two months are preliminary/revised. | `data:refresh` (`data:refresh-home-construction-cost`); automatic daily | Healthy through the latest published workbook month. Unexpected after the workbook advances and one successful daily cycle does not deploy it. | Nominal and real files refresh atomically after CPI. Preserve the last-good pair on retrieval/schema failure. Accept revisions, require contiguous source months, and never manufacture monthly dollars per square foot. |
 | FED-G17 | Federal Reserve G.17 `IPMAN` via FRED | Monthly at 9:15 ET on published dates; each release revises recent months and annual revisions can alter history. | `data:refresh`; automatic daily | Healthy through latest scheduled G.17 month. Unexpected after official/FRED advancement plus one successful daily cycle. | Preserve provider revisions and use controlled or dataset-derived test expectations. Investigate provider, retrieval, validation, and deployment evidence separately. |
 | FED-POLICY | Federal Reserve/FOMC via FRED: `DFEDTARL`, `DFEDTARU`, discontinued `DFEDTAR`, plus `DFF`, `DPRIME` | Event-driven target changes after FOMC action; effective and prime rates can update on business days. An unchanged old effective state can be fully current. | `data:refresh`; automatic daily | Compare the current official target range, not observation age. Unexpected if an announced effective change is absent after FRED advances and one daily cycle. | Bounds validate on the exact date and replace coherently. Never invent a range or infer a policy change from market rates. |
 | FED-RATES-M | Federal Reserve monthly averages via FRED: `GS10`, `TB3MS`, `FEDFUNDS` | Monthly averages after month end; underlying Treasury/Fed rates are daily but this card intentionally uses monthly series. Revisions are possible. | `data:refresh`; automatic daily | Healthy through most recently completed month once FRED publishes it. Current-month absence is normal. Unexpected after monthly series advances plus one cycle. | Do not substitute daily status-tile series into the research card without a product decision. Preserve exact monthly alignment. |

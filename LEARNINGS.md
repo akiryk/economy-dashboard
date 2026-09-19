@@ -100,3 +100,22 @@ failures remain globally blocking.
 **Executable checks:** Validate unique artifact ownership, full visible-artifact
 coverage, dependency references, and exact unit-to-dataset mappings. Fault-test
 both independent and grouped failures before enabling partial publication.
+
+## Match the requested cadence without manufacturing precision
+
+**Invariant:** A timely proxy must retain its source definition; a slow benchmark
+must not be interpolated merely to look current.
+
+**Observed risk:** Census publishes contractor-built dollars per square foot
+annually, while the product need is monthly or quarterly through 2026. Turning
+the annual figure into monthly dollars would conceal the absence of observations
+and imply unsupported precision.
+
+**Required prevention:** Prefer an official higher-frequency constant-quality
+index when the user asks how costs are changing. Label its scope and exclusions,
+keep the annual dollar benchmark separate, and do not splice the two into a
+synthetic level.
+
+**Executable checks:** Ingestion tests advance the monthly workbook and revise a
+recent observation. UI copy and tests distinguish the monthly index from the
+linked annual price-per-square-foot table.

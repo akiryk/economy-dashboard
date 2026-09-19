@@ -80,6 +80,10 @@ const navigationGroups = [
         id: 'housing-starts-card',
         title: 'How much new housing is being started?',
       },
+      {
+        id: 'single-family-construction-cost-index-card',
+        title: 'How quickly is the cost of building a comparable home changing?',
+      },
     ],
   },
   {

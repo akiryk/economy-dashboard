@@ -64,6 +64,10 @@ const localSeriesLoaders: Readonly<
   'home-ownership-cost-share': () =>
     import('../data/home-ownership-cost-share.json'),
   'housing-starts': () => import('../data/housing-starts.json'),
+  'single-family-construction-cost-index': () =>
+    import('../data/single-family-construction-cost-index.json'),
+  'real-single-family-construction-cost-index': () =>
+    import('../data/real-single-family-construction-cost-index.json'),
   'us-population-monthly': () => import('../data/us-population-monthly.json'),
   'manufacturing-output': () => import('../data/manufacturing-output.json'),
   'manufacturing-employment': () =>

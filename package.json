@@ -16,6 +16,7 @@
     "data:apply-refresh-results": "tsx scripts/applyRefreshUnitResults.ts",
     "data:refresh-core-goods-pce": "tsx scripts/refreshCoreGoodsPceInflation.ts",
     "data:refresh-housing-details": "tsx scripts/refreshHousingConstructionDetails.ts",
+    "data:refresh-home-construction-cost": "tsx scripts/census/homeConstructionCostIndex.ts",
     "data:refresh-international": "tsx scripts/refreshInternationalComparisons.ts",
     "data:refresh-saving-distribution": "tsx scripts/refreshSavingRateDistribution.ts",
     "data:freshness": "tsx scripts/inspectDataFreshness.ts",

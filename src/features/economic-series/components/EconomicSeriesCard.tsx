@@ -15,6 +15,7 @@ import { RecentInflationMomentumSummary } from './RecentInflationMomentumSummary
 import { MortgageRateSummary } from './MortgageRateSummary'
 import { PolicyRateSummary } from './PolicyRateSummary'
 import { PurchasingPowerSummary } from './PurchasingPowerSummary'
+import { HomeConstructionCostSummary } from './HomeConstructionCostSummary'
 
 const noSupportingSlugs: readonly string[] = []
 const ClaimsComparisonSummary = lazy(() =>
@@ -50,6 +51,7 @@ interface EconomicSeriesCardProps {
     | 'rate-comparison'
     | 'claims-comparison'
     | 'headline-core-comparison'
+    | 'home-construction-cost'
     | 'inflation-drivers'
     | 'single'
     | 'wages-comparison'
@@ -242,6 +244,15 @@ export function EconomicSeriesCard({
       <InflationDriversSummary
         headline={seriesState.series}
         supportingSeries={seriesState.supportingSeries}
+      />,
+    )
+  }
+
+  if (variant === 'home-construction-cost') {
+    return withFreshness(
+      <HomeConstructionCostSummary
+        nominal={seriesState.series}
+        real={seriesState.supportingSeries[0]!}
       />,
     )
   }

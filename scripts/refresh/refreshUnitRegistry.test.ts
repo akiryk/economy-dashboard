@@ -60,6 +60,8 @@ describe('refresh unit registry', () => {
     })
     expect(refreshUnitRegistry.find(({ id }) => id === 'fred-real-wage-growth'))
       .toMatchObject({ dependencyUnitIds: ['fred-cpi'] })
+    expect(refreshUnitRegistry.find(({ id }) => id === 'census-hud-home-construction-cost'))
+      .toMatchObject({ dependencyUnitIds: ['fred-cpi'] })
     expect(refreshUnitRegistry.find(({ id }) => id === 'fred-business-investment'))
       .toMatchObject({ artifactPaths: [
         'src/features/economic-series/data/real-business-investment-growth.json',

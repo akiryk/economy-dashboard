@@ -49,6 +49,8 @@ describe('localEconomicSeriesRepository', () => {
   it.each([
     ['home-ownership-cost-share', 'HOAM: Annual Payment Share of Income'],
     ['housing-starts', 'HOUST'],
+    ['single-family-construction-cost-index', 'PRICE_UC_FIXED'],
+    ['real-single-family-construction-cost-index', 'PRICE_UC_FIXED / CPIAUCNS'],
     ['us-population-monthly', 'POPTHM'],
     ['manufacturing-output', 'IPMAN'],
     ['manufacturing-employment', 'MANEMP'],

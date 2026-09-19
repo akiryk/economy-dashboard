@@ -3,6 +3,7 @@ import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { visibleDatasetFreshnessRegistry } from '../src/features/data-freshness/freshnessRegistry'
 import { refreshSavingRateDistribution } from './bea/savingRateDistribution'
+import { refreshHomeConstructionCostIndex } from './census/homeConstructionCostIndex'
 import { refreshCategoryCpiSeries } from './bls/ingestCategoryCpiSeries'
 import {
   executeRefreshUnits,
@@ -237,6 +238,9 @@ export function createScheduledRefreshRunners({
       retrievedAt,
       fetchImplementation,
     })
+  })
+  runners.set('census-hud-home-construction-cost', async () => {
+    await refreshHomeConstructionCostIndex({ retrievedAt, fetchImplementation })
   })
   runners.set('federal-reserve-core-goods-pce', async () => {
     await refreshCoreGoodsPceInflation({
