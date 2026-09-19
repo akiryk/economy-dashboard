@@ -15,4 +15,33 @@ describe('test policy check', () => {
       "name: /^U\\.S\\. Economy(?:,|$)/",
     )).toEqual([])
   })
+
+  it('rejects uniqueness assumptions about mutable formatted percentages', () => {
+    expect(dashboardPageTestPolicyViolations(`
+      expect(within(momentum).getByText(
+        formatPercentage(momentumModel.twelveMonthRate),
+      )).toBeVisible()
+    `)).toEqual([
+      'DashboardPage.test.tsx requires a mutable formatted percentage to be unique within a page or card.',
+    ])
+  })
+
+  it('rejects fixed grammar after a mutable formatted point value', () => {
+    expect(dashboardPageTestPolicyViolations(`
+      expect(summary).toHaveTextContent(
+        \`The gap was \${formatSignedPercentagePoints(latest.value - latestCore.value)} percentage points.\`,
+      )
+    `)).toEqual([
+      'DashboardPage.test.tsx hard-codes singular or plural prose after a mutable formatted value.',
+    ])
+  })
+
+  it('allows structural grammar and assertions scoped to a semantic element', () => {
+    expect(dashboardPageTestPolicyViolations(`
+      expect(summary).toHaveTextContent(/percentage points?\\./)
+      expect(momentum.querySelector('.hero')).toHaveTextContent(
+        formatPercentage(momentumModel.twelveMonthRate),
+      )
+    `)).toEqual([])
+  })
 })

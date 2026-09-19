@@ -54,6 +54,27 @@ and records a forward-change check in its completion report.
 **Executable checks:** Controlled tests should exercise at least two successive
 valid values when advancement itself is the behavior under test.
 
+## Mutable values can change grammar and stop being unique
+
+**Invariant:** A valid observation may equal another displayed value or cross a
+formatting boundary without breaking verification.
+
+**Observed failure:** August 2026 CPI data made the headline-core gap exactly
+1.0 percentage point and made two values in the momentum card both display as
+3.4%. A page test hard-coded plural grammar for the gap, while another required
+the formatted rate to occur only once. Both rejected valid refreshed data.
+
+**Required prevention:** Test singular/plural formatting with controlled
+fixtures. In production-data composition tests, assert mutable values within a
+semantic element and treat surrounding grammar structurally. Never use a
+mutable formatted value as a unique page- or card-level selector.
+
+**Executable checks:** The test-policy script rejects direct
+`getByText(formatPercentage(...))` uniqueness assertions and fixed point-unit
+grammar around `formatSignedPercentagePoints(...)` in `DashboardPage.test.tsx`.
+Forward fixtures must cover a grammar boundary or duplicate display value when
+either can affect touched behavior.
+
 ## Refresh failure boundaries must match data dependencies
 
 **Invariant:** A failure in one independently publishable refresh unit must not

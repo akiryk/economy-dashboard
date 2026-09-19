@@ -2,10 +2,18 @@ import { readFile } from 'node:fs/promises'
 import { pathToFileURL } from 'node:url'
 
 const datedDashboardHeading = /U\.S\. Economy, (?:January|February|March|April|May|June|July|August|September|October|November|December) \d{1,2}, \d{4}/g
+const uniqueMutableFormattedValue = /(?:within\([^)]*\)\.)?getByText\(\s*formatPercentage\([^)]*\)\s*,?\s*\)/gs
+const fixedPluralAfterMutableValue = /toHaveTextContent\(\s*`[^`]*\$\{formatSignedPercentagePoints\([^}]+\)\} percentage points?[^`]*`\s*,?\s*\)/gs
 
 export function dashboardPageTestPolicyViolations(source: string): string[] {
-  return [...source.matchAll(datedDashboardHeading)].map(({ 0: match }) =>
-    `DashboardPage.test.tsx contains a mutable production-style heading assertion: "${match}"`)
+  return [
+    ...[...source.matchAll(datedDashboardHeading)].map(({ 0: match }) =>
+      `DashboardPage.test.tsx contains a mutable production-style heading assertion: "${match}"`),
+    ...[...source.matchAll(uniqueMutableFormattedValue)].map(() =>
+      'DashboardPage.test.tsx requires a mutable formatted percentage to be unique within a page or card.'),
+    ...[...source.matchAll(fixedPluralAfterMutableValue)].map(() =>
+      'DashboardPage.test.tsx hard-codes singular or plural prose after a mutable formatted value.'),
+  ]
 }
 
 async function main() {
@@ -18,7 +26,7 @@ async function main() {
 
   throw new Error([
     ...violations,
-    'Use invented metadata in a controlled headline test; page-composition tests must assert only stable structure.',
+    'Use controlled fixtures for exact mutable values and grammar; page-composition tests must assert only stable structure.',
   ].join('\n'))
 }
 

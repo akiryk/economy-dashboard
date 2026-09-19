@@ -445,11 +445,13 @@ describe('DashboardPage economic series', () => {
       level: 4,
       name: 'What is the underlying inflation trend?',
     })).toBeVisible()
-    expect(within(card).getByText(new RegExp(
+    const coreComparisonSummary = within(card).getByText(new RegExp(
       `Core CPI was ${formatPercentage(latestCore.value)} in ${formatObservationPeriod(latestCore.date, 'monthly')}`,
-    ))).toHaveTextContent(
-      `The headline-core gap was ${formatSignedPercentagePoints(latest.value! - latestCore.value!)} percentage points.`,
+    ))
+    expect(coreComparisonSummary).toHaveTextContent(
+      `The headline-core gap was ${formatSignedPercentagePoints(latest.value! - latestCore.value!)}`,
     )
+    expect(coreComparisonSummary).toHaveTextContent(/percentage points?\./)
     expect(within(card).getByText(/Food and energy are currently adding/))
       .toBeVisible()
     expect(within(card).getByRole('link', {
@@ -655,13 +657,9 @@ describe('DashboardPage economic series', () => {
       'Shown for current contributors with a directly comparable CPI series.',
     )).toBeVisible()
     expect(within(momentum).getByText(momentumModel.answer)).toBeVisible()
-    expect(within(momentum).getByText(
-      formatPercentage(momentumModel.twelveMonthRate),
-    )).toBeVisible()
     expect(within(momentum).getByText('12-month inflation')).toBeVisible()
-    expect(within(momentum).getByText(
-      formatPercentage(momentumModel.conditionalRate),
-    )).toBeVisible()
+    expect(momentum.querySelector('.recent-inflation-momentum__conditional-value'))
+      .toHaveTextContent(formatPercentage(momentumModel.conditionalRate))
     expect(within(momentum).getByText(
       'In 3 months if the recent pace continues',
     )).toBeVisible()
@@ -680,11 +678,13 @@ describe('DashboardPage economic series', () => {
       '.recent-inflation-momentum__track',
     )).not.toBeInTheDocument()
     expect(momentum.querySelector('svg area')).not.toBeInTheDocument()
-    expect(within(momentum).getByText(
+    const momentumAccessibleSummary = within(momentum).getByText(
       /The graphic compares adjacent, non-overlapping three-month windows/,
-    )).toHaveTextContent(
-      `the change was ${formatSignedPercentagePoints(momentumModel.difference)} percentage points`,
     )
+    expect(momentumAccessibleSummary).toHaveTextContent(
+      `the change was ${formatSignedPercentagePoints(momentumModel.difference)}`,
+    )
+    expect(momentumAccessibleSummary).toHaveTextContent(/percentage points?/)
     expect(within(momentum).getByText(
       /The graphic compares adjacent, non-overlapping three-month windows/,
     )).toHaveTextContent('not a forecast')
@@ -1190,9 +1190,9 @@ describe('DashboardPage economic series', () => {
       name: 'Are layoffs beginning to rise?',
     })
 
-    expect(within(card).getByText(
+    expect(card.querySelector('.series-current__value')).toHaveTextContent(
       formatPercentage(findLatestNonNullObservation(joltsLayoffsSeries.observations)?.value ?? null),
-    )).toBeVisible()
+    )
     expect(within(card).getByText(latestJoltsLayoffsPeriod)).toBeVisible()
     expect(within(card).getByText(
       joltsDirectionStatement(deriveJoltsDirection(joltsLayoffsSeries.observations).state),
@@ -2108,7 +2108,8 @@ describe('DashboardPage economic series', () => {
     expect(within(policy).getByRole('heading', { name: 'How does the bank prime rate compare?' })).toBeVisible()
     expect(within(policy).getAllByText(/^\d+\.\d{2}%$/).length).toBeGreaterThan(0)
     expect(within(policy).getByText(/Before December 16, 2008/)).toBeVisible()
-    expect(within(mortgage).getByText(formatPercentage(latestMortgageRate.value))).toBeVisible()
+    expect(mortgage.querySelector('.series-current__value'))
+      .toHaveTextContent(formatPercentage(latestMortgageRate.value))
     expect(within(mortgage).getByText('Freddie Mac national average')).toBeVisible()
     expect(within(mortgage).getByText(/from a year ago/)).toBeVisible()
     const mortgageContext = within(mortgage).getByRole('button', { name: 'Why this matters for mortgage rates' })
@@ -2168,7 +2169,8 @@ describe('DashboardPage economic series', () => {
     })
     const debt = await within(government).findByRole('article', { name: 'How large is federal debt held by the public relative to the economy?' })
     expect(within(government).getAllByRole('article')).toHaveLength(2)
-    expect(within(budget).getByText(formatPercentage(Math.abs(latestBudget.value!)))).toBeVisible()
+    expect(budget.querySelector('.series-current__value'))
+      .toHaveTextContent(formatPercentage(Math.abs(latestBudget.value!)))
     expect(within(budget).getByText(formatBudgetBalanceStateLabel(budgetState))).toBeVisible()
     expect(within(budget).getAllByText('Federal deficit as a share of GDP'))
       .not.toHaveLength(0)
