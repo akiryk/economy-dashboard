@@ -1,5 +1,5 @@
 {
-  "retrievedAt": "2026-09-19",
+  "retrievedAt": "2026-09-24",
   "regions": [
     {
       "date": "2015-01-01",
@@ -1534,10 +1534,10 @@
       },
       {
         "date": "2026-08-01",
-        "total": 1394,
-        "singleFamily": 878,
-        "twoToFour": 49,
-        "fiveOrMore": 467
+        "total": 1403,
+        "singleFamily": 880,
+        "twoToFour": 48,
+        "fiveOrMore": 475
       }
     ],
     "starts": [
