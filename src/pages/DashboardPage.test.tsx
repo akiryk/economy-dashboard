@@ -7,6 +7,8 @@ import type {
 } from '../features/economic-series/models/economicSeries'
 import {
   businessInvestmentCompactDefinition,
+  createFederalBudgetBalanceCompactDefinition,
+  createTradeBalanceCompactDefinition,
   corporateProfitShareCompactDefinition,
   homeOwnershipCostCompactDefinition,
   manufacturingOutputCompactDefinition,
@@ -22,6 +24,8 @@ import joltsLayoffsData from '../features/economic-series/data/jolts-layoffs-and
 import realGdpGrowthData from '../features/economic-series/data/real-gdp-growth.json'
 import inflationContributionData from '../features/economic-series/data/inflation-contributions.json'
 import corporateProfitShareData from '../features/economic-series/data/corporate-profit-share.json'
+import budgetBalanceData from '../features/economic-series/data/federal-budget-balance.json'
+import tradeBalanceData from '../features/economic-series/data/trade-balance-share-of-gdp.json'
 import { validateEconomicSeries } from '../features/economic-series/models/validateEconomicSeries'
 import { localEconomicSeriesRepository } from '../features/economic-series/repositories/localEconomicSeriesRepository'
 import {
@@ -33,7 +37,7 @@ import {
   formatSignedPercentagePoints,
 } from '../features/economic-series/utils/economicSeries'
 import { filterObservationsByTimeRange } from '../features/economic-series/utils/chartData'
-import { classifyCpiAssessment, formatCpiAssessment, formatCpiPolicyReference } from '../features/economic-series/utils/cpiData'
+import { classifyCpiAssessment, formatCpiAssessment, formatCpiPolicyReference, formatHeadlineCoreComparison, formatPceTargetComparison } from '../features/economic-series/utils/cpiData'
 import { deriveRecentInflationMomentumModel } from '../features/economic-series/utils/recentInflationMomentum'
 import { deriveHousingStartsCompactData } from '../features/economic-series/utils/housingStartsData'
 import {
@@ -85,6 +89,9 @@ import {
 } from '../features/economic-series/utils/homeOwnershipAffordability'
 import { DashboardPage } from './DashboardPage'
 import { updateLoadedPeriod } from './loadedPeriodState'
+
+const budgetQuestion = formatBudgetBalanceQuestion(classifyBudgetBalance(findLatestNonNullObservation(budgetBalanceData.observations)?.value ?? null))
+const tradeQuestion = formatTradeBalanceQuestion(classifyTradeBalance(findLatestNonNullObservation(tradeBalanceData.observations)?.value ?? null))
 
 const joltsLayoffsSeries = validateEconomicSeries(joltsLayoffsData)
 const latestJoltsLayoffsPeriod = formatObservationPeriod(
@@ -386,9 +393,10 @@ describe('DashboardPage economic series', () => {
   it('renders compact CPI interpretation and expands to distinct core and PCE comparisons', async () => {
     const user = userEvent.setup()
     const getBySlug = vi.spyOn(localEconomicSeriesRepository, 'getBySlug')
-    const [cpi, coreCpi] = await Promise.all([
+    const [cpi, coreCpi, pce] = await Promise.all([
       localEconomicSeriesRepository.getBySlug('headline-cpi-inflation'),
       localEconomicSeriesRepository.getBySlug('core-cpi-inflation'),
+      localEconomicSeriesRepository.getBySlug('headline-pce-inflation'),
     ])
     if (!cpi || !coreCpi) throw new Error('Expected committed CPI series')
     const latest = [...cpi.observations].reverse().find(({ value }) => value !== null)!
@@ -453,8 +461,7 @@ describe('DashboardPage economic series', () => {
       `The headline-core gap was ${formatSignedPercentagePoints(latest.value! - latestCore.value!)}`,
     )
     expect(coreComparisonSummary).toHaveTextContent(/percentage points?\./)
-    expect(within(card).getByText(/Food and energy are currently adding/))
-      .toBeVisible()
+    expect(coreComparisonSummary).toHaveTextContent(formatHeadlineCoreComparison(latest.value, latestCore.value)!)
     expect(within(card).getByRole('link', {
       name: 'What is driving inflation?',
     })).toHaveAttribute('href', '#inflation-drivers-card')
@@ -464,7 +471,7 @@ describe('DashboardPage economic series', () => {
     })).toBeVisible()
     expect(within(card).getByText(/PCE covers a broader range/)).toBeVisible()
     expect(within(card).getByText(/PCE inflation was .+ in .+/))
-      .toHaveTextContent(/PCE inflation is .+ percentage points? (above|below) the Federal Reserve’s 2% target/)
+      .toHaveTextContent(formatPceTargetComparison(findLatestNonNullObservation(pce!.observations)!.value)!)
     expect(within(card).getByRole('link', {
       name: /PCEPI.*Bureau of Economic Analysis via FRED/,
     })).toHaveAttribute('href', 'https://fred.stlouisfed.org/series/PCEPI')
@@ -2183,7 +2190,7 @@ describe('DashboardPage economic series', () => {
     expect(budget.querySelector('.series-current__value'))
       .toHaveTextContent(formatPercentage(Math.abs(latestBudget.value!)))
     expect(within(budget).getByText(formatBudgetBalanceStateLabel(budgetState))).toBeVisible()
-    expect(within(budget).getAllByText('Federal deficit as a share of GDP'))
+    expect(within(budget).getAllByText(createFederalBudgetBalanceCompactDefinition(budgetState).seriesLabel))
       .not.toHaveLength(0)
     expect(within(budget).getByText(
       new RegExp(`${formatObservationPeriod(latestBudget.date, 'annual')} · Percent of GDP`),
@@ -2192,7 +2199,7 @@ describe('DashboardPage economic series', () => {
     expect(within(budget).getByText(formatBudgetBalancePerHundred(latestBudget.value))).toBeVisible()
     expect(within(budget).getByText(/relative to historical (?:deficits|surpluses)|by historical standards/)).toBeVisible()
     const compactProps = compactChartPropsSpy.mock.calls.find(
-      ([props]) => props.definition.seriesLabel === 'Federal deficit as a share of GDP',
+      ([props]) => props.definition.seriesLabel === createFederalBudgetBalanceCompactDefinition(budgetState).seriesLabel,
     )?.[0]
     expect(compactProps.model.recentObservations).toHaveLength(5)
     expect(compactProps.definition.showZeroLine).toBe(true)
@@ -2248,7 +2255,7 @@ describe('DashboardPage economic series', () => {
 
   it.each([
     ['federal-budget-balance', 'The federal budget balance data could not be loaded.', 'How large is federal debt held by the public relative to the economy?'],
-    ['federal-debt-held-by-public', 'The federal debt held by the public data could not be loaded.', 'How large is the federal budget deficit relative to the economy?'],
+    ['federal-debt-held-by-public', 'The federal debt held by the public data could not be loaded.', budgetQuestion],
   ])('isolates a %s failure within Government finances', async (failedSlug, message, survivor) => {
     const original = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
     vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
@@ -2291,13 +2298,13 @@ describe('DashboardPage economic series', () => {
     expect(within(balance).getByText(formatTradeBalanceStateLabel(tradeState))).toBeVisible()
     expect(within(balance).getByText(formatTradeBalancePerHundred(latestTrade.value))).toBeVisible()
     expect(within(balance).getByText(formatTradeBalanceDirection(tradeSeries!.observations))).toBeVisible()
-    const tradeCompactProps = compactChartPropsSpy.mock.calls.find(([props]) => props.definition.seriesLabel === 'U.S. trade deficit as a share of GDP')?.[0]
+    const tradeCompactProps = compactChartPropsSpy.mock.calls.find(([props]) => props.definition.seriesLabel === createTradeBalanceCompactDefinition(tradeState).seriesLabel)?.[0]
     expect(tradeCompactProps.definition.interactiveCursor).toBe('pointer')
     expect(tradeCompactProps.model.recentObservations).toHaveLength(21)
     expect(tradeCompactProps.model.recentObservations.every(({ value }: EconomicObservation) => value === null || value >= 0)).toBe(true)
     const context = within(balance).getByRole('button', { name: 'Why this matters for the U.S. trade balance' })
     await user.click(context)
-    expect(within(balance).getByText(/not automatically a sign of economic weakness/)).toBeVisible()
+    expect(within(balance).getByText(/not automatically a sign of economic (?:weakness|strength)|approximately balanced/)).toBeVisible()
     expect(within(tariff).getByText('Realized tariff burden')).toBeVisible()
     expect(within(tariff).getByText(formatTariffPerHundred(latestTariff.value))).toBeVisible()
     expect(within(tariff).getByText(formatTariffHistoricalPosition(tariffModel))).toBeVisible()
@@ -2328,7 +2335,7 @@ describe('DashboardPage economic series', () => {
 
   it.each([
     ['trade-balance-share-of-gdp', 'The trade balance data could not be loaded.', 'What share of imported goods is collected as customs duties?'],
-    ['effective-tariff-burden', 'The effective tariff burden data could not be loaded.', 'How large is the U.S. trade deficit relative to the economy?'],
+    ['effective-tariff-burden', 'The effective tariff burden data could not be loaded.', tradeQuestion],
   ])('isolates a %s failure within Trade and tariffs', async (failedSlug, message, survivor) => {
     const original = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
     vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {
@@ -2343,9 +2350,9 @@ describe('DashboardPage economic series', () => {
   })
 
   it.each([
-    ['effective-federal-funds-rate', 'The yield curve data could not be loaded.', 'How large is the federal budget deficit relative to the economy?'],
-    ['ten-year-treasury-yield', 'The yield curve data could not be loaded.', 'How large is the federal budget deficit relative to the economy?'],
-    ['three-month-treasury-bill-rate', 'The yield curve data could not be loaded.', 'How large is the federal budget deficit relative to the economy?'],
+    ['effective-federal-funds-rate', 'The yield curve data could not be loaded.', budgetQuestion],
+    ['ten-year-treasury-yield', 'The yield curve data could not be loaded.', budgetQuestion],
+    ['three-month-treasury-bill-rate', 'The yield curve data could not be loaded.', budgetQuestion],
   ])('isolates a %s failure within Financial conditions', async (failedSlug, message, survivor) => {
     const original = localEconomicSeriesRepository.getBySlug.bind(localEconomicSeriesRepository)
     vi.spyOn(localEconomicSeriesRepository, 'getBySlug').mockImplementation(async (slug) => {

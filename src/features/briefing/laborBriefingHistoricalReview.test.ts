@@ -20,8 +20,8 @@ describe('committed LMCI briefing data', () => {
     if (result.status !== 'ready') throw new Error('Expected current LMCI result')
     const latestActivity = activity!.observations.at(-1)!
     const latestMomentum = momentum!.observations.at(-1)!
-    expect(result.activity).toMatchObject({ rawValue: latestActivity.value, period: latestActivity.date, comparisonStart: activity!.observations[0]!.date, observationCount: activity!.observations.length, stale: false })
-    expect(result.momentum).toMatchObject({ rawValue: latestMomentum.value, period: latestMomentum.date, comparisonStart: momentum!.observations[0]!.date, observationCount: momentum!.observations.length, stale: false })
+    expect(result.activity).toMatchObject({ rawValue: latestActivity.value, period: latestActivity.date, comparisonStart: activity!.observations[0]!.date, observationCount: activity!.observations.length })
+    expect(result.momentum).toMatchObject({ rawValue: latestMomentum.value, period: latestMomentum.date, comparisonStart: momentum!.observations[0]!.date, observationCount: momentum!.observations.length })
     expect(result.activity?.percentile).toBeGreaterThanOrEqual(0)
     expect(result.activity?.percentile).toBeLessThanOrEqual(100)
     expect(result.momentum?.percentile).toBeGreaterThanOrEqual(0)

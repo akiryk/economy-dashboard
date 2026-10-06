@@ -77,10 +77,11 @@ describe('production job-growth breakeven context', () => {
   })
 
   it('preserves unavailable gaps and does not select future projections', () => {
+    const gapDate = production.observations.filter(({ status }) => status === 'available').at(-3)!.date
     const fixture = {
       ...production,
       observations: production.observations.map((item) =>
-        item.date === '2024-12-01'
+        item.date === gapDate
           ? {
               status: 'unavailable' as const,
               date: item.date,
@@ -93,7 +94,7 @@ describe('production job-growth breakeven context', () => {
     }
     const context = deriveJobGrowthBreakevenContext(fixture)
     expect(context.historicalBands.recentObservations).toContainEqual({
-      date: '2024-12-01',
+      date: gapDate,
       value: null,
     })
     expect(context.gapObservations.filter(({ value }) => value === null).length)
@@ -107,12 +108,12 @@ describe('production job-growth breakeven context', () => {
     const summary = createJobGrowthBreakevenAccessibleSummary(
       deriveJobGrowthBreakevenContext(production),
     )
-    expect(summary).toMatch(/Gap: [−+]?\d+\.\d pp/)
-    expect(summary).toMatch(/Actual payroll growth: \d+\.\d+% annualized/)
-    expect(summary).toMatch(/Estimated breakeven growth: \d+\.\d+% annualized/)
-    expect(summary).toMatch(/Actual job growth: [−+]?\d+K per month/)
-    expect(summary).toMatch(/Estimated breakeven: [−+]?\d+K per month/)
-    expect(summary).toMatch(/Difference: [−+]?\d+K per month/)
+    expect(summary).toMatch(/Gap: [-+−]?\d+\.\d pp/)
+    expect(summary).toMatch(/Actual payroll growth: [-+−]?\d+\.\d+% annualized/)
+    expect(summary).toMatch(/Estimated breakeven growth: [-+−]?\d+\.\d+% annualized/)
+    expect(summary).toMatch(/Actual job growth: [-+−]?\d+K per month/)
+    expect(summary).toMatch(/Estimated breakeven: [-+−]?\d+K per month/)
+    expect(summary).toMatch(/Difference: [-+−]?\d+K per month/)
     expect(summary).toMatch(/latest source value is (a source projection|a historical estimate)/)
   })
 

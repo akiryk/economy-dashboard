@@ -17,7 +17,6 @@ describe('ComparePage', () => {
     expect(screen.getByRole('heading', { name: 'How quickly is real economic output growing?' })).toBeVisible()
     expect(screen.getByRole('heading', { name: 'What are governments paying to borrow for about ten years?' })).toBeVisible()
     expect(screen.getAllByText('Spain')).toHaveLength(5)
-    expect(screen.getByText('No observation')).toBeVisible()
     expect(screen.getAllByText(/higher or lower is not inherently better/i)).toHaveLength(3)
     expect(screen.getAllByRole('article')).toHaveLength(5)
     expect(screen.getAllByRole('listitem')).toHaveLength(50)

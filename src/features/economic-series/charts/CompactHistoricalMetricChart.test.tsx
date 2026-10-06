@@ -19,16 +19,19 @@ import {
   housingStartsCompactDefinition,
   manufacturingOutputCompactDefinition,
   federalBudgetBalanceCompactDefinition,
+  createFederalBudgetBalanceCompactDefinition,
 } from '../utils/compactHistoricalMetrics'
-import { deriveHistoricalBandContext } from '../utils/historicalBandContext'
+import { deriveHistoricalBandContext, type HistoricalBandResult } from '../utils/historicalBandContext'
 import { deriveHousingStartsCompactData } from '../utils/housingStartsData'
 import { deriveManufacturingOutputGrowth } from '../utils/manufacturingOutputGrowth'
 import { deriveBudgetBalanceCompactContext } from '../utils/budgetBalanceContext'
-import { formatAnnualizedHousingUnits, formatObservationPeriod } from '../utils/economicSeries'
+import { formatHomeOwnershipPointDifference } from '../utils/homeOwnershipAffordability'
+import { formatAnnualizedHousingUnits, formatObservationPeriod, formatPercentage, formatSignedPercentagePoints, formatSignedThousands } from '../utils/economicSeries'
 import { CompactHistoricalMetricChart } from './CompactHistoricalMetricChart'
 
 vi.mock('./HistoricalBandChart', () => ({
   HistoricalBandChart: (props: {
+    model: HistoricalBandResult
     caption: string
     accessibleSummary: string | null
     showZeroLine: boolean
@@ -57,19 +60,9 @@ vi.mock('./HistoricalBandChart', () => ({
       data-unified-footer={props.unifiedFooterLabels}
       data-reference-lines={JSON.stringify(props.referenceLines)}
       data-comparison-label={props.comparisonLabel}
-      data-latest-value={props.valueFormatter(111.33333333333333)}
+      data-latest-value={props.valueFormatter(props.model.status === 'ready' ? props.model.latestObservation.value : null)}
     >
-      {props.interactionDetails?.(
-        props.caption.startsWith('Modeled ownership-cost share')
-          ? { date: '2026-03-01', value: 42 }
-          : props.caption.startsWith('Housing starts')
-          ? { date: '2026-06-01', value: 3.93 }
-          : props.caption.startsWith('Three-month-average manufacturing')
-          ? { date: '2026-06-01', value: 1.3 }
-          : props.caption.startsWith('Federal deficit')
-          ? { date: '2025-01-01', value: 5.8 }
-          : { date: '2026-06-01', value: 2.7 },
-      )}
+      {props.model.status === 'ready' && props.interactionDetails?.(props.model.latestObservation)}
       {props.showReferenceLineLabels && props.referenceLines?.map(({ label }) => (
         <span key={label}>{label}</span>
       ))}
@@ -132,7 +125,9 @@ describe('CompactHistoricalMetricChart', () => {
     expect(chart).toHaveAttribute('data-zero-line', 'true')
     expect(chart).toHaveAttribute('data-latest-marker', 'true')
     expect(chart).toHaveAttribute('data-interactive', 'true')
-    expect(chart).toHaveAttribute('data-latest-value', '+111K')
+    expect(model.status).toBe('ready')
+    if (model.status !== 'ready') return
+    expect(chart).toHaveAttribute('data-latest-value', formatSignedThousands(model.latestObservation.value))
   })
 
   it('shows concise annual budget balance details and zero mechanics', () => {
@@ -142,19 +137,20 @@ describe('CompactHistoricalMetricChart', () => {
       postwar,
       federalBudgetBalanceCompactDefinition.historicalBands,
     )
+    const definition = createFederalBudgetBalanceCompactDefinition(context.state)
     render(<CompactHistoricalMetricChart
       model={context.model}
-      definition={federalBudgetBalanceCompactDefinition}
+      definition={definition}
       observations={context.observations}
     />)
     const chart = screen.getByTestId('historical-band-chart')
     expect(chart).toHaveAttribute(
       'data-caption',
-      expect.stringMatching(/^Federal deficit as a share of GDP · Displayed: \d{4}–\d{4}$/),
+      expect.stringMatching(/^(Federal (?:deficit|surplus)|Absolute federal budget balance) as a share of GDP · Displayed: \d{4}–\d{4}$/),
     )
     expect(chart).toHaveAttribute(
       'data-comparison-label',
-      expect.stringMatching(/^Historical bands use annual federal deficit magnitudes from 1946–\d{4}$/),
+      expect.stringMatching(/^Historical bands use annual (?:federal (?:deficit|surplus)|absolute budget-balance) magnitudes from 1946–\d{4}$/),
     )
     expect(chart).toHaveAttribute('data-zero-line', 'true')
     expect(chart).toHaveAttribute('data-latest-marker', 'true')
@@ -162,7 +158,12 @@ describe('CompactHistoricalMetricChart', () => {
     expect(chart).toHaveAttribute('data-interactive', 'true')
     expect(chart).toHaveAttribute('data-cursor', 'pointer')
     expect(chart).toHaveAttribute('data-unified-footer', 'true')
-    expect(chart).toHaveTextContent('2025Deficit 5.8% of GDP')
+    expect(context.model.status).toBe('ready')
+    if (context.model.status !== 'ready') return
+    const latest = context.model.latestObservation
+    expect(chart).toHaveTextContent(
+      `${formatObservationPeriod(latest.date, 'annual')}${definition.interactionStateLabel!(latest.value)} ${definition.valueFormatter!(latest.value)}`,
+    )
     expect(chart).not.toHaveTextContent('Historical position')
   })
 
@@ -187,9 +188,38 @@ describe('CompactHistoricalMetricChart', () => {
     )
     expect(chart).toHaveAttribute('data-zero-line', 'false')
     expect(chart).toHaveAttribute('data-interactive', 'true')
-    expect(chart).toHaveTextContent('Personal saving rateJune 20262.7%')
+    expect(model.status).toBe('ready')
+    if (model.status !== 'ready') return
+    const latest = model.latestObservation
+    const priorDate = new Date(`${latest.date}T00:00:00Z`)
+    priorDate.setUTCFullYear(priorDate.getUTCFullYear() - 1)
+    const prior = series.observations.find(({ date }) => date === priorDate.toISOString().slice(0, 10))?.value
     expect(chart).toHaveTextContent(
-      'Change from 12 months earlier: −1.9 percentage points',
+      `Personal saving rate${formatObservationPeriod(latest.date, 'monthly')}${formatPercentage(latest.value)}`,
+    )
+    expect(chart).toHaveTextContent(
+      `Change from 12 months earlier: ${prior == null ? 'unavailable' : `${formatSignedPercentagePoints(latest.value - prior)} percentage points`}`,
+    )
+  })
+
+  it.each([
+    [3, 5, -2],
+    [4, 5, -1],
+    [4, 6, -2],
+    [4, null, null],
+  ])('compares controlled saving values %s and %s at exactly 12 months', (latestValue, priorValue, change) => {
+    const observations: EconomicObservation[] = Array.from({ length: 73 }, (_, index) => ({
+      date: new Date(Date.UTC(2030, index, 1)).toISOString().slice(0, 10),
+      value: index === 60 ? priorValue : index === 72 ? latestValue : 8,
+    }))
+    const model = deriveHistoricalBandContext(observations, savingRateCompactDefinition.historicalBands)
+    render(<CompactHistoricalMetricChart
+      model={model}
+      definition={savingRateCompactDefinition}
+      observations={observations}
+    />)
+    expect(screen.getByTestId('historical-band-chart')).toHaveTextContent(
+      `Change from 12 months earlier: ${change === null ? 'unavailable' : `${formatSignedPercentagePoints(change)} percentage points`}`,
     )
   })
 
@@ -208,12 +238,16 @@ describe('CompactHistoricalMetricChart', () => {
     expect(chart).toHaveAttribute('data-zero-line', 'false')
     expect(chart).toHaveAttribute('data-latest-marker', 'true')
     expect(chart).toHaveAttribute('data-interactive', 'true')
-    expect(chart).toHaveAttribute('data-comparison-label', 'Available history since 2005')
+    expect(model.status).toBe('ready')
+    if (model.status !== 'ready') return
+    expect(chart).toHaveAttribute('data-comparison-label', homeOwnershipCostCompactDefinition.comparisonLabel!(model))
     expect(chart).toHaveAttribute('data-reference-lines', expect.stringContaining('Atlanta Fed affordability threshold'))
     expect(chart).toHaveTextContent('30% = Atlanta Fed affordability threshold')
-    expect(chart).toHaveTextContent('Modeled ownership-cost shareMarch 202642.0%')
+    expect(chart).toHaveTextContent(
+      `Modeled ownership-cost share${formatObservationPeriod(model.latestObservation.date, 'monthly')}${formatPercentage(model.latestObservation.value)}`,
+    )
     expect(chart).toHaveTextContent('Affordability threshold: 30.0%')
-    expect(chart).toHaveTextContent('Difference: 12.0 percentage points above threshold')
+    expect(chart).toHaveTextContent(`Difference: ${formatHomeOwnershipPointDifference(model.latestObservation.value)}`)
   })
 
   it('shows normalized housing history with paired raw values and an accessible override', () => {
@@ -237,8 +271,10 @@ describe('CompactHistoricalMetricChart', () => {
     />)
 
     const chart = screen.getByTestId('historical-band-chart')
+    expect(model.status).toBe('ready')
+    if (model.status !== 'ready') return
     const selectedRawAverage = compact.rawAverages.find(
-      ({ date }) => date === '2026-06-01',
+      ({ date }) => date === model.latestObservation.date,
     )?.value ?? null
     expect(chart).toHaveAttribute(
       'data-caption',
@@ -271,8 +307,10 @@ describe('CompactHistoricalMetricChart', () => {
       pairedValueFormatter={(value) => value?.toFixed(1) ?? 'Unavailable'}
     />)
     const chart = screen.getByTestId('historical-band-chart')
+    expect(model.status).toBe('ready')
+    if (model.status !== 'ready') return
     const selectedAverage = derived.averages.find(
-      ({ date }) => date === '2026-06-01',
+      ({ date }) => date === model.latestObservation.date,
     )?.value
     expect(chart).toHaveAttribute('data-zero-line', 'true')
     expect(chart).toHaveAttribute('data-latest-marker', 'true')

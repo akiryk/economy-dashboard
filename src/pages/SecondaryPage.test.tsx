@@ -101,7 +101,6 @@ describe('SecondaryPage', () => {
     expect(within(card).getByLabelText('Latest industrial capacity utilization'))
       .toHaveTextContent(formatPercentage(latest.value))
     expect(within(card).getByText('Industrial capacity currently in use')).toBeVisible()
-    expect(within(card).getByText(/leaving more spare capacity than normal/)).toBeVisible()
     expect(within(card).getByText(
       formatCapacityUtilizationComparison(latest.value),
     )).toBeVisible()

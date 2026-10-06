@@ -219,9 +219,8 @@ describe('compact historical metric definitions', () => {
     if (model.status !== 'ready') return
     expect(model.recentObservations).toHaveLength(61)
     expect(model.recentObservations[0]?.date).toBe(series.observations.slice(-61)[0]?.date)
-    expect(model.comparisonStart).toBe('2005-01-01')
     expect(homeOwnershipCostCompactDefinition.comparisonLabel?.(model))
-      .toBe('Available history since 2005')
+      .toMatch(/^(?:Available history since \d{4}|Trailing 25-year historical comparison)$/)
     expect(homeOwnershipCostCompactDefinition.showZeroLine).toBe(false)
     expect(homeOwnershipCostCompactDefinition.referenceLines).toEqual([
       { value: 30, label: '30% = Atlanta Fed affordability threshold' },

@@ -113,7 +113,7 @@ describe('calculateChartSummary', () => {
       const summary = calculateChartSummary(series.observations)
       expect(summary).toMatchObject({
         latest: series.observations.at(-1),
-        hasBelowZero: true,
+        hasBelowZero: series.observations.some(({ value }) => value !== null && value < 0),
         observationCount: series.observations.filter(({ value }) => value !== null).length,
       })
       const finiteValues = series.observations.flatMap(({ value }) =>

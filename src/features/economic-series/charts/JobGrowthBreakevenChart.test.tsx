@@ -67,9 +67,9 @@ describe('JobGrowthBreakevenChart', () => {
     expect(status).toHaveTextContent(
       formatObservationPeriod(productionContext.latest!.date, 'quarterly'),
     )
-    expect(status).toHaveTextContent(/Gap: [−+]?\d+\.\d pp/)
-    expect(status).toHaveTextContent(/Actual payroll growth: \d+\.\d+% annualized/)
-    expect(status).toHaveTextContent(/Estimated breakeven growth: \d+\.\d+% annualized/)
+    expect(status).toHaveTextContent(/Gap: [-+−]?\d+\.\d pp/)
+    expect(status).toHaveTextContent(/Actual payroll growth: [-+−]?\d+\.\d+% annualized/)
+    expect(status).toHaveTextContent(/Estimated breakeven growth: [-+−]?\d+\.\d+% annualized/)
     fireEvent.keyDown(interaction, { key: 'ArrowLeft' })
     const previous = productionContext.historicalBands.status === 'ready'
       ? productionContext.historicalBands.recentObservations.at(-2)
@@ -93,7 +93,7 @@ describe('JobGrowthBreakevenChart', () => {
       clientX: 100,
       pointerType: 'touch',
     })
-    expect(screen.getByRole('status')).toHaveTextContent(/Difference: [−+]?\d+K/)
+    expect(screen.getByRole('status')).toHaveTextContent(/Difference: [-+−]?\d+K/)
   })
 
   it('explains percentage points, the estimated baseline, and historical bands', async () => {

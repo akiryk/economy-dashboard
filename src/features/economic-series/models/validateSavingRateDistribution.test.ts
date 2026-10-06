@@ -25,6 +25,8 @@ describe('validateSavingRateDistribution', () => {
 
   it('preserves zero, negative, null, and estimate status values', () => {
     const changed = structuredClone(rawData) as unknown as SavingRateDistributionDataset
+    changed.observations[0]!.status = 'final'
+    changed.observations[1]!.status = 'final'
     changed.observations[0]!.rate = null
     changed.observations[1]!.rate = 0
     changed.observations[2]!.rate = -1

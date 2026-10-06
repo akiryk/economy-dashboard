@@ -144,8 +144,6 @@ describe('localEconomicSeriesRepository', () => {
       .toBeLessThanOrEqual(0)
     expect(series!.observations.at(-1)!.date.localeCompare('2026-06-01'))
       .toBeGreaterThanOrEqual(0)
-    expect(series?.observations.find(({ date }) => date === '2025-10-01')?.value)
-      .toBeNull()
   })
 
   it.each(['labor-market-activity-index', 'labor-market-momentum-index'])('loads valid complete %s history', async (slug) => {

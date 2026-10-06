@@ -13,11 +13,18 @@ date, or ingestion date must not make the test suite fail.
 **Observed failure:** Release-sensitive assertions blocked valid economic-data
 refreshes in August 2026. A later headline story then reintroduced the same
 class of failure by asserting the current successful-ingestion date literally.
+October refreshes exposed another mixed-input assertion: a chart mock supplied
+a fixed saving-rate point while its prior-year comparison came from refreshed
+production data. The fixed expected difference rejected valid FRED revisions.
 
 **Required prevention:** UI behavior uses controlled fixtures. Tests that
 intentionally load committed production data derive current expectations or
 assert stable invariants. Exact values are reserved for controlled fixtures and
 named historical regressions.
+Mocked chart interactions must select the observation from the supplied model.
+Combining a fixed mock point with production comparison or paired observations
+does not make the resulting assertion a controlled fixture. Missing observations,
+current direction, and deficit/surplus wording must also be derived or controlled.
 
 **Executable checks:** Run `npm run test:policy`, audit every changed assertion,
 and forward-test every touched mutable input with a plausible next value.
