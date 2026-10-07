@@ -13,7 +13,7 @@
   "transformation": "Provider-published quarterly percent change at a seasonally adjusted annual rate",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/A191RL1Q225SBEA",
-  "retrievedAt": "2026-08-10",
+  "retrievedAt": "2026-10-07",
   "observations": [
     {
       "date": "1947-04-01",
@@ -1197,19 +1197,19 @@
     },
     {
       "date": "2021-01-01",
-      "value": 5.7
+      "value": 6.2
     },
     {
       "date": "2021-04-01",
-      "value": 7
+      "value": 7.1
     },
     {
       "date": "2021-07-01",
-      "value": 3.3
+      "value": 3.2
     },
     {
       "date": "2021-10-01",
-      "value": 7
+      "value": 6.8
     },
     {
       "date": "2022-01-01",
@@ -1221,31 +1221,31 @@
     },
     {
       "date": "2022-07-01",
-      "value": 2.9
+      "value": 2.7
     },
     {
       "date": "2022-10-01",
-      "value": 2.8
+      "value": 2.7
     },
     {
       "date": "2023-01-01",
-      "value": 2.9
-    },
-    {
-      "date": "2023-04-01",
-      "value": 2.5
-    },
-    {
-      "date": "2023-07-01",
-      "value": 4.7
-    },
-    {
-      "date": "2023-10-01",
       "value": 3.4
     },
     {
+      "date": "2023-04-01",
+      "value": 2.2
+    },
+    {
+      "date": "2023-07-01",
+      "value": 4.5
+    },
+    {
+      "date": "2023-10-01",
+      "value": 3.6
+    },
+    {
       "date": "2024-01-01",
-      "value": 0.8
+      "value": 1.4
     },
     {
       "date": "2024-04-01",
@@ -1253,35 +1253,35 @@
     },
     {
       "date": "2024-07-01",
-      "value": 3.3
+      "value": 3.2
     },
     {
       "date": "2024-10-01",
-      "value": 1.9
+      "value": 2.4
     },
     {
       "date": "2025-01-01",
-      "value": -0.6
+      "value": 0.1
     },
     {
       "date": "2025-04-01",
-      "value": 3.8
+      "value": 4
     },
     {
       "date": "2025-07-01",
-      "value": 4.4
+      "value": 3.9
     },
     {
       "date": "2025-10-01",
-      "value": 0.5
+      "value": 0.2
     },
     {
       "date": "2026-01-01",
-      "value": 2.1
+      "value": 2.5
     },
     {
       "date": "2026-04-01",
-      "value": 1.5
+      "value": 2.2
     }
   ]
 }

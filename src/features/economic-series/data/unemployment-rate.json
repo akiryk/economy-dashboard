@@ -13,7 +13,7 @@
   "transformation": "Level",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/UNRATE",
-  "retrievedAt": "2026-09-04",
+  "retrievedAt": "2026-10-07",
   "observations": [
     {
       "date": "1948-01-01",
@@ -3790,6 +3790,10 @@
     {
       "date": "2026-08-01",
       "value": 4.1
+    },
+    {
+      "date": "2026-09-01",
+      "value": 4.2
     }
   ]
 }

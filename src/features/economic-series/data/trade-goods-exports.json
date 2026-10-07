@@ -13,7 +13,7 @@
   "transformation": "Provider-published level",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/A253RC1Q027SBEA",
-  "retrievedAt": "2026-09-04",
+  "retrievedAt": "2026-10-07",
   "observations": [
     {
       "date": "1947-01-01",
@@ -1201,91 +1201,91 @@
     },
     {
       "date": "2021-01-01",
-      "value": 1621.849
+      "value": 1622.05
     },
     {
       "date": "2021-04-01",
-      "value": 1720.872
+      "value": 1721.243
     },
     {
       "date": "2021-07-01",
-      "value": 1750.397
+      "value": 1751.58
     },
     {
       "date": "2021-10-01",
-      "value": 1895.85
+      "value": 1894.095
     },
     {
       "date": "2022-01-01",
-      "value": 1954.624
+      "value": 1952.573
     },
     {
       "date": "2022-04-01",
-      "value": 2138.293
+      "value": 2139.383
     },
     {
       "date": "2022-07-01",
-      "value": 2141.274
+      "value": 2140.654
     },
     {
       "date": "2022-10-01",
-      "value": 2047.141
+      "value": 2048.723
     },
     {
       "date": "2023-01-01",
-      "value": 2062.07
+      "value": 2055.332
     },
     {
       "date": "2023-04-01",
-      "value": 1973.447
+      "value": 1973.566
     },
     {
       "date": "2023-07-01",
-      "value": 2024.832
+      "value": 2027.108
     },
     {
       "date": "2023-10-01",
-      "value": 2037.082
+      "value": 2040.441
     },
     {
       "date": "2024-01-01",
-      "value": 2041.043
+      "value": 2037.93
     },
     {
       "date": "2024-04-01",
-      "value": 2055.919
+      "value": 2061.308
     },
     {
       "date": "2024-07-01",
-      "value": 2082.1
+      "value": 2080.219
     },
     {
       "date": "2024-10-01",
-      "value": 2052.899
+      "value": 2052.36
     },
     {
       "date": "2025-01-01",
-      "value": 2115.962
+      "value": 2097.769
     },
     {
       "date": "2025-04-01",
-      "value": 2081.308
+      "value": 2073.427
     },
     {
       "date": "2025-07-01",
-      "value": 2133.708
+      "value": 2117.087
     },
     {
       "date": "2025-10-01",
-      "value": 2119.868
+      "value": 2103.812
     },
     {
       "date": "2026-01-01",
-      "value": 2266.715
+      "value": 2250.748
     },
     {
       "date": "2026-04-01",
-      "value": 2494.97
+      "value": 2481.625
     }
   ]
 }

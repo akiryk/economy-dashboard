@@ -13,7 +13,7 @@
   "transformation": "Provider-published monthly average of business-day yields",
   "sourceName": "Board of Governors of the Federal Reserve System using U.S. Treasury market data via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/GS10",
-  "retrievedAt": "2026-09-04",
+  "retrievedAt": "2026-10-07",
   "observations": [
     {
       "date": "1953-04-01",
@@ -3538,6 +3538,10 @@
     {
       "date": "2026-08-01",
       "value": 4.68
+    },
+    {
+      "date": "2026-09-01",
+      "value": 4.99
     }
   ]
 }

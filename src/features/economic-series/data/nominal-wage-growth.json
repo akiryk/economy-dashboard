@@ -13,7 +13,7 @@
   "transformation": "Year-over-year change calculated by the application",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/CES0500000003",
-  "retrievedAt": "2026-09-04",
+  "retrievedAt": "2026-10-07",
   "observations": [
     {
       "date": "2007-03-01",
@@ -945,11 +945,15 @@
     },
     {
       "date": "2026-07-01",
-      "value": 3.2355360570331726
+      "value": 3.208116259939686
     },
     {
       "date": "2026-08-01",
-      "value": 3.085745494265435
+      "value": 3.1130529765155623
+    },
+    {
+      "date": "2026-09-01",
+      "value": 3.0245231607629375
     }
   ]
 }

@@ -13,7 +13,7 @@
   "transformation": "Percent change from year ago",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/GDPC1",
-  "retrievedAt": "2026-09-04",
+  "retrievedAt": "2026-10-07",
   "observations": [
     {
       "date": "1948-01-01",
@@ -1185,91 +1185,91 @@
     },
     {
       "date": "2021-01-01",
-      "value": 1.80075
+      "value": 1.91899
     },
     {
       "date": "2021-04-01",
-      "value": 12.38567
+      "value": 12.55942
     },
     {
       "date": "2021-07-01",
-      "value": 5.15081
+      "value": 5.26679
     },
     {
       "date": "2021-10-01",
-      "value": 5.75618
+      "value": 5.81824
     },
     {
       "date": "2022-01-01",
-      "value": 4.03458
+      "value": 3.97535
     },
     {
       "date": "2022-04-01",
-      "value": 2.45379
+      "value": 2.3387
     },
     {
       "date": "2022-07-01",
-      "value": 2.34897
+      "value": 2.23047
     },
     {
       "date": "2022-10-01",
-      "value": 1.31707
+      "value": 1.2313
     },
     {
       "date": "2023-01-01",
-      "value": 2.31115
+      "value": 2.32964
     },
     {
       "date": "2023-04-01",
-      "value": 2.79261
+      "value": 2.73597
     },
     {
       "date": "2023-07-01",
-      "value": 3.23319
+      "value": 3.18387
     },
     {
       "date": "2023-10-01",
-      "value": 3.39089
+      "value": 3.41543
     },
     {
       "date": "2024-01-01",
-      "value": 2.86329
+      "value": 2.93467
     },
     {
       "date": "2024-04-01",
-      "value": 3.12663
+      "value": 3.28874
     },
     {
       "date": "2024-07-01",
-      "value": 2.79139
+      "value": 2.94787
     },
     {
       "date": "2024-10-01",
-      "value": 2.39979
+      "value": 2.64187
     },
     {
       "date": "2025-01-01",
-      "value": 2.01927
+      "value": 2.31112
     },
     {
       "date": "2025-04-01",
-      "value": 2.08047
+      "value": 2.42061
     },
     {
       "date": "2025-07-01",
-      "value": 2.33517
+      "value": 2.60068
     },
     {
       "date": "2025-10-01",
-      "value": 1.9893
+      "value": 2.04604
     },
     {
       "date": "2026-01-01",
-      "value": 2.68474
+      "value": 2.63917
     },
     {
       "date": "2026-04-01",
-      "value": 2.09767
+      "value": 2.19157
     }
   ]
 }

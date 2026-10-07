@@ -13,7 +13,7 @@
   "transformation": "Provider-published monthly average of daily figures",
   "sourceName": "Board of Governors of the Federal Reserve System via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/FEDFUNDS",
-  "retrievedAt": "2026-09-04",
+  "retrievedAt": "2026-10-07",
   "observations": [
     {
       "date": "1954-07-01",
@@ -3478,6 +3478,10 @@
     {
       "date": "2026-08-01",
       "value": 3.63
+    },
+    {
+      "date": "2026-09-01",
+      "value": 3.75
     }
   ]
 }

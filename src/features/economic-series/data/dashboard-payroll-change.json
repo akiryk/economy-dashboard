@@ -13,7 +13,7 @@
   "transformation": "FRED units=chg transformation of PAYEMS",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/PAYEMS",
-  "retrievedAt": "2026-09-04",
+  "retrievedAt": "2026-10-07",
   "observations": [
     {
       "date": "1939-02-01",
@@ -4213,11 +4213,15 @@
     },
     {
       "date": "2026-07-01",
-      "value": 21
+      "value": -10
     },
     {
       "date": "2026-08-01",
-      "value": 162
+      "value": 133
+    },
+    {
+      "date": "2026-09-01",
+      "value": 29
     }
   ]
 }

@@ -13,7 +13,7 @@
   "transformation": "Level",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/POPTHM",
-  "retrievedAt": "2026-09-04",
+  "retrievedAt": "2026-10-07",
   "observations": [
     {
       "date": "1959-01-01",
@@ -3258,6 +3258,10 @@
     {
       "date": "2026-07-01",
       "value": 342909
+    },
+    {
+      "date": "2026-08-01",
+      "value": 343008
     }
   ]
 }

@@ -13,7 +13,7 @@
   "transformation": "Provider-published payroll-employment level",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/MANEMP",
-  "retrievedAt": "2026-09-04",
+  "retrievedAt": "2026-10-07",
   "observations": [
     {
       "date": "1939-01-01",
@@ -4217,11 +4217,15 @@
     },
     {
       "date": "2026-07-01",
-      "value": 12622
+      "value": 12628
     },
     {
       "date": "2026-08-01",
-      "value": 12638
+      "value": 12643
+    },
+    {
+      "date": "2026-09-01",
+      "value": 12652
     }
   ]
 }
