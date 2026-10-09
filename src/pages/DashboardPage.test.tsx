@@ -18,7 +18,12 @@ import {
 } from '../features/economic-series/utils/compactHistoricalMetrics'
 import type { HistoricalBandResult } from '../features/economic-series/utils/historicalBandContext'
 import { deriveHistoricalBandContext } from '../features/economic-series/utils/historicalBandContext'
-import type { InflationDriversSupportingTrendsModel } from '../features/economic-series/utils/inflationCategoryTrends'
+import {
+  contributionInflationSeriesMappings,
+  createInflationCategoryTrendAccessibleSummary,
+  deriveInflationDriversSupportingTrends,
+  type InflationDriversSupportingTrendsModel,
+} from '../features/economic-series/utils/inflationCategoryTrends'
 import type { RealWageGrowthModel } from '../features/economic-series/utils/realWageGrowth'
 import joltsLayoffsData from '../features/economic-series/data/jolts-layoffs-and-discharges-rate.json'
 import realGdpGrowthData from '../features/economic-series/data/real-gdp-growth.json'
@@ -631,6 +636,13 @@ describe('DashboardPage economic series', () => {
       headlinePeriod: currentContribution.date,
       categories: buildInflationContributionCategories(currentContribution, priorContribution),
     })!
+    const supportingSeries = await Promise.all(contributionInflationSeriesMappings.map(
+      ({ inflationSeriesSlug }) => localEconomicSeriesRepository.getBySlug(inflationSeriesSlug),
+    ))
+    const expectedTrendModel = deriveInflationDriversSupportingTrends({
+      selectedContributions: contributionModel.displayedContributions,
+      supportingSeries: supportingSeries.filter((series) => series !== null),
+    })
 
     expect(within(drivers).getByText('Category contributions to overall CPI inflation'))
       .toBeVisible()
@@ -642,7 +654,6 @@ describe('DashboardPage economic series', () => {
     expect(within(drivers).getByText(
       /Percentage points added to or subtracted from the latest \d+\.\d% CPI increase/,
     )).toBeVisible()
-    expect(within(drivers).getAllByText('Energy')).toHaveLength(2)
     expect(within(drivers).getAllByText(/[+−]\d+\.\d pp/)).toHaveLength(5)
     expect(within(drivers).getByText('Everything else')).toBeVisible()
     expect(within(drivers).getByText(
@@ -742,32 +753,16 @@ describe('DashboardPage economic series', () => {
     await waitFor(() => expect(categoryTrendPropsSpy).toHaveBeenCalled())
     const trendModel = categoryTrendPropsSpy.mock.calls.at(-1)?.[0] as
       InflationDriversSupportingTrendsModel
-    expect(trendModel.trends.map(({ contributionCategoryId }) =>
-      contributionCategoryId)).toEqual([
-      'shelter', 'energy', 'food',
-    ])
-    expect(trendModel.unsupportedCategoryIds).toEqual(['other-services'])
-    expect(trendModel.trends.every(({ observations }) =>
-      observations[0]?.date === trendModel.windowStart &&
-      observations.at(-1)?.date === trendModel.windowEnd)).toBe(true)
-    expect(trendModel.trends.every(({ domain }) => domain.min < domain.max))
-      .toBe(true)
-    expect(new Set(trendModel.trends.map(({ displayRangeLabel }) =>
-      displayRangeLabel)).size).toBe(3)
-    expect(trendModel.trends.every(({ domain, displayRangeLabel }) =>
-      domain.includesZero && displayRangeLabel.startsWith(
-        domain.min === 0 ? '0%' : '−',
-      ))).toBe(true)
+    expect(trendModel).toEqual(expectedTrendModel)
     const accessibleSummary = within(drivers).getByText(
       /Headline CPI contribution period: [A-Z][a-z]+ \d{4}/,
     )
     expect(accessibleSummary).toHaveClass('visually-hidden')
-    expect(accessibleSummary).toHaveTextContent(
-      /Trend coverage runs from .+ through .+/,
-    )
-    expect(accessibleSummary).toHaveTextContent(
-      'Selected categories omitted because no directly comparable CPI series exists: Other services',
-    )
+    expect(accessibleSummary).toHaveTextContent(createInflationCategoryTrendAccessibleSummary({
+      headlinePeriod: currentContribution.date,
+      selectedContributions: contributionModel.displayedContributions,
+      model: expectedTrendModel,
+    }).replace(/\s+/g, ' ').trim())
     expect(accessibleSummary).toHaveTextContent(
       'Left-side values are percentage-point contributions; right-side values are year-over-year percent changes',
     )

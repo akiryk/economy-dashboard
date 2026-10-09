@@ -1,16 +1,11 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-09T16:18:56.798Z",
+  "generatedAt": "2026-10-09T21:26:40.662Z",
   "datasets": [
     {
       "datasetId": "home-ownership-cost-share",
       "state": "failure",
       "message": "The latest automatic update failed; the last successfully validated observation is shown."
-    },
-    {
-      "datasetId": "inflation-contributions",
-      "state": "warning",
-      "message": "The detailed inflation-category breakdown requires manual processing and may trail headline CPI."
     },
     {
       "datasetId": "international-comparisons",

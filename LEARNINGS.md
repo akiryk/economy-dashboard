@@ -162,3 +162,19 @@ Finding one member proves only that member is ready.
 **Executable checks:** Dashboard section tests use `waitFor` on the full article
 count before asserting membership or order; controlled component tests remain
 independent of page-load timing.
+
+## Derive category selection and ordering from refreshed data
+
+**Invariant:** Production-data composition tests must allow contribution rankings,
+selected categories, unsupported categories, and chart domains to change.
+
+**Observed failure:** The August 2026 Table 7 release moved energy ahead of shelter.
+A dashboard test pinned July's supporting-chart order and failed on valid data.
+It also pinned current category membership and distinct range labels.
+
+**Required prevention:** Derive the expected supporting-chart model and accessible
+summary from the current contribution snapshot and mapped series. Keep exact
+selection and domain assertions in controlled-fixture domain tests.
+
+**Executable checks:** The full suite passes with the official August release and
+a temporary next-month snapshot with changed contribution values and signs.

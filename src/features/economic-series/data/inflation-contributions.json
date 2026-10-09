@@ -1,31 +1,31 @@
 {
   "title": "Category effects on 12-month CPI inflation",
   "sourceName": "U.S. Bureau of Labor Statistics, CPI-U 12-month analysis table",
-  "sourceUrl": "https://www.bls.gov/cpi/tables/supplemental-files/news-release-table7-202607.xlsx",
-  "retrievedAt": "2026-08-12",
+  "sourceUrl": "https://www.bls.gov/cpi/tables/supplemental-files/news-release-table7-202608.xlsx",
+  "retrievedAt": "2026-09-11",
   "units": "Percentage-point effect on all-items CPI",
   "methodology": "Published unadjusted 12-month effects from BLS Table 7. Other services equals services less energy services minus shelter so the five groups are mutually exclusive.",
   "observations": [
     {
-      "date": "2025-07-01",
-      "headline": 2.7,
+      "date": "2025-08-01",
+      "headline": 2.9,
       "categories": {
-        "shelter": 1.306,
-        "other-services": 0.894,
-        "food": 0.389,
-        "energy": -0.12,
-        "goods-excluding-food-and-energy": 0.237
+        "shelter": 1.292,
+        "other-services": 0.88,
+        "food": 0.432,
+        "energy": 0.003,
+        "goods-excluding-food-and-energy": 0.309
       }
     },
     {
-      "date": "2026-07-01",
+      "date": "2026-08-01",
       "headline": 3.4,
       "categories": {
-        "shelter": 1.125,
-        "other-services": 0.697,
-        "food": 0.405,
-        "energy": 0.982,
-        "goods-excluding-food-and-energy": 0.156
+        "shelter": 1.078,
+        "other-services": 0.743,
+        "food": 0.364,
+        "energy": 1.08,
+        "goods-excluding-food-and-energy": 0.132
       }
     }
   ]

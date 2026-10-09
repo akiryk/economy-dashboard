@@ -151,8 +151,8 @@ one year earlier. The five displayed groups are
 food, energy, shelter, commodities less food and energy, and other services.
 Other services is calculated as the published services-less-energy-services
 effect minus the published shelter effect, making the five groups mutually
-exclusive. The current effects sum to 3.531 percentage points versus published
-headline CPI of 3.5%, a −0.031-point residual caused by summing effects that BLS
+exclusive. The August 2026 effects sum to 3.397 percentage points versus published
+headline CPI of 3.4%, a +0.003-point residual caused by summing effects that BLS
 publishes to three decimals. Missing source values are not interpolated or
 carried forward. BLS calculates effects from unrounded index changes and weights;
 the committed snapshot should be replaced when the source release is updated,
@@ -247,6 +247,15 @@ The manual `npm run data:ingest-inflation-contribution -- --file ... --period
 fallback for BLS access changes, deliberate recovery, and debugging. It shares
 the production parser and validators. Historical annual-ZIP ingestion remains
 an explicit backfill command and is never repeated by the daily schedule.
+
+On October 9, 2026, the owner-downloaded official
+[`news-release-table7-202608.xlsx`](https://www.bls.gov/cpi/tables/supplemental-files/news-release-table7-202608.xlsx)
+was ingested for August 2026 (released September 11). The shared parser validated
+the release and its reconciliation. History advanced exactly one month, preserving
+all 62 earlier observations, including the explicit October 2025 gap. The card
+snapshot now compares August 2026 with August 2025. Reevaluating the existing
+manual-source reminders clears the CPI/Table 7 mismatch warning; future releases
+still require the same manual fallback while official runner access is blocked.
 
 `NFCICREDIT` is the approved broad-credit-stress measure. It provides a long, redistributable Chicago Fed history focused on credit conditions. It replaces the Epic's contemplated corporate credit spread because current ICE BofA FRED exposure is short and licensed, Moody's terms restrict redistribution and storage, and a high-yield-only spread would cover only speculative-grade borrowers. The overall NFCI is not used because the separate rate card already covers interest-rate conditions.
 
