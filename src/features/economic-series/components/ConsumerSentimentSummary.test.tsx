@@ -26,7 +26,7 @@ describe('ConsumerSentimentSummary', () => {
     expect(within(card).getByLabelText('Historical low')).toHaveTextContent('60.0March 2030')
     expect(card).toHaveTextContent('index, not a percentage')
     expect(within(card).getByRole('link')).toHaveAttribute('href', fixture().sourceUrl)
-    const chart = within(card).getByLabelText('Consumer sentiment historical chart')
+    const chart = within(card).getByRole('group', { name: 'Consumer sentiment historical chart' })
     expect(chart.querySelectorAll('path')).toHaveLength(2)
     await user.click(chart)
     expect(within(card).getByRole('status')).toHaveTextContent('March 2030: 60.0')

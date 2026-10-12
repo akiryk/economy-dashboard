@@ -29,7 +29,7 @@ export function ConsumerSentimentChart({ context }: { context: ConsumerSentiment
       Higher readings mean more optimism. Index, not percent. Missing months remain gaps.
       Use left and right arrow keys for exact monthly values; Home and End go to the first and latest readings.
     </figcaption>
-    <div ref={ref} className="consumer-sentiment__plot" tabIndex={0}
+    <div ref={ref} className="consumer-sentiment__plot" role="group" tabIndex={0}
       aria-label="Consumer sentiment historical chart" aria-describedby={descriptionId}
       onFocus={() => { if (activeIndex < 0) setActiveDate(context.latest.date) }}
       onBlur={() => setActiveDate(null)}
