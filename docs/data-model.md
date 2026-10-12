@@ -12,6 +12,12 @@ The former Labor briefing route has been removed. Generic historical-comparison 
 
 An `EconomicSeries` identifies the provider and provider series, explains the displayed units and transformation, records seasonal adjustment and frequency, and contains `EconomicObservation` entries. Each observation has an ISO date representing the economic period and a numeric or `null` value. A missing observation remains `null`; it is never treated as zero.
 
+Optional `publicationStatus` is `preliminary` or `final` and describes the latest
+reading. The validator preserves it and rejects unknown statuses. Consumer
+sentiment uses it to distinguish Michigan's preliminary release from the final
+replacement without inferring release status from an observation date. Existing
+series may omit it.
+
 The current domain supports annual, quarterly, monthly, and weekly economic series. One provider level series can generate multiple validated outputs with distinct transformations, as headline and core CPI each do for year-over-year and three-month annualized rates. Frequency-aware presentation formats years as `2025`, quarters as `2026 Q1`, months as `June 2026`, and weeks as `Week of Jul 10, 2026` using UTC, so local timezone offsets cannot shift an economic period. Invalid and duplicate dates are rejected rather than displayed ambiguously.
 
 ## Observation date and retrieval date

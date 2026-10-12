@@ -30,6 +30,7 @@ export interface EconomicSeries {
   sourceUrl: string
   retrievedAt: string
   observations: EconomicObservation[]
+  publicationStatus?: 'preliminary' | 'final'
   sources?: EconomicSeriesSource[]
 }
 

@@ -13,6 +13,7 @@ export type RefreshSourceFamily =
   | 'census-hud'
   | 'federal-reserve'
   | 'fred'
+  | 'university-of-michigan'
   | 'oecd'
 
 export type RefreshExecution = 'scheduled' | 'scheduled-nonblocking' | 'manual'

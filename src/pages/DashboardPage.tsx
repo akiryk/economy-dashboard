@@ -152,6 +152,11 @@ export function DashboardPage() {
         title="Households"
       >
         <EconomicSeriesCard
+          slug="consumer-sentiment"
+          label="consumer sentiment"
+          variant="consumer-sentiment"
+        />
+        <EconomicSeriesCard
           collapsible
           slug="personal-saving-rate"
           label="personal saving rate"

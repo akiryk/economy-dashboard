@@ -16,6 +16,7 @@ import { MortgageRateSummary } from './MortgageRateSummary'
 import { PolicyRateSummary } from './PolicyRateSummary'
 import { PurchasingPowerSummary } from './PurchasingPowerSummary'
 import { HomeConstructionCostSummary } from './HomeConstructionCostSummary'
+import { ConsumerSentimentSummary } from './ConsumerSentimentSummary'
 
 const noSupportingSlugs: readonly string[] = []
 const ClaimsComparisonSummary = lazy(() =>
@@ -41,6 +42,7 @@ interface EconomicSeriesCardProps {
   onSeriesLoaded?: (slug: string, series: EconomicSeries | null) => void
   supportingSlugs?: readonly string[]
   variant?:
+    | 'consumer-sentiment'
     | 'inflation-momentum'
     | 'manufacturing-comparison'
     | 'mortgage-rate'
@@ -163,6 +165,10 @@ export function EconomicSeriesCard({
         cpiInflation={seriesState.supportingSeries[1]!}
       />,
     )
+  }
+
+  if (variant === 'consumer-sentiment') {
+    return withFreshness(<ConsumerSentimentSummary series={seriesState.series} />)
   }
 
   if (variant === 'purchasing-power') {

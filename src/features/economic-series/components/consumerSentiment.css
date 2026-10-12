@@ -1,0 +1,20 @@
+.consumer-sentiment__description { max-width: 64ch; }
+.consumer-sentiment__readings { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(0, 1fr)); gap: var(--space-4); align-items: end; }
+.consumer-sentiment__record { display: grid; gap: var(--space-1); color: var(--color-text-muted); font-size: 0.875rem; }
+.consumer-sentiment__record strong { font-size: 1.75rem; color: var(--color-text); line-height: 1.2; }
+.consumer-sentiment__chart { margin: 0; min-width: 0; }
+.consumer-sentiment__plot { border-radius: var(--radius-small); }
+.consumer-sentiment__plot svg { display: block; width: 100%; height: auto; overflow: visible; }
+.consumer-sentiment__plot text { fill: var(--color-text-muted); font-size: 14px; }
+.consumer-sentiment__grid { stroke: var(--color-border); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.consumer-sentiment__line { stroke: var(--color-link); stroke-width: 1.5; fill: none; vector-effect: non-scaling-stroke; }
+.consumer-sentiment__point { fill: var(--color-link); }
+.consumer-sentiment__selection { min-height: 1.5em; color: var(--color-text-muted); font-size: 0.875rem; }
+.consumer-sentiment__source, .consumer-sentiment__note { color: var(--color-text-muted); font-size: 0.8125rem; }
+@media (max-width: 30rem) {
+  .consumer-sentiment__readings { gap: var(--space-2); }
+  .consumer-sentiment__readings .series-current { padding-left: var(--space-2); }
+  .consumer-sentiment__record strong { font-size: 1.5rem; }
+  .consumer-sentiment__plot svg { min-height: 150px; }
+  .consumer-sentiment__plot text { font-size: 24px; }
+}

@@ -14,7 +14,15 @@ The implementation uses ECharts 6 modular core imports and registers only the li
 
 Economic observations remain `{ date, value }` domain objects. Pure range and summary utilities operate on those objects. Immediately before rendering, `chartAdapters.ts` sorts without mutation and converts each observation to ECharts-compatible `[date, value]` data. `null` remains `null`, so missing observations are neither converted to zero nor joined by the line.
 
-The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage, index, and count data use the same UTC-safe period formatter without conflating their meanings. All twenty-eight current cards dynamically import the same chart module; ECharts is not duplicated.
+The shared chart receives frequency, units, transformation, value formatting, and zero-inclusion policy so percentage, index, and count data use the same UTC-safe period formatter without conflating their meanings. Expanded time-series views share the dynamically imported chart module; ECharts is not duplicated.
+
+The always-open consumer-sentiment card uses a small SVG line for its full
+monthly history. Pure `consumerSentiment.ts` logic prepares calendar-spaced
+points, null gaps, extrema, and a labeled index axis. The chart draws unsmoothed
+segments, a latest marker, and exact readings available by hover, touch, focus,
+arrow keys, Home, and End. This simple presentation adds no ECharts instance,
+animation, resize observer, chart zoom state, or new dependency. Its live textual
+selection and dated high/low readings supplement the graphical curve.
 
 Story 18 adds native weekly labels and range/zoom support through the existing frequency-aware utilities. The interest-rate relationship aligns FEDFUNDS and GS10 by exact month, plots both on one zero-inclusive percentage axis, and calculates GS10 minus FEDFUNDS only in its presentation model. The NFCICREDIT chart retains native weekly observations and includes the meaningful zero line; positive values are described only with the source-defined tighter-than-average wording and negative values as looser than average. Both cards reuse the shared historical-zoom controller.
 

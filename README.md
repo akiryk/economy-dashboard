@@ -2,7 +2,7 @@
 
 An information-first web application for understanding the U.S. economy through objective, well-documented indicators and long historical context.
 
-Phase 1 is complete. The research dashboard currently presents 25 cards in nine categories: growth, prices, employment and income, households, housing, business and manufacturing, financial conditions, government finances, and trade and tariffs. A non-default `/secondary` route retains cards that are not currently part of the main dashboard for possible future review.
+Phase 1 is complete. The research dashboard currently presents 28 cards in nine categories: growth, prices, employment and income, households, housing, business and manufacturing, financial conditions, government finances, and trade and tariffs. A non-default `/secondary` route retains cards that are not currently part of the main dashboard for possible future review.
 
 A separate `/dashboard` route provides a simplified 10-tile status board; the full research dashboard remains the default experience. The top-level `/compare` route places the United States beside a fixed peer group across five internationally comparable measures. The secondary-indicators page remains available at `/secondary` but is intentionally omitted from primary navigation.
 
@@ -52,7 +52,9 @@ npm run preview
 
 ## Product behavior
 
-Every card begins with a human question and latest observation, then provides a nonsmoothed historical chart, independent 5-year, 10-year, 20-year, and maximum ranges, shared historical zoom controls, a factual visible-range summary, explanatory limitations, source metadata, and a semantic recent-observations table.
+Most cards begin with a human question and latest observation, then provide a nonsmoothed historical chart, independent 5-year, 10-year, 20-year, and maximum ranges, shared historical zoom controls, a factual visible-range summary, explanatory limitations, source metadata, and a semantic recent-observations table.
+
+The consumer-sentiment card stays open: a full monthly-history line, latest preliminary or final reading, historical high and low, concise explanation, and source attribution are always visible.
 
 Relationship cards align observations by exact calendar period. They use compatible units or transparent normalization and avoid dual axes. Maximum shows the full useful authoritative history available for each measure, so starting dates differ across cards.
 

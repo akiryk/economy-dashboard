@@ -20,6 +20,7 @@ export type FreshnessContractId =
   | 'BEA-Q'
   | 'BEA-M'
   | 'BEA-IRR'
+  | 'UMICH-M'
   | 'BLS-EMP'
   | 'BLS-CPI'
   | 'BLS-T7'

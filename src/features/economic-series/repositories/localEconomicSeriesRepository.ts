@@ -59,6 +59,7 @@ const localSeriesLoaders: Readonly<
   'quarterly-real-consumer-spending-per-capita-growth': () =>
     import('../data/quarterly-real-consumer-spending-per-capita-growth.json'),
   'personal-saving-rate': () => import('../data/personal-saving-rate.json'),
+  'consumer-sentiment': () => import('../data/consumer-sentiment.json'),
   'household-debt-service-ratio': () =>
     import('../data/household-debt-service-ratio.json'),
   'home-ownership-cost-share': () =>

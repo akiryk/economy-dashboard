@@ -119,6 +119,10 @@ export function validateEconomicSeries(value: unknown): EconomicSeries {
   }
 
   const retrievedAt = value.retrievedAt
+  const publicationStatus = value.publicationStatus
+  if (publicationStatus !== undefined && publicationStatus !== 'preliminary' && publicationStatus !== 'final') {
+    throw new Error('Economic series has an invalid publication status')
+  }
 
   if (!Array.isArray(value.observations) || value.observations.length === 0) {
     throw new Error('Economic series must include observations')
@@ -146,6 +150,7 @@ export function validateEconomicSeries(value: unknown): EconomicSeries {
     sourceUrl: getRequiredString(value, 'sourceUrl'),
     retrievedAt,
     observations: value.observations.map(validateObservation),
+    ...(publicationStatus === undefined ? {} : { publicationStatus }),
     ...(sources === undefined
       ? {}
       : { sources: sources.map(validateSource) }),

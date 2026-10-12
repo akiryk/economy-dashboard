@@ -68,6 +68,12 @@ const directFredUnits = fredSeriesConfigurations
 export const refreshUnitRegistry: readonly RefreshUnitDefinition[] = [
   ...directFredUnits,
   unit({
+    id: 'michigan-consumer-sentiment',
+    sourceFamily: 'university-of-michigan',
+    sourceIds: ['ICS_ALL monthly history', 'Index of Consumer Sentiment current release'],
+    artifactPaths: [dataPath('consumer-sentiment')],
+  }),
+  unit({
     id: 'fred-cpi',
     sourceFamily: 'fred',
     sourceIds: [

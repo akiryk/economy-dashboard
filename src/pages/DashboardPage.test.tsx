@@ -292,13 +292,13 @@ describe('DashboardPage economic series', () => {
     })
     const disclosure = within(navigation).getByText('Explore all indicators')
 
-    expect(within(navigation).getByText('27 cards in 9 categories')).toBeVisible()
+    expect(within(navigation).getByText('28 cards in 9 categories')).toBeVisible()
     expect(disclosure.closest('details')).not.toHaveAttribute('open')
 
     await user.click(disclosure)
 
     const links = within(navigation).getAllByRole('link')
-    expect(links).toHaveLength(27)
+    expect(links).toHaveLength(28)
     expect(links.map((link) => link.textContent)).toEqual([
       'Is the U.S. economy growing?',
       'Is economic output growing faster than the population?',
@@ -313,6 +313,7 @@ describe('DashboardPage economic series', () => {
       'Are employers adding jobs?',
       'Is job growth keeping up with the labor force?',
       'Are layoffs beginning to rise?',
+      'How do consumers feel about the economy?',
       'Are households saving less of their income?',
       'How much of a median household’s income would it take to own a typical home?',
       'How much new housing is being started?',
@@ -577,8 +578,9 @@ describe('DashboardPage economic series', () => {
         'Are layoffs beginning to rise?',
       ])
     })
-    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(27))
+    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(28))
     expect(within(households).getAllByRole('article').map((card) => card.getAttribute('aria-labelledby'))).toEqual([
+      'consumer-sentiment-question',
       'personal-saving-rate-question',
     ])
     expect(

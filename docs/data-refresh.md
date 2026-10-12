@@ -76,6 +76,7 @@ maintained invariant rather than a one-time audit.
 - Long-run worker purchasing power uses seasonally adjusted production/nonsupervisory hourly earnings (`AHETPI`, underlying BLS `CES0500000008`) and seasonally adjusted CPI-W (`CWSR0000SA0`). Both input levels, their exact-month ratio, and rolling 4-, 10-, and 20-year changes feed the visible long-run card; this measure does not alter the existing all-private real-wage card.
 - Real disposable income per capita and real consumer spending per capita (`A229RX0Q048SBEA` and `A794RX0Q048SBEA`, quarterly source levels), derived into quarterly per-capita growth outputs.
 - Personal saving rate (`PSAVERT`, monthly), written to `personal-saving-rate.json`.
+- Consumer sentiment (`ICS_ALL`, monthly) is retrieved directly from the University of Michigan's official history and current-release CSVs, described below, and written to `consumer-sentiment.json`.
 - Saving rate by income decile (BEA Distribution of Personal Saving workbook, annual), written to `saving-rate-by-income-decile.json`.
 - Household debt-service ratio (`TDSP`, quarterly), written as the provider-published level to `household-debt-service-ratio.json`.
 - Housing starts (`HOUST`, monthly), written as the provider-published level to `housing-starts.json`.
@@ -92,6 +93,34 @@ maintained invariant rather than a one-time audit.
 - Trade balance as a share of GDP (`A019RE1Q156NBEA`, quarterly), written as the provider-published signed ratio.
 - Effective tariff burden, derived from quarterly customs-duty receipts (`B235RC1Q027SBEA`) divided by goods imports (`A255RC1Q027SBEA`) and written to `effective-tariff-burden.json`.
 - Core-goods PCE inflation, parsed from the Federal Reserve Board's published Figure 5 data in its April 8, 2026 FEDS Note and written to `core-goods-pce-inflation.json`. Run `npm run data:refresh-core-goods-pce` to refresh this source independently. The series is the published 12-month percent change; February 2026 is a Federal Reserve staff estimate.
+
+### Consumer sentiment: direct Michigan releases
+
+`npm run data:refresh-consumer-sentiment` reads the official
+[monthly history CSV](https://www.sca.isr.umich.edu/files/tbmics.csv) and
+[current-release CSV](https://www.sca.isr.umich.edu/files/tbcics.csv), linked on
+[Michigan's tables page](https://www.sca.isr.umich.edu/tables.html). The scheduled
+`michigan-consumer-sentiment` unit calls the same command's implementation within
+the existing daily refresh; it requires no additional key. No FRED series,
+preliminary-value proxy, or embargoed data-site request is used.
+
+The parser checks table identities and fields, positive finite index levels,
+unique valid months, at least 480 historical readings, coverage beginning in
+January 1978, contiguous monthly history, and a current release no later than
+the retrieval month. Earlier irregular observations are excluded deliberately.
+The current table supplies newer readings and recent revisions; a final history
+observation takes precedence over a stale preliminary current row. `(P)` sets
+the latest reading's `publicationStatus` to `preliminary`; unmarked final
+releases set it to `final`. Both sources must validate before one atomic write.
+Retrieval/parsing failures and regressions of the committed latest period or
+final status preserve the previous dataset. Failures are isolated from unrelated
+refresh units and surfaced through `UMICH-M` freshness state.
+
+The card plots published levels without smoothing, fills absent chart months
+only with explicit null gaps, and calculates latest/high/low from finite
+available readings. Extrema dates are the earliest occurrence when tied. The
+owner confirmed written permission to publish this source on October 12, 2026;
+the visible attribution follows Michigan's usage agreement.
 
 ### Federal funds policy-rate sources
 

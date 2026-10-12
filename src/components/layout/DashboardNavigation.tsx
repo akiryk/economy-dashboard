@@ -63,6 +63,7 @@ const navigationGroups = [
   {
     title: 'Households',
     cards: [
+      { id: 'consumer-sentiment-card', title: 'How do consumers feel about the economy?' },
       {
         id: 'personal-saving-rate-card',
         title: 'Are households saving less of their income?',

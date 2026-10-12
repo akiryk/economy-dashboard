@@ -16,6 +16,7 @@ import {
   type RefreshUnitResult,
 } from './refresh/refreshUnit'
 import { refreshUnitRegistry } from './refresh/refreshUnitRegistry'
+import { refreshConsumerSentiment } from './michigan/consumerSentiment'
 import { writeRefreshUnitResultFile } from './refresh/refreshUnitResultFile'
 import { refreshCoreGoodsPceInflation } from './refreshCoreGoodsPceInflation'
 import {
@@ -106,6 +107,9 @@ export function createScheduledRefreshRunners({
 }: Pick<ScheduledRefreshOptions,
   'apiKey' | 'retrievedAt' | 'fetchImplementation'>): Map<string, RefreshUnitRunner> {
   const runners = new Map<string, RefreshUnitRunner>()
+  runners.set('michigan-consumer-sentiment', async () => {
+    await refreshConsumerSentiment({ retrievedAt, fetchImplementation })
+  })
   const scheduledUnitIds = new Set(refreshUnitRegistry
     .filter(({ execution }) => execution === 'scheduled')
     .map(({ id }) => id))

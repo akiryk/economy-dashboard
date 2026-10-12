@@ -6,6 +6,7 @@ import type {
 } from './freshnessTypes'
 
 export const freshnessContracts = {
+  'UMICH-M': { id: 'UMICH-M', provider: 'University of Michigan Surveys of Consumers', contract: { kind: 'release-aware', cadence: 'monthly', automation: 'automatic', graceSuccessfulRefreshCycles: 1, releaseRule: 'Michigan preliminary and final monthly release calendar; retrieve official monthly-history and current-release CSVs. Preliminary readings are labeled and replaced on final publication. No FRED embargo delay.' } },
   'BEA-Q': { id: 'BEA-Q', provider: 'U.S. Bureau of Economic Analysis via FRED', contract: { kind: 'release-aware', cadence: 'quarterly', automation: 'automatic', graceSuccessfulRefreshCycles: 1, releaseRule: 'BEA dated GDP and national-accounts release calendar' } },
   'BEA-M': { id: 'BEA-M', provider: 'U.S. Bureau of Economic Analysis via FRED', contract: { kind: 'release-aware', cadence: 'monthly', automation: 'automatic', graceSuccessfulRefreshCycles: 1, releaseRule: 'BEA Personal Income and Outlays release calendar; source-specific population timing' } },
   'BEA-IRR': { id: 'BEA-IRR', provider: 'U.S. Bureau of Economic Analysis', contract: { kind: 'irregular', automation: 'automatic', reviewIntervalDays: 92, releaseRule: 'Annual research workbook without a dependable release date' } },
@@ -46,6 +47,7 @@ const C = ['compare'] as const
 const dataPath = (id: string) => `src/features/economic-series/data/${id}.json`
 
 export const visibleDatasetFreshnessRegistry = [
+  dataset('consumer-sentiment', dataPath('consumer-sentiment'), ['UMICH-M'], R),
   dataset('real-gdp-growth', dataPath('real-gdp-growth'), ['BEA-Q'], RS),
   dataset('real-gdp-per-capita-growth', dataPath('real-gdp-per-capita-growth'), ['BEA-Q'], R),
   dataset('labor-productivity-growth', dataPath('labor-productivity-growth'), ['BLS-PROD'], R),
