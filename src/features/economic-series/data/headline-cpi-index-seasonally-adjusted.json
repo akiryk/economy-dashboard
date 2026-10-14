@@ -13,7 +13,7 @@
   "transformation": "Official source index level; no transformation",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/CPIAUCSL",
-  "retrievedAt": "2026-09-19",
+  "retrievedAt": "2026-10-14",
   "observations": [
     {
       "date": "1947-01-01",
@@ -3838,6 +3838,10 @@
     {
       "date": "2026-08-01",
       "value": 334.131
+    },
+    {
+      "date": "2026-09-01",
+      "value": 336.298
     }
   ]
 }
