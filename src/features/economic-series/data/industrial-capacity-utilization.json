@@ -13,7 +13,7 @@
   "transformation": "Provider-published level",
   "sourceName": "Board of Governors of the Federal Reserve System via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/TCU",
-  "retrievedAt": "2026-09-19",
+  "retrievedAt": "2026-10-16",
   "observations": [
     {
       "date": "1967-01-01",
@@ -2861,23 +2861,27 @@
     },
     {
       "date": "2026-04-01",
-      "value": 76.1803
+      "value": 76.1792
     },
     {
       "date": "2026-05-01",
-      "value": 76.1605
+      "value": 76.2225
     },
     {
       "date": "2026-06-01",
-      "value": 76.2438
+      "value": 76.3321
     },
     {
       "date": "2026-07-01",
-      "value": 76.3259
+      "value": 76.4409
     },
     {
       "date": "2026-08-01",
-      "value": 76.2717
+      "value": 76.4184
+    },
+    {
+      "date": "2026-09-01",
+      "value": 76.8504
     }
   ]
 }
