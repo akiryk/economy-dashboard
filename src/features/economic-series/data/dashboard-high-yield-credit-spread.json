@@ -13,12 +13,8 @@
   "transformation": "Provider-published daily value",
   "sourceName": "ICE Data Indices, LLC via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2",
-  "retrievedAt": "2026-10-19",
+  "retrievedAt": "2026-10-21",
   "observations": [
-    {
-      "date": "2023-10-20",
-      "value": 4.52
-    },
     {
       "date": "2023-10-23",
       "value": 4.51
@@ -3182,6 +3178,14 @@
     {
       "date": "2026-10-16",
       "value": 3.31
+    },
+    {
+      "date": "2026-10-19",
+      "value": 3.29
+    },
+    {
+      "date": "2026-10-20",
+      "value": 3.33
     }
   ]
 }
