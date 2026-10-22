@@ -13,7 +13,7 @@
   "transformation": "Provider-published four-week moving average",
   "sourceName": "U.S. Employment and Training Administration via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/IC4WSA",
-  "retrievedAt": "2026-10-15",
+  "retrievedAt": "2026-10-22",
   "observations": [
     {
       "date": "1967-01-28",
@@ -12477,7 +12477,11 @@
     },
     {
       "date": "2026-10-10",
-      "value": 198500
+      "value": 198750
+    },
+    {
+      "date": "2026-10-17",
+      "value": 197750
     }
   ]
 }
