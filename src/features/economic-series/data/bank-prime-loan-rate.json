@@ -13,7 +13,7 @@
   "transformation": "Provider-published daily effective value",
   "sourceName": "Board of Governors of the Federal Reserve System via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/DPRIME",
-  "retrievedAt": "2026-10-15",
+  "retrievedAt": "2026-10-23",
   "observations": [
     {
       "date": "1955-08-04",
@@ -74309,6 +74309,30 @@
     },
     {
       "date": "2026-10-13",
+      "value": 7
+    },
+    {
+      "date": "2026-10-14",
+      "value": 7
+    },
+    {
+      "date": "2026-10-15",
+      "value": 7
+    },
+    {
+      "date": "2026-10-16",
+      "value": 7
+    },
+    {
+      "date": "2026-10-19",
+      "value": 7
+    },
+    {
+      "date": "2026-10-20",
+      "value": 7
+    },
+    {
+      "date": "2026-10-21",
       "value": 7
     }
   ]
