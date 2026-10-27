@@ -13,7 +13,7 @@
   "transformation": "Provider-published Laspeyres constant-quality index; 2005=100",
   "sourceName": "U.S. Census Bureau and HUD Survey of Construction",
   "sourceUrl": "https://www.census.gov/construction/cpi/current.html",
-  "retrievedAt": "2026-09-24",
+  "retrievedAt": "2026-10-27",
   "observations": [
     {
       "date": "1964-01-01",
@@ -3017,11 +3017,15 @@
     },
     {
       "date": "2026-07-01",
-      "value": 201.4
+      "value": 201.9
     },
     {
       "date": "2026-08-01",
-      "value": 199.8
+      "value": 200.6
+    },
+    {
+      "date": "2026-09-01",
+      "value": 200.7
     }
   ]
 }
