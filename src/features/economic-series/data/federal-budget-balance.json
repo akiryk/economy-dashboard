@@ -13,7 +13,7 @@
   "transformation": "Provider-published ratio constructed from OMB fiscal data and annual GDP",
   "sourceName": "U.S. Office of Management and Budget and Federal Reserve Bank of St. Louis via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/FYFSGDA188S",
-  "retrievedAt": "2026-07-17",
+  "retrievedAt": "2026-10-29",
   "observations": [
     {
       "date": "1929-01-01",
@@ -361,47 +361,47 @@
     },
     {
       "date": "2015-01-01",
-      "value": -2.41574
+      "value": -2.39901
     },
     {
       "date": "2016-01-01",
-      "value": -3.10903
+      "value": -3.12371
     },
     {
       "date": "2017-01-01",
-      "value": -3.39306
+      "value": -3.39439
     },
     {
       "date": "2018-01-01",
-      "value": -3.77157
+      "value": -3.77119
     },
     {
       "date": "2019-01-01",
-      "value": -4.56634
+      "value": -4.57005
     },
     {
       "date": "2020-01-01",
-      "value": -14.4824
+      "value": -14.65205
     },
     {
       "date": "2021-01-01",
-      "value": -11.69028
+      "value": -11.67437
     },
     {
       "date": "2022-01-01",
-      "value": -5.27419
+      "value": -5.27784
     },
     {
       "date": "2023-01-01",
-      "value": -6.06751
+      "value": -6.09198
     },
     {
       "date": "2024-01-01",
-      "value": -6.19625
+      "value": -6.2381
     },
     {
       "date": "2025-01-01",
-      "value": -5.76906
+      "value": -5.7527
     }
   ]
 }
