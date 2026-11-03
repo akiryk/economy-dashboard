@@ -13,7 +13,7 @@
   "transformation": "Provider-published daily value",
   "sourceName": "Federal Reserve Bank of St. Louis via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/T10Y3M",
-  "retrievedAt": "2026-10-31",
+  "retrievedAt": "2026-11-03",
   "observations": [
     {
       "date": "1982-01-04",
@@ -46794,6 +46794,10 @@
     {
       "date": "2026-10-30",
       "value": 0.78
+    },
+    {
+      "date": "2026-11-02",
+      "value": 0.7
     }
   ]
 }

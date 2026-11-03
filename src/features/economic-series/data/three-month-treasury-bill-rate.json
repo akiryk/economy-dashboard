@@ -13,7 +13,7 @@
   "transformation": "Provider-published monthly average of business-day discount rates",
   "sourceName": "Board of Governors of the Federal Reserve System via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/TB3MS",
-  "retrievedAt": "2026-10-07",
+  "retrievedAt": "2026-11-03",
   "observations": [
     {
       "date": "1934-01-01",
@@ -4466,6 +4466,10 @@
     {
       "date": "2026-09-01",
       "value": 3.94
+    },
+    {
+      "date": "2026-10-01",
+      "value": 4.05
     }
   ]
 }
