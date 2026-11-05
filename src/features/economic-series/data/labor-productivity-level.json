@@ -13,7 +13,7 @@
   "transformation": "Published level, normalized to 100 at the selected-range start for display",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/OPHNFB",
-  "retrievedAt": "2026-08-10",
+  "retrievedAt": "2026-11-05",
   "observations": [
     {
       "date": "1947-01-01",
@@ -1201,91 +1201,95 @@
     },
     {
       "date": "2021-01-01",
-      "value": 111.394
+      "value": 111.635
     },
     {
       "date": "2021-04-01",
-      "value": 111.626
+      "value": 111.928
     },
     {
       "date": "2021-07-01",
-      "value": 110.948
+      "value": 111.212
     },
     {
       "date": "2021-10-01",
-      "value": 111.578
+      "value": 111.797
     },
     {
       "date": "2022-01-01",
-      "value": 110.176
+      "value": 110.409
     },
     {
       "date": "2022-04-01",
-      "value": 109.36
+      "value": 109.59
     },
     {
       "date": "2022-07-01",
-      "value": 109.423
+      "value": 109.589
     },
     {
       "date": "2022-10-01",
-      "value": 110.047
+      "value": 110.219
     },
     {
       "date": "2023-01-01",
-      "value": 110.298
+      "value": 110.592
     },
     {
       "date": "2023-04-01",
-      "value": 111.404
+      "value": 111.534
     },
     {
       "date": "2023-07-01",
-      "value": 112.786
+      "value": 112.859
     },
     {
       "date": "2023-10-01",
-      "value": 113.881
+      "value": 114.037
     },
     {
       "date": "2024-01-01",
-      "value": 113.947
+      "value": 114.367
     },
     {
       "date": "2024-04-01",
-      "value": 114.99
+      "value": 115.384
     },
     {
       "date": "2024-07-01",
-      "value": 116.035
+      "value": 116.366
     },
     {
       "date": "2024-10-01",
-      "value": 116.445
+      "value": 116.978
     },
     {
       "date": "2025-01-01",
-      "value": 116.187
+      "value": 116.958
     },
     {
       "date": "2025-04-01",
-      "value": 117.385
+      "value": 118.16
     },
     {
       "date": "2025-07-01",
-      "value": 118.884
+      "value": 119.464
     },
     {
       "date": "2025-10-01",
-      "value": 119.35
+      "value": 119.823
     },
     {
       "date": "2026-01-01",
-      "value": 119.594
+      "value": 120.243
     },
     {
       "date": "2026-04-01",
-      "value": 120.017
+      "value": 120.862
+    },
+    {
+      "date": "2026-07-01",
+      "value": 121.922
     }
   ]
 }
