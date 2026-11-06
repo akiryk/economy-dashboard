@@ -13,7 +13,7 @@
   "transformation": "Provider-published real-time indicator",
   "sourceName": "Sahm Consulting via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/SAHMREALTIME",
-  "retrievedAt": "2026-10-07",
+  "retrievedAt": "2026-11-06",
   "observations": [
     {
       "date": "1959-12-01",
@@ -3221,6 +3221,10 @@
     },
     {
       "date": "2026-09-01",
+      "value": 0
+    },
+    {
+      "date": "2026-10-01",
       "value": 0
     }
   ]
