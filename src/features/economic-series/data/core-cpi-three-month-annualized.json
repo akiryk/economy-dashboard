@@ -13,7 +13,7 @@
   "transformation": "Three-month annualized percent change, calculated by the application",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/CPILFESL",
-  "retrievedAt": "2026-10-14",
+  "retrievedAt": "2026-11-13",
   "observations": [
     {
       "date": "1957-04-01",
@@ -3350,6 +3350,10 @@
     {
       "date": "2026-09-01",
       "value": 3.4124037788220596
+    },
+    {
+      "date": "2026-10-01",
+      "value": 3.7464069586534032
     }
   ]
 }

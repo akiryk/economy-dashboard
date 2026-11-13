@@ -13,7 +13,7 @@
   "transformation": "FRED units=pc1 transformation of CPIAUCNS",
   "sourceName": "U.S. Bureau of Labor Statistics via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/CPIAUCNS",
-  "retrievedAt": "2026-10-14",
+  "retrievedAt": "2026-11-13",
   "observations": [
     {
       "date": "1914-01-01",
@@ -5426,6 +5426,10 @@
     {
       "date": "2026-09-01",
       "value": 3.73768
+    },
+    {
+      "date": "2026-10-01",
+      "value": null
     }
   ]
 }

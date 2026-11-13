@@ -1,9 +1,14 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T19:54:36.489Z",
+  "generatedAt": "2026-11-13T02:49:21.726Z",
   "datasets": [
     {
-      "datasetId": "home-ownership-cost-share",
+      "datasetId": "energy-cpi-inflation",
+      "state": "failure",
+      "message": "The latest automatic update failed; the last successfully validated observation is shown."
+    },
+    {
+      "datasetId": "food-cpi-inflation",
       "state": "failure",
       "message": "The latest automatic update failed; the last successfully validated observation is shown."
     },
@@ -16,6 +21,11 @@
       "datasetId": "international-comparisons",
       "state": "failure",
       "message": "International comparison data could not be refreshed; last-known-good data are shown."
+    },
+    {
+      "datasetId": "shelter-cpi-inflation",
+      "state": "failure",
+      "message": "The latest automatic update failed; the last successfully validated observation is shown."
     }
   ]
 }

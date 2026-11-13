@@ -13,7 +13,7 @@
   "transformation": "AHETPI divided by CWSR0000SA0 at the exact calendar month; no interpolation or rounding",
   "sourceName": "U.S. Bureau of Labor Statistics wage and CPI-W data via FRED; calculated by the application",
   "sourceUrl": "https://fred.stlouisfed.org/series/AHETPI",
-  "retrievedAt": "2026-11-06",
+  "retrievedAt": "2026-11-13",
   "observations": [
     {
       "date": "1964-01-01",
@@ -3026,6 +3026,10 @@
     {
       "date": "2026-09-01",
       "value": 0.09892735221532994
+    },
+    {
+      "date": "2026-10-01",
+      "value": 0.09895515443047154
     }
   ],
   "sources": [
