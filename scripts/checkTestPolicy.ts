@@ -6,6 +6,7 @@ const datedDashboardHeading = /U\.S\. Economy, (?:January|February|March|April|M
 const uniqueMutableFormattedValue = /(?:within\([^)]*\)\.)?getByText\(\s*formatPercentage\([^)]*\)\s*,?\s*\)/gs
 const fixedPluralAfterMutableValue = /toHaveTextContent\(\s*`[^`]*\$\{formatSignedPercentagePoints\([^}]+\)\} percentage points?[^`]*`\s*,?\s*\)/gs
 const fixedProductionGap = /(?:date\s*===\s*['"]\d{4}-\d{2}-\d{2}['"][\s\S]{0,80}value\s*===\s*null|official (?:January|February|March|April|May|June|July|August|September|October|November|December) \d{4} CPI index was unavailable)/g
+const equalCpiEndpoints = /expect\(\s*(\w+)\?\.headlineObservations\?\.at\(-1\)\?\.date\s*\)\s*\.toBe\(\s*\1\?\.coreObservations\?\.at\(-1\)\?\.date\s*\)/gs
 
 export function dashboardPageTestPolicyViolations(source: string): string[] {
   return [
@@ -17,6 +18,8 @@ export function dashboardPageTestPolicyViolations(source: string): string[] {
       'DashboardPage.test.tsx hard-codes singular or plural prose after a mutable formatted value.'),
     ...[...source.matchAll(fixedProductionGap)].map(() =>
       'DashboardPage.test.tsx hard-codes a mutable production-data gap.'),
+    ...[...source.matchAll(equalCpiEndpoints)].map(() =>
+      'DashboardPage.test.tsx assumes independently refreshed CPI series have equal latest dates.'),
   ]
 }
 
@@ -55,14 +58,48 @@ export function compactChartTestPolicyViolations(source: string): string[] {
   return violations
 }
 
+export function compactMetricTestPolicyViolations(source: string): string[] {
+  const file = ts.createSourceFile('compactHistoricalMetrics.test.ts', source, ts.ScriptTarget.Latest, true)
+  const cpiImports = new Set(file.statements.flatMap((statement) =>
+    ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)
+      && statement.moduleSpecifier.text.endsWith('/data/headline-cpi-inflation.json')
+      && statement.importClause?.name ? [statement.importClause.name.text] : []))
+  const violations: string[] = []
+  function consumesCpi(node: ts.Node): boolean {
+    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)
+      && node.expression.text === 'validateEconomicSeries'
+      && node.arguments[0] && ts.isIdentifier(node.arguments[0])
+      && cpiImports.has(node.arguments[0].text)) return true
+    return node.getChildren(file).some(consumesCpi)
+  }
+  function visit(node: ts.Node) {
+    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === 'it') {
+      const callback = node.arguments[1]
+      if (callback && ts.isArrowFunction(callback) && ts.isBlock(callback.body) && consumesCpi(callback)) {
+        for (const statement of callback.body.statements) {
+          if (ts.isExpressionStatement(statement)
+            && /^expect\(\s*\w+\.status\s*\)\.toBe\(\s*['"]ready['"]\s*\)/.test(statement.getText(file))) {
+            violations.push('compactHistoricalMetrics.test.ts assumes the latest production CPI observation is always available.')
+          }
+        }
+      }
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(file)
+  return violations
+}
+
 async function main() {
-  const [dashboard, compactChart] = await Promise.all([
+  const [dashboard, compactChart, compactMetric] = await Promise.all([
     readFile('src/pages/DashboardPage.test.tsx', 'utf8'),
     readFile('src/features/economic-series/charts/CompactHistoricalMetricChart.test.tsx', 'utf8'),
+    readFile('src/features/economic-series/utils/compactHistoricalMetrics.test.ts', 'utf8'),
   ])
   const violations = [
     ...dashboardPageTestPolicyViolations(dashboard),
     ...compactChartTestPolicyViolations(compactChart),
+    ...compactMetricTestPolicyViolations(compactMetric),
   ]
   if (violations.length === 0) {
     console.log('Test policy check passed.')

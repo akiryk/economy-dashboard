@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { EconomicObservation } from '../models/economicSeries'
 import gdpData from '../data/real-gdp-growth.json'
 import perCapitaData from '../data/real-gdp-per-capita-growth.json'
 import productivityData from '../data/labor-productivity-growth.json'
@@ -24,6 +25,13 @@ import {
   createFederalBudgetBalanceCompactDefinition,
   federalBudgetBalanceCompactDefinition,
 } from './compactHistoricalMetrics'
+
+function monthlyCpiFixture(count = 361): EconomicObservation[] {
+  return Array.from({ length: count }, (_, index) => ({
+    date: new Date(Date.UTC(2000, index, 1)).toISOString().slice(0, 10),
+    value: 1.5 + (index % 30) / 10,
+  }))
+}
 
 describe('compact historical metric definitions', () => {
   it.each([
@@ -79,10 +87,9 @@ describe('compact historical metric definitions', () => {
     )).toMatch(/historical/)
   })
 
-  it('configures CPI with five years, policy-reference semantics, and monthly wording', () => {
-    const series = validateEconomicSeries(cpiData)
+  it.each([361, 362])('configures CPI with five years, policy-reference semantics, and monthly wording (%i fixture months)', (count) => {
     const model = deriveHistoricalBandContext(
-      series.observations,
+      monthlyCpiFixture(count),
       headlineCpiCompactDefinition.historicalBands,
     )
     expect(model.status).toBe('ready')
@@ -103,6 +110,28 @@ describe('compact historical metric definitions', () => {
     )
     expect(summary).toContain('latest 61 months')
     expect(summary).toContain('Federal Reserve formally targets PCE inflation')
+  })
+
+  it('preserves an unavailable CPI latest month and recovers when it is published', () => {
+    const observations = monthlyCpiFixture()
+    const next = monthlyCpiFixture(362).at(-1)!
+    const unavailable = [...observations, { ...next, value: null }]
+    expect(deriveHistoricalBandContext(unavailable, headlineCpiCompactDefinition.historicalBands))
+      .toMatchObject({ status: 'latest-unavailable', latestObservation: { date: next.date, value: null } })
+
+    const recovered = deriveHistoricalBandContext(
+      [...observations, next], headlineCpiCompactDefinition.historicalBands,
+    )
+    expect(recovered).toMatchObject({ status: 'ready', latestObservation: next })
+    expect(unavailable.at(-1)?.value).toBeNull()
+  })
+
+  it('derives committed CPI availability from the latest observation', () => {
+    const series = validateEconomicSeries(cpiData)
+    const latest = series.observations.at(-1)!
+    const model = deriveHistoricalBandContext(series.observations, headlineCpiCompactDefinition.historicalBands)
+    expect(model.latestObservation).toEqual(latest)
+    expect(model.status).toBe(latest.value === null ? 'latest-unavailable' : 'ready')
   })
 
   it('configures unemployment with five years, oriented bands, and no zero line', () => {

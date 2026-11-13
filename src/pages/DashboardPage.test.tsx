@@ -501,8 +501,11 @@ describe('DashboardPage economic series', () => {
           coreObservations?: EconomicObservation[]
         })
         .find(({ variant }) => variant === 'year-over-year')
-      expect(comparison?.headlineObservations?.at(-1)?.date)
-        .toBe(comparison?.coreObservations?.at(-1)?.date)
+      const headline = comparison?.headlineObservations
+      expect(headline?.length).toBeGreaterThan(0)
+      expect(comparison?.coreObservations).toEqual(coreCpi.observations.filter(
+        ({ date }) => date >= headline![0]!.date && date <= headline!.at(-1)!.date,
+      ))
     })
 
     await user.click(within(card).getByRole('button', { name: /Less/ }))

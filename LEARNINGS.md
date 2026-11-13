@@ -87,6 +87,28 @@ It also rejects dated production-gap assertions in that file.
 Forward fixtures must cover a grammar boundary or duplicate display value when
 either can affect touched behavior.
 
+## A newly published period can have an unavailable value
+
+**Invariant:** A valid refresh may append a missing observation without blocking
+unrelated data from deploying. Preserve the missing value and the chart's
+explicit unavailable-latest state.
+
+**Observed failure:** November 2026 refreshes appended an unavailable latest CPI
+observation. The compact-metric definition test imported production data and
+unconditionally expected `ready`, blocking the whole snapshot.
+
+**Required prevention:** Test CPI configuration and wording with controlled
+monthly history. Derive production availability from the latest observation;
+forward-test an appended missing month and its eventual published value.
+Headline and core provider series can also propagate independently. Comparison
+tests must derive each series' observations within the displayed window rather
+than require matching latest dates or manufacture a shared endpoint.
+
+**Executable checks:** The test-policy script rejects unconditional top-level
+`ready` assertions in definition tests directly validating production CPI.
+It also rejects the demonstrated paired-endpoint equality assertion in the
+production-data dashboard comparison test.
+
 ## Refresh failure boundaries must match data dependencies
 
 **Invariant:** A failure in one independently publishable refresh unit must not

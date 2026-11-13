@@ -104,4 +104,21 @@ describe('Atlanta Fed HOAM workbook', () => {
     })).rejects.toThrow('HTTP 503')
     expect(requested).toBe(HOAM_WORKBOOK_URL)
   })
+
+  it('accepts a revised observation and the next published month', () => {
+    const first = parseHoamWorkbook(workbook([
+      { month: '2025-01', value: '0.405' },
+      { month: '2025-02', value: '0.42' },
+    ]), '2025-03-01', config)
+    const next = parseHoamWorkbook(workbook([
+      { month: '2025-01', value: '0.405' },
+      { month: '2025-02', value: '0.415' },
+      { month: '2025-03', value: '0.43' },
+    ]), '2025-04-01', config)
+    expect(first.observations.at(-1)).toEqual({ date: '2025-02-01', value: 42 })
+    expect(next.observations.slice(-2)).toEqual([
+      { date: '2025-02-01', value: 41.5 },
+      { date: '2025-03-01', value: 43 },
+    ])
+  })
 })

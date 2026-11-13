@@ -1,7 +1,47 @@
 import { describe, expect, it } from 'vitest'
-import { compactChartTestPolicyViolations, dashboardPageTestPolicyViolations } from './checkTestPolicy'
+import { compactChartTestPolicyViolations, compactMetricTestPolicyViolations, dashboardPageTestPolicyViolations } from './checkTestPolicy'
 
 describe('test policy check', () => {
+  it('rejects equal latest-date assumptions for production CPI comparisons', () => {
+    expect(dashboardPageTestPolicyViolations(`
+      expect(comparison?.headlineObservations?.at(-1)?.date)
+        .toBe(comparison?.coreObservations?.at(-1)?.date)
+    `)).toEqual([
+      'DashboardPage.test.tsx assumes independently refreshed CPI series have equal latest dates.',
+    ])
+  })
+
+  it('rejects an unconditional available-latest assertion on production CPI', () => {
+    expect(compactMetricTestPolicyViolations(`
+      import cpi from '../data/headline-cpi-inflation.json'
+      it('CPI wording', () => {
+        const series = validateEconomicSeries(cpi)
+        const model = deriveHistoricalBandContext(series.observations, definition)
+        expect(model.status).toBe('ready')
+      })
+    `)).toEqual([
+      'compactHistoricalMetrics.test.ts assumes the latest production CPI observation is always available.',
+    ])
+  })
+
+  it('allows controlled CPI readiness and dataset-derived availability', () => {
+    expect(compactMetricTestPolicyViolations(`
+      import cpi from '../data/headline-cpi-inflation.json'
+      it('controlled wording', () => {
+        const model = deriveHistoricalBandContext(monthlyFixture(), definition)
+        expect(model.status).toBe('ready')
+      })
+      it('production availability', () => {
+        const series = validateEconomicSeries(cpi)
+        const model = deriveHistoricalBandContext(series.observations, definition)
+        expect(model.status).toBe(series.observations.at(-1).value === null ? 'latest-unavailable' : 'ready')
+        if (series.observations.at(-1).value !== null) {
+          expect(model.status).toBe('ready')
+        }
+      })
+    `)).toEqual([])
+  })
+
   it.each([
     "expect(chart).toHaveTextContent('Change from 12 months earlier: −1.9 percentage points')",
     "expect(chart).toHaveTextContent('Personal saving rateJune 20262.7%')",

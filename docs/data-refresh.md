@@ -162,7 +162,7 @@ Each configuration uses `historyPolicy: { type: "full" }`, retains observations 
 
 The realized tariff burden uses BEA quarterly seasonally adjusted annual-rate customs-duty receipts (`B235RC1Q027SBEA`) as the numerator and goods-only imports (`A255RC1Q027SBEA`) as the denominator. The application aligns observations by quarter and calculates duties divided by goods imports times 100. Because collections and recorded imports can occur on different schedules, the ratio may contain a timing mismatch and should be read as an average realized burden rather than a product-level statutory rate.
 
-The narrow `scripts/atlantaFed/hoamWorkbook.ts` path downloads the official national HOAM workbook and writes `home-ownership-cost-share.json`; it is intentionally separate from the FRED configuration list.
+The narrow `scripts/atlantaFed/hoamWorkbook.ts` path downloads the official national HOAM workbook and writes `home-ownership-cost-share.json`; it is intentionally separate from the FRED configuration list. Its URL follows the official HOAM page's **HOAM US Affordability Data** link, currently under `Documents/research-and-data/data/hoam/`; the former `Documents/research/housing-and-policy/hoam/` path returns HTTP 404. If the link moves again, inspect that official page and validate the replacement workbook with the existing parser before changing the configured URL.
 
 The job-growth-versus-breakeven foundation is also separate from the general
 FRED configuration list. `npm run data:refresh-job-growth-breakeven` downloads

@@ -3,7 +3,7 @@ import type { EconomicSeries } from '../../src/features/economic-series/models/e
 import { validateEconomicSeries } from '../../src/features/economic-series/models/validateEconomicSeries'
 
 export const HOAM_WORKBOOK_URL =
-  'https://www.atlantafed.org/-/media/Project/Atlanta/FRBA/Documents/research/housing-and-policy/hoam/HOAM_US_Affordability_Index.xlsx'
+  'https://www.atlantafed.org/-/media/Project/Atlanta/FRBA/Documents/research-and-data/data/hoam/HOAM_US_Affordability_Index.xlsx'
 
 export interface HoamConfiguration {
   dataHandling: 'hoam-provider'

@@ -40,6 +40,34 @@ provider merely to make a date look current.
 
 ## Current operational summary
 
+### November 12, 2026 refresh incident
+
+Refreshes beginning November 10 failed verification because the CPI compact-metric
+test assumed that the latest production observation was numeric. A newly
+unavailable observation legitimately produces `latest-unavailable`. The repair
+uses controlled monthly history for configuration/wording, derives availability
+from production data, and tests missing-month publication and recovery.
+The expanded comparison test also derives core observations within the headline
+window instead of assuming independently refreshed sources have equal endpoints.
+
+The Atlanta Fed national HOAM workbook also moved. The official HOAM page now
+links **HOAM US Affordability Data** under
+`https://www.atlantafed.org/-/media/Project/Atlanta/FRBA/Documents/research-and-data/data/hoam/HOAM_US_Affordability_Index.xlsx`.
+The prior `research/housing-and-policy/hoam/` URL returns HTTP 404. The replacement
+workbook validated with the unchanged national-field parser and contains data
+through August 2026. The HOAM review record documents this official-source check;
+the next successful refresh clears its pipeline failure through normal unit results.
+
+The last successful substantive ingestion before this repair was November 9.
+After deploying the repair, dispatch the normal refresh workflow and confirm its
+verification, deployment metadata, and public freshness manifest. A code push
+alone does not clear the global refresh incident. Table 7 remains a separate
+manual responsibility: history ends in August while the failed refresh detected
+CPI through October. Download each missing official workbook in order and use the
+documented validated ingestion path; do not clear its reminder without ingestion.
+
+### August 20, 2026 cadence-review snapshot
+
 The August 19 verification incident was repaired by replacing mutable
 latest-value assertions with controlled or dataset-derived expectations. The
 subsequent scheduled refresh advanced the affected housing, manufacturing, and
