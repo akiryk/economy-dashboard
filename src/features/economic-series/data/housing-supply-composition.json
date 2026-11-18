@@ -1,5 +1,5 @@
 {
-  "retrievedAt": "2026-08-22",
+  "retrievedAt": "2026-11-18",
   "priceBucketMethod": "2020-current",
   "prices": [
     {
@@ -246,7 +246,11 @@
     },
     {
       "date": "2026-04-01",
-      "value": 2105
+      "value": 2102
+    },
+    {
+      "date": "2026-07-01",
+      "value": 2150
     }
   ]
 }

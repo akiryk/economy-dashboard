@@ -13,7 +13,7 @@
   "transformation": "Level",
   "sourceName": "U.S. Census Bureau and U.S. Department of Housing and Urban Development via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/HOUST",
-  "retrievedAt": "2026-10-20",
+  "retrievedAt": "2026-11-18",
   "observations": [
     {
       "date": "1959-01-01",
@@ -3261,11 +3261,15 @@
     },
     {
       "date": "2026-08-01",
-      "value": 1288
+      "value": 1280
     },
     {
       "date": "2026-09-01",
-      "value": 1221
+      "value": 1191
+    },
+    {
+      "date": "2026-10-01",
+      "value": 1309
     }
   ]
 }
