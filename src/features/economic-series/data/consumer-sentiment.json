@@ -13,7 +13,7 @@
   "transformation": "Published index level; monthly history from January 1978 plus the official current release; no smoothing or interpolation",
   "sourceName": "University of Michigan, Survey Research Center, Surveys of Consumers ©",
   "sourceUrl": "https://www.sca.isr.umich.edu/tables.html",
-  "retrievedAt": "2026-11-06",
+  "retrievedAt": "2026-11-20",
   "observations": [
     {
       "date": "1978-01-01",
@@ -2361,10 +2361,10 @@
     },
     {
       "date": "2026-11-01",
-      "value": 51
+      "value": 51.5
     }
   ],
-  "publicationStatus": "preliminary",
+  "publicationStatus": "final",
   "sources": [
     {
       "provider": "University of Michigan",
