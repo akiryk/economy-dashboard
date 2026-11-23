@@ -13,24 +13,8 @@
   "transformation": "Provider-published daily value",
   "sourceName": "S&P Dow Jones Indices via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/SP500",
-  "retrievedAt": "2026-11-20",
+  "retrievedAt": "2026-11-23",
   "observations": [
-    {
-      "date": "2016-11-21",
-      "value": 2198.18
-    },
-    {
-      "date": "2016-11-22",
-      "value": 2202.94
-    },
-    {
-      "date": "2016-11-23",
-      "value": 2204.72
-    },
-    {
-      "date": "2016-11-24",
-      "value": null
-    },
     {
       "date": "2016-11-25",
       "value": 2213.35
@@ -10450,6 +10434,10 @@
     {
       "date": "2026-11-19",
       "value": 7175.83
+    },
+    {
+      "date": "2026-11-20",
+      "value": 6910.39
     }
   ]
 }
