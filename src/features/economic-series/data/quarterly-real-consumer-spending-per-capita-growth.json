@@ -13,7 +13,7 @@
   "transformation": "Percent change from year ago, calculated by the application",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED; growth calculated by the application",
   "sourceUrl": "https://fred.stlouisfed.org/series/A794RX0Q048SBEA",
-  "retrievedAt": "2026-10-29",
+  "retrievedAt": "2026-11-25",
   "observations": [
     {
       "date": "1948-01-01",
@@ -1273,7 +1273,7 @@
     },
     {
       "date": "2026-07-01",
-      "value": 2.285856264364239
+      "value": 2.381100275379433
     }
   ]
 }

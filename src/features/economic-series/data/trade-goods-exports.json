@@ -13,7 +13,7 @@
   "transformation": "Provider-published level",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/A253RC1Q027SBEA",
-  "retrievedAt": "2026-10-29",
+  "retrievedAt": "2026-11-25",
   "observations": [
     {
       "date": "1947-01-01",
@@ -1289,7 +1289,7 @@
     },
     {
       "date": "2026-07-01",
-      "value": 2428.604
+      "value": 2430.117
     }
   ]
 }

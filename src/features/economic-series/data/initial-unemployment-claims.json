@@ -13,7 +13,7 @@
   "transformation": "Provider-published weekly level",
   "sourceName": "U.S. Employment and Training Administration via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/ICSA",
-  "retrievedAt": "2026-11-19",
+  "retrievedAt": "2026-11-25",
   "observations": [
     {
       "date": "1967-01-07",
@@ -12509,7 +12509,11 @@
     },
     {
       "date": "2026-11-14",
-      "value": 203000
+      "value": 202000
+    },
+    {
+      "date": "2026-11-21",
+      "value": 189000
     }
   ]
 }

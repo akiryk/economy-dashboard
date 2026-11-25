@@ -13,7 +13,7 @@
   "transformation": "Provider-published quarterly percent change at a seasonally adjusted annual rate",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED",
   "sourceUrl": "https://fred.stlouisfed.org/series/A191RL1Q225SBEA",
-  "retrievedAt": "2026-10-29",
+  "retrievedAt": "2026-11-25",
   "observations": [
     {
       "date": "1947-04-01",
@@ -1285,7 +1285,7 @@
     },
     {
       "date": "2026-07-01",
-      "value": 3.4
+      "value": 4.3
     }
   ]
 }

@@ -13,7 +13,7 @@
   "transformation": "CPATAX divided by GDP multiplied by 100, calculated by the application",
   "sourceName": "U.S. Bureau of Economic Analysis via FRED; ratio calculated by the application",
   "sourceUrl": "https://fred.stlouisfed.org/series/CPATAX",
-  "retrievedAt": "2026-10-29",
+  "retrievedAt": "2026-11-25",
   "observations": [
     {
       "date": "1947-01-01",
@@ -1286,6 +1286,10 @@
     {
       "date": "2026-04-01",
       "value": 11.907472983933006
+    },
+    {
+      "date": "2026-07-01",
+      "value": 12.179729172161727
     }
   ],
   "sources": [
@@ -1296,7 +1300,7 @@
       "sourceUrl": "https://fred.stlouisfed.org/series/CPATAX",
       "role": "Adjusted after-tax corporate-profits numerator",
       "observationStart": "1947-01-01",
-      "observationEnd": "2026-04-01"
+      "observationEnd": "2026-07-01"
     },
     {
       "provider": "Federal Reserve Bank of St. Louis",
